@@ -1,0 +1,119 @@
+# Konoha Agentic Academy
+# Keep the public academy clean. Local villages, secrets, data and runtime state stay local.
+
+# Local/private Konoha context
+.konoha.local/
+*.local.md
+*.private.md
+
+# Allied villages with private context
+# Kirigakure is the first planned local village. Keep it out of the public repo.
+alliance/kirigakure/
+kirigakure/
+
+# Recommended pattern for future private villages
+alliance/*/.konoha.local/
+alliance/*/private/
+alliance/*/secrets/
+alliance/*/credentials/
+alliance/*/data/
+alliance/*/logs/
+alliance/*/tmp/
+alliance/*/runtime/
+alliance/*/memory/private/
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.csr
+*.kdb
+*.sth
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# Data, models and heavy outputs
+data/
+datasets/
+models/
+artifacts/
+outputs/
+exports/
+*.parquet
+*.csv
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+*.pkl
+*.joblib
+*.onnx
+*.pt
+*.pth
+*.h5
+
+# Runtime state
+logs/
+tmp/
+temp/
+.cache/
+sandbox/tmp/
+sandbox/worktrees/*
+!sandbox/worktrees/.gitkeep
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Claude / Codex local runtime state
+.claude/settings.local.json
+.claude/local/
+.codex/local/
+.codex/sessions/
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+
+# Generated packages
+*.zip
+*.tar
+*.tar.gz
+*.tgz
