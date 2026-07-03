@@ -1,0 +1,58 @@
+# Guides
+
+This folder contains practical walkthroughs for using Konoha Agentic Academy.
+
+Guides explain how to apply doctrine. They do not override doctrine.
+
+## Core rule
+
+Guides teach usage.
+
+They do not grant permission.
+
+## Recommended reading order
+
+For a first user:
+
+```text
+docs/guides/first_mission_walkthrough.md
+docs/guides/local_village_bootstrap.md
+docs/guides/private_literature_library.md
+docs/guides/agentic_coding_loop.md
+docs/guides/repository_audit_checklist.md
+```
+
+## Guide types
+
+Guides may cover:
+
+- first mission flow;
+- Local Village bootstrap;
+- private literature management;
+- coding and review loops;
+- repository audits;
+- release preparation;
+- contribution workflows.
+
+## Safety
+
+Guides must not include:
+
+- secrets;
+- private paths that identify a real local setup unless clearly generic;
+- customer data;
+- copyrighted content copied from private literature;
+- commands that bypass approval;
+- instructions that weaken Academy rules.
+
+## Maintenance
+
+When a guide changes agent behavior, check whether the change belongs in:
+
+- a Scroll;
+- a Clan;
+- a protocol;
+- AGENTS.md;
+- local Village doctrine.
+
+Do not hide doctrine changes inside guides.
