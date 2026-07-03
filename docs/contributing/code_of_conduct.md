@@ -139,6 +139,6 @@ It also applies when a contributor represents the project in public.
 
 This file governs human community behavior.
 
-Agent behavior is governed by `AGENT_CONDUCT.md` and the Konoha policies.
+Agent behavior is governed by `core/conduct/AGENT_CONDUCT.md` and the Konoha policies.
 
 If there is a conflict between openness and safety, safety wins.

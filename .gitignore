@@ -177,3 +177,7 @@ Thumbs.db
 .idea/
 
 # --- End Konoha local/private boundary ---
+
+# Keep public sandbox placeholder
+!sandbox/tmp/
+!sandbox/tmp/.gitkeep

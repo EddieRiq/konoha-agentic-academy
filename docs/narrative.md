@@ -269,3 +269,12 @@ A Mission is complete only when:
 - relevant memory has been updated;
 - the user understands what was delivered;
 - completion is traceable.
+
+## Kagebunshin ranks
+
+Kagebunshin may have operating ranks.
+
+- Genin: handles low-risk, bounded tasks.
+- Chunin: handles moderate complexity tasks within an approved Mission Charter.
+- Jounin: handles senior execution or review, depending on assignment.
+- Sage: handles specialized or high-complexity reasoning, but still cannot bypass Academy laws, safety, approval, review, or Mission Charter boundaries.

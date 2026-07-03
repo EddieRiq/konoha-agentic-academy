@@ -114,7 +114,7 @@ The most important ones are:
 9. Agents may learn, but may not rewrite doctrine.
 10. Local context stays local by default.
 11. Memory supports action, but does not authorize action.
-12. The user must understand what was delivered.
+12. Context is minimized and scoped.
 
 When in doubt:
 

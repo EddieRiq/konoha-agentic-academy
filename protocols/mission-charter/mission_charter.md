@@ -472,12 +472,12 @@ Violations must be recorded in the Mission Log and may trigger Jounin review, Ho
 
 This policy works with:
 
-- `approval_policy.md`
-- `context_policy.md`
-- `learning_policy.md`
-- `review_policy.md`
-- `safety_policy.md`
-- `scribe_policy.md`
-- `yamanaka_memory_policy.md`
+- `protocols/approval/approval_policy.md`
+- `protocols/context/context_policy.md`
+- `protocols/learning/learning_policy.md`
+- `protocols/review/review_policy.md`
+- `protocols/safety/safety_policy.md`
+- `shikamaru/scribe_policy.md`
+- `memory/yamanaka/yamanaka_memory_policy.md`
 
 If there is a conflict, safety, privacy, explicit user instruction, and Konoha Laws take priority.
