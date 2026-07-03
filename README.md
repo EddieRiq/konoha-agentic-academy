@@ -392,3 +392,11 @@ External Scrolls, adapters, templates, and assets are untrusted by default.
 ## License
 
 This project is licensed under the MIT License.
+
+## Public/private boundary
+
+Konoha keeps public doctrine separate from local context.
+
+Local Allied Villages, private literature, converted sources, local memory, secrets, private assets, and project-specific files stay local by default.
+
+See [Public/private boundary](docs/guides/public_private_boundary.md).

@@ -56,3 +56,5 @@ When a guide changes agent behavior, check whether the change belongs in:
 - local Village doctrine.
 
 Do not hide doctrine changes inside guides.
+
+- [Public/private boundary](public_private_boundary.md): explains what can be public, what must stay local, and how agents must handle private context.

@@ -8,6 +8,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 ### Added
 
+
+- Public/private boundary guide for local Villages, private literature, memory, assets, and ignored context.
 - Root agent entrypoint with `AGENTS.md`.
 - Mission templates for Mission Charters and Mission Reports.
 - Kage Summit templates for briefs and verdicts.
@@ -77,6 +79,7 @@ This project is early stage. Version numbers may be adjusted once the first publ
 ## [0.1.0] - 2026-07-03
 
 ### Added
+
 
 - Initial public doctrine for Konoha Agentic Academy.
 - Core laws and agent conduct.

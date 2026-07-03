@@ -334,3 +334,9 @@ Do not confuse memory with permission.
 Do not confuse planning with execution.
 
 Stop. State uncertainty. Ask the smallest useful question. Wait for explicit confirmation.
+
+## Public/private boundary
+
+Before using local Village context, private literature, converted sources, ignored assets, local memory, or project-specific files, read `docs/guides/public_private_boundary.md`.
+
+When in doubt, keep it local and ask for explicit approval.
