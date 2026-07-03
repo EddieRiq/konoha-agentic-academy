@@ -1,14 +1,115 @@
 # Scrolls
 
-Scrolls are reusable, activatable skills that guide agent behavior for a specific workflow.
+Scrolls are reusable, activatable workflows that guide agent behavior for a specific kind of mission.
 
 A Scroll is not general doctrine. Doctrine defines what agents must always respect. A Scroll defines how an agent should perform a bounded task when that Scroll is selected by the Hokage and allowed by the Mission Charter.
 
 ## Core rule
 
-A Scroll may guide execution, but it may not override KonoHA Laws, Safety Policy, Context Policy, Approval Policy, Mission Charter boundaries, or local Village rules.
+A Scroll may guide execution, but it may not override Konoha Laws, Safety Policy, Context Policy, Approval Policy, Review Policy, Mission Charter boundaries, or local Village rules.
 
 If a Scroll conflicts with higher doctrine, the Scroll loses.
+
+A Scroll is not permission.
+
+## Current repository layout
+
+The current public repository uses a simple MVP layout:
+
+```text
+scrolls/
+  repo_review_scroll.md
+  documentation_review_scroll.md
+  mission_planning_scroll.md
+  code_change_scroll.md
+  code_review_scroll.md
+  python_code_review_scroll.md
+  ...
+```
+
+The repository also contains placeholder category folders for future organization:
+
+```text
+scrolls/coding/
+scrolls/data-engineering/
+scrolls/research/
+scrolls/security/
+scrolls/writing/
+```
+
+Flat `scrolls/*.md` files are valid during the early phase.
+
+A mature Scroll may later move into a nested structure if it needs examples, tests, assets, or scripts:
+
+```text
+scrolls/<clan-or-domain>/<scroll-name>/
+  SCROLL.md
+  examples/
+  tests/
+  assets/
+  scripts/
+  README.md
+```
+
+Moving Scrolls changes paths and documentation references. It requires a Mission Charter and review.
+
+## Current public Scrolls
+
+### Mission and planning
+
+```text
+scrolls/mission_planning_scroll.md
+scrolls/repo_review_scroll.md
+scrolls/documentation_review_scroll.md
+```
+
+### Coding and engineering
+
+```text
+scrolls/code_change_scroll.md
+scrolls/code_review_scroll.md
+scrolls/python_code_review_scroll.md
+scrolls/python_project_scroll.md
+scrolls/refactor_scroll.md
+scrolls/test_first_scroll.md
+scrolls/error_triage_scroll.md
+scrolls/dependency_review_scroll.md
+scrolls/git_safety_scroll.md
+```
+
+### Local context, memory, and learning
+
+```text
+scrolls/local_context_scroll.md
+scrolls/memory_review_scroll.md
+scrolls/learning_capture_scroll.md
+scrolls/private_literature_extraction_scroll.md
+scrolls/doctrine_update_scroll.md
+```
+
+### Tools, adapters, and dependencies
+
+```text
+scrolls/tool_review_scroll.md
+scrolls/adapter_review_scroll.md
+scrolls/dependency_review_scroll.md
+```
+
+### Publication and release
+
+```text
+scrolls/sensitive_data_review_scroll.md
+scrolls/publication_safety_scroll.md
+scrolls/release_readiness_scroll.md
+scrolls/release_notes_scroll.md
+scrolls/changelog_maintenance_scroll.md
+```
+
+### Teachback
+
+```text
+scrolls/teachback_scroll.md
+```
 
 ## What a Scroll is
 
@@ -16,15 +117,19 @@ A Scroll is a reusable workflow, capability, checklist, or operating pattern.
 
 Examples:
 
-- systematic debugging;
+```text
 - repository exploration;
-- diff review;
-- humanized writing;
-- scientific writing;
-- Docker review;
-- data pipeline validation;
-- context pack generation;
-- mission postmortem writing.
+- code change;
+- code review;
+- Python project review;
+- systematic debugging;
+- dependency review;
+- sensitive data review;
+- local context handling;
+- documentation review;
+- release readiness;
+- learning capture.
+```
 
 A Scroll should help an agent do one job clearly.
 
@@ -32,6 +137,7 @@ A Scroll should help an agent do one job clearly.
 
 A Scroll is not:
 
+```text
 - a law;
 - a Mission Charter;
 - a full project context;
@@ -40,35 +146,11 @@ A Scroll is not:
 - a place to hide assumptions;
 - permission to execute actions;
 - proof that a task is complete.
-
-## Scroll structure
-
-Recommended structure:
-
-```text
-scrolls/
-  <clan-or-domain>/
-    <scroll-name>/
-      SCROLL.md
-      examples/
-      tests/
-      assets/
-      scripts/
-      README.md
-```
-
-Minimum viable Scroll:
-
-```text
-scrolls/
-  <clan-or-domain>/
-    <scroll-name>/
-      SCROLL.md
 ```
 
 ## Required fields
 
-Every `SCROLL.md` must define:
+Every Scroll should define:
 
 ```yaml
 name:
@@ -88,6 +170,8 @@ requires_hokage_approval: true | false
 requires_human_approval: true | false
 ```
 
+For early Markdown Scrolls, these fields may be represented as prose sections instead of YAML, as long as the meaning is explicit.
+
 ## Required sections
 
 Every Scroll should include:
@@ -97,271 +181,146 @@ Every Scroll should include:
 
 ## Purpose
 ## Activation triggers
-## When not to use this Scroll
 ## Required inputs
+## Allowed tasks
+## Forbidden tasks
 ## Workflow
 ## Evidence requirements
 ## Stop-and-ask triggers
-## Outputs
 ## Review requirements
-## Examples
-## Failure modes
-## Related doctrine
+## Outputs
+## Violations
 ```
 
 ## Activation
 
-The Hokage selects Scrolls before assigning work.
-
-A Kagebunshin may not silently select a Scroll unless the Mission Charter allows self-selection for that mission.
-
-When a Scroll is selected, the assignment must state:
-
-```yaml
-selected_scrolls:
-  - name:
-    version:
-    reason:
-    scope:
-```
-
-## Progressive context
-
-Scrolls must be loaded only when relevant.
-
-Konoha should not load every Scroll into every mission. The Hokage should select the smallest useful Scroll set for the mission.
-
-## Language policy
-
-Core Scrolls are written in English.
-
-Writing Scrolls may be written in their target language when language nuance matters.
-
-Examples:
+A Scroll becomes active for a mission only when:
 
 ```text
-scrolls/writing/humanize-en/SCROLL.md     # English
-scrolls/writing/humanize-es/SCROLL.md     # Spanish
-scrolls/writing/scientific-writing-es/    # Spanish
+- the Hokage selects it;
+- the Mission Charter allows it;
+- required inputs are available;
+- required approvals are in place;
+- safety constraints are satisfied.
 ```
 
-A writing Scroll should not be a literal translation of another writing Scroll when the language has different style risks, corporate habits, academic conventions, or AI-writing patterns.
+The existence of a Scroll in the repository does not authorize its use.
 
-## Scope
+## Scrolls and coding work
 
-Each Scroll must have a narrow scope.
+Coding work should use the relevant Clan and Scroll combination.
 
-Good:
+Example for a Python code change:
 
 ```text
-systematic-debugging
-repo-exploration
-diff-review
-humanize-es
-docker-compose-review
+Read:
+AGENTS.md
+core/laws/KONOHA_LAWS.md
+protocols/mission-charter/mission_charter.md
+protocols/safety/safety_policy.md
+clans/software-engineering/README.md
+clans/python/README.md
+scrolls/code_change_scroll.md
+scrolls/python_project_scroll.md
+
+Review with:
+scrolls/code_review_scroll.md
+scrolls/python_code_review_scroll.md
 ```
 
-Too broad:
+Local project rules may add constraints through an Allied Village, but they may not weaken Academy rules.
+
+## Scrolls and private literature
+
+Private literature is local evidence, not public doctrine.
+
+A Scroll may define how to extract principles from private literature, but it may not copy protected content into the public repo.
+
+Use:
 
 ```text
-do-anything
-be-a-good-agent
-software-engineering
-write-better
+scrolls/private_literature_extraction_scroll.md
+docs/guides/private_literature_library.md
 ```
 
-If a Scroll keeps growing across unrelated use cases, Shikamaru should propose either:
+Only distilled, license-safe, user-approved learning may be promoted.
 
-- splitting it;
-- moving domain rules into a Clan;
-- turning repeated behavior into doctrine;
-- archiving the Scroll.
+## Scrolls and local Villages
 
-## Evidence requirements
+Local Villages may define local Scrolls or local overrides.
 
-A Scroll must define what evidence is required before the agent can claim success.
-
-Examples:
+Local overrides may specialize:
 
 ```text
-systematic-debugging:
-- error reproduced or clearly explained;
-- root cause identified;
-- fix applied within scope;
-- validation command executed or blocked with reason.
-
-diff-review:
-- changed files listed;
-- out-of-scope changes checked;
-- tests or validation reviewed;
-- risks reported.
-
-humanize-es:
-- tone adjusted;
-- inflated phrasing removed;
-- meaning preserved;
-- language matches target audience.
+- project paths;
+- commands;
+- tools;
+- coding conventions;
+- data constraints;
+- review rubrics;
+- local memory usage.
 ```
 
-## Stop-and-ask triggers
-
-Every Scroll must define when the agent must stop and ask.
-
-Common triggers:
-
-- required input is missing;
-- task scope changed;
-- context conflicts with Mission Charter;
-- a sensitive file or secret appears;
-- a command is not allowed;
-- output would affect an external party;
-- the Scroll is not enough for the task;
-- confidence is below the required threshold.
-
-## Review
-
-A Scroll must declare the minimum review level.
-
-Low-risk formatting Scrolls may allow Clerk review.
-
-Technical, safety-sensitive, doctrine, architecture, data, model, or external communication Scrolls require Jounin review or higher.
-
-A Scroll cannot lower the review level required by the Mission Charter.
-
-## Scroll lifecycle
+Local overrides may not weaken:
 
 ```text
-draft
-  ↓
-tested
-  ↓
-active
-  ↓
-revised
-  ↓
-deprecated
-  ↓
-archived
-```
-
-## Draft
-
-A draft Scroll can be explored, but should not control production work.
-
-## Tested
-
-A tested Scroll has examples, expected outputs, and at least one real or synthetic scenario showing how it behaves.
-
-## Active
-
-An active Scroll can be selected by the Hokage during missions.
-
-## Revised
-
-A revised Scroll must record what changed, why it changed, and what evidence supports the change.
-
-## Deprecated
-
-A deprecated Scroll should not be selected for new missions unless explicitly approved.
-
-## Archived
-
-An archived Scroll is kept for traceability only.
-
-## Creating a new Scroll
-
-A new Scroll may be proposed by:
-
-- Hokage;
-- Kagebunshin;
-- Jounin;
-- Shikamaru;
-- Clerk;
-- user;
-- Kage Summit.
-
-Only Shikamaru may create or modify official Scroll Markdown.
-
-For non-Markdown technical assets, scripts, tests, or examples, Shikamaru may prepare the structure and assign implementation to a Kagebunshin.
-
-## Creation workflow
-
-```text
-1. Learning Proposal or user request identifies repeated need.
-2. Hokage decides whether a Scroll is appropriate.
-3. If the need is complex or cross-domain, Kage Summit reviews it.
-4. Shikamaru drafts the Scroll.
-5. User approves the proposed doctrine or Scroll behavior.
-6. Jounin reviews consistency and safety.
-7. Scroll becomes draft or active depending on evidence.
+- safety;
+- approval;
+- context;
+- review;
+- teachback;
+- learning;
+- publication boundaries.
 ```
 
 ## Importing external Scrolls
 
 External Scrolls are untrusted by default.
 
-Before importing an external Scroll, Konoha must record:
+Before a Scroll from outside the repository is used, it must be reviewed for:
 
-```yaml
-source:
-license:
-version:
-commit_or_hash:
-review_status:
-reviewed_by:
-import_reason:
-known_risks:
+```text
+- source;
+- license;
+- scope;
+- hidden permissions;
+- tool calls;
+- network access;
+- file access;
+- prompt injection risk;
+- data exposure risk;
+- doctrine conflicts.
 ```
 
-Imported Scrolls must be reviewed for:
+The Marketplace policy governs external discovery and import.
 
-- hidden assumptions;
-- unsafe commands;
-- excessive permissions;
-- vague success criteria;
-- prompt injection risk;
-- incompatible doctrine;
-- privacy risks;
-- unclear licensing.
+## Evals
 
-## Public vs local Scrolls
+Behavior should be tested before it is trusted.
 
-Public Academy Scrolls must be generic and safe.
+Scroll eval templates live in:
 
-Local Village Scrolls may include project-specific context, corporate tone, local paths, private workflows, or sensitive rules.
+```text
+evals/templates/eval_case_template.md
+evals/templates/scroll_eval_template.md
+```
 
-Local Scrolls must stay local by default.
-
-A local Scroll may only be promoted to the Academy after review, sanitization, Shikamaru drafting, and user approval.
-
-## Scrolls and memory
-
-A memory entry may suggest a Scroll improvement, but memory does not modify Scrolls.
-
-A Learning Proposal may request a new Scroll or Scroll revision.
-
-An approved tactic may become a Scroll only after Shikamaru drafts it and review confirms it is reusable.
-
-## Scrolls and Mission Charter
-
-The Mission Charter controls the mission.
-
-A Scroll may define a workflow, but it cannot add permissions not present in the Mission Charter.
-
-If the Scroll recommends an action outside the Mission Charter, the Kagebunshin must stop and ask.
+A high-risk or behavior-changing Scroll should have evals before it is marked active.
 
 ## Violations
 
 Violations include:
 
+```text
 - using a Scroll outside its scope;
 - treating a Scroll as permission;
 - hiding assumptions inside a Scroll;
-- modifying Scroll doctrine without Shikamaru;
+- modifying Scroll doctrine without approval;
 - importing external Scrolls without review;
 - claiming a Scroll succeeded without evidence;
 - lowering review requirements through a Scroll;
 - storing sensitive local context in a public Scroll.
+```
 
 ## Completion checklist for a Scroll
 
@@ -378,6 +337,7 @@ A Scroll is ready for active use only when:
 - review level is defined;
 - examples exist or are intentionally deferred;
 - related doctrine is referenced;
+- evals exist when risk requires them;
 - Shikamaru drafted or approved the Markdown;
 - user approved the behavior if it affects doctrine.
 ```

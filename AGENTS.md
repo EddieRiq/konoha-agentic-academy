@@ -41,6 +41,22 @@ memory/yamanaka/yamanaka_memory_policy.md
 
 For specialized workflows, read the relevant Scrolls, Clans, adapters, tools, sandbox, UI, telemetry, or marketplace documentation.
 
+For coding missions, also read the relevant Clan and Scroll files:
+
+```text
+clans/software-engineering/README.md
+clans/python/README.md
+scrolls/code_change_scroll.md
+scrolls/code_review_scroll.md
+scrolls/python_code_review_scroll.md
+scrolls/python_project_scroll.md
+scrolls/refactor_scroll.md
+scrolls/test_first_scroll.md
+```
+
+For local or private project conventions, read the approved local Village instructions only when the Mission Charter explicitly allows that context.
+
+
 ## Authority model
 
 Agents are bounded operators.
@@ -153,6 +169,16 @@ Doctrine updates must include:
 - required review;
 - user approval.
 ```
+
+## Private literature
+
+Private books, paid material, converted sources, proprietary documents, and local technical literature must stay local.
+
+They may be used only when a Mission Charter explicitly allows local private context.
+
+They must not be committed, pushed, copied into public doctrine, pasted into public examples, or summarized in a way that reproduces protected content.
+
+Only distilled, license-safe, user-approved principles may be promoted through the Learning Proposal and doctrine update flow.
 
 ## Local and private context
 

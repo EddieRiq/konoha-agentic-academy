@@ -12,6 +12,7 @@ This project is early stage. Version numbers may be adjusted once the first publ
 - Mission templates for Mission Charters and Mission Reports.
 - Kage Summit templates for briefs and verdicts.
 - Yamanaka Memory templates for memory notes and learning proposals.
+- Eval templates for generic cases and Scroll-specific cases.
 - Initial operational Scrolls:
   - repo review;
   - documentation review;
@@ -29,11 +30,33 @@ This project is early stage. Version numbers may be adjusted once the first publ
   - memory review;
   - publication safety;
   - release notes;
-  - changelog maintenance.
+  - changelog maintenance;
+  - code change;
+  - code review;
+  - Python code review;
+  - Python project review;
+  - refactoring;
+  - test-first workflow;
+  - private literature extraction;
+  - doctrine update.
+- Public Clans for:
+  - software engineering;
+  - Python.
+- Guides for:
+  - first mission walkthrough;
+  - local Village bootstrap;
+  - private literature library handling;
+  - agentic coding loop;
+  - repository audit checklist.
+- Project roadmap.
 
 ### Changed
 
-- No changes recorded yet.
+- Root README updated to reflect MIT license, coding workflow, public Clans, guides, and private literature boundary.
+- Scrolls README updated to document the current flat Scroll layout and future nested layout.
+- Clans README updated to reflect active public Clans and naming conventions.
+- Evals README updated to reference templates and coding workflow evals.
+- Roadmap updated with current manual, coding, Allied Village, private literature, eval, adapter, and release-readiness phases.
 
 ### Deprecated
 
@@ -45,11 +68,11 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 ### Fixed
 
-- No fixes recorded yet.
+- Resolved intended Clan naming direction: use `software-engineering`, not `software_engineering`.
 
 ### Security
 
-- No security changes recorded yet.
+- Clarified that private books, paid material, converted sources, proprietary docs, local literature, local memory, credentials, work data, and private Village context must not be committed to the public repository.
 
 ## [0.1.0] - 2026-07-03
 

@@ -11,7 +11,7 @@ It uses a Naruto-inspired operating model:
 - **Yamanaka** manages memory.
 - **Clans** specialize capabilities.
 - **Scrolls** define reusable workflows.
-- **Allied Villages** hold local/private project context.
+- **Allied Villages** hold local and private project context.
 - **Kage Summit** handles complex or strategic decisions.
 
 The theme is playful. The operating rules are strict.
@@ -20,14 +20,31 @@ The theme is playful. The operating rules are strict.
 
 > If it is not explicit, do not assume it. Stop and ask.
 
-Konoha is designed to reduce hallucinations, uncontrolled edits, hidden assumptions, context-window overload, and unsafe automation.
+Konoha is designed to reduce hallucinations, uncontrolled edits, hidden assumptions, context-window overload, unsafe automation, and private context leakage.
 
-## What this repository contains
+## Current status
 
-This public repository contains the general Academy structure:
+This repository contains the public Academy baseline:
+
+```text
+- foundational doctrine;
+- mission, approval, safety, context, review, learning, memory, and teachback protocols;
+- role policies for Hokage, Kagebunshin, Jounin, Shikamaru, and Council;
+- public Clans for reusable specialization;
+- Scrolls for bounded workflows;
+- templates for missions, reviews, memory, learning, and evals;
+- guides for first use, local villages, coding loops, and private literature handling.
+```
+
+Runtime automation, UI implementation, marketplace sync, adapters, and local model orchestration are intentionally deferred until the manual workflow is clear and reviewable.
+
+## Repository map
 
 ```text
 konoha-agentic-academy/
+  AGENTS.md
+  CHANGELOG.md
+  README.md
   adapters/
   alliance/
   clans/
@@ -51,13 +68,13 @@ konoha-agentic-academy/
   ui/
 ```
 
-It should not contain private project context, credentials, work data, emails, local assets, copyrighted assets, or sensitive memory.
+This public repository must not contain private project context, credentials, work data, emails, local assets, copyrighted assets, local literature, private memory, or sensitive context.
 
 ## Public Academy vs local Villages
 
 Konoha is the central Academy.
 
-Local repositories or private workspaces are treated as **Allied Villages**. A local Village may contain private rules, project context, local memory, local models, local assets, and local configurations.
+Local repositories or private workspaces are treated as **Allied Villages**. A local Village may contain private rules, project context, local memory, local models, local literature, local assets, and local configurations.
 
 Local Village content stays local by default.
 
@@ -65,10 +82,13 @@ Example:
 
 ```text
 alliance/kirigakure/
-  config/
+  AGENTS.local.md
+  context/
+  doctrine/
   memory/
+  private-library/
+  review-rubrics/
   assets/
-  private/
 ```
 
 Local Villages should be ignored by Git unless the user explicitly chooses to publish a safe template or example.
@@ -141,13 +161,14 @@ done_by_agent != completed_by_user
 
 The user must understand what was done, why it was done, and how to use or defend it at the required level.
 
-## Doctrine, Scrolls, and learning
+## Doctrine, Scrolls, Clans, and learning
 
-Konoha separates behavior into three layers:
+Konoha separates behavior into four layers:
 
 ```text
 Doctrine = Markdown rules that govern behavior.
-Scrolls  = reusable skills or workflows.
+Clans    = reusable specialization domains.
+Scrolls  = bounded workflows selected for a mission.
 Memory   = mission history, decisions, summaries, failures, and tactics.
 ```
 
@@ -168,6 +189,47 @@ Human approval
   ↓
 Jounin review
 ```
+
+## Coding and review loop
+
+Coding work is handled through bounded missions.
+
+General engineering behavior lives in:
+
+```text
+clans/software-engineering/README.md
+```
+
+Python-specific behavior lives in:
+
+```text
+clans/python/README.md
+```
+
+Reusable coding workflows live in:
+
+```text
+scrolls/code_change_scroll.md
+scrolls/code_review_scroll.md
+scrolls/python_code_review_scroll.md
+scrolls/python_project_scroll.md
+scrolls/refactor_scroll.md
+scrolls/test_first_scroll.md
+scrolls/error_triage_scroll.md
+scrolls/dependency_review_scroll.md
+```
+
+The intended loop is:
+
+```text
+Kagebunshin writes or changes code within the Mission Charter.
+Jounin reviews code against approved doctrine, Scrolls, and local rules.
+Shikamaru records repeatable lessons as proposals.
+The user approves any doctrine or convention update.
+Future missions start from the approved rule.
+```
+
+Private books, paid material, converted sources, and local technical literature stay local. Only distilled, license-safe, user-approved principles may be promoted into public doctrine.
 
 ## Memory
 
@@ -248,25 +310,19 @@ The public repository must not include:
 - local memory;
 - work emails;
 - private assets;
-- copyrighted or franchise-specific assets.
+- copyrighted or franchise-specific assets;
+- local literature or converted copyrighted sources.
 
 Public assets must be original, generic, or license-safe.
 
 Franchise-inspired or private assets may exist only in local Villages ignored by Git.
-
-## Current status
-
-This repository is in early design and scaffolding stage.
-
-The current focus is doctrine, structure, policies, and operating model.
-
-Runtime implementation, adapters, UI, local model routing, and Obsidian automation will come later.
 
 ## Recommended reading order
 
 Start here:
 
 ```text
+AGENTS.md
 core/laws/KONOHA_LAWS.md
 core/conduct/AGENT_CONDUCT.md
 docs/narrative.md
@@ -297,13 +353,28 @@ council/kage_summit_policy.md
 Then review supporting systems:
 
 ```text
-memory/yamanaka/yamanaka_memory_policy.md
+missions/README.md
 scrolls/README.md
 clans/README.md
+memory/yamanaka/yamanaka_memory_policy.md
 alliance/README.md
+sandbox/README.md
+tools/README.md
+adapters/README.md
 telemetry/README.md
 ui/README.md
 shinobi/README.md
+```
+
+Then use the guides:
+
+```text
+docs/guides/README.md
+docs/guides/first_mission_walkthrough.md
+docs/guides/local_village_bootstrap.md
+docs/guides/agentic_coding_loop.md
+docs/guides/private_literature_library.md
+docs/guides/repository_audit_checklist.md
 ```
 
 ## Contributing

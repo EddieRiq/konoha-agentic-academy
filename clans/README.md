@@ -1,37 +1,55 @@
-# Clans README
-
-## Purpose
+# Clans
 
 Clans are specialization domains inside Konoha Agentic Academy.
 
-A Clan groups related Scrolls, reviewers, tactics, examples, policies, and mission patterns around a specific type of work.
+A Clan groups related Scrolls, reviewers, tactics, examples, policies, and mission patterns around a type of work.
 
 Clans exist to prevent the Academy from becoming a flat collection of unrelated prompts and rules.
 
 ## Core rule
 
-A Clan may specialize behavior, but it may not override Konoha Laws, Safety Policy, Context Policy, Approval Policy, or Mission Charter boundaries.
+A Clan may specialize behavior, but it may not override Konoha Laws, Safety Policy, Context Policy, Approval Policy, Review Policy, Learning Policy, or Mission Charter boundaries.
 
-If a Clan rule conflicts with a higher-level rule, the higher-level rule wins.
+If a Clan rule conflicts with higher-level doctrine, the higher-level rule wins.
+
+## Current public Clans
+
+The repository currently includes these public Clan areas:
+
+```text
+clans/
+  software-engineering/
+    README.md
+  python/
+    README.md
+  data-engineering/
+  machine-learning/
+  devops/
+  research/
+  security/
+  writing/
+```
+
+Some folders are placeholders. A placeholder Clan is not active doctrine until it has a README or approved Clan documentation.
+
+## Active Clan documents
+
+```text
+clans/software-engineering/README.md
+clans/python/README.md
+```
+
+The software engineering Clan defines general coding behavior.
+
+The Python Clan defines Python-specific expectations.
+
+Local Villages may add their own project-specific coding conventions, but they may not weaken Academy rules.
 
 ## What a Clan is
 
 A Clan is a structured specialization area.
 
-Examples:
-
-```text
-clans/
-  software-engineering/
-  data-engineering/
-  machine-learning/
-  writing/
-  research/
-  security/
-  devops/
-```
-
-Each Clan may define:
+A Clan may define:
 
 ```text
 - domain-specific mission patterns;
@@ -57,7 +75,8 @@ A Clan is not:
 - a shortcut around approvals;
 - a place for secrets;
 - a place for copyrighted local assets;
-- a replacement for the Mission Charter.
+- a replacement for the Mission Charter;
+- permission to execute work.
 ```
 
 ## Clan vs Scroll
@@ -70,13 +89,13 @@ Example:
 
 ```text
 Clan:
-data-engineering
+software-engineering
 
 Scrolls:
-docker-pipeline-review
-airflow-dag-debugging
-parquet-dataset-validation
-dbt-model-review
+code_change_scroll
+code_review_scroll
+refactor_scroll
+test_first_scroll
 ```
 
 The Clan organizes the field. The Scroll performs a specific workflow.
@@ -90,219 +109,99 @@ A Village is local.
 Example:
 
 ```text
-clans/data-engineering/
+clans/software-engineering/
 ```
 
-Defines general data engineering behavior for the Academy.
+Defines general engineering behavior for the Academy.
 
 ```text
 alliance/kirigakure/
 ```
 
-Contains private local project context, local memory, local assets, local style, and local configuration.
+Contains private local project context, local memory, local literature, local assets, local style, and local configuration.
 
-Local Village rules may specialize how a Clan is used, but may not weaken Academy safety rules.
+Local Village rules may specialize how a Clan is used, but may not weaken Konoha rules.
 
-## When to create a new Clan
+## Coding conventions
 
-A new Clan may be proposed when repeated missions show that a domain needs its own rules, reviewers, Scrolls, examples, or acceptance criteria.
+General coding expectations belong in public Clans when they are reusable and safe to publish.
 
-A new Clan may be justified when:
+Project-specific conventions belong in local Villages.
+
+Example:
 
 ```text
-- the same type of mission appears repeatedly;
-- existing Clans do not cover the work clearly;
-- the domain has distinct safety risks;
-- the domain has distinct validation rules;
-- the domain needs specialized reviewers;
-- the domain needs its own Scrolls;
-- repeated failures show that general rules are not enough.
+Public:
+clans/software-engineering/README.md
+clans/python/README.md
+
+Local:
+alliance/kirigakure/doctrine/coding_conventions.md
+alliance/kirigakure/review-rubrics/python_code_review_rubric.md
 ```
 
-A new Clan should not be created for a one-off task.
+Private books, paid material, converted sources, proprietary documents, and local literature must not be committed to public Clans.
 
-## Who may create a Clan
+Only distilled, license-safe, user-approved principles may be promoted from local literature into public or local doctrine.
 
-A Kagebunshin, Jounin, Clerk, Hokage, Local Kage, or user may propose a new Clan.
+## Recommended Scrolls by Clan
 
-Only Shikamaru may create the official Clan folder and Markdown doctrine after approval.
-
-Technical files inside a Clan must be implemented by assigned Kagebunshin unless the Mission Charter explicitly allows Shikamaru to create them.
-
-## Clan creation workflow
+### Software engineering
 
 ```text
-1. A mission reveals a repeated or specialized need.
-2. A Learning Proposal is created.
-3. The Hokage reviews the proposal.
-4. If the impact is local, the Local Kage may keep it inside the Village.
-5. If the impact is general, the Hokage may escalate to Kage Summit.
-6. The Kage Summit produces a verdict when needed.
-7. Shikamaru drafts the Clan structure and doctrine.
-8. The user approves the proposed diff.
-9. Shikamaru creates the Clan folder and Markdown files.
-10. Jounin reviews consistency.
+scrolls/code_change_scroll.md
+scrolls/code_review_scroll.md
+scrolls/refactor_scroll.md
+scrolls/test_first_scroll.md
+scrolls/error_triage_scroll.md
+scrolls/dependency_review_scroll.md
+scrolls/git_safety_scroll.md
 ```
 
-No Clan becomes official without approval.
-
-## Recommended Clan structure
-
-A mature Clan may use this structure:
+### Python
 
 ```text
-clans/<clan-name>/
-  README.md
-  policies/
-  scrolls/
-  examples/
-  reviews/
-  tactics/
-  failures/
-  evals/
+scrolls/python_project_scroll.md
+scrolls/python_code_review_scroll.md
+scrolls/test_first_scroll.md
+scrolls/dependency_review_scroll.md
 ```
 
-Minimal Clans may start with only:
+### Documentation and writing
 
 ```text
-clans/<clan-name>/
-  README.md
+scrolls/documentation_review_scroll.md
+scrolls/release_notes_scroll.md
+scrolls/changelog_maintenance_scroll.md
 ```
 
-Do not create empty structure unless the purpose is clear.
-
-## Suggested Clan README sections
-
-Each Clan README should explain:
+### Safety and publication
 
 ```text
-- purpose;
+scrolls/sensitive_data_review_scroll.md
+scrolls/publication_safety_scroll.md
+scrolls/release_readiness_scroll.md
+```
+
+## Creating a Clan
+
+A new Clan requires:
+
+```text
+- explicit purpose;
 - scope;
 - non-scope;
-- common mission types;
-- required context;
-- common risks;
+- expected mission types;
+- related Scrolls;
+- risk levels;
 - required review level;
-- recommended Scrolls;
 - stop-and-ask triggers;
-- acceptance criteria;
-- memory requirements;
-- escalation rules.
+- safety constraints;
+- relationship with local Villages;
+- examples or intentional deferral of examples.
 ```
 
-## Clan risk levels
-
-A Clan should define when work is low, medium, high, or critical risk.
-
-Example:
-
-```text
-low:
-  - formatting documentation;
-  - summarizing existing context;
-  - generating non-sensitive examples.
-
-medium:
-  - editing scripts;
-  - creating tests;
-  - updating project documentation.
-
-high:
-  - changing production logic;
-  - modifying pipelines;
-  - changing dependencies;
-  - touching sensitive data;
-  - changing model behavior.
-
-critical:
-  - modifying safety rules;
-  - changing doctrine;
-  - promoting local memory to Academy memory;
-  - creating new permissions;
-  - handling credentials or personal data.
-```
-
-## Clan reviewers
-
-Each Clan may recommend reviewers.
-
-Examples:
-
-```text
-software-engineering:
-  reviewer: jounin-code-reviewer
-
-data-engineering:
-  reviewer: jounin-data-pipeline-reviewer
-
-machine-learning:
-  reviewer: jounin-model-risk-reviewer
-
-writing:
-  reviewer: clerk-review for low-risk drafts, jounin-review for sensitive communications
-
-security:
-  reviewer: jounin-security-reviewer
-```
-
-A Clerk may review formatting, completeness, and low-risk structure.
-
-A Clerk may not approve technical correctness, safety-sensitive changes, doctrine, or high-risk mission closure.
-
-## Clan-specific Scrolls
-
-Scrolls may live inside a Clan when they are domain-specific.
-
-Example:
-
-```text
-clans/data-engineering/scrolls/parquet-dataset-validation/
-clans/security/scrolls/secrets-scan-review/
-clans/writing/scrolls/humanize-es/
-```
-
-General Scrolls should live in the top-level `scrolls/` directory.
-
-## Clan memory
-
-Clan memory may include reusable tactics, failure patterns, and examples.
-
-Public Clan memory must not contain private Village context.
-
-Local Village memory may reference Clan tactics, but should remain inside the local Village.
-
-## Promotion from Village to Clan
-
-A local Village may discover a tactic that belongs in a public Clan.
-
-Promotion requires:
-
-```text
-- sanitized Learning Proposal;
-- no secrets or private context;
-- evidence from at least one mission;
-- Hokage review;
-- Shikamaru drafting;
-- user approval;
-- Jounin review.
-```
-
-Local learning stays local by default.
-
-## Stop-and-ask triggers
-
-A Clan must stop and ask when:
-
-```text
-- the mission requires context outside the Mission Charter;
-- the domain is unclear;
-- the required reviewer is unknown;
-- the risk level is unclear;
-- the task may belong to another Clan;
-- the action may change doctrine;
-- the action may expose sensitive context;
-- the action may require human approval.
-```
+New Clans that affect agent behavior require Shikamaru drafting, Jounin review, and human approval.
 
 ## Naming rules
 
@@ -330,6 +229,27 @@ random
 
 If a Clan name is too broad or vague, Shikamaru must request clarification before creating it.
 
+## Review and escalation
+
+A Clan requires Jounin review when:
+
+```text
+- it changes coding, review, safety, memory, or publication behavior;
+- it introduces a new specialization;
+- it affects multiple Scrolls;
+- it changes risk or approval rules;
+- it may expose local or private context.
+```
+
+Escalate to Kage Summit when:
+
+```text
+- the Clan changes doctrine-level behavior;
+- multiple Clans disagree;
+- the change may weaken safety or review;
+- the change may affect public release readiness.
+```
+
 ## Completion checklist for new Clans
 
 Before a Clan is considered ready:
@@ -341,9 +261,10 @@ Before a Clan is considered ready:
 - required review level is defined;
 - stop-and-ask triggers are defined;
 - relationship with Scrolls is clear;
+- relationship with local Villages is clear;
 - no private context is included;
 - no sensitive data is included;
-- no copyrighted local assets are included;
+- no copyrighted local assets or literature are included;
 - Jounin review is complete;
 - user approval is recorded.
 ```
