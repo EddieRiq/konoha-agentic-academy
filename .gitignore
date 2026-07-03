@@ -117,3 +117,63 @@ Thumbs.db
 *.tar
 *.tar.gz
 *.tgz
+
+# --- Konoha local/private boundary ---
+
+# Local Allied Villages
+alliance/kirigakure/
+alliance/*/private-library/
+alliance/*/vault/
+alliance/*/memory/local/
+alliance/*/memory/private/
+alliance/*/assets/private/
+alliance/*/outputs/
+alliance/*/tmp/
+alliance/*/.env
+alliance/*/.env.*
+
+# Private literature and converted sources
+private-library/
+**/private-library/
+**/converted-books/
+**/source-books/
+**/paid-material/
+**/copyrighted-material/
+
+# Local context packs and private memory
+**/context-packs/private/
+**/local-memory/
+**/obsidian-vault/
+**/.obsidian/
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*secret*
+*secrets*
+*credential*
+*credentials*
+
+# Local models, caches, and generated outputs
+models/local/
+**/models/local/
+**/.cache/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/dist/
+**/build/
+**/outputs/
+**/tmp/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- End Konoha local/private boundary ---
