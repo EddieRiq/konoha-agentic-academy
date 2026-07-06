@@ -10,6 +10,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Local Village bootstrap Scroll for creating ignored local Allied Villages from public templates.
 - Added public templates for local Allied Villages under lliance/templates/village/.
 - Public/private boundary guide for local Villages, private literature, memory, assets, and ignored context.
 - Root agent entrypoint with `AGENTS.md`.

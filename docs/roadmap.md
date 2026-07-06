@@ -297,3 +297,7 @@ alliance/templates/village/gitignore.template
 ```
 
 This milestone does not include executable agent runtime, adapter implementation, or real private Village content.
+
+### Local Village bootstrap Scroll
+
+- Add scrolls/local_village_bootstrap_scroll.md to turn Village templates into a safe local bootstrap workflow.

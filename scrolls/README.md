@@ -341,3 +341,7 @@ A Scroll is ready for active use only when:
 - Shikamaru drafted or approved the Markdown;
 - user approved the behavior if it affects doctrine.
 ```
+
+## Local Village bootstrap
+
+- local_village_bootstrap_scroll.md: creates a local Allied Village from public templates while preserving the public/private boundary.
