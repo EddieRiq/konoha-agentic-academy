@@ -400,3 +400,11 @@ Konoha keeps public doctrine separate from local context.
 Local Allied Villages, private literature, converted sources, local memory, secrets, private assets, and project-specific files stay local by default.
 
 See [Public/private boundary](docs/guides/public_private_boundary.md).
+
+## Local Village templates
+
+Konoha includes public templates for creating local Allied Villages without committing private context.
+
+See `alliance/templates/village/`.
+
+A real Village, such as `alliance/kirigakure/`, must stay local and ignored by Git unless explicitly designed for public release.

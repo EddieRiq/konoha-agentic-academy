@@ -281,3 +281,26 @@ A Local Village setup is considered ready when:
 - it defines whether it has a Local Kage;
 - it defines approval boundaries;
 - it defines what must escalate to Konoha Central.
+
+## Village templates
+
+Public templates for local Allied Villages live in:
+
+```text
+alliance/templates/village/
+```
+
+They include:
+
+```text
+README.template.md
+AGENTS.local.template.md
+village_manifest.template.md
+local_context_pack.template.md
+private_boundary_checklist.md
+gitignore.template
+```
+
+Use these templates to create local Villages with clear boundaries, local instructions, context packs, and private-content checks.
+
+Do not commit a real local Village unless it has been explicitly reviewed and approved for public release.

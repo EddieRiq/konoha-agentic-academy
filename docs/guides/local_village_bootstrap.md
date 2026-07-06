@@ -452,3 +452,26 @@ scrolls/sensitive_data_review_scroll.md
 A Local Village may make agents more useful.
 
 It may not make them less bounded.
+
+## Public templates
+
+The recommended starting point for a local Village is:
+
+```text
+alliance/templates/village/
+```
+
+Copy the templates into the local Village and rename them as needed.
+
+Recommended mapping:
+
+```text
+README.template.md -> README.md
+AGENTS.local.template.md -> AGENTS.local.md
+village_manifest.template.md -> village_manifest.md
+local_context_pack.template.md -> context/local_context_pack.md
+private_boundary_checklist.md -> private_boundary_checklist.md
+gitignore.template -> .gitignore
+```
+
+The generated local Village must remain ignored by Git unless explicitly approved for publication.

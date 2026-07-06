@@ -280,3 +280,20 @@ This roadmap should be updated when:
 ```
 
 Updates to this roadmap are documentation changes. They may not bypass doctrine, safety, approval, review, or release readiness requirements.
+
+## v0.2.0 focus: Local Village templates
+
+The next milestone focuses on public templates for local Allied Villages.
+
+Planned baseline:
+
+```text
+alliance/templates/village/README.template.md
+alliance/templates/village/AGENTS.local.template.md
+alliance/templates/village/village_manifest.template.md
+alliance/templates/village/local_context_pack.template.md
+alliance/templates/village/private_boundary_checklist.md
+alliance/templates/village/gitignore.template
+```
+
+This milestone does not include executable agent runtime, adapter implementation, or real private Village content.
