@@ -429,3 +429,7 @@ If there is a conflict, safety and explicit user approval win.
 
 - `templates/adapter_dry_run_request.template.md`: template for requesting a non-mutating adapter dry-run.
 - `templates/adapter_dry_run_result.template.md`: template for reporting dry-run findings, proposed actions, risks, and required approvals.
+
+## Adapter runtime readiness
+
+- `templates/adapter_runtime_readiness.template.md`: template for assessing whether an executable adapter runtime is ready to be implemented.

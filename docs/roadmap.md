@@ -337,3 +337,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter dry-run protocol
 
 - Define adapter dry-run protocol before runtime implementation, ensuring adapters can simulate actions and produce evidence before execution.
+
+### Adapter runtime boundary
+
+- Define adapter runtime boundaries before implementing executable integrations, making clear that v0.3.0 remains declarative and non-executing.

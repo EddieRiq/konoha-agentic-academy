@@ -86,3 +86,7 @@ Do not hide doctrine changes inside guides.
 ## Adapter dry-run protocol
 
 - `adapter_dry_run_protocol.md`: defines how adapters simulate work before any file mutation, command execution, Git operation, or release action.
+
+## Adapter runtime boundary
+
+- `adapter_runtime_boundary.md`: defines the boundary between declarative adapter doctrine and future executable runtime implementation.

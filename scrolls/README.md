@@ -373,3 +373,7 @@ A Scroll is ready for active use only when:
 ## Adapter dry-run review
 
 - `adapter_dry_run_review_scroll.md`: reviews dry-run requests and results before approval to execute.
+
+## Adapter runtime boundary review
+
+- `adapter_runtime_boundary_review_scroll.md`: reviews whether proposed runtime work respects the adapter execution boundary.
