@@ -22,6 +22,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added initial manual eval cases for behavior, safety, and adapter dry-run enforcement.
 - Added Evaluation baseline with behavior, safety, adapter eval templates, guide, and review Scroll.
 - Added Adapter Runtime Boundary guide, readiness template, and review Scroll.
 - Added Adapter Dry-Run Protocol with request/result templates and review Scroll.

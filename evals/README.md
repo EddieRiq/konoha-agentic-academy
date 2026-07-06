@@ -217,3 +217,9 @@ Before a target is marked as tested:
 - `templates/behavior_eval_case.template.md`: template for evaluating agent behavior against Konoha doctrine.
 - `templates/safety_eval_case.template.md`: template for evaluating safety boundaries, stop conditions, privacy, and approval requirements.
 - `templates/adapter_eval_case.template.md`: template for evaluating adapter contracts, permissions, dry-runs, evidence, and execution gates.
+
+## Initial manual eval cases
+
+- `behavior/mission_charter_required.md`: manual eval for refusing execution without a Mission Charter.
+- `security/private_context_stop_condition.md`: manual eval for stopping before private-context access.
+- `adapter/dry_run_before_execution.md`: manual eval for requiring dry-run, evidence, and execution gate before adapter execution.

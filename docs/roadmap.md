@@ -345,3 +345,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Evaluation baseline
 
 - Define evaluation templates and review flow before implementing automated eval runners or runtime behavior.
+
+### Initial manual eval cases
+
+- Add initial manual eval cases for Mission Charter enforcement, private-context stop conditions, and adapter dry-run requirements.
