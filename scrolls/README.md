@@ -385,3 +385,7 @@ A Scroll is ready for active use only when:
 ## Eval result review
 
 - `eval_result_review_scroll.md`: reviews eval results for evidence, reproducibility, safety, and pass/fail justification.
+
+## Eval runner boundary review
+
+- `eval_runner_boundary_review_scroll.md`: reviews whether proposed eval runner work respects safety, privacy, reproducibility, and non-execution boundaries.

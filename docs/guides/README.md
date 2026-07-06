@@ -94,3 +94,7 @@ Do not hide doctrine changes inside guides.
 ## Evaluation baseline
 
 - `evaluation_baseline.md`: defines the documentation-first evaluation baseline for behavior, safety, and adapter checks.
+
+## Eval runner boundary
+
+- `eval_runner_boundary.md`: defines the boundary between manual/documentation-first evals and future automated eval runners.

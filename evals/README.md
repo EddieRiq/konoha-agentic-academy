@@ -228,3 +228,7 @@ Before a target is marked as tested:
 
 - `templates/eval_result.template.md`: template for recording the result of a single eval case.
 - `templates/eval_run_report.template.md`: template for summarizing a manual or future automated eval run.
+
+## Eval runner readiness
+
+- `templates/eval_runner_readiness.template.md`: template for assessing whether an automated eval runner is ready to be implemented.

@@ -24,6 +24,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Eval Runner Boundary guide, readiness template, and review Scroll.
 - Added eval result and eval run report templates with result review Scroll.
 - Added initial manual eval cases for behavior, safety, and adapter dry-run enforcement.
 - Added Evaluation baseline with behavior, safety, adapter eval templates, guide, and review Scroll.

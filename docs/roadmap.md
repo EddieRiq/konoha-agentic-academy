@@ -353,3 +353,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Eval result templates
 
 - Add eval result templates for recording individual eval outcomes and grouped eval run reports before automated runners exist.
+
+### Eval runner boundary
+
+- Define eval runner boundaries before implementing automated eval execution, including safety, privacy, reproducibility, and reporting requirements.
