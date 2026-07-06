@@ -1,0 +1,62 @@
+# Local Allied Village ignore rules
+#
+# Copy this file to `.gitignore` only if this Village is managed as a separate local Git repo.
+# The public Academy repo should already ignore local Villages from the root .gitignore.
+#
+# Rule: local context stays local by default.
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*secret*
+*secrets*
+*credential*
+*credentials*
+
+# Private context and memory
+private-library/
+memory/local/
+memory/private/
+context/private/
+context-packs/private/
+obsidian-vault/
+.obsidian/
+
+# Private assets and outputs
+assets/private/
+assets/local-overrides/
+outputs/
+tmp/
+logs/
+debug/
+exports/
+
+# Local models and caches
+models/local/
+.cache/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local notebooks and scratch files
+scratch/
+notebooks/private/
+*.tmp
+*.bak
