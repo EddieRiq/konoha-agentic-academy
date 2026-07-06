@@ -12,6 +12,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Adapter Contracts baseline with public templates, guide, and review Scroll.
 - Added Local Knowledge Ingestion guide, Scroll, and Village templates.
 - Added Local Village bootstrap Scroll for creating ignored local Allied Villages from public templates.
 - Added public templates for local Allied Villages under lliance/templates/village/.

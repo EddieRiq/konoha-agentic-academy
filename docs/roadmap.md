@@ -305,3 +305,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Local knowledge ingestion
 
 - Document optional local knowledge ingestion for Allied Villages, including local venvs, source cards, principle cards, and promotion boundaries.
+
+### Adapter contracts baseline
+
+- Define adapter contracts before implementing runtime integrations, including manifests, capabilities, safety checklists, and review flow.

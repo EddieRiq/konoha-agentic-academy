@@ -62,3 +62,7 @@ Do not hide doctrine changes inside guides.
 ## Local knowledge
 
 - `local_knowledge_ingestion.md`: safe local workflow for turning private knowledge sources into local notes, principle cards, and learning proposals.
+
+## Adapter contracts
+
+- `adapter_contracts.md`: public guide for defining safe adapter contracts before executable integrations exist.

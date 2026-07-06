@@ -349,3 +349,7 @@ A Scroll is ready for active use only when:
 ## Local knowledge ingestion
 
 - `local_knowledge_ingestion_scroll.md`: guides local ingestion of private knowledge sources without publishing source content or weakening doctrine.
+
+## Adapter contract review
+
+- `adapter_contract_review_scroll.md`: reviews adapter manifests, capabilities, and safety boundaries before implementation.

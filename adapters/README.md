@@ -388,3 +388,7 @@ This file extends:
 - `memory/yamanaka/yamanaka_memory_policy.md`.
 
 If there is a conflict, safety and explicit user approval win.
+
+## Adapter contract templates
+
+- `templates/`: public adapter contract templates for manifests, capabilities, and safety review.
