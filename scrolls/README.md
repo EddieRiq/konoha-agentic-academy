@@ -365,3 +365,7 @@ A Scroll is ready for active use only when:
 ## Adapter execution gate review
 
 - `adapter_execution_gate_review_scroll.md`: reviews whether an adapter execution request may proceed beyond dry-run or propose-only mode.
+
+## Adapter evidence review
+
+- `adapter_evidence_review_scroll.md`: reviews whether adapter evidence is complete, safe, and sufficient.

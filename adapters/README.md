@@ -418,3 +418,9 @@ If there is a conflict, safety and explicit user approval win.
 
 - `templates/adapter_execution_gate.template.md`: template for approving or blocking adapter execution.
 - `templates/adapter_execution_log.template.md`: template for recording execution evidence, status, and outcomes.
+
+## Adapter evidence templates
+
+- `templates/adapter_evidence_pack.template.md`: template for collecting complete adapter invocation evidence.
+- `templates/adapter_pre_execution_evidence.template.md`: template for documenting evidence before adapter execution.
+- `templates/adapter_post_execution_evidence.template.md`: template for documenting evidence after adapter execution.

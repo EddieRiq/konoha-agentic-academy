@@ -329,3 +329,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter execution gate baseline
 
 - Define execution gates before runtime implementation, including approval checks, dry-run evidence, command scope, rollback notes, and execution logs.
+
+### Adapter evidence pack baseline
+
+- Define adapter evidence packs before runtime implementation, including pre-execution evidence, post-execution evidence, command records, Git status, and privacy checks.

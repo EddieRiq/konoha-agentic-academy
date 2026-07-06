@@ -78,3 +78,7 @@ Do not hide doctrine changes inside guides.
 ## Adapter execution gate
 
 - `adapter_execution_gate.md`: defines when an adapter invocation may move from dry-run or propose-only into execution.
+
+## Adapter evidence
+
+- `adapter_evidence_pack.md`: defines evidence requirements before, during, and after adapter invocation.
