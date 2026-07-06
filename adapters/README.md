@@ -398,3 +398,7 @@ If there is a conflict, safety and explicit user approval win.
 - `claude/adapter_manifest.md`: declarative profile for Claude-style coding assistants.
 - `codex/adapter_manifest.md`: declarative profile for Codex-style coding assistants.
 - `ollama/adapter_manifest.md`: declarative profile for local Ollama-style model execution.
+
+## Adapter permissions
+
+- `templates/adapter_permission_matrix.template.md`: template for declaring adapter permission levels and approval boundaries.

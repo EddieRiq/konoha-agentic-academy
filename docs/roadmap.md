@@ -313,3 +313,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Initial adapter profiles
 
 - Add declarative adapter profiles for Claude, Codex, and Ollama before implementing executable integrations.
+
+### Adapter permission matrix
+
+- Define adapter permission levels before executable integrations, separating technical capability from authorization.

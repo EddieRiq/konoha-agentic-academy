@@ -66,3 +66,7 @@ Do not hide doctrine changes inside guides.
 ## Adapter contracts
 
 - `adapter_contracts.md`: public guide for defining safe adapter contracts before executable integrations exist.
+
+## Adapter permissions
+
+- `adapter_permission_matrix.md`: defines adapter permission levels, authorization boundaries, and stop conditions.

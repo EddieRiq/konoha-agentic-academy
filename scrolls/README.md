@@ -353,3 +353,7 @@ A Scroll is ready for active use only when:
 ## Adapter contract review
 
 - `adapter_contract_review_scroll.md`: reviews adapter manifests, capabilities, and safety boundaries before implementation.
+
+## Adapter permission review
+
+- `adapter_permission_review_scroll.md`: reviews adapter permissions before command, patch, release, or private-context access.
