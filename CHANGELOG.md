@@ -15,6 +15,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added permission matrices for Claude, Codex, and Ollama adapter profiles.
 - Added Adapter Permission Matrix guide, template, and review Scroll.
 - Added initial declarative adapter profiles for Claude, Codex, and Ollama.
 - Added Adapter Contracts baseline with public templates, guide, and review Scroll.

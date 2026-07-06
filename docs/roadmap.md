@@ -317,3 +317,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter permission matrix
 
 - Define adapter permission levels before executable integrations, separating technical capability from authorization.
+
+### Adapter profile permission matrices
+
+- Apply explicit permission matrices to Claude, Codex, and Ollama adapter profiles before executable integration.

@@ -402,3 +402,9 @@ If there is a conflict, safety and explicit user approval win.
 ## Adapter permissions
 
 - `templates/adapter_permission_matrix.template.md`: template for declaring adapter permission levels and approval boundaries.
+
+## Adapter profile permissions
+
+- `claude/adapter_permission_matrix.md`: permission matrix for Claude-style coding assistant adapters.
+- `codex/adapter_permission_matrix.md`: permission matrix for Codex-style coding assistant adapters.
+- `ollama/adapter_permission_matrix.md`: permission matrix for local Ollama-style model adapters.
