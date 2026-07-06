@@ -304,3 +304,8 @@ gitignore.template
 Use these templates to create local Villages with clear boundaries, local instructions, context packs, and private-content checks.
 
 Do not commit a real local Village unless it has been explicitly reviewed and approved for public release.
+
+## Knowledge ingestion templates
+
+- `knowledge_source_card.template.md`: local template for documenting private sources without exposing source content.
+- `principle_card.template.md`: local template for distilling source-backed principles in user-written language.

@@ -301,3 +301,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Local Village bootstrap Scroll
 
 - Add scrolls/local_village_bootstrap_scroll.md to turn Village templates into a safe local bootstrap workflow.
+
+### Local knowledge ingestion
+
+- Document optional local knowledge ingestion for Allied Villages, including local venvs, source cards, principle cards, and promotion boundaries.

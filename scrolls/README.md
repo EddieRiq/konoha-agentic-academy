@@ -345,3 +345,7 @@ A Scroll is ready for active use only when:
 ## Local Village bootstrap
 
 - local_village_bootstrap_scroll.md: creates a local Allied Village from public templates while preserving the public/private boundary.
+
+## Local knowledge ingestion
+
+- `local_knowledge_ingestion_scroll.md`: guides local ingestion of private knowledge sources without publishing source content or weakening doctrine.

@@ -58,3 +58,7 @@ When a guide changes agent behavior, check whether the change belongs in:
 Do not hide doctrine changes inside guides.
 
 - [Public/private boundary](public_private_boundary.md): explains what can be public, what must stay local, and how agents must handle private context.
+
+## Local knowledge
+
+- `local_knowledge_ingestion.md`: safe local workflow for turning private knowledge sources into local notes, principle cards, and learning proposals.
