@@ -309,3 +309,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter contracts baseline
 
 - Define adapter contracts before implementing runtime integrations, including manifests, capabilities, safety checklists, and review flow.
+
+### Initial adapter profiles
+
+- Add declarative adapter profiles for Claude, Codex, and Ollama before implementing executable integrations.

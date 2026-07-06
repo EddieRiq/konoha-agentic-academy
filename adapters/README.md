@@ -392,3 +392,9 @@ If there is a conflict, safety and explicit user approval win.
 ## Adapter contract templates
 
 - `templates/`: public adapter contract templates for manifests, capabilities, and safety review.
+
+## Initial adapter profiles
+
+- `claude/adapter_manifest.md`: declarative profile for Claude-style coding assistants.
+- `codex/adapter_manifest.md`: declarative profile for Codex-style coding assistants.
+- `ollama/adapter_manifest.md`: declarative profile for local Ollama-style model execution.

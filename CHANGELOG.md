@@ -13,6 +13,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added initial declarative adapter profiles for Claude, Codex, and Ollama.
 - Added Adapter Contracts baseline with public templates, guide, and review Scroll.
 - Added Local Knowledge Ingestion guide, Scroll, and Village templates.
 - Added Local Village bootstrap Scroll for creating ignored local Allied Villages from public templates.
