@@ -74,3 +74,7 @@ Do not hide doctrine changes inside guides.
 ## Adapter invocation
 
 - `adapter_invocation_contract.md`: defines controlled request and result envelopes for adapter invocation.
+
+## Adapter execution gate
+
+- `adapter_execution_gate.md`: defines when an adapter invocation may move from dry-run or propose-only into execution.

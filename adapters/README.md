@@ -413,3 +413,8 @@ If there is a conflict, safety and explicit user approval win.
 
 - `templates/adapter_invocation_request.template.md`: request envelope template for controlled adapter invocation.
 - `templates/adapter_invocation_result.template.md`: result template for adapter outputs, evidence, and status reporting.
+
+## Adapter execution gate templates
+
+- `templates/adapter_execution_gate.template.md`: template for approving or blocking adapter execution.
+- `templates/adapter_execution_log.template.md`: template for recording execution evidence, status, and outcomes.

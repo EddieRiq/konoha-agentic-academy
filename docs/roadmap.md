@@ -325,3 +325,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter invocation contract
 
 - Define adapter invocation contracts with request envelopes, result envelopes, dry-run behavior, evidence, and approval gates.
+
+### Adapter execution gate baseline
+
+- Define execution gates before runtime implementation, including approval checks, dry-run evidence, command scope, rollback notes, and execution logs.

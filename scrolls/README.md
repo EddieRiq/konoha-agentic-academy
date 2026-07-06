@@ -361,3 +361,7 @@ A Scroll is ready for active use only when:
 ## Adapter invocation review
 
 - `adapter_invocation_review_scroll.md`: reviews adapter invocation requests before execution, delegation, or result acceptance.
+
+## Adapter execution gate review
+
+- `adapter_execution_gate_review_scroll.md`: reviews whether an adapter execution request may proceed beyond dry-run or propose-only mode.
