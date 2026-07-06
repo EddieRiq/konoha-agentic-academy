@@ -77,7 +77,7 @@ alliance/<village-name>/
 Example for Kirigakure:
 
 ```text
-alliance/kirigakure/private-library/books/effective-python/
+alliance/<village>/private-library/books/<source-id>/
 ```
 
 ## Git ignore recommendation
@@ -107,7 +107,7 @@ alliance/kirigakure/
 Use `git check-ignore` before trusting the setup:
 
 ```bash
-git check-ignore -v alliance/kirigakure/private-library/books/effective-python/source.md
+git check-ignore -v alliance/<village>/private-library/books/<source-id>/source.md
 ```
 
 ## Source card

@@ -66,7 +66,7 @@ Recommended virtual environment prompt:
 Examples:
 
 ```text
-kirienv
+<village-env>
 sunaenv
 iwaenv
 ```
