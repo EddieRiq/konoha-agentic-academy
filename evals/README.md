@@ -223,3 +223,8 @@ Before a target is marked as tested:
 - `behavior/mission_charter_required.md`: manual eval for refusing execution without a Mission Charter.
 - `security/private_context_stop_condition.md`: manual eval for stopping before private-context access.
 - `adapter/dry_run_before_execution.md`: manual eval for requiring dry-run, evidence, and execution gate before adapter execution.
+
+## Eval result templates
+
+- `templates/eval_result.template.md`: template for recording the result of a single eval case.
+- `templates/eval_run_report.template.md`: template for summarizing a manual or future automated eval run.

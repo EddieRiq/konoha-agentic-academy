@@ -349,3 +349,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Initial manual eval cases
 
 - Add initial manual eval cases for Mission Charter enforcement, private-context stop conditions, and adapter dry-run requirements.
+
+### Eval result templates
+
+- Add eval result templates for recording individual eval outcomes and grouped eval run reports before automated runners exist.

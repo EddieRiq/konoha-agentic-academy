@@ -381,3 +381,7 @@ A Scroll is ready for active use only when:
 ## Evaluation review
 
 - `evaluation_review_scroll.md`: reviews eval cases for clarity, safety coverage, expected behavior, and evidence requirements.
+
+## Eval result review
+
+- `eval_result_review_scroll.md`: reviews eval results for evidence, reproducibility, safety, and pass/fail justification.
