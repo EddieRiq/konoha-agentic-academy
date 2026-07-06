@@ -82,3 +82,7 @@ Do not hide doctrine changes inside guides.
 ## Adapter evidence
 
 - `adapter_evidence_pack.md`: defines evidence requirements before, during, and after adapter invocation.
+
+## Adapter dry-run protocol
+
+- `adapter_dry_run_protocol.md`: defines how adapters simulate work before any file mutation, command execution, Git operation, or release action.

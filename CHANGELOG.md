@@ -19,6 +19,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Adapter Dry-Run Protocol with request/result templates and review Scroll.
 - Added Adapter Evidence Pack baseline with pre-execution, post-execution, and review templates.
 - Added Adapter Execution Gate baseline with approval, logging, and review templates.
 - Added Adapter Invocation Contract with request/result templates and review Scroll.

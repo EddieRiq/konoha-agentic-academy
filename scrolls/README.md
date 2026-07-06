@@ -369,3 +369,7 @@ A Scroll is ready for active use only when:
 ## Adapter evidence review
 
 - `adapter_evidence_review_scroll.md`: reviews whether adapter evidence is complete, safe, and sufficient.
+
+## Adapter dry-run review
+
+- `adapter_dry_run_review_scroll.md`: reviews dry-run requests and results before approval to execute.

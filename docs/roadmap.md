@@ -333,3 +333,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter evidence pack baseline
 
 - Define adapter evidence packs before runtime implementation, including pre-execution evidence, post-execution evidence, command records, Git status, and privacy checks.
+
+### Adapter dry-run protocol
+
+- Define adapter dry-run protocol before runtime implementation, ensuring adapters can simulate actions and produce evidence before execution.
