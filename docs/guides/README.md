@@ -70,3 +70,7 @@ Do not hide doctrine changes inside guides.
 ## Adapter permissions
 
 - `adapter_permission_matrix.md`: defines adapter permission levels, authorization boundaries, and stop conditions.
+
+## Adapter invocation
+
+- `adapter_invocation_contract.md`: defines controlled request and result envelopes for adapter invocation.

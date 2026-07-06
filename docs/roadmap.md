@@ -321,3 +321,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter profile permission matrices
 
 - Apply explicit permission matrices to Claude, Codex, and Ollama adapter profiles before executable integration.
+
+### Adapter invocation contract
+
+- Define adapter invocation contracts with request envelopes, result envelopes, dry-run behavior, evidence, and approval gates.

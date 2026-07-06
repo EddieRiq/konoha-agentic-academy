@@ -408,3 +408,8 @@ If there is a conflict, safety and explicit user approval win.
 - `claude/adapter_permission_matrix.md`: permission matrix for Claude-style coding assistant adapters.
 - `codex/adapter_permission_matrix.md`: permission matrix for Codex-style coding assistant adapters.
 - `ollama/adapter_permission_matrix.md`: permission matrix for local Ollama-style model adapters.
+
+## Adapter invocation templates
+
+- `templates/adapter_invocation_request.template.md`: request envelope template for controlled adapter invocation.
+- `templates/adapter_invocation_result.template.md`: result template for adapter outputs, evidence, and status reporting.
