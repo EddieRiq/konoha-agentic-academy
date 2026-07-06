@@ -211,3 +211,9 @@ Before a target is marked as tested:
 - required review level has approved the result;
 - any new learning is routed through Learning Policy.
 ```
+
+## Evaluation case templates
+
+- `templates/behavior_eval_case.template.md`: template for evaluating agent behavior against Konoha doctrine.
+- `templates/safety_eval_case.template.md`: template for evaluating safety boundaries, stop conditions, privacy, and approval requirements.
+- `templates/adapter_eval_case.template.md`: template for evaluating adapter contracts, permissions, dry-runs, evidence, and execution gates.

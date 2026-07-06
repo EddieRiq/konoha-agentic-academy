@@ -377,3 +377,7 @@ A Scroll is ready for active use only when:
 ## Adapter runtime boundary review
 
 - `adapter_runtime_boundary_review_scroll.md`: reviews whether proposed runtime work respects the adapter execution boundary.
+
+## Evaluation review
+
+- `evaluation_review_scroll.md`: reviews eval cases for clarity, safety coverage, expected behavior, and evidence requirements.

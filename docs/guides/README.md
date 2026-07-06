@@ -90,3 +90,7 @@ Do not hide doctrine changes inside guides.
 ## Adapter runtime boundary
 
 - `adapter_runtime_boundary.md`: defines the boundary between declarative adapter doctrine and future executable runtime implementation.
+
+## Evaluation baseline
+
+- `evaluation_baseline.md`: defines the documentation-first evaluation baseline for behavior, safety, and adapter checks.

@@ -341,3 +341,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter runtime boundary
 
 - Define adapter runtime boundaries before implementing executable integrations, making clear that v0.3.0 remains declarative and non-executing.
+
+### Evaluation baseline
+
+- Define evaluation templates and review flow before implementing automated eval runners or runtime behavior.
