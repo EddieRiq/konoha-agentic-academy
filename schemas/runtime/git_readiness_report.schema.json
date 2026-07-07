@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/git_readiness_report.schema.json",
+  "title": "Git Readiness Report",
+  "type": "object",
+  "required": [
+    "tool",
+    "status",
+    "repo_root",
+    "allow_dirty",
+    "status_entries",
+    "changed_paths",
+    "tracked_file_count",
+    "tracked_private_paths",
+    "ignore_checks",
+    "blockers",
+    "warnings",
+    "safety"
+  ],
+  "properties": {
+    "tool": {
+      "const": "git_read_only_gate"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "blocked"
+      ]
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "allow_dirty": {
+      "type": "boolean"
+    },
+    "status_entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "status",
+          "path",
+          "category"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "category": {
+            "enum": [
+              "modified",
+              "untracked",
+              "ignored",
+              "unknown"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "changed_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tracked_file_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tracked_private_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ignore_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "ignored",
+          "detail"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "ignored": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "git_operations",
+        "git_write_operations",
+        "private_context_access",
+        "adapter_execution",
+        "network_access"
+      ],
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "filesystem_mutation": {
+          "const": "blocked"
+        },
+        "git_operations": {
+          "const": "read_only"
+        },
+        "git_write_operations": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "blocked"
+        },
+        "network_access": {
+          "const": "blocked"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

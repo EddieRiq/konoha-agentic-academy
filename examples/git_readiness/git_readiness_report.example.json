@@ -1,0 +1,28 @@
+{
+  "tool": "git_read_only_gate",
+  "status": "passed",
+  "repo_root": "/path/to/konoha-agentic-academy",
+  "allow_dirty": false,
+  "status_entries": [],
+  "changed_paths": [],
+  "tracked_file_count": 250,
+  "tracked_private_paths": [],
+  "ignore_checks": [
+    {
+      "path": "alliance/example-private-village/private-library/example-source.md",
+      "ignored": true,
+      "detail": ".gitignore:example:alliance/*/private-library/"
+    }
+  ],
+  "blockers": [],
+  "warnings": [],
+  "safety": {
+    "execution": "blocked",
+    "filesystem_mutation": "blocked",
+    "git_operations": "read_only",
+    "git_write_operations": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "blocked",
+    "network_access": "blocked"
+  }
+}
