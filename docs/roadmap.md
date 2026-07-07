@@ -389,3 +389,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Model routing and token governance baseline
 
 - Define model routing and token governance before runtime skeleton, including context capsules, resource probes, token reports, capability review, and escalation/demotion rules.
+
+### Model tier matrix
+
+- Define model tier matrix before runtime skeleton, including Clerk, Draft Worker, Specialist Worker, Reviewer/Jounin, and Orchestrator/Hokage levels.

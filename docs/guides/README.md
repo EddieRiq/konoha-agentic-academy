@@ -132,3 +132,7 @@ Do not hide doctrine changes inside guides.
 - `model_routing_and_token_governance.md`: defines model tiering, context budgets, token governance, capability review, and escalation rules.
 - `context_capsules.md`: defines validated summarized context packs for reducing repeated instruction intake.
 - `session_resource_probe.md`: defines how a session may check available model/token resources without inventing unavailable metrics.
+
+## Model tier matrix
+
+- `model_tier_matrix.md`: defines model tiers, task suitability, escalation, demotion, and capability review rules.

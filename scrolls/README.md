@@ -422,3 +422,7 @@ A Scroll is ready for active use only when:
 
 - `model_routing_review_scroll.md`: reviews model tier choice, capability sufficiency, escalation triggers, and cost-quality tradeoffs.
 - `context_budget_review_scroll.md`: reviews context intake plans, capsule use, source loading, and token budget discipline.
+
+## Model tier review
+
+- `model_tier_review_scroll.md`: reviews model tier assignment, sufficiency, escalation triggers, and demotion evidence.
