@@ -47,6 +47,10 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+
+- Added Controlled Artifact Writer inside Sandbox with proposed outputs, sandbox apply plan schema, artifact write report schema, tests, example apply plan, guide, and review Scroll.
+- Added Read-only Repo Inspector with public repo coherence checks, repo inspection report schema, tests, example report, guide, and review Scroll.
 - Added Runtime Run Registry with read-only run listing, registry report schema, tests, example report, guide, and review Scroll.
 - Added Dry-run Runtime Runner with sandbox orchestration, package generation, validation, inspection, run summary schema, tests, example summary, guide, and review Scroll.
 - Added Local Sandbox Boundary with sandbox guard, sandbox run preparation CLI, sandbox run manifest schema, tests, example manifest, guide, and review Scroll.

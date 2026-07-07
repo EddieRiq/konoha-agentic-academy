@@ -478,3 +478,11 @@ A Scroll is ready for active use only when:
 ## Runtime run registry review
 
 - `runtime_run_registry_review_scroll.md`: reviews registry behavior, run states, blockers, report output, and read-only safety constraints.
+
+## Repo inspector review
+
+- `repo_inspector_review_scroll.md`: reviews repo inspector behavior, public scan boundaries, findings, tests, reports, and read-only safety constraints.
+
+## Artifact writer review
+
+- `artifact_writer_review_scroll.md`: reviews sandbox artifact writing, proposed outputs, apply plans, write reports, path safety, and non-apply boundaries.

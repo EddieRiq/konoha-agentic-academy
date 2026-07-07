@@ -468,3 +468,15 @@ The runner orchestrates the safe dry-run toolchain inside the sandbox. It does n
 - Runtime Run Registry: lists dry-run sandbox runs, states, blockers, and safety boundaries without mutation.
 
 The registry reads sandbox run folders and reports run status, missing artifacts, blockers, and safety boundaries. It does not execute missions, modify files, perform Git operations, invoke adapters, or access private context.
+
+## Read-only repo inspector
+
+- Read-only Repo Inspector: inspects public repository coherence, risky patterns, examples, and safety boundaries without mutation.
+
+The repo inspector reads allowlisted public repository areas and reports coherence, risky patterns, executable examples, and public/private boundary signals. It does not modify files, execute commands, perform Git operations, invoke adapters, or access private context.
+
+## Controlled artifact writer
+
+- Controlled Artifact Writer inside Sandbox: writes proposed artifacts and apply plans only inside sandbox runs.
+
+The artifact writer creates proposed outputs, apply plans, and write reports inside sandbox runs only. It does not apply files to the repository, execute missions, perform Git operations, invoke adapters, or access private context.

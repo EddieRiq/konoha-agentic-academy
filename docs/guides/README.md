@@ -188,3 +188,11 @@ Do not hide doctrine changes inside guides.
 ## Runtime run registry
 
 - `runtime_run_registry.md`: defines the read-only runtime run registry, run states, blockers, registry reports, and non-mutation rules.
+
+## Read-only repo inspector
+
+- `read_only_repo_inspector.md`: defines the read-only repo inspector, public scan boundary, findings, safety checks, and non-mutation rules.
+
+## Controlled artifact writer
+
+- `controlled_artifact_writer.md`: defines the controlled sandbox artifact writer, proposed outputs, apply plans, write reports, path safety, and non-apply rules.

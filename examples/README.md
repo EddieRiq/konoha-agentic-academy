@@ -31,3 +31,11 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Runtime run registry reports
 
 - `sandbox_runs/runtime_run_registry_report.example.json`: example report produced by the read-only runtime run registry.
+
+## Repo inspection reports
+
+- `repo_inspections/repo_inspection_report.example.json`: example report produced by the read-only repo inspector.
+
+## Sandbox apply plans
+
+- `sandbox_runs/sandbox_apply_plan.example.json`: example apply plan created by the controlled sandbox artifact writer.

@@ -445,3 +445,11 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Runtime run registry
 
 - Add a runtime run registry after the dry-run runtime runner, listing sandbox run history, pass/fail states, blockers, and safety boundaries without modifying files.
+
+### Read-only repo inspector
+
+- Add a read-only repo inspector after the runtime run registry, checking public repository coherence, risky patterns, examples, and safety boundaries without modifying files.
+
+### Controlled artifact writer inside sandbox
+
+- Add a controlled artifact writer after the read-only repo inspector, writing proposed outputs and apply plans only inside sandbox runs without applying changes to the repository.
