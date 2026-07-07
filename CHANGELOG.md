@@ -27,6 +27,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Filesystem Mutation Boundary with mutation request/result templates and readiness review.
 - Added Command Runner Boundary with command execution request/result templates and readiness review.
 - Added Runtime Planning baseline with runtime README, planning guide, readiness templates, and review Scroll.
 - Added Eval Runner Boundary guide, readiness template, and review Scroll.

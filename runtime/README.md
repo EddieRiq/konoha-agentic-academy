@@ -57,3 +57,9 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 - `templates/command_execution_request.template.md`: template for requesting command execution under explicit scope and approval.
 - `templates/command_execution_result.template.md`: template for recording command execution result, evidence, output, and status.
 - `templates/command_runner_readiness.template.md`: template for assessing whether command runner implementation is ready.
+
+## Filesystem mutation boundary
+
+- `templates/filesystem_mutation_request.template.md`: template for requesting file creation, modification, movement, rename, overwrite, or deletion.
+- `templates/filesystem_mutation_result.template.md`: template for recording filesystem mutation evidence and outcome.
+- `templates/filesystem_mutation_readiness.template.md`: template for assessing readiness before implementing filesystem mutation behavior.

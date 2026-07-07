@@ -365,3 +365,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Command runner boundary
 
 - Define command runner boundaries before implementing any command execution component, including scope, approval, evidence, rollback, and blocked command categories.
+
+### Filesystem mutation boundary
+
+- Define filesystem mutation boundaries before implementing file creation, editing, movement, overwrite, or deletion behavior.

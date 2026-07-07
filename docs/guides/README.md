@@ -106,3 +106,7 @@ Do not hide doctrine changes inside guides.
 ## Command runner boundary
 
 - `command_runner_boundary.md`: defines the safety boundary for any future component that may execute commands.
+
+## Filesystem mutation boundary
+
+- `filesystem_mutation_boundary.md`: defines the safety boundary for future file creation, editing, movement, overwrite, and deletion behavior.

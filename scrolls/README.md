@@ -397,3 +397,7 @@ A Scroll is ready for active use only when:
 ## Command runner boundary review
 
 - `command_runner_boundary_review_scroll.md`: reviews proposed command runner work before implementation or use.
+
+## Filesystem mutation boundary review
+
+- `filesystem_mutation_boundary_review_scroll.md`: reviews proposed filesystem mutation behavior before implementation or use.
