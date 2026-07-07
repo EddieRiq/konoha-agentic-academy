@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sandbox_artifact_write_report.schema.json",
+  "title": "Konoha Sandbox Artifact Write Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "status",
+    "artifact_kind",
+    "sandbox_artifact_path",
+    "apply_plan_path",
+    "execution",
+    "filesystem_mutation",
+    "git_operations",
+    "adapter_execution",
+    "private_context_access",
+    "network_access",
+    "repository_apply",
+    "requires_human_approval_to_apply"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "written",
+        "blocked"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "artifact_kind": {
+      "enum": [
+        "markdown",
+        "json",
+        "text",
+        "report"
+      ]
+    },
+    "sandbox_artifact_path": {
+      "type": "string"
+    },
+    "artifact_absolute_path": {
+      "type": "string"
+    },
+    "apply_plan_path": {
+      "type": "string"
+    },
+    "force_used": {
+      "type": "boolean"
+    },
+    "execution": {
+      "const": "blocked"
+    },
+    "filesystem_mutation": {
+      "const": "sandbox_only"
+    },
+    "git_operations": {
+      "const": "blocked"
+    },
+    "adapter_execution": {
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "const": "blocked"
+    },
+    "network_access": {
+      "const": "blocked"
+    },
+    "repository_apply": {
+      "const": "blocked"
+    },
+    "requires_human_approval_to_apply": {
+      "const": true
+    }
+  },
+  "additionalProperties": true
+}

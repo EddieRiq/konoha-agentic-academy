@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sandbox_apply_plan.schema.json",
+  "title": "Konoha Sandbox Apply Plan",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "plan_id",
+    "mode",
+    "run_id",
+    "status",
+    "execution",
+    "filesystem_mutation",
+    "git_operations",
+    "adapter_execution",
+    "private_context_access",
+    "network_access",
+    "planned_changes"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "mode": {
+      "const": "dry_run"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "proposed",
+        "reviewed",
+        "blocked"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "execution": {
+      "const": "blocked"
+    },
+    "filesystem_mutation": {
+      "const": "sandbox_only"
+    },
+    "git_operations": {
+      "const": "blocked"
+    },
+    "adapter_execution": {
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "const": "blocked"
+    },
+    "network_access": {
+      "const": "blocked"
+    },
+    "planned_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "change_id",
+          "operation",
+          "artifact_kind",
+          "sandbox_artifact_path",
+          "intended_repo_path",
+          "apply_status",
+          "requires_human_approval"
+        ],
+        "properties": {
+          "change_id": {
+            "type": "string"
+          },
+          "operation": {
+            "const": "propose_file"
+          },
+          "artifact_kind": {
+            "enum": [
+              "markdown",
+              "json",
+              "text",
+              "report"
+            ]
+          },
+          "sandbox_artifact_path": {
+            "type": "string"
+          },
+          "intended_repo_path": {
+            "type": "string"
+          },
+          "apply_status": {
+            "enum": [
+              "not_applied",
+              "blocked",
+              "applied_by_future_gate"
+            ]
+          },
+          "requires_human_approval": {
+            "const": true
+          },
+          "execution": {
+            "const": "blocked"
+          },
+          "git_operations": {
+            "const": "blocked"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

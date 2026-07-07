@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schemas/runtime/sandbox_apply_plan.schema.json",
+  "schema_version": "0.1",
+  "plan_id": "apply-plan-example-run",
+  "mode": "dry_run",
+  "run_id": "example-run",
+  "status": "proposed",
+  "created_at": "2026-01-01T00:00:00+00:00",
+  "updated_at": "2026-01-01T00:00:00+00:00",
+  "execution": "blocked",
+  "filesystem_mutation": "sandbox_only",
+  "git_operations": "blocked",
+  "adapter_execution": "blocked",
+  "private_context_access": "blocked",
+  "network_access": "blocked",
+  "planned_changes": [
+    {
+      "change_id": "change-001",
+      "operation": "propose_file",
+      "artifact_kind": "markdown",
+      "sandbox_artifact_path": "proposed_outputs/docs/proposed_note.md",
+      "intended_repo_path": "docs/proposed_note.md",
+      "apply_status": "not_applied",
+      "requires_human_approval": true,
+      "execution": "blocked",
+      "git_operations": "blocked",
+      "notes": [
+        "This is a sandbox proposal only.",
+        "Applying it requires a future human-approved apply gate."
+      ]
+    }
+  ],
+  "notes": [
+    "This apply plan is an example artifact.",
+    "It does not authorize repository mutation."
+  ]
+}
