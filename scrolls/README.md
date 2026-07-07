@@ -417,3 +417,8 @@ A Scroll is ready for active use only when:
 ## Runtime audit review
 
 - `runtime_audit_review_scroll.md`: reviews runtime audit checklists before release, runtime proposal, or implementation.
+
+## Model routing and context budget review
+
+- `model_routing_review_scroll.md`: reviews model tier choice, capability sufficiency, escalation triggers, and cost-quality tradeoffs.
+- `context_budget_review_scroll.md`: reviews context intake plans, capsule use, source loading, and token budget discipline.

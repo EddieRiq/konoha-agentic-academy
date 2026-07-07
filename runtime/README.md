@@ -84,3 +84,9 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 ## Runtime audit checklist
 
 - `templates/runtime_audit_checklist.template.md`: template for auditing runtime planning before release or implementation.
+
+## Model routing and token governance
+
+- `templates/model_routing_decision.template.md`: template for documenting model tier choice, capability rationale, and escalation triggers.
+- `templates/context_budget.template.md`: template for planning context intake, source loading, and budget limits.
+- `templates/token_usage_report.template.md`: template for reporting estimated or measured token usage after a mission.

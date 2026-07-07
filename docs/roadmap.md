@@ -385,3 +385,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Runtime audit checklist
 
 - Add runtime audit checklist before runtime release checkpoints or executable runtime proposals.
+
+### Model routing and token governance baseline
+
+- Define model routing and token governance before runtime skeleton, including context capsules, resource probes, token reports, capability review, and escalation/demotion rules.

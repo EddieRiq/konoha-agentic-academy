@@ -414,3 +414,9 @@ A real Village, such as `alliance/kirigakure/`, must stay local and ignored by G
 - Runtime planning baseline for future non-autonomous execution architecture.
 
 The current runtime layer is planning-only. Konoha does not yet include executable runtime, autonomous command execution, or automatic Git operations.
+
+## Model routing and token governance
+
+- Model routing and token governance baseline for safe, sufficient, cost-aware intelligence.
+
+Konoha optimizes for safe, sufficient intelligence, not maximum intelligence by default.

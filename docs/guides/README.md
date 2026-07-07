@@ -126,3 +126,9 @@ Do not hide doctrine changes inside guides.
 ## Runtime audit checklist
 
 - `runtime_audit_checklist.md`: checklist for auditing runtime planning boundaries before release or executable implementation.
+
+## Model routing and token governance
+
+- `model_routing_and_token_governance.md`: defines model tiering, context budgets, token governance, capability review, and escalation rules.
+- `context_capsules.md`: defines validated summarized context packs for reducing repeated instruction intake.
+- `session_resource_probe.md`: defines how a session may check available model/token resources without inventing unavailable metrics.
