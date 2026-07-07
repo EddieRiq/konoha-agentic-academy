@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/runtime_run_registry_report.schema.json",
+  "title": "Runtime Run Registry Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "sandbox_root",
+    "run_count",
+    "state_counts",
+    "runs",
+    "safety"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "const": "runtime_run_registry"
+    },
+    "sandbox_root": {
+      "type": "string"
+    },
+    "run_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "state_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "run_id",
+          "path",
+          "state",
+          "has_manifest",
+          "has_runtime_package",
+          "has_validation_report",
+          "has_inspection_report",
+          "has_run_summary",
+          "mode",
+          "validation",
+          "inspection",
+          "execution",
+          "filesystem_mutation",
+          "git_operations",
+          "private_context_access",
+          "adapter_execution",
+          "network_access",
+          "blockers"
+        ],
+        "properties": {
+          "run_id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "passed",
+              "review_required",
+              "incomplete_or_blocked"
+            ]
+          },
+          "has_manifest": {
+            "type": "boolean"
+          },
+          "has_runtime_package": {
+            "type": "boolean"
+          },
+          "has_validation_report": {
+            "type": "boolean"
+          },
+          "has_inspection_report": {
+            "type": "boolean"
+          },
+          "has_run_summary": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "validation": {
+            "type": "string"
+          },
+          "inspection": {
+            "type": "string"
+          },
+          "execution": {
+            "type": "string"
+          },
+          "filesystem_mutation": {
+            "type": "string"
+          },
+          "git_operations": {
+            "type": "string"
+          },
+          "private_context_access": {
+            "type": "string"
+          },
+          "adapter_execution": {
+            "type": "string"
+          },
+          "network_access": {
+            "type": "string"
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "git_operations",
+        "private_context_access",
+        "adapter_execution",
+        "network_access"
+      ],
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "filesystem_mutation": {
+          "const": "read_only"
+        },
+        "git_operations": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "blocked"
+        },
+        "network_access": {
+          "const": "blocked"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

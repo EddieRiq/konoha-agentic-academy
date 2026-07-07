@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "tool": "runtime_run_registry",
+  "sandbox_root": "sandbox",
+  "run_count": 1,
+  "state_counts": {
+    "passed": 1
+  },
+  "runs": [
+    {
+      "run_id": "docs-update-dry-run",
+      "path": "runs/docs-update-dry-run",
+      "state": "passed",
+      "has_manifest": true,
+      "has_runtime_package": true,
+      "has_validation_report": true,
+      "has_inspection_report": true,
+      "has_run_summary": true,
+      "mode": "dry_run",
+      "validation": "passed",
+      "inspection": "passed",
+      "execution": "blocked",
+      "filesystem_mutation": "sandbox_only",
+      "git_operations": "blocked",
+      "private_context_access": "blocked",
+      "adapter_execution": "blocked",
+      "network_access": "blocked",
+      "blockers": []
+    }
+  ],
+  "safety": {
+    "execution": "blocked",
+    "filesystem_mutation": "read_only",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "blocked",
+    "network_access": "blocked"
+  }
+}
