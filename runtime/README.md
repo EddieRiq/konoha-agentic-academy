@@ -113,3 +113,8 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 - `templates/adapter_invocation_stub.template.md`: template for describing adapter calls without executing them.
 - `templates/evidence_collection_stub.template.md`: template for listing expected evidence without collecting it automatically.
 - `templates/runtime_state.template.md`: template for documenting runtime state during dry-run planning.
+
+## Runtime validation checklist
+
+- `templates/runtime_validation_checklist.template.md`: template for validating a dry-run runtime package before review.
+- `templates/runtime_validation_report.template.md`: template for reporting validation outcome, blockers, revisions, and review readiness.

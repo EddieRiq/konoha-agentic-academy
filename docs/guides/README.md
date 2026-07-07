@@ -148,3 +148,7 @@ Do not hide doctrine changes inside guides.
 ## First runtime skeleton
 
 - `first_runtime_skeleton.md`: defines the first dry-run-only runtime skeleton, including mission intake, planning, adapter stubs, evidence stubs, and runtime state.
+
+## Runtime validation checklist
+
+- `runtime_validation_checklist.md`: defines validation criteria for dry-run runtime packages, including authority, context, model routing, token budget, evidence, and privacy boundaries.

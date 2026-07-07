@@ -405,3 +405,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### First runtime skeleton
 
 - Define first runtime skeleton after model routing governance, using dry-run-only mission intake, execution planning, adapter stubs, evidence stubs, and runtime state.
+
+### Runtime validation checklist
+
+- Define runtime validation checklist after the first runtime skeleton, including dry-run package validation, blockers, revisions, and review readiness.
