@@ -480,3 +480,9 @@ The repo inspector reads allowlisted public repository areas and reports coheren
 - Controlled Artifact Writer inside Sandbox: writes proposed artifacts and apply plans only inside sandbox runs.
 
 The artifact writer creates proposed outputs, apply plans, and write reports inside sandbox runs only. It does not apply files to the repository, execute missions, perform Git operations, invoke adapters, or access private context.
+
+## Human-approved apply plan
+
+- Human-approved Apply Plan Prototype: previews and applies sandbox proposed artifacts to allowlisted repo paths only with explicit approval.
+
+The apply plan prototype reads sandbox apply plans, previews proposed changes, and can copy approved artifacts to allowlisted repository paths only with explicit human approval. It does not execute missions, perform Git operations, invoke adapters, or access private context.

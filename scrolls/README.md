@@ -486,3 +486,7 @@ A Scroll is ready for active use only when:
 ## Artifact writer review
 
 - `artifact_writer_review_scroll.md`: reviews sandbox artifact writing, proposed outputs, apply plans, write reports, path safety, and non-apply boundaries.
+
+## Apply plan review
+
+- `apply_plan_review_scroll.md`: reviews sandbox apply plans, proposed artifacts, destination allowlists, human approval evidence, apply reports, and non-execution boundaries.

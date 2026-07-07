@@ -196,3 +196,7 @@ Do not hide doctrine changes inside guides.
 ## Controlled artifact writer
 
 - `controlled_artifact_writer.md`: defines the controlled sandbox artifact writer, proposed outputs, apply plans, write reports, path safety, and non-apply rules.
+
+## Human-approved apply plan
+
+- `human_approved_apply_plan.md`: defines the human-approved apply plan prototype, preview mode, explicit approval token, allowlisted destinations, apply reports, and non-execution rules.

@@ -453,3 +453,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Controlled artifact writer inside sandbox
 
 - Add a controlled artifact writer after the read-only repo inspector, writing proposed outputs and apply plans only inside sandbox runs without applying changes to the repository.
+
+### Human-approved apply plan prototype
+
+- Add a human-approved apply plan prototype after the controlled artifact writer, previewing sandbox proposals and applying only allowlisted files with explicit approval.

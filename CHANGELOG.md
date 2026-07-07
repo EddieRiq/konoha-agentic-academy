@@ -49,6 +49,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Human-approved Apply Plan Prototype with preview/apply CLI, explicit approval token, allowlisted destinations, apply report schema, tests, example report, guide, and review Scroll.
 - Added Controlled Artifact Writer inside Sandbox with proposed outputs, sandbox apply plan schema, artifact write report schema, tests, example apply plan, guide, and review Scroll.
 - Added Read-only Repo Inspector with public repo coherence checks, repo inspection report schema, tests, example report, guide, and review Scroll.
 - Added Runtime Run Registry with read-only run listing, registry report schema, tests, example report, guide, and review Scroll.

@@ -39,3 +39,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Sandbox apply plans
 
 - `sandbox_runs/sandbox_apply_plan.example.json`: example apply plan created by the controlled sandbox artifact writer.
+
+## Human-approved apply reports
+
+- `sandbox_runs/human_approved_apply_report.example.json`: example report produced by the human-approved apply plan prototype.
