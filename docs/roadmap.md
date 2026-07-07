@@ -417,3 +417,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Runtime package assembly
 
 - Define runtime package assembly after trace logging, including package manifest, package index, closure record, validation report, trace log, and governance records.
+
+### Dry-run mission examples
+
+- Add public dry-run mission examples after runtime package assembly, using generic scenarios with no private context, no execution, and complete package records.

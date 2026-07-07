@@ -450,3 +450,7 @@ A Scroll is ready for active use only when:
 ## Runtime package review
 
 - `runtime_package_review_scroll.md`: reviews runtime package manifests, package indexes, closure records, trace logs, validation reports, and execution blockers.
+
+## Dry-run mission examples review
+
+- `dry_run_mission_examples_review_scroll.md`: reviews public dry-run mission examples for safety, completeness, traceability, and non-execution boundaries.

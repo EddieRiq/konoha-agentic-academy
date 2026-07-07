@@ -426,3 +426,9 @@ Konoha optimizes for safe, sufficient intelligence, not maximum intelligence by 
 - First runtime skeleton baseline for dry-run-only mission planning.
 
 The first runtime skeleton is documentation-first and dry-run only. It does not execute shell commands, mutate files, perform Git operations, or access private context automatically.
+
+## Dry-run mission examples
+
+- Dry-run mission examples baseline with public, generic, non-executable runtime package examples.
+
+The examples show how Mission Intake, Dry-Run Execution Plan, Validation Report, Trace Log, and Runtime Package Assembly fit together without executing actions.

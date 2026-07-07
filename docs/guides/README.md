@@ -160,3 +160,7 @@ Do not hide doctrine changes inside guides.
 ## Runtime package assembly
 
 - `runtime_package_assembly.md`: defines how dry-run runtime artifacts are assembled into a complete, reviewable package.
+
+## Dry-run mission examples
+
+- `dry_run_mission_examples.md`: defines public, generic dry-run mission examples and the safety rules for publishing them.
