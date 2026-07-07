@@ -152,3 +152,7 @@ Do not hide doctrine changes inside guides.
 ## Runtime validation checklist
 
 - `runtime_validation_checklist.md`: defines validation criteria for dry-run runtime packages, including authority, context, model routing, token budget, evidence, and privacy boundaries.
+
+## Runtime trace log
+
+- `runtime_trace_log.md`: defines append-only dry-run runtime trace logging for planning steps, blockers, evidence, approvals, and supersession.

@@ -442,3 +442,7 @@ A Scroll is ready for active use only when:
 ## Runtime validation review
 
 - `runtime_validation_review_scroll.md`: reviews runtime validation checklists, validation reports, blockers, revisions, and dry-run readiness.
+
+## Runtime trace review
+
+- `runtime_trace_review_scroll.md`: reviews runtime trace logs, trace events, blockers, evidence references, approvals, and supersession records.

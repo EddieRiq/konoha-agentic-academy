@@ -118,3 +118,8 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 
 - `templates/runtime_validation_checklist.template.md`: template for validating a dry-run runtime package before review.
 - `templates/runtime_validation_report.template.md`: template for reporting validation outcome, blockers, revisions, and review readiness.
+
+## Runtime trace log
+
+- `templates/runtime_trace_log.template.md`: template for maintaining an append-only dry-run runtime trace log.
+- `templates/runtime_trace_event.template.md`: template for documenting individual dry-run trace events, blockers, evidence, and supersession.

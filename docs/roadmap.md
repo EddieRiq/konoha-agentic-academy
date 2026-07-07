@@ -409,3 +409,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Runtime validation checklist
 
 - Define runtime validation checklist after the first runtime skeleton, including dry-run package validation, blockers, revisions, and review readiness.
+
+### Runtime trace log
+
+- Define runtime trace logging after runtime validation, including append-only trace events, blockers, evidence references, approvals, and supersession.
