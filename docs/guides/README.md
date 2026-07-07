@@ -156,3 +156,7 @@ Do not hide doctrine changes inside guides.
 ## Runtime trace log
 
 - `runtime_trace_log.md`: defines append-only dry-run runtime trace logging for planning steps, blockers, evidence, approvals, and supersession.
+
+## Runtime package assembly
+
+- `runtime_package_assembly.md`: defines how dry-run runtime artifacts are assembled into a complete, reviewable package.

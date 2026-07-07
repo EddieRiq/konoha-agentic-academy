@@ -413,3 +413,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Runtime trace log
 
 - Define runtime trace logging after runtime validation, including append-only trace events, blockers, evidence references, approvals, and supersession.
+
+### Runtime package assembly
+
+- Define runtime package assembly after trace logging, including package manifest, package index, closure record, validation report, trace log, and governance records.

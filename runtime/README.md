@@ -123,3 +123,9 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 
 - `templates/runtime_trace_log.template.md`: template for maintaining an append-only dry-run runtime trace log.
 - `templates/runtime_trace_event.template.md`: template for documenting individual dry-run trace events, blockers, evidence, and supersession.
+
+## Runtime package assembly
+
+- `templates/runtime_package_manifest.template.md`: template for declaring a complete dry-run runtime package and its governance records.
+- `templates/runtime_package_index.template.md`: template for indexing package artifacts, evidence references, validation records, and trace logs.
+- `templates/runtime_package_closure.template.md`: template for closing a dry-run runtime package without authorizing execution.

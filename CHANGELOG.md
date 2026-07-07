@@ -39,6 +39,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Runtime Package Assembly with package manifest, package index, package closure template, and package review Scroll.
 - Added Runtime Trace Log with append-only trace log template, trace event template, and trace review Scroll.
 - Added Runtime Validation Checklist with validation checklist template, validation report template, and validation review Scroll.
 - Added First Runtime Skeleton with mission intake, dry-run execution plan, adapter invocation stub, evidence collection stub, runtime state template, and dry-run review Scroll.
