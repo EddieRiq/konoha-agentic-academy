@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.16.0",
+  "tool": "read_only_repo_inspector",
+  "repo_root": ".",
+  "mode": "read_only",
+  "status": "passed",
+  "public_files_scanned": 250,
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "findings": 0
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "filesystem_mutation": "blocked",
+    "git_operations": "blocked",
+    "adapter_execution": "blocked",
+    "private_context_access": "blocked",
+    "network_access": "blocked"
+  },
+  "findings": []
+}

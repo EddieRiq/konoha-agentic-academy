@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/repo_inspection_report.schema.json",
+  "title": "Konoha Read-only Repo Inspection Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "mode",
+    "status",
+    "summary",
+    "boundaries",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "const": "read_only_repo_inspector"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "mode": {
+      "const": "read_only"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "public_files_scanned": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "errors",
+        "warnings",
+        "findings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warnings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "findings": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "boundaries": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "git_operations",
+        "adapter_execution",
+        "private_context_access",
+        "network_access"
+      ],
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "filesystem_mutation": {
+          "const": "blocked"
+        },
+        "git_operations": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "network_access": {
+          "const": "blocked"
+        }
+      },
+      "additionalProperties": false
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "level",
+          "code",
+          "path",
+          "message"
+        ],
+        "properties": {
+          "level": {
+            "enum": [
+              "error",
+              "warning"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
