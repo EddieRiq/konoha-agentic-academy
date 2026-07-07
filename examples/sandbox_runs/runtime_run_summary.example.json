@@ -1,0 +1,43 @@
+{
+  "schema_version": "0.14.0",
+  "kind": "konoha.dry_run_runtime_runner_summary",
+  "runner_version": "0.14.0",
+  "run_id": "docs-update-dry-run",
+  "package_id": "docs-update-dry-run-dry-run-package",
+  "mission_id": "mission-docs-update-dry-run-dry-run-package",
+  "mission_title": "Documentation update dry-run",
+  "mode": "dry_run",
+  "status": "passed",
+  "created_at_utc": "2026-01-01T00:00:00+00:00",
+  "sandbox_root": "sandbox",
+  "run_directory": "runs/docs-update-dry-run",
+  "artifacts": {
+    "sandbox_manifest": "sandbox_run_manifest.json",
+    "runtime_package": "runtime_package.json",
+    "validation_report": "validation_report.json",
+    "inspection_report": "inspection_report.json",
+    "runtime_run_summary": "runtime_run_summary.json"
+  },
+  "validation": {
+    "passed": true,
+    "errors": 0,
+    "warnings": 0
+  },
+  "inspection": {
+    "passed": true,
+    "errors": 0,
+    "warnings": 0
+  },
+  "safety_boundary": {
+    "execution": "blocked",
+    "filesystem_mutation": "sandbox_only",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "blocked",
+    "network_access": "blocked"
+  },
+  "notes": [
+    "Example summary only.",
+    "This file does not authorize execution."
+  ]
+}

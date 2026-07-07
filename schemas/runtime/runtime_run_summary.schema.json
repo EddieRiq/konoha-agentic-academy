@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/runtime/runtime_run_summary.schema.json",
+  "title": "Konoha dry-run runtime runner summary",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "kind",
+    "runner_version",
+    "run_id",
+    "package_id",
+    "mission_id",
+    "mode",
+    "status",
+    "artifacts",
+    "validation",
+    "inspection",
+    "safety_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "kind": {
+      "const": "konoha.dry_run_runtime_runner_summary"
+    },
+    "runner_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$"
+    },
+    "package_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "mission_title": {
+      "type": "string"
+    },
+    "mode": {
+      "const": "dry_run"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "created_at_utc": {
+      "type": "string"
+    },
+    "artifacts": {
+      "type": "object",
+      "required": [
+        "sandbox_manifest",
+        "runtime_package",
+        "validation_report",
+        "inspection_report",
+        "runtime_run_summary"
+      ]
+    },
+    "validation": {
+      "type": "object",
+      "required": [
+        "passed",
+        "errors",
+        "warnings"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warnings": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "inspection": {
+      "type": "object",
+      "required": [
+        "passed",
+        "errors",
+        "warnings"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warnings": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "safety_boundary": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "git_operations",
+        "private_context_access",
+        "adapter_execution",
+        "network_access"
+      ],
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "filesystem_mutation": {
+          "const": "sandbox_only"
+        },
+        "git_operations": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "blocked"
+        },
+        "network_access": {
+          "const": "blocked"
+        }
+      }
+    }
+  }
+}
