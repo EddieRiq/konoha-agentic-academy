@@ -397,3 +397,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Context capsule lifecycle
 
 - Define context capsule lifecycle before runtime skeleton, including source hashes, stale detection, refresh reports, authority boundaries, and full-source fallback.
+
+### Token budget enforcement
+
+- Define token budget enforcement before runtime skeleton, including soft limits, hard stops, overage review, escalation triggers, and capsule/prompt improvements.

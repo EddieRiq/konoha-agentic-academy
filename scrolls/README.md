@@ -430,3 +430,7 @@ A Scroll is ready for active use only when:
 ## Context capsule lifecycle review
 
 - `context_capsule_lifecycle_review_scroll.md`: reviews capsule manifests, source hashes, refresh reports, stale states, and authority boundaries.
+
+## Token budget enforcement review
+
+- `token_budget_enforcement_review_scroll.md`: reviews token budgets, overages, hard stops, and cost-quality evidence.

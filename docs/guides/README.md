@@ -140,3 +140,7 @@ Do not hide doctrine changes inside guides.
 ## Context capsule lifecycle
 
 - `context_capsule_lifecycle.md`: defines how context capsules are created, reviewed, approved, invalidated, refreshed, and blocked.
+
+## Token budget enforcement
+
+- `token_budget_enforcement.md`: defines soft budgets, hard stops, overage justification, escalation, and token efficiency review.

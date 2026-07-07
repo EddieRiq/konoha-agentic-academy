@@ -100,3 +100,8 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 
 - `templates/context_capsule_manifest.template.md`: template for declaring capsule sources, hashes, status, scope, and validity.
 - `templates/context_capsule_refresh_report.template.md`: template for refreshing capsules when source doctrine changes.
+
+## Token budget enforcement
+
+- `templates/token_budget_enforcement.template.md`: template for defining soft limits, hard stops, overage rules, and escalation triggers.
+- `templates/token_overage_review.template.md`: template for reviewing whether token overage was justified, avoidable, or caused by poor routing.

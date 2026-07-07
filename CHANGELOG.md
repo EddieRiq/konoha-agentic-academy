@@ -35,6 +35,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Token Budget Enforcement with soft limits, hard stops, overage review, and enforcement review Scroll.
 - Added Context Capsule Lifecycle with capsule manifest, refresh report, stale detection, and review Scroll.
 - Added Model Tier Matrix with tier assignment, capability review, escalation, and demotion templates.
 - Added Model Routing and Token Governance baseline with context capsules, session resource probe, budget templates, token usage reporting, and review Scrolls.
