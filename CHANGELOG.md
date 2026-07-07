@@ -30,6 +30,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Runtime Lifecycle baseline with lifecycle and closure report templates.
 - Added Rollback Boundary with rollback request/result templates and readiness review.
 - Added Git Operation Boundary with Git request/result templates and readiness review.
 - Added Filesystem Mutation Boundary with mutation request/result templates and readiness review.

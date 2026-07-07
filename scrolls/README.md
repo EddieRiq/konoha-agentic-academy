@@ -409,3 +409,7 @@ A Scroll is ready for active use only when:
 ## Rollback boundary review
 
 - `rollback_boundary_review_scroll.md`: reviews rollback readiness before risky changes, reversions, restores, or recovery actions.
+
+## Runtime lifecycle review
+
+- `runtime_lifecycle_review_scroll.md`: reviews runtime lifecycle plans before implementation or execution.

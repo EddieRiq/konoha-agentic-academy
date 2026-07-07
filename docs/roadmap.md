@@ -377,3 +377,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Rollback boundary
 
 - Define rollback boundaries before implementing risky runtime behavior, including rollback plans, recovery evidence, residual risk, and approval gates.
+
+### Runtime lifecycle baseline
+
+- Define runtime lifecycle before executable implementation, including planning, boundary checks, dry-run, approval, execution, evidence, validation, rollback readiness, and closure.

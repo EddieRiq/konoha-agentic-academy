@@ -118,3 +118,7 @@ Do not hide doctrine changes inside guides.
 ## Rollback boundary
 
 - `rollback_boundary.md`: defines rollback evidence, readiness, approval, and stop conditions before reversible or risky runtime behavior.
+
+## Runtime lifecycle
+
+- `runtime_lifecycle.md`: defines the planned runtime lifecycle from Mission Charter through closure without implementing execution.

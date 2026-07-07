@@ -75,3 +75,8 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 - `templates/rollback_request.template.md`: template for requesting a rollback, revert, restore, or recovery action.
 - `templates/rollback_result.template.md`: template for recording rollback evidence, result, and residual risk.
 - `templates/rollback_readiness.template.md`: template for assessing rollback readiness before risky runtime behavior.
+
+## Runtime lifecycle
+
+- `templates/runtime_lifecycle.template.md`: template for documenting the full runtime lifecycle from plan to closure.
+- `templates/runtime_closure_report.template.md`: template for closing runtime work with evidence, validation, residual risk, and teachback.
