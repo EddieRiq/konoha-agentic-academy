@@ -168,3 +168,7 @@ Do not hide doctrine changes inside guides.
 ## Runtime contract and validator
 
 - `runtime_contract_and_validator.md`: defines the runtime contract schemas and the first read-only dry-run package validator.
+
+## Dry-run package builder
+
+- `dry_run_package_builder.md`: defines the dry-run package builder CLI, output boundaries, validation flow, and non-execution rules.

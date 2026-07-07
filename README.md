@@ -438,3 +438,9 @@ The examples show how Mission Intake, Dry-Run Execution Plan, Validation Report,
 - Runtime Contract and Dry-run Validator MVP: first read-only executable validator for dry-run runtime packages.
 
 The validator reads dry-run package JSON, validates runtime schemas, checks safety boundaries, and exits with a clear pass/fail result. It does not execute shell commands, mutate files, perform Git operations, invoke adapters, or access private context.
+
+## Dry-run package builder
+
+- Dry-run Package Builder CLI: generates valid dry-run runtime package JSON for validator review.
+
+The builder creates dry-run package JSON in an explicit output folder. It does not execute missions, run shell commands, perform Git operations, invoke adapters, or access private context.

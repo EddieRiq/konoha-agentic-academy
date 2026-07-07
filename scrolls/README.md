@@ -458,3 +458,7 @@ A Scroll is ready for active use only when:
 ## Runtime validator review
 
 - `runtime_validator_review_scroll.md`: reviews runtime schemas, validator behavior, fixtures, tests, and read-only safety boundaries.
+
+## Runtime builder review
+
+- `runtime_builder_review_scroll.md`: reviews dry-run package builder behavior, output boundaries, generated package validity, and safety constraints.

@@ -425,3 +425,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Runtime contract and dry-run validator MVP
 
 - Add the first read-only runtime validator after dry-run mission examples, using JSON schemas, fixtures, tests, and explicit non-execution boundaries.
+
+### Dry-run package builder CLI
+
+- Add a dry-run package builder CLI after the read-only validator, generating schema-valid package JSON without mission execution, Git operations, adapter calls, or private context access.

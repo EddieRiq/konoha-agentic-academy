@@ -42,6 +42,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Dry-run Package Builder CLI with package generation, validator-compatible output, tests, example package, guide, and review Scroll.
 - Added Runtime Contract and Dry-run Validator MVP with runtime JSON schemas, read-only validator CLI, fixtures, tests, examples, guide, and review Scroll.
 - Added Dry-run Mission Examples with public example packages, examples README, guide, and review Scroll.
 - Added Runtime Package Assembly with package manifest, package index, package closure template, and package review Scroll.
