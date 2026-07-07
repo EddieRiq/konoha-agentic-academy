@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/runtime_package.schema.json",
+  "title": "Runtime Package",
+  "description": "Runtime Package contract for Konoha dry-run runtime artifacts.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "package_id",
+    "mission_id",
+    "mode",
+    "execution_authorized",
+    "safety_flags",
+    "mission_intake",
+    "dry_run_execution_plan",
+    "adapter_invocation_stub",
+    "evidence_collection_stub",
+    "runtime_state",
+    "runtime_validation_report",
+    "runtime_trace",
+    "runtime_package_manifest",
+    "runtime_package_index"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "package_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "const": "dry_run"
+    },
+    "execution_authorized": {
+      "const": false
+    },
+    "safety_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shell_execution",
+        "filesystem_mutation",
+        "git_operations",
+        "adapter_execution",
+        "private_context_access",
+        "autonomous_execution"
+      ],
+      "properties": {
+        "shell_execution": {
+          "const": false
+        },
+        "filesystem_mutation": {
+          "const": false
+        },
+        "git_operations": {
+          "const": false
+        },
+        "adapter_execution": {
+          "const": false
+        },
+        "private_context_access": {
+          "const": false
+        },
+        "autonomous_execution": {
+          "const": false
+        }
+      }
+    },
+    "mission_intake": {
+      "type": "object"
+    },
+    "dry_run_execution_plan": {
+      "type": "object"
+    },
+    "adapter_invocation_stub": {
+      "type": "object"
+    },
+    "evidence_collection_stub": {
+      "type": "object"
+    },
+    "runtime_state": {
+      "type": "object"
+    },
+    "runtime_validation_report": {
+      "type": "object"
+    },
+    "runtime_trace": {
+      "type": "object",
+      "required": [
+        "events"
+      ],
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "runtime_package_manifest": {
+      "type": "object"
+    },
+    "runtime_package_index": {
+      "type": "object"
+    }
+  }
+}

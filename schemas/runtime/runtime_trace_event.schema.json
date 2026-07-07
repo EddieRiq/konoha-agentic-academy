@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/runtime_trace_event.schema.json",
+  "title": "Runtime Trace Event",
+  "description": "Runtime Trace Event contract for Konoha dry-run runtime artifacts.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "artifact_type",
+    "event_id",
+    "mission_id",
+    "event_type",
+    "summary",
+    "execution_performed"
+  ],
+  "properties": {
+    "artifact_type": {
+      "const": "runtime_trace_event"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "enum": [
+        "intake",
+        "planning",
+        "validation",
+        "review",
+        "blocker",
+        "closure",
+        "supersession",
+        "other"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "execution_performed": {
+      "const": false
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/runtime_validation_report.schema.json",
+  "title": "Runtime Validation Report",
+  "description": "Runtime Validation Report contract for Konoha dry-run runtime artifacts.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "artifact_type",
+    "mission_id",
+    "validation_outcome",
+    "execution_authorized",
+    "safety_flags"
+  ],
+  "properties": {
+    "artifact_type": {
+      "const": "runtime_validation_report"
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "validation_outcome": {
+      "enum": [
+        "passed",
+        "passed_with_warnings",
+        "failed",
+        "blocked"
+      ]
+    },
+    "validated_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "execution_authorized": {
+      "const": false
+    },
+    "safety_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shell_execution",
+        "filesystem_mutation",
+        "git_operations",
+        "adapter_execution",
+        "private_context_access",
+        "autonomous_execution"
+      ],
+      "properties": {
+        "shell_execution": {
+          "const": false
+        },
+        "filesystem_mutation": {
+          "const": false
+        },
+        "git_operations": {
+          "const": false
+        },
+        "adapter_execution": {
+          "const": false
+        },
+        "private_context_access": {
+          "const": false
+        },
+        "autonomous_execution": {
+          "const": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/mission_intake.schema.json",
+  "title": "Mission Intake",
+  "description": "Mission Intake contract for Konoha dry-run runtime artifacts.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "artifact_type",
+    "mission_id",
+    "mission_title",
+    "mission_charter_reference",
+    "scope",
+    "approval_state",
+    "safety_flags"
+  ],
+  "properties": {
+    "artifact_type": {
+      "const": "mission_intake"
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requested_by": {
+      "type": "string"
+    },
+    "mission_charter_reference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "out_of_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "private_context_required": {
+      "type": "boolean"
+    },
+    "approval_state": {
+      "enum": [
+        "draft",
+        "approved_for_dry_run",
+        "blocked"
+      ]
+    },
+    "safety_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shell_execution",
+        "filesystem_mutation",
+        "git_operations",
+        "adapter_execution",
+        "private_context_access",
+        "autonomous_execution"
+      ],
+      "properties": {
+        "shell_execution": {
+          "const": false
+        },
+        "filesystem_mutation": {
+          "const": false
+        },
+        "git_operations": {
+          "const": false
+        },
+        "adapter_execution": {
+          "const": false
+        },
+        "private_context_access": {
+          "const": false
+        },
+        "autonomous_execution": {
+          "const": false
+        }
+      }
+    }
+  }
+}

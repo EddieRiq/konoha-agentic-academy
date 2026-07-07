@@ -1,0 +1,255 @@
+{
+  "schema_version": "0.10.0",
+  "package_id": "invalid-execution-enabled",
+  "mission_id": "mission-docs-update-001",
+  "mode": "dry_run",
+  "execution_authorized": false,
+  "safety_flags": {
+    "shell_execution": true,
+    "filesystem_mutation": false,
+    "git_operations": false,
+    "adapter_execution": false,
+    "private_context_access": false,
+    "autonomous_execution": false
+  },
+  "mission_intake": {
+    "artifact_type": "mission_intake",
+    "mission_id": "mission-docs-update-001",
+    "mission_title": "Documentation update dry-run package example",
+    "requested_by": "example-user",
+    "mission_charter_reference": "examples/dry_run_missions/docs_update_dry_run_package.example.md",
+    "scope": "Plan a documentation-only update as a dry-run package.",
+    "out_of_scope": [
+      "Executing commands",
+      "Mutating files",
+      "Git operations",
+      "Private context access"
+    ],
+    "private_context_required": false,
+    "approval_state": "approved_for_dry_run",
+    "safety_flags": {
+      "shell_execution": false,
+      "filesystem_mutation": false,
+      "git_operations": false,
+      "adapter_execution": false,
+      "private_context_access": false,
+      "autonomous_execution": false
+    }
+  },
+  "dry_run_execution_plan": {
+    "artifact_type": "dry_run_execution_plan",
+    "mission_id": "mission-docs-update-001",
+    "mode": "dry_run",
+    "plan_summary": "Inspect public docs and propose a documentation update without changing files.",
+    "steps": [
+      {
+        "step_id": "step-001",
+        "description": "Review public documentation references.",
+        "action_type": "inspect",
+        "execution_allowed": true,
+        "expected_evidence": [
+          "Referenced guide paths"
+        ],
+        "stop_conditions": [
+          "Private path required",
+          "Execution requested"
+        ]
+      },
+      {
+        "step_id": "step-002",
+        "description": "Prepare proposed update summary.",
+        "action_type": "plan",
+        "execution_allowed": false,
+        "expected_evidence": [
+          "Dry-run plan text"
+        ],
+        "stop_conditions": [
+          "Filesystem mutation requested"
+        ]
+      }
+    ],
+    "safety_flags": {
+      "shell_execution": false,
+      "filesystem_mutation": false,
+      "git_operations": false,
+      "adapter_execution": false,
+      "private_context_access": false,
+      "autonomous_execution": false
+    }
+  },
+  "adapter_invocation_stub": {
+    "artifact_type": "adapter_invocation_stub",
+    "mission_id": "mission-docs-update-001",
+    "adapter_name": "none",
+    "stub_mode": "stub_only",
+    "invocation_allowed": true,
+    "intended_request": {},
+    "blocked_capabilities": [
+      "adapter execution",
+      "shell execution",
+      "Git operations"
+    ],
+    "safety_flags": {
+      "shell_execution": false,
+      "filesystem_mutation": false,
+      "git_operations": false,
+      "adapter_execution": false,
+      "private_context_access": false,
+      "autonomous_execution": false
+    }
+  },
+  "evidence_collection_stub": {
+    "artifact_type": "evidence_collection_stub",
+    "mission_id": "mission-docs-update-001",
+    "collection_mode": "declared_only",
+    "automatic_collection_allowed": false,
+    "expected_evidence": [
+      "Mission intake",
+      "Dry-run plan",
+      "Validation report",
+      "Trace event"
+    ],
+    "missing_evidence": [],
+    "safety_flags": {
+      "shell_execution": false,
+      "filesystem_mutation": false,
+      "git_operations": false,
+      "adapter_execution": false,
+      "private_context_access": false,
+      "autonomous_execution": false
+    }
+  },
+  "runtime_state": {
+    "artifact_type": "runtime_state",
+    "mission_id": "mission-docs-update-001",
+    "state": "review_ready",
+    "mode": "dry_run",
+    "current_phase": "validation",
+    "open_blockers": [],
+    "safety_flags": {
+      "shell_execution": false,
+      "filesystem_mutation": false,
+      "git_operations": false,
+      "adapter_execution": false,
+      "private_context_access": false,
+      "autonomous_execution": false
+    }
+  },
+  "runtime_validation_report": {
+    "artifact_type": "runtime_validation_report",
+    "mission_id": "mission-docs-update-001",
+    "validation_outcome": "passed",
+    "validated_artifacts": [
+      "mission_intake",
+      "dry_run_execution_plan",
+      "adapter_invocation_stub",
+      "evidence_collection_stub",
+      "runtime_state",
+      "runtime_package_manifest",
+      "runtime_package_index"
+    ],
+    "errors": [],
+    "warnings": [],
+    "execution_authorized": false,
+    "safety_flags": {
+      "shell_execution": false,
+      "filesystem_mutation": false,
+      "git_operations": false,
+      "adapter_execution": false,
+      "private_context_access": false,
+      "autonomous_execution": false
+    }
+  },
+  "runtime_trace": {
+    "events": [
+      {
+        "artifact_type": "runtime_trace_event",
+        "event_id": "trace-001",
+        "mission_id": "mission-docs-update-001",
+        "event_type": "validation",
+        "summary": "Dry-run package prepared for validation. No execution performed.",
+        "evidence_references": [
+          "tests/runtime_validator/fixtures/valid_runtime_package.json"
+        ],
+        "supersedes": null,
+        "execution_performed": false
+      }
+    ]
+  },
+  "runtime_package_manifest": {
+    "artifact_type": "runtime_package_manifest",
+    "package_id": "docs-update-dry-run-example",
+    "mission_id": "mission-docs-update-001",
+    "package_version": "0.10.0",
+    "mode": "dry_run",
+    "included_artifacts": [
+      "mission_intake",
+      "dry_run_execution_plan",
+      "adapter_invocation_stub",
+      "evidence_collection_stub",
+      "runtime_state",
+      "runtime_validation_report",
+      "runtime_trace",
+      "runtime_package_manifest",
+      "runtime_package_index"
+    ],
+    "closure_state": "review_ready",
+    "execution_authorized": false,
+    "safety_flags": {
+      "shell_execution": false,
+      "filesystem_mutation": false,
+      "git_operations": false,
+      "adapter_execution": false,
+      "private_context_access": false,
+      "autonomous_execution": false
+    }
+  },
+  "runtime_package_index": {
+    "artifact_type": "runtime_package_index",
+    "package_id": "docs-update-dry-run-example",
+    "mission_id": "mission-docs-update-001",
+    "artifacts": [
+      {
+        "artifact_type": "mission_intake",
+        "reference": "mission_intake",
+        "status": "present"
+      },
+      {
+        "artifact_type": "dry_run_execution_plan",
+        "reference": "dry_run_execution_plan",
+        "status": "present"
+      },
+      {
+        "artifact_type": "adapter_invocation_stub",
+        "reference": "adapter_invocation_stub",
+        "status": "present"
+      },
+      {
+        "artifact_type": "evidence_collection_stub",
+        "reference": "evidence_collection_stub",
+        "status": "present"
+      },
+      {
+        "artifact_type": "runtime_state",
+        "reference": "runtime_state",
+        "status": "present"
+      },
+      {
+        "artifact_type": "runtime_validation_report",
+        "reference": "runtime_validation_report",
+        "status": "present"
+      },
+      {
+        "artifact_type": "runtime_trace",
+        "reference": "runtime_trace.events",
+        "status": "present"
+      }
+    ],
+    "trace_references": [
+      "runtime_trace.events[0]"
+    ],
+    "validation_references": [
+      "runtime_validation_report"
+    ]
+  }
+}

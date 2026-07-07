@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/adapter_invocation_stub.schema.json",
+  "title": "Adapter Invocation Stub",
+  "description": "Adapter Invocation Stub contract for Konoha dry-run runtime artifacts.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "artifact_type",
+    "mission_id",
+    "stub_mode",
+    "invocation_allowed",
+    "safety_flags"
+  ],
+  "properties": {
+    "artifact_type": {
+      "const": "adapter_invocation_stub"
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adapter_name": {
+      "type": "string"
+    },
+    "stub_mode": {
+      "const": "stub_only"
+    },
+    "invocation_allowed": {
+      "const": false
+    },
+    "intended_request": {
+      "type": "object"
+    },
+    "blocked_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "safety_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shell_execution",
+        "filesystem_mutation",
+        "git_operations",
+        "adapter_execution",
+        "private_context_access",
+        "autonomous_execution"
+      ],
+      "properties": {
+        "shell_execution": {
+          "const": false
+        },
+        "filesystem_mutation": {
+          "const": false
+        },
+        "git_operations": {
+          "const": false
+        },
+        "adapter_execution": {
+          "const": false
+        },
+        "private_context_access": {
+          "const": false
+        },
+        "autonomous_execution": {
+          "const": false
+        }
+      }
+    }
+  }
+}

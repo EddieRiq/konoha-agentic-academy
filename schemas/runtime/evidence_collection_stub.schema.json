@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/evidence_collection_stub.schema.json",
+  "title": "Evidence Collection Stub",
+  "description": "Evidence Collection Stub contract for Konoha dry-run runtime artifacts.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "artifact_type",
+    "mission_id",
+    "collection_mode",
+    "automatic_collection_allowed",
+    "expected_evidence",
+    "safety_flags"
+  ],
+  "properties": {
+    "artifact_type": {
+      "const": "evidence_collection_stub"
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "collection_mode": {
+      "const": "declared_only"
+    },
+    "automatic_collection_allowed": {
+      "const": false
+    },
+    "expected_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "missing_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "safety_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shell_execution",
+        "filesystem_mutation",
+        "git_operations",
+        "adapter_execution",
+        "private_context_access",
+        "autonomous_execution"
+      ],
+      "properties": {
+        "shell_execution": {
+          "const": false
+        },
+        "filesystem_mutation": {
+          "const": false
+        },
+        "git_operations": {
+          "const": false
+        },
+        "adapter_execution": {
+          "const": false
+        },
+        "private_context_access": {
+          "const": false
+        },
+        "autonomous_execution": {
+          "const": false
+        }
+      }
+    }
+  }
+}

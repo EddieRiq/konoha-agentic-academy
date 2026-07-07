@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/runtime_package_manifest.schema.json",
+  "title": "Runtime Package Manifest",
+  "description": "Runtime Package Manifest contract for Konoha dry-run runtime artifacts.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "artifact_type",
+    "package_id",
+    "mission_id",
+    "mode",
+    "included_artifacts",
+    "execution_authorized",
+    "safety_flags"
+  ],
+  "properties": {
+    "artifact_type": {
+      "const": "runtime_package_manifest"
+    },
+    "package_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "package_version": {
+      "type": "string"
+    },
+    "mode": {
+      "const": "dry_run"
+    },
+    "included_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "closure_state": {
+      "enum": [
+        "open",
+        "review_ready",
+        "closed",
+        "blocked"
+      ]
+    },
+    "execution_authorized": {
+      "const": false
+    },
+    "safety_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shell_execution",
+        "filesystem_mutation",
+        "git_operations",
+        "adapter_execution",
+        "private_context_access",
+        "autonomous_execution"
+      ],
+      "properties": {
+        "shell_execution": {
+          "const": false
+        },
+        "filesystem_mutation": {
+          "const": false
+        },
+        "git_operations": {
+          "const": false
+        },
+        "adapter_execution": {
+          "const": false
+        },
+        "private_context_access": {
+          "const": false
+        },
+        "autonomous_execution": {
+          "const": false
+        }
+      }
+    }
+  }
+}
