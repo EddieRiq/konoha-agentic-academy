@@ -393,3 +393,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Model tier matrix
 
 - Define model tier matrix before runtime skeleton, including Clerk, Draft Worker, Specialist Worker, Reviewer/Jounin, and Orchestrator/Hokage levels.
+
+### Context capsule lifecycle
+
+- Define context capsule lifecycle before runtime skeleton, including source hashes, stale detection, refresh reports, authority boundaries, and full-source fallback.

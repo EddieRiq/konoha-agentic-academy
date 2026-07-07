@@ -136,3 +136,7 @@ Do not hide doctrine changes inside guides.
 ## Model tier matrix
 
 - `model_tier_matrix.md`: defines model tiers, task suitability, escalation, demotion, and capability review rules.
+
+## Context capsule lifecycle
+
+- `context_capsule_lifecycle.md`: defines how context capsules are created, reviewed, approved, invalidated, refreshed, and blocked.

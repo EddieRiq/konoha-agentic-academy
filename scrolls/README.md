@@ -426,3 +426,7 @@ A Scroll is ready for active use only when:
 ## Model tier review
 
 - `model_tier_review_scroll.md`: reviews model tier assignment, sufficiency, escalation triggers, and demotion evidence.
+
+## Context capsule lifecycle review
+
+- `context_capsule_lifecycle_review_scroll.md`: reviews capsule manifests, source hashes, refresh reports, stale states, and authority boundaries.

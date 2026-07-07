@@ -95,3 +95,8 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 
 - `templates/model_tier_assignment.template.md`: template for assigning a model tier to a mission or task.
 - `templates/capability_review.template.md`: template for reviewing whether a model tier was sufficient after execution or review.
+
+## Context capsule lifecycle
+
+- `templates/context_capsule_manifest.template.md`: template for declaring capsule sources, hashes, status, scope, and validity.
+- `templates/context_capsule_refresh_report.template.md`: template for refreshing capsules when source doctrine changes.
