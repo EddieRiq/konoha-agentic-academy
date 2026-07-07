@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/sandbox_run_manifest.schema.json",
+  "title": "Konoha Sandbox Run Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "run_id",
+    "mission_title",
+    "created_at_utc",
+    "sandbox_root",
+    "run_directory",
+    "mode",
+    "execution",
+    "filesystem_mutation",
+    "git_operations",
+    "adapter_execution",
+    "private_context_access",
+    "network_access",
+    "created_artifacts",
+    "allowed_write_scope",
+    "blocked_scopes",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.13.0"
+    },
+    "kind": {
+      "const": "konoha.sandbox_run_manifest"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$"
+    },
+    "mission_title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at_utc": {
+      "type": "string"
+    },
+    "sandbox_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_directory": {
+      "type": "string",
+      "pattern": "^runs/[A-Za-z0-9][A-Za-z0-9._-]{0,79}$"
+    },
+    "mode": {
+      "const": "dry_run"
+    },
+    "execution": {
+      "const": "blocked"
+    },
+    "filesystem_mutation": {
+      "const": "sandbox_only"
+    },
+    "git_operations": {
+      "const": "blocked"
+    },
+    "adapter_execution": {
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "const": "blocked"
+    },
+    "network_access": {
+      "const": "blocked"
+    },
+    "created_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "contains": {
+        "const": "sandbox_run_manifest.json"
+      }
+    },
+    "allowed_write_scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^runs/[A-Za-z0-9][A-Za-z0-9._-]{0,79}$"
+      }
+    },
+    "blocked_scopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

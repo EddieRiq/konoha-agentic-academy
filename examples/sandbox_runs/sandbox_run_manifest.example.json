@@ -1,0 +1,37 @@
+{
+  "adapter_execution": "blocked",
+  "allowed_write_scope": [
+    "runs/example-sandbox-run"
+  ],
+  "blocked_scopes": [
+    "repository_source_files",
+    "docs",
+    "runtime",
+    "adapters",
+    "scrolls",
+    "alliance/private",
+    "git",
+    "external_network"
+  ],
+  "created_artifacts": [
+    "sandbox_run_manifest.json"
+  ],
+  "created_at_utc": "2026-01-01T00:00:00+00:00",
+  "execution": "blocked",
+  "filesystem_mutation": "sandbox_only",
+  "git_operations": "blocked",
+  "kind": "konoha.sandbox_run_manifest",
+  "mission_title": "Example sandbox run boundary",
+  "mode": "dry_run",
+  "network_access": "blocked",
+  "notes": [
+    "This manifest records sandbox preparation only.",
+    "It does not authorize mission execution.",
+    "It does not authorize shell commands, Git operations, adapters, or private context access."
+  ],
+  "private_context_access": "blocked",
+  "run_directory": "runs/example-sandbox-run",
+  "run_id": "example-sandbox-run",
+  "sandbox_root": "sandbox",
+  "schema_version": "0.13.0"
+}
