@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/runtime/git_staging_report.schema.json",
+  "title": "Git Staging Report",
+  "type": "object",
+  "required": [
+    "status",
+    "mode",
+    "repo_root",
+    "requested_paths",
+    "staged_paths",
+    "blockers",
+    "approval_required",
+    "approval_received",
+    "execution",
+    "filesystem_mutation",
+    "git_operations",
+    "git_commit",
+    "git_push",
+    "private_context_access",
+    "adapter_execution",
+    "network_access"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "preview",
+        "stage",
+        "blocked"
+      ]
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "requested_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "staged_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approval_required": {
+      "type": "boolean"
+    },
+    "approval_received": {
+      "type": "boolean"
+    },
+    "execution": {
+      "type": "string",
+      "const": "blocked"
+    },
+    "filesystem_mutation": {
+      "type": "string",
+      "const": "blocked"
+    },
+    "git_operations": {
+      "type": "string",
+      "enum": [
+        "preview_only",
+        "staged_only",
+        "blocked"
+      ]
+    },
+    "git_commit": {
+      "type": "string",
+      "const": "blocked"
+    },
+    "git_push": {
+      "type": "string",
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "type": "string",
+      "const": "blocked"
+    },
+    "adapter_execution": {
+      "type": "string",
+      "const": "blocked"
+    },
+    "network_access": {
+      "type": "string",
+      "const": "blocked"
+    }
+  },
+  "additionalProperties": false
+}

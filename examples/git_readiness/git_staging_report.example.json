@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "mode": "preview",
+  "repo_root": "/path/to/konoha-agentic-academy",
+  "requested_paths": [
+    "docs/guides/example.md",
+    "scrolls/example_review_scroll.md"
+  ],
+  "staged_paths": [],
+  "blockers": [],
+  "approval_required": true,
+  "approval_received": false,
+  "execution": "blocked",
+  "filesystem_mutation": "blocked",
+  "git_operations": "preview_only",
+  "git_commit": "blocked",
+  "git_push": "blocked",
+  "private_context_access": "blocked",
+  "adapter_execution": "blocked",
+  "network_access": "blocked"
+}
