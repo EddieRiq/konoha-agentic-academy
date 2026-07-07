@@ -413,3 +413,7 @@ A Scroll is ready for active use only when:
 ## Runtime lifecycle review
 
 - `runtime_lifecycle_review_scroll.md`: reviews runtime lifecycle plans before implementation or execution.
+
+## Runtime audit review
+
+- `runtime_audit_review_scroll.md`: reviews runtime audit checklists before release, runtime proposal, or implementation.

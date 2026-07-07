@@ -381,3 +381,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Runtime lifecycle baseline
 
 - Define runtime lifecycle before executable implementation, including planning, boundary checks, dry-run, approval, execution, evidence, validation, rollback readiness, and closure.
+
+### Runtime audit checklist
+
+- Add runtime audit checklist before runtime release checkpoints or executable runtime proposals.

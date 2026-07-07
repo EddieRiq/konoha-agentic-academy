@@ -122,3 +122,7 @@ Do not hide doctrine changes inside guides.
 ## Runtime lifecycle
 
 - `runtime_lifecycle.md`: defines the planned runtime lifecycle from Mission Charter through closure without implementing execution.
+
+## Runtime audit checklist
+
+- `runtime_audit_checklist.md`: checklist for auditing runtime planning boundaries before release or executable implementation.

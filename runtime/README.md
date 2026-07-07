@@ -80,3 +80,7 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 
 - `templates/runtime_lifecycle.template.md`: template for documenting the full runtime lifecycle from plan to closure.
 - `templates/runtime_closure_report.template.md`: template for closing runtime work with evidence, validation, residual risk, and teachback.
+
+## Runtime audit checklist
+
+- `templates/runtime_audit_checklist.template.md`: template for auditing runtime planning before release or implementation.
