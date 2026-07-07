@@ -357,3 +357,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Eval runner boundary
 
 - Define eval runner boundaries before implementing automated eval execution, including safety, privacy, reproducibility, and reporting requirements.
+
+### Runtime planning baseline
+
+- Define runtime planning baseline before executable implementation, including runtime plans, readiness checks, safety boundaries, rollback expectations, and adapter lifecycle constraints.

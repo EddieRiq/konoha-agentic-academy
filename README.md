@@ -408,3 +408,9 @@ Konoha includes public templates for creating local Allied Villages without comm
 See `alliance/templates/village/`.
 
 A real Village, such as `alliance/kirigakure/`, must stay local and ignored by Git unless explicitly designed for public release.
+
+## Runtime planning
+
+- Runtime planning baseline for future non-autonomous execution architecture.
+
+The current runtime layer is planning-only. Konoha does not yet include executable runtime, autonomous command execution, or automatic Git operations.

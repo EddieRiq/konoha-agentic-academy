@@ -98,3 +98,7 @@ Do not hide doctrine changes inside guides.
 ## Eval runner boundary
 
 - `eval_runner_boundary.md`: defines the boundary between manual/documentation-first evals and future automated eval runners.
+
+## Runtime planning
+
+- `runtime_planning_baseline.md`: defines planning boundaries for future runtime architecture before executable implementation.

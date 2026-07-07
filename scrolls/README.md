@@ -389,3 +389,7 @@ A Scroll is ready for active use only when:
 ## Eval runner boundary review
 
 - `eval_runner_boundary_review_scroll.md`: reviews whether proposed eval runner work respects safety, privacy, reproducibility, and non-execution boundaries.
+
+## Runtime planning review
+
+- `runtime_planning_review_scroll.md`: reviews runtime plans before implementation, focusing on safety, boundaries, evidence, rollback, and non-autonomy.
