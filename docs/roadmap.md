@@ -433,3 +433,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Read-only runtime inspector
 
 - Add a read-only runtime inspector after the dry-run package builder, checking package coherence, traceability, safety boundaries, and review readiness without modifying files.
+
+### Local sandbox boundary
+
+- Add a local sandbox boundary after the read-only inspector, preparing controlled dry-run run folders and manifests without shell execution, Git operations, adapter calls, or private context access.

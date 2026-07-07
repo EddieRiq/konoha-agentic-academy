@@ -466,3 +466,7 @@ A Scroll is ready for active use only when:
 ## Runtime inspector review
 
 - `runtime_inspector_review_scroll.md`: reviews inspector behavior, package coherence checks, boundary checks, report output, and read-only safety constraints.
+
+## Sandbox boundary review
+
+- `sandbox_boundary_review_scroll.md`: reviews sandbox preparation behavior, path safety, manifest fields, allowed writes, and non-execution constraints.

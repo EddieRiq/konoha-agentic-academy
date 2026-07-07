@@ -176,3 +176,7 @@ Do not hide doctrine changes inside guides.
 ## Read-only runtime inspector
 
 - `read_only_runtime_inspector.md`: defines the read-only runtime inspector, package coherence checks, boundary checks, report output, and non-mutation rules.
+
+## Local sandbox boundary
+
+- `local_sandbox_boundary.md`: defines the local sandbox boundary, allowed sandbox writes, path safety checks, run manifests, and non-execution rules.

@@ -19,3 +19,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Inspector reports
 
 - `dry_run_packages/inspector_report_docs_update.example.json`: example JSON report produced by the read-only runtime inspector.
+
+## Sandbox run manifests
+
+- `sandbox_runs/sandbox_run_manifest.example.json`: example manifest for a prepared local sandbox dry-run.

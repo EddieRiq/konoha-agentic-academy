@@ -450,3 +450,9 @@ The builder creates dry-run package JSON in an explicit output folder. It does n
 - Read-only Runtime Inspector: inspects dry-run runtime packages for coherence, boundaries, traceability, and review readiness.
 
 The inspector reads dry-run package JSON and reports structural, traceability, and safety boundary findings. It does not modify files, execute commands, perform Git operations, invoke adapters, or access private context.
+
+## Local sandbox boundary
+
+- Local Sandbox Boundary: prepares controlled dry-run sandbox run folders and manifests without mission execution.
+
+The sandbox boundary allows controlled creation of dry-run run folders and manifests inside the local sandbox. It does not execute missions, run shell commands, perform Git operations, invoke adapters, access private context, or write outside the sandbox boundary.
