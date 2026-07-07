@@ -102,3 +102,7 @@ Do not hide doctrine changes inside guides.
 ## Runtime planning
 
 - `runtime_planning_baseline.md`: defines planning boundaries for future runtime architecture before executable implementation.
+
+## Command runner boundary
+
+- `command_runner_boundary.md`: defines the safety boundary for any future component that may execute commands.

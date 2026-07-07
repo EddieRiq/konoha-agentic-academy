@@ -393,3 +393,7 @@ A Scroll is ready for active use only when:
 ## Runtime planning review
 
 - `runtime_planning_review_scroll.md`: reviews runtime plans before implementation, focusing on safety, boundaries, evidence, rollback, and non-autonomy.
+
+## Command runner boundary review
+
+- `command_runner_boundary_review_scroll.md`: reviews proposed command runner work before implementation or use.

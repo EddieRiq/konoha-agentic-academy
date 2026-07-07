@@ -26,6 +26,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Command Runner Boundary with command execution request/result templates and readiness review.
 - Added Runtime Planning baseline with runtime README, planning guide, readiness templates, and review Scroll.
 - Added Eval Runner Boundary guide, readiness template, and review Scroll.
 - Added eval result and eval run report templates with result review Scroll.

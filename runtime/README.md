@@ -51,3 +51,9 @@ Future runtime work must respect:
 Technical ability is not authority.
 
 A future runtime may only act when the Mission Charter, adapter contract, permission matrix, dry-run result, execution gate, evidence pack, and user approval all align.
+
+## Command runner boundary
+
+- `templates/command_execution_request.template.md`: template for requesting command execution under explicit scope and approval.
+- `templates/command_execution_result.template.md`: template for recording command execution result, evidence, output, and status.
+- `templates/command_runner_readiness.template.md`: template for assessing whether command runner implementation is ready.

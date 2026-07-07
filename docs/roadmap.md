@@ -361,3 +361,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Runtime planning baseline
 
 - Define runtime planning baseline before executable implementation, including runtime plans, readiness checks, safety boundaries, rollback expectations, and adapter lifecycle constraints.
+
+### Command runner boundary
+
+- Define command runner boundaries before implementing any command execution component, including scope, approval, evidence, rollback, and blocked command categories.
