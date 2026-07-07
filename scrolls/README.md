@@ -474,3 +474,7 @@ A Scroll is ready for active use only when:
 ## Dry-run runtime runner review
 
 - `dry_run_runtime_runner_review_scroll.md`: reviews dry-run runner orchestration, sandbox outputs, validation, inspection, run summaries, and safety boundaries.
+
+## Runtime run registry review
+
+- `runtime_run_registry_review_scroll.md`: reviews registry behavior, run states, blockers, report output, and read-only safety constraints.

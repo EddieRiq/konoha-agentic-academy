@@ -184,3 +184,7 @@ Do not hide doctrine changes inside guides.
 ## Dry-run runtime runner
 
 - `dry_run_runtime_runner.md`: defines the dry-run runtime runner, orchestration flow, sandbox-only outputs, run summaries, and non-execution rules.
+
+## Runtime run registry
+
+- `runtime_run_registry.md`: defines the read-only runtime run registry, run states, blockers, registry reports, and non-mutation rules.

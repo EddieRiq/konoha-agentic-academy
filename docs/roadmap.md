@@ -441,3 +441,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Dry-run runtime runner
 
 - Add a dry-run runtime runner after the local sandbox boundary, orchestrating sandbox preparation, package generation, validation, inspection, and run summary creation without mission execution.
+
+### Runtime run registry
+
+- Add a runtime run registry after the dry-run runtime runner, listing sandbox run history, pass/fail states, blockers, and safety boundaries without modifying files.

@@ -46,6 +46,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Runtime Run Registry with read-only run listing, registry report schema, tests, example report, guide, and review Scroll.
 - Added Dry-run Runtime Runner with sandbox orchestration, package generation, validation, inspection, run summary schema, tests, example summary, guide, and review Scroll.
 - Added Local Sandbox Boundary with sandbox guard, sandbox run preparation CLI, sandbox run manifest schema, tests, example manifest, guide, and review Scroll.
 - Added Read-only Runtime Inspector with package coherence checks, boundary inspection, JSON report output, tests, example report, guide, and review Scroll.

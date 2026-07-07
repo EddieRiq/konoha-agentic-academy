@@ -462,3 +462,9 @@ The sandbox boundary allows controlled creation of dry-run run folders and manif
 - Dry-run Runtime Runner: orchestrates sandbox preparation, package generation, validation, inspection, and run summary creation.
 
 The runner orchestrates the safe dry-run toolchain inside the sandbox. It does not execute missions, run shell commands, perform Git operations, invoke adapters, access private context, or write outside the sandbox boundary.
+
+## Runtime run registry
+
+- Runtime Run Registry: lists dry-run sandbox runs, states, blockers, and safety boundaries without mutation.
+
+The registry reads sandbox run folders and reports run status, missing artifacts, blockers, and safety boundaries. It does not execute missions, modify files, perform Git operations, invoke adapters, or access private context.

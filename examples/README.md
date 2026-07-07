@@ -27,3 +27,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Runtime runner summaries
 
 - `sandbox_runs/runtime_run_summary.example.json`: example summary produced by the dry-run runtime runner.
+
+## Runtime run registry reports
+
+- `sandbox_runs/runtime_run_registry_report.example.json`: example report produced by the read-only runtime run registry.
