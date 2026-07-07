@@ -421,3 +421,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Dry-run mission examples
 
 - Add public dry-run mission examples after runtime package assembly, using generic scenarios with no private context, no execution, and complete package records.
+
+### Runtime contract and dry-run validator MVP
+
+- Add the first read-only runtime validator after dry-run mission examples, using JSON schemas, fixtures, tests, and explicit non-execution boundaries.

@@ -454,3 +454,7 @@ A Scroll is ready for active use only when:
 ## Dry-run mission examples review
 
 - `dry_run_mission_examples_review_scroll.md`: reviews public dry-run mission examples for safety, completeness, traceability, and non-execution boundaries.
+
+## Runtime validator review
+
+- `runtime_validator_review_scroll.md`: reviews runtime schemas, validator behavior, fixtures, tests, and read-only safety boundaries.

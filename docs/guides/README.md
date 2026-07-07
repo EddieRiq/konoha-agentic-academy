@@ -164,3 +164,7 @@ Do not hide doctrine changes inside guides.
 ## Dry-run mission examples
 
 - `dry_run_mission_examples.md`: defines public, generic dry-run mission examples and the safety rules for publishing them.
+
+## Runtime contract and validator
+
+- `runtime_contract_and_validator.md`: defines the runtime contract schemas and the first read-only dry-run package validator.

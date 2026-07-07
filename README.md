@@ -432,3 +432,9 @@ The first runtime skeleton is documentation-first and dry-run only. It does not 
 - Dry-run mission examples baseline with public, generic, non-executable runtime package examples.
 
 The examples show how Mission Intake, Dry-Run Execution Plan, Validation Report, Trace Log, and Runtime Package Assembly fit together without executing actions.
+
+## Runtime contract and dry-run validator
+
+- Runtime Contract and Dry-run Validator MVP: first read-only executable validator for dry-run runtime packages.
+
+The validator reads dry-run package JSON, validates runtime schemas, checks safety boundaries, and exits with a clear pass/fail result. It does not execute shell commands, mutate files, perform Git operations, invoke adapters, or access private context.
