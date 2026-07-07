@@ -457,3 +457,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Human-approved apply plan prototype
 
 - Add a human-approved apply plan prototype after the controlled artifact writer, previewing sandbox proposals and applying only allowlisted files with explicit approval.
+
+### Git read-only gate
+
+- Add a Git read-only gate after the human-approved apply plan prototype, inspecting repository readiness with allowlisted read-only Git commands before any future Git write gate.

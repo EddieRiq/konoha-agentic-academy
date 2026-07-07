@@ -486,3 +486,9 @@ The artifact writer creates proposed outputs, apply plans, and write reports ins
 - Human-approved Apply Plan Prototype: previews and applies sandbox proposed artifacts to allowlisted repo paths only with explicit approval.
 
 The apply plan prototype reads sandbox apply plans, previews proposed changes, and can copy approved artifacts to allowlisted repository paths only with explicit human approval. It does not execute missions, perform Git operations, invoke adapters, or access private context.
+
+## Git read-only gate
+
+- Git Read-only Gate: inspects Git status, tracked files, changed paths, and private-boundary signals without Git write operations.
+
+The gate uses allowlisted read-only Git commands to inspect repository readiness. It does not stage files, create commits, publish changes, clean files, invoke adapters, execute missions, or access private context.

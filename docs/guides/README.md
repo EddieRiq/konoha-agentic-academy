@@ -200,3 +200,7 @@ Do not hide doctrine changes inside guides.
 ## Human-approved apply plan
 
 - `human_approved_apply_plan.md`: defines the human-approved apply plan prototype, preview mode, explicit approval token, allowlisted destinations, apply reports, and non-execution rules.
+
+## Git read-only gate
+
+- `git_read_only_gate.md`: defines the Git read-only gate, allowed Git inspection commands, readiness reports, dirty-state handling, and no-write rules.

@@ -43,3 +43,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Human-approved apply reports
 
 - `sandbox_runs/human_approved_apply_report.example.json`: example report produced by the human-approved apply plan prototype.
+
+## Git readiness reports
+
+- `git_readiness/git_readiness_report.example.json`: example report produced by the Git read-only gate.

@@ -490,3 +490,7 @@ A Scroll is ready for active use only when:
 ## Apply plan review
 
 - `apply_plan_review_scroll.md`: reviews sandbox apply plans, proposed artifacts, destination allowlists, human approval evidence, apply reports, and non-execution boundaries.
+
+## Git read-only gate review
+
+- `git_read_only_gate_review_scroll.md`: reviews Git read-only gate behavior, allowed commands, dirty-state handling, private-boundary checks, and no-write constraints.
