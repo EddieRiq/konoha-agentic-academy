@@ -462,3 +462,7 @@ A Scroll is ready for active use only when:
 ## Runtime builder review
 
 - `runtime_builder_review_scroll.md`: reviews dry-run package builder behavior, output boundaries, generated package validity, and safety constraints.
+
+## Runtime inspector review
+
+- `runtime_inspector_review_scroll.md`: reviews inspector behavior, package coherence checks, boundary checks, report output, and read-only safety constraints.

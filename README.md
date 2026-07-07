@@ -444,3 +444,9 @@ The validator reads dry-run package JSON, validates runtime schemas, checks safe
 - Dry-run Package Builder CLI: generates valid dry-run runtime package JSON for validator review.
 
 The builder creates dry-run package JSON in an explicit output folder. It does not execute missions, run shell commands, perform Git operations, invoke adapters, or access private context.
+
+## Read-only runtime inspector
+
+- Read-only Runtime Inspector: inspects dry-run runtime packages for coherence, boundaries, traceability, and review readiness.
+
+The inspector reads dry-run package JSON and reports structural, traceability, and safety boundary findings. It does not modify files, execute commands, perform Git operations, invoke adapters, or access private context.

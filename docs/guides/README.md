@@ -172,3 +172,7 @@ Do not hide doctrine changes inside guides.
 ## Dry-run package builder
 
 - `dry_run_package_builder.md`: defines the dry-run package builder CLI, output boundaries, validation flow, and non-execution rules.
+
+## Read-only runtime inspector
+
+- `read_only_runtime_inspector.md`: defines the read-only runtime inspector, package coherence checks, boundary checks, report output, and non-mutation rules.
