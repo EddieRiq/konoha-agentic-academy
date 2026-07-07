@@ -23,3 +23,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Sandbox run manifests
 
 - `sandbox_runs/sandbox_run_manifest.example.json`: example manifest for a prepared local sandbox dry-run.
+
+## Runtime runner summaries
+
+- `sandbox_runs/runtime_run_summary.example.json`: example summary produced by the dry-run runtime runner.

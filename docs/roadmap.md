@@ -437,3 +437,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Local sandbox boundary
 
 - Add a local sandbox boundary after the read-only inspector, preparing controlled dry-run run folders and manifests without shell execution, Git operations, adapter calls, or private context access.
+
+### Dry-run runtime runner
+
+- Add a dry-run runtime runner after the local sandbox boundary, orchestrating sandbox preparation, package generation, validation, inspection, and run summary creation without mission execution.

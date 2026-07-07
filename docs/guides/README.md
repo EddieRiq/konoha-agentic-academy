@@ -180,3 +180,7 @@ Do not hide doctrine changes inside guides.
 ## Local sandbox boundary
 
 - `local_sandbox_boundary.md`: defines the local sandbox boundary, allowed sandbox writes, path safety checks, run manifests, and non-execution rules.
+
+## Dry-run runtime runner
+
+- `dry_run_runtime_runner.md`: defines the dry-run runtime runner, orchestration flow, sandbox-only outputs, run summaries, and non-execution rules.

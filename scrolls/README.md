@@ -470,3 +470,7 @@ A Scroll is ready for active use only when:
 ## Sandbox boundary review
 
 - `sandbox_boundary_review_scroll.md`: reviews sandbox preparation behavior, path safety, manifest fields, allowed writes, and non-execution constraints.
+
+## Dry-run runtime runner review
+
+- `dry_run_runtime_runner_review_scroll.md`: reviews dry-run runner orchestration, sandbox outputs, validation, inspection, run summaries, and safety boundaries.
