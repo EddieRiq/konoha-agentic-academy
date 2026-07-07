@@ -47,3 +47,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Git readiness reports
 
 - `git_readiness/git_readiness_report.example.json`: example report produced by the Git read-only gate.
+
+## Git staging reports
+
+- `git_readiness/git_staging_report.example.json`: example report produced by the Git staging gate.

@@ -461,3 +461,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Git read-only gate
 
 - Add a Git read-only gate after the human-approved apply plan prototype, inspecting repository readiness with allowlisted read-only Git commands before any future Git write gate.
+
+### Git staging gate
+
+- Add a Git staging gate after the Git read-only gate, allowing explicit human-approved staging of allowlisted files without commit or push.

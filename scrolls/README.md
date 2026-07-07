@@ -494,3 +494,7 @@ A Scroll is ready for active use only when:
 ## Git read-only gate review
 
 - `git_read_only_gate_review_scroll.md`: reviews Git read-only gate behavior, allowed commands, dirty-state handling, private-boundary checks, and no-write constraints.
+
+## Git staging gate review
+
+- `git_staging_gate_review_scroll.md`: reviews Git staging requests, allowlisted paths, approval evidence, staged files, and no-commit/no-push constraints.

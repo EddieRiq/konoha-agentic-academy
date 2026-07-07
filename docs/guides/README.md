@@ -204,3 +204,7 @@ Do not hide doctrine changes inside guides.
 ## Git read-only gate
 
 - `git_read_only_gate.md`: defines the Git read-only gate, allowed Git inspection commands, readiness reports, dirty-state handling, and no-write rules.
+
+## Git staging gate
+
+- `git_staging_gate.md`: defines the Git staging gate, explicit path allowlists, approval token, preview mode, staging reports, and no-commit/no-push rules.

@@ -492,3 +492,9 @@ The apply plan prototype reads sandbox apply plans, previews proposed changes, a
 - Git Read-only Gate: inspects Git status, tracked files, changed paths, and private-boundary signals without Git write operations.
 
 The gate uses allowlisted read-only Git commands to inspect repository readiness. It does not stage files, create commits, publish changes, clean files, invoke adapters, execute missions, or access private context.
+
+## Git staging gate
+
+- Git Staging Gate: stages explicit allowlisted files only with human approval, without commit or push.
+
+The staging gate can preview or stage explicit allowlisted paths using Git. It requires an exact approval token for confirmed staging and does not commit, push, clean, reset, execute missions, invoke adapters, or access private context.
