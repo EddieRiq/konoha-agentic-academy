@@ -373,3 +373,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Git operation boundary
 
 - Define Git operation boundaries before implementing add, commit, push, tag, release, branch, or history-changing behavior.
+
+### Rollback boundary
+
+- Define rollback boundaries before implementing risky runtime behavior, including rollback plans, recovery evidence, residual risk, and approval gates.

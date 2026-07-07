@@ -29,6 +29,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Rollback Boundary with rollback request/result templates and readiness review.
 - Added Git Operation Boundary with Git request/result templates and readiness review.
 - Added Filesystem Mutation Boundary with mutation request/result templates and readiness review.
 - Added Command Runner Boundary with command execution request/result templates and readiness review.

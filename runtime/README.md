@@ -69,3 +69,9 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 - `templates/git_operation_request.template.md`: template for requesting Git operations under explicit approval.
 - `templates/git_operation_result.template.md`: template for recording Git operation evidence, output, and status.
 - `templates/git_operation_readiness.template.md`: template for assessing readiness before implementing Git operation behavior.
+
+## Rollback boundary
+
+- `templates/rollback_request.template.md`: template for requesting a rollback, revert, restore, or recovery action.
+- `templates/rollback_result.template.md`: template for recording rollback evidence, result, and residual risk.
+- `templates/rollback_readiness.template.md`: template for assessing rollback readiness before risky runtime behavior.

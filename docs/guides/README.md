@@ -114,3 +114,7 @@ Do not hide doctrine changes inside guides.
 ## Git operation boundary
 
 - `git_operation_boundary.md`: defines the safety boundary for future Git operations such as add, commit, push, tags, releases, branches, and history changes.
+
+## Rollback boundary
+
+- `rollback_boundary.md`: defines rollback evidence, readiness, approval, and stop conditions before reversible or risky runtime behavior.

@@ -405,3 +405,7 @@ A Scroll is ready for active use only when:
 ## Git operation boundary review
 
 - `git_operation_boundary_review_scroll.md`: reviews proposed Git operation behavior before implementation or use.
+
+## Rollback boundary review
+
+- `rollback_boundary_review_scroll.md`: reviews rollback readiness before risky changes, reversions, restores, or recovery actions.
