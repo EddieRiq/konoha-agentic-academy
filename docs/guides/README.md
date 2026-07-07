@@ -144,3 +144,7 @@ Do not hide doctrine changes inside guides.
 ## Token budget enforcement
 
 - `token_budget_enforcement.md`: defines soft budgets, hard stops, overage justification, escalation, and token efficiency review.
+
+## First runtime skeleton
+
+- `first_runtime_skeleton.md`: defines the first dry-run-only runtime skeleton, including mission intake, planning, adapter stubs, evidence stubs, and runtime state.

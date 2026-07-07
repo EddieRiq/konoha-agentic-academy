@@ -401,3 +401,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Token budget enforcement
 
 - Define token budget enforcement before runtime skeleton, including soft limits, hard stops, overage review, escalation triggers, and capsule/prompt improvements.
+
+### First runtime skeleton
+
+- Define first runtime skeleton after model routing governance, using dry-run-only mission intake, execution planning, adapter stubs, evidence stubs, and runtime state.

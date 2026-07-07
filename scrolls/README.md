@@ -434,3 +434,7 @@ A Scroll is ready for active use only when:
 ## Token budget enforcement review
 
 - `token_budget_enforcement_review_scroll.md`: reviews token budgets, overages, hard stops, and cost-quality evidence.
+
+## Runtime dry-run review
+
+- `runtime_dry_run_review_scroll.md`: reviews dry-run runtime plans, adapter stubs, evidence stubs, state boundaries, and execution blockers.

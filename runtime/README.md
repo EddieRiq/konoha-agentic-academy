@@ -105,3 +105,11 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 
 - `templates/token_budget_enforcement.template.md`: template for defining soft limits, hard stops, overage rules, and escalation triggers.
 - `templates/token_overage_review.template.md`: template for reviewing whether token overage was justified, avoidable, or caused by poor routing.
+
+## First runtime skeleton
+
+- `templates/mission_intake.template.md`: template for converting a Mission Charter into a structured runtime intake object.
+- `templates/dry_run_execution_plan.template.md`: template for producing a reviewable dry-run execution plan.
+- `templates/adapter_invocation_stub.template.md`: template for describing adapter calls without executing them.
+- `templates/evidence_collection_stub.template.md`: template for listing expected evidence without collecting it automatically.
+- `templates/runtime_state.template.md`: template for documenting runtime state during dry-run planning.

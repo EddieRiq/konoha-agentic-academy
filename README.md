@@ -420,3 +420,9 @@ The current runtime layer is planning-only. Konoha does not yet include executab
 - Model routing and token governance baseline for safe, sufficient, cost-aware intelligence.
 
 Konoha optimizes for safe, sufficient intelligence, not maximum intelligence by default.
+
+## First runtime skeleton
+
+- First runtime skeleton baseline for dry-run-only mission planning.
+
+The first runtime skeleton is documentation-first and dry-run only. It does not execute shell commands, mutate files, perform Git operations, or access private context automatically.
