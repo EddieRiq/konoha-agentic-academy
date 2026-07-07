@@ -369,3 +369,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Filesystem mutation boundary
 
 - Define filesystem mutation boundaries before implementing file creation, editing, movement, overwrite, or deletion behavior.
+
+### Git operation boundary
+
+- Define Git operation boundaries before implementing add, commit, push, tag, release, branch, or history-changing behavior.

@@ -63,3 +63,9 @@ A future runtime may only act when the Mission Charter, adapter contract, permis
 - `templates/filesystem_mutation_request.template.md`: template for requesting file creation, modification, movement, rename, overwrite, or deletion.
 - `templates/filesystem_mutation_result.template.md`: template for recording filesystem mutation evidence and outcome.
 - `templates/filesystem_mutation_readiness.template.md`: template for assessing readiness before implementing filesystem mutation behavior.
+
+## Git operation boundary
+
+- `templates/git_operation_request.template.md`: template for requesting Git operations under explicit approval.
+- `templates/git_operation_result.template.md`: template for recording Git operation evidence, output, and status.
+- `templates/git_operation_readiness.template.md`: template for assessing readiness before implementing Git operation behavior.

@@ -110,3 +110,7 @@ Do not hide doctrine changes inside guides.
 ## Filesystem mutation boundary
 
 - `filesystem_mutation_boundary.md`: defines the safety boundary for future file creation, editing, movement, overwrite, and deletion behavior.
+
+## Git operation boundary
+
+- `git_operation_boundary.md`: defines the safety boundary for future Git operations such as add, commit, push, tags, releases, branches, and history changes.

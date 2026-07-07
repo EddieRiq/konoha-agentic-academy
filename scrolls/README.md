@@ -401,3 +401,7 @@ A Scroll is ready for active use only when:
 ## Filesystem mutation boundary review
 
 - `filesystem_mutation_boundary_review_scroll.md`: reviews proposed filesystem mutation behavior before implementation or use.
+
+## Git operation boundary review
+
+- `git_operation_boundary_review_scroll.md`: reviews proposed Git operation behavior before implementation or use.
