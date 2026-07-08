@@ -574,3 +574,7 @@ A Scroll is ready for active use only when:
 ## Human-in-the-loop Agent Runtime review
 
 - `human_in_loop_agent_runtime_review_scroll.md`: reviews agent runtime reports, delegated gate evidence, human approval requirements, blocked actions, and v2.0 alignment readiness.
+
+## v2.0 mission closure review
+
+- `integration_memory_mission_closure_review_scroll.md`: reviews mission closure, teachback, Yamanaka memory outputs, context packs, notification state, and non-authority boundaries.

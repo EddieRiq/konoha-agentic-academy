@@ -561,3 +561,7 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 - Add Human-in-the-loop Agent Runtime after Controlled Tool Execution Gate to coordinate planning, model-gated evidence, controlled tool execution, and human review before the v2.0 Alignment Review Gate.
 
 Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before generating v2.0.0 files.
+
+### v2.0.0 Integration, Memory and Mission Closure
+
+- Release v2.0.0 as Integration, Memory and Mission Closure after the v2.0 Alignment Review Gate, closing missions only with teachback, explicit approval, memory notes, context packs, and safety boundaries.

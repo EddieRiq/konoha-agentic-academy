@@ -620,3 +620,11 @@ Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to veri
 The runtime coordinates existing gates but adds no autonomous authority. Model output, plan proposals, controlled tool results, and runtime reports are evidence only. They never grant permission to apply, stage, commit, push, access private context, invoke adapters, or close a mission.
 
 Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to verify that the project remains aligned with the original intent.
+
+## v2.0 Integration, Memory and Mission Closure
+
+- v2.0 Integration, Memory and Mission Closure: closes missions only with teachback, explicit approval, minimal Yamanaka memory, context packs, and notification state.
+
+v2.0.0 closes the Konoha mission loop. A mission can close only after explicit human approval and teachback confirmation. Closure writes mission-local reports, teachback records, notification state, and Obsidian-compatible Yamanaka memory notes under an explicit memory root.
+
+Mission closure does not authorize new execution, repository apply, Git operations, model calls, adapter calls, private context access, or doctrine rewrite.

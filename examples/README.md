@@ -136,3 +136,9 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 
 - `agent_runtime/human_in_loop_agent_runtime_report.example.json`: example report produced by the Human-in-the-loop Agent Runtime.
 - `agent_runtime/human_in_loop_agent_state.example.json`: example state for a human-reviewed agent mission.
+
+## v2.0 mission closure examples
+
+- `mission_closure/mission_closure_report.example.json`: example report produced by the Mission Closure Gate.
+- `mission_closure/teachback_record.example.json`: example teachback record required before mission closure.
+- `yamanaka/mission_memory_note.example.md`: example Obsidian-compatible Yamanaka memory note.

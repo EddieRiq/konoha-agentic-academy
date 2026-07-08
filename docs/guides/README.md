@@ -284,3 +284,8 @@ Do not hide doctrine changes inside guides.
 ## Human-in-the-loop Agent Runtime
 
 - `human_in_loop_agent_runtime.md`: defines the human-in-the-loop agent runtime, delegated gates, planning evidence, controlled tool evidence, reports, approval requirements, and non-authority rules.
+
+## v2.0 Integration, Memory and Mission Closure
+
+- `integration_memory_and_mission_closure.md`: defines v2.0 integration, minimal Yamanaka memory, teachback, context packs, notification state, and mission closure boundaries.
+- `teachback_protocol_gate.md`: defines the exact teachback confirmation required before mission closure.

@@ -71,6 +71,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v2.0 Integration, Memory and Mission Closure with Mission Closure Gate, Teachback Record, minimal Yamanaka Memory, Context Pack generation, Notification State schema, tests, examples, guides, reference, and review Scroll.
 - Added Human-in-the-loop Agent Runtime with delegated planning, model-gated evidence, controlled tool execution, runtime report schema, state schema, tests, examples, guide, and review Scroll.
 - Added Controlled Tool Execution Gate with allowlisted internal tool execution, explicit approval token, plan schema, report schema, tests, examples, guide, and review Scroll.
 - Added Local Web UI Alpha with localhost-only dashboard, Mission Workspace views, approval evidence recording, reports, system status, schemas, tests, examples, guide, and review Scroll.
