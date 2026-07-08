@@ -570,3 +570,7 @@ A Scroll is ready for active use only when:
 ## Controlled Tool Execution Gate review
 
 - `controlled_tool_execution_review_scroll.md`: reviews controlled tool plans, allowlisted actions, approval evidence, blocked capabilities, sandbox reports, and evidence-only boundaries.
+
+## Human-in-the-loop Agent Runtime review
+
+- `human_in_loop_agent_runtime_review_scroll.md`: reviews agent runtime reports, delegated gate evidence, human approval requirements, blocked actions, and v2.0 alignment readiness.

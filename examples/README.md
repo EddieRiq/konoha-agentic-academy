@@ -131,3 +131,8 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 
 - `tool_execution/controlled_tool_execution_plan.example.json`: example plan for an allowlisted controlled tool execution.
 - `tool_execution/controlled_tool_execution_report.example.json`: example report produced by the Controlled Tool Execution Gate.
+
+## Human-in-the-loop agent runtime examples
+
+- `agent_runtime/human_in_loop_agent_runtime_report.example.json`: example report produced by the Human-in-the-loop Agent Runtime.
+- `agent_runtime/human_in_loop_agent_state.example.json`: example state for a human-reviewed agent mission.

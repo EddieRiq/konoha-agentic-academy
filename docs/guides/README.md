@@ -280,3 +280,7 @@ Do not hide doctrine changes inside guides.
 ## Controlled Tool Execution Gate
 
 - `controlled_tool_execution_gate.md`: defines allowlisted internal tool execution, approval token, sandbox reports, blocked shell/network/Git/model/private-context actions, and evidence-only outputs.
+
+## Human-in-the-loop Agent Runtime
+
+- `human_in_loop_agent_runtime.md`: defines the human-in-the-loop agent runtime, delegated gates, planning evidence, controlled tool evidence, reports, approval requirements, and non-authority rules.

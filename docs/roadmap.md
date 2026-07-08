@@ -555,3 +555,9 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 - Add Controlled Tool Execution Gate after Local Web UI Alpha to allow explicitly approved execution of fixed internal Konoha tools without arbitrary shell, network access, Git operations, repository apply, real model invocation, or private context access.
 
 Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before generating v2.0.0 files.
+
+### v1.9.0 Human-in-the-loop Agent Runtime
+
+- Add Human-in-the-loop Agent Runtime after Controlled Tool Execution Gate to coordinate planning, model-gated evidence, controlled tool execution, and human review before the v2.0 Alignment Review Gate.
+
+Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before generating v2.0.0 files.

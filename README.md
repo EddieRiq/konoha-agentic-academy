@@ -612,3 +612,11 @@ Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to veri
 The gate does not accept arbitrary shell commands. Controlled tool results are evidence only and never grant permission to apply, stage, commit, push, invoke models, invoke adapters, access private context, or close a mission.
 
 Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to verify that the project remains aligned with the original intent.
+
+## Human-in-the-loop Agent Runtime
+
+- Human-in-the-loop Agent Runtime: coordinates Mission Workspace validation, Hokage planning, model-gated evidence, controlled tool execution, and human review.
+
+The runtime coordinates existing gates but adds no autonomous authority. Model output, plan proposals, controlled tool results, and runtime reports are evidence only. They never grant permission to apply, stage, commit, push, access private context, invoke adapters, or close a mission.
+
+Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to verify that the project remains aligned with the original intent.
