@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/hokage_plan_proposal.schema.json",
+  "title": "Hokage Plan Proposal",
+  "description": "Metadata contract for a planning-only Hokage plan proposal. The Markdown proposal remains evidence only.",
+  "type": "object",
+  "required": [
+    "proposal_type",
+    "schema_version",
+    "mission_id",
+    "run_id",
+    "status",
+    "human_review_required",
+    "model_output_authority"
+  ],
+  "properties": {
+    "proposal_type": {
+      "const": "hokage_plan_proposal"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "status": {
+      "const": "review_required"
+    },
+    "source": {
+      "type": "string"
+    },
+    "plan_path": {
+      "type": "string"
+    },
+    "human_review_required": {
+      "const": true
+    },
+    "model_output_authority": {
+      "const": "evidence_only"
+    },
+    "blocked_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

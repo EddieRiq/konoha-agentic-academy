@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/hokage_planner_loop_report.schema.json",
+  "title": "Hokage Planner Loop Report",
+  "type": "object",
+  "required": [
+    "report_type",
+    "schema_version",
+    "generated_at",
+    "status",
+    "mission_id",
+    "run_id",
+    "steps",
+    "boundaries",
+    "human_review_required",
+    "non_authority_statement"
+  ],
+  "properties": {
+    "report_type": {
+      "const": "hokage_planner_loop_report"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "workspace_root": {
+      "type": "string"
+    },
+    "sandbox_root": {
+      "type": "string"
+    },
+    "preview_only": {
+      "type": "boolean"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "human_review_required": {
+      "type": "boolean"
+    },
+    "non_authority_statement": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

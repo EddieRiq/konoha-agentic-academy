@@ -1,0 +1,39 @@
+{
+  "report_type": "hokage_planner_loop_report",
+  "schema_version": "1.0",
+  "generated_at": "2026-01-01T00:00:00+00:00",
+  "status": "passed",
+  "mission_id": "example-mission",
+  "run_id": "example-planner-run",
+  "workspace_root": "sandbox/workspace",
+  "sandbox_root": "sandbox",
+  "preview_only": false,
+  "steps": [
+    {
+      "script": "tools/runtime_runner/run_dry_run_runtime.py",
+      "returncode": 0
+    },
+    {
+      "script": "tools/model_invocation/invoke_model_gate.py",
+      "returncode": 0
+    }
+  ],
+  "blockers": [],
+  "outputs": {
+    "plan_proposal": "sandbox/workspace/missions/example-mission/plans/example-planner-run_hokage_plan_proposal.md",
+    "mission_report": "sandbox/workspace/missions/example-mission/reports/example-planner-run_hokage_planner_loop_report.json",
+    "sandbox_report": "sandbox/runs/example-planner-run/hokage_planner_loop_report.json"
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "filesystem_mutation": "mission workspace plans/reports and delegated sandbox outputs only",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "model_output_authority": "evidence_only",
+    "real_model_invocation": "gated",
+    "network_access": "blocked unless explicit provider gate approval is used"
+  },
+  "human_review_required": true,
+  "non_authority_statement": "Model output is evidence only and never grants permission to execute, apply, stage, commit, push, or close a mission."
+}
