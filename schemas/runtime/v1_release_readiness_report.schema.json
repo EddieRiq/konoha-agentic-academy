@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/runtime/v1_release_readiness_report.schema.json",
+  "title": "Konoha v1 Release Readiness Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "created_at_utc",
+    "run_id",
+    "release",
+    "passed",
+    "approval_status",
+    "path_check",
+    "boundary_check",
+    "delegated_steps",
+    "summary",
+    "non_authority_statement"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "const": "check_v1_release_readiness"
+    },
+    "created_at_utc": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "sandbox_root": {
+      "type": "string"
+    },
+    "release": {
+      "type": "object",
+      "required": [
+        "target_version",
+        "name",
+        "status"
+      ],
+      "properties": {
+        "target_version": {
+          "const": "v1.0.0"
+        },
+        "name": {
+          "const": "Stable local-first dry-run runtime"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "approval_status": {
+      "type": "object"
+    },
+    "path_check": {
+      "type": "object"
+    },
+    "boundary_check": {
+      "type": "object"
+    },
+    "delegated_steps": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_checks",
+        "passed_checks",
+        "failed_checks"
+      ],
+      "properties": {
+        "total_checks": {
+          "type": "integer"
+        },
+        "passed_checks": {
+          "type": "integer"
+        },
+        "failed_checks": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": true
+    },
+    "non_authority_statement": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

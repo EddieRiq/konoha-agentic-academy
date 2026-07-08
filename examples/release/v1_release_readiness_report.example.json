@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "tool": "check_v1_release_readiness",
+  "created_at_utc": "2026-07-08T00:00:00+00:00",
+  "run_id": "v1-release-readiness-example",
+  "repo_root": ".",
+  "sandbox_root": "./sandbox",
+  "release": {
+    "target_version": "v1.0.0",
+    "name": "Stable local-first dry-run runtime",
+    "status": "example"
+  },
+  "passed": true,
+  "approval_status": {
+    "execution": "blocked",
+    "filesystem_mutation": "sandbox reports and delegated sandbox outputs only",
+    "repository_apply": "blocked",
+    "git_operations": "read-only or blocked",
+    "git_write_operations": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "mock only through adapter gate",
+    "real_adapter_execution": "blocked",
+    "network_access": "blocked"
+  },
+  "path_check": {
+    "name": "required_public_paths",
+    "passed": true,
+    "present_count": 42,
+    "missing_count": 0,
+    "missing": []
+  },
+  "boundary_check": {
+    "name": "boundary_phrase_check",
+    "passed": true,
+    "matched": {
+      "docs/guides/dogfood_mission_suite.md": [
+        "Execution: blocked",
+        "Git operations",
+        "Private context access",
+        "Network access"
+      ]
+    },
+    "missing_phrases": []
+  },
+  "delegated_steps": [
+    {
+      "name": "unit_tests",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "OK",
+      "stderr": ""
+    },
+    {
+      "name": "integrated_smoke_tests",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "INTEGRATED SMOKE TESTS PASSED",
+      "stderr": ""
+    },
+    {
+      "name": "dogfood_mission_suite",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "DOGFOOD MISSION SUITE PASSED",
+      "stderr": ""
+    },
+    {
+      "name": "repo_inspection",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "{...}",
+      "stderr": ""
+    },
+    {
+      "name": "git_readiness",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "{...}",
+      "stderr": ""
+    }
+  ],
+  "summary": {
+    "total_checks": 7,
+    "passed_checks": 7,
+    "failed_checks": 0
+  },
+  "non_authority_statement": "This checker adds no runtime authority. It verifies public files, runs allowlisted tests/checks, and writes a sandbox report only."
+}
