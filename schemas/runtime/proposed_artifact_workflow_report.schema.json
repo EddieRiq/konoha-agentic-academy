@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/proposed_artifact_workflow_report.schema.json",
+  "title": "Konoha Proposed Artifact Workflow Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "workflow",
+    "status",
+    "created_at",
+    "run_id",
+    "artifact",
+    "steps",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "workflow": {
+      "const": "proposed_artifact_workflow"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "run_dir": {
+      "type": "string"
+    },
+    "artifact": {
+      "type": "object",
+      "required": [
+        "artifact_path",
+        "artifact_kind",
+        "intended_repo_path"
+      ],
+      "properties": {
+        "artifact_path": {
+          "type": "string"
+        },
+        "artifact_kind": {
+          "type": "string"
+        },
+        "intended_repo_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "passed",
+          "returncode"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "returncode": {
+            "type": "integer"
+          },
+          "stdout_excerpt": {
+            "type": "string"
+          },
+          "stderr_excerpt": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "outputs": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "repository_apply",
+        "git_operations",
+        "private_context_access",
+        "adapter_execution",
+        "network_access",
+        "runtime_authority"
+      ],
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "filesystem_mutation": {
+          "type": "string"
+        },
+        "repository_apply": {
+          "type": "string"
+        },
+        "git_operations": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "blocked"
+        },
+        "network_access": {
+          "const": "blocked"
+        },
+        "runtime_authority": {
+          "const": "not_authorized"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

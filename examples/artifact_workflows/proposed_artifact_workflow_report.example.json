@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.24.0",
+  "workflow": "proposed_artifact_workflow",
+  "status": "passed",
+  "created_at": "2026-01-01T00:00:00Z",
+  "title": "Example proposed artifact workflow",
+  "scope": "Create a proposed markdown artifact inside sandbox and preview apply plan.",
+  "run_id": "example-proposed-artifact-workflow",
+  "run_dir": "sandbox/runs/example-proposed-artifact-workflow",
+  "artifact": {
+    "artifact_path": "docs/example_note.md",
+    "artifact_kind": "markdown",
+    "intended_repo_path": "sandbox/tmp/example-proposed-artifact-workflow/example_note.md"
+  },
+  "steps": [
+    {
+      "name": "runtime_runner",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "name": "artifact_writer",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "name": "apply_plan_preview",
+      "passed": true,
+      "returncode": 0
+    }
+  ],
+  "outputs": {
+    "runtime_package": "sandbox/runs/example-proposed-artifact-workflow/runtime_package.json",
+    "apply_plan": "sandbox/runs/example-proposed-artifact-workflow/apply_plan.json",
+    "artifact_write_report": "sandbox/runs/example-proposed-artifact-workflow/artifact_write_report.json",
+    "workflow_report": "sandbox/runs/example-proposed-artifact-workflow/proposed_artifact_workflow_report.json"
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "filesystem_mutation": "sandbox_only",
+    "repository_apply": "preview_only",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "blocked",
+    "network_access": "blocked",
+    "runtime_authority": "not_authorized"
+  }
+}
