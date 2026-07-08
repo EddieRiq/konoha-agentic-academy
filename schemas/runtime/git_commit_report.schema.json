@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/konoha/schemas/runtime/git_commit_report.schema.json",
+  "title": "Konoha Git Commit Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "outcome",
+    "mode",
+    "repo_root",
+    "commit_message",
+    "staged_paths",
+    "blockers",
+    "safety"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "const": "git_commit_gate"
+    },
+    "outcome": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "preview",
+        "confirmed"
+      ]
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "commit_message": {
+      "type": "string"
+    },
+    "staged_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "commit_hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status_lines": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "execution",
+        "git_stage",
+        "git_commit",
+        "git_push",
+        "git_clean",
+        "git_reset",
+        "private_context_access",
+        "adapter_execution",
+        "network_access"
+      ],
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "git_stage": {
+          "const": "blocked"
+        },
+        "git_commit": {
+          "enum": [
+            "preview_only",
+            "human_approved"
+          ]
+        },
+        "git_push": {
+          "const": "blocked"
+        },
+        "git_clean": {
+          "const": "blocked"
+        },
+        "git_reset": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "blocked"
+        },
+        "network_access": {
+          "const": "blocked"
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

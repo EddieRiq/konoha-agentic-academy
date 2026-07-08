@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.25.0",
+  "tool": "git_commit_gate",
+  "outcome": "passed",
+  "mode": "preview",
+  "repo_root": ".",
+  "commit_message": "Add safe docs update",
+  "staged_paths": [
+    "docs/example.md"
+  ],
+  "blockers": [],
+  "commit_hash": null,
+  "status_lines": [
+    "A  docs/example.md"
+  ],
+  "safety": {
+    "execution": "blocked",
+    "git_stage": "blocked",
+    "git_commit": "preview_only",
+    "git_push": "blocked",
+    "git_clean": "blocked",
+    "git_reset": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "blocked",
+    "network_access": "blocked"
+  }
+}
