@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Approvals: {{ mission.mission_id }}</h1>
+
+<section class="card warning">
+  <h2>Boundary</h2>
+  <p>The UI does not store or autofill approval tokens. Recording approval evidence does not execute the mission.</p>
+</section>
+
+<section class="card">
+  <h2>Record decision</h2>
+  <form method="post" action="/approvals/{{ mission.mission_id }}">
+    <label>Transition <input name="transition" required></label>
+    <label>Decision <input name="decision" required></label>
+    <label>Reason <textarea name="reason" required></textarea></label>
+    <label>Approval token <input name="approval_token" type="password" required></label>
+    <button type="submit">Record human decision</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Approval events</h2>
+  {% if events %}
+  {% for event in events %}
+    <pre>{{ event | tojson(indent=2) }}</pre>
+  {% endfor %}
+  {% else %}
+  <p>No approval events recorded.</p>
+  {% endif %}
+</section>
+{% endblock %}

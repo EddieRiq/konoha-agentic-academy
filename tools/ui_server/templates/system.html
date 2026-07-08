@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>System / Doctor</h1>
+
+<section class="card">
+  <h2>Checks</h2>
+  <pre>{{ checks | tojson(indent=2) }}</pre>
+</section>
+
+<section class="card">
+  <h2>Safety boundaries</h2>
+  <ul>
+  {% for item in boundaries %}
+    <li><strong>{{ item.name }}:</strong> {{ item.status }}</li>
+  {% endfor %}
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Session report</h2>
+  <p>POST <code>/system/session-report</code> writes a local UI session report under sandbox reports.</p>
+</section>
+{% endblock %}

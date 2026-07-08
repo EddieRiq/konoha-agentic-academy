@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "report_type": "local_web_ui_session_report",
+  "status": "passed",
+  "created_at": "2026-01-01T00:00:00+00:00",
+  "workspace_root": "sandbox/workspace",
+  "mission_count": 1,
+  "execution": "blocked",
+  "filesystem_mutation": "sandbox reports and mission workspace only",
+  "repository_apply": "blocked",
+  "git_operations": "blocked",
+  "private_context_access": "blocked",
+  "real_model_invocation": "blocked_from_ui_alpha",
+  "network_access": "localhost_ui_only",
+  "ui_adds_authority": false,
+  "v2_alignment_review_gate": "required before v2.0.0"
+}

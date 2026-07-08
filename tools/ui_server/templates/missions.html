@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Missions</h1>
+
+<section class="card">
+  <h2>Create mission</h2>
+  <form method="post" action="/missions/new">
+    <label>Mission ID <input name="mission_id" required></label>
+    <label>Title <input name="title" required></label>
+    <label>Scope <textarea name="scope" required></textarea></label>
+    <button type="submit">Create Mission Workspace</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Mission list</h2>
+  {% if missions %}
+  <table>
+    <thead>
+      <tr><th>Mission ID</th><th>Title</th><th>Status</th><th>Created</th></tr>
+    </thead>
+    <tbody>
+    {% for mission in missions %}
+      <tr>
+        <td><a href="/missions/{{ mission.mission_id }}">{{ mission.mission_id }}</a></td>
+        <td>{{ mission.title }}</td>
+        <td>{{ mission.status }}</td>
+        <td>{{ mission.created_at }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No missions found.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/local_web_ui_session_report.schema.json",
+  "title": "Local Web UI Session Report",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "report_type",
+    "status",
+    "created_at",
+    "execution",
+    "git_operations",
+    "private_context_access",
+    "real_model_invocation",
+    "ui_adds_authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "local_web_ui_session_report"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "workspace_root": {
+      "type": "string"
+    },
+    "mission_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "execution": {
+      "const": "blocked"
+    },
+    "filesystem_mutation": {
+      "type": "string"
+    },
+    "repository_apply": {
+      "const": "blocked"
+    },
+    "git_operations": {
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "const": "blocked"
+    },
+    "real_model_invocation": {
+      "type": "string"
+    },
+    "network_access": {
+      "type": "string"
+    },
+    "ui_adds_authority": {
+      "const": false
+    },
+    "v2_alignment_review_gate": {
+      "type": "string"
+    }
+  }
+}

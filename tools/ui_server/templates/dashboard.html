@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+<section class="grid">
+  <div class="card">
+    <h2>Roots</h2>
+    <p><strong>Repo:</strong> {{ roots.repo_root }}</p>
+    <p><strong>Workspace:</strong> {{ roots.workspace_root }}</p>
+    <p><strong>Sandbox:</strong> {{ roots.sandbox_root }}</p>
+  </div>
+  <div class="card">
+    <h2>Safety boundaries</h2>
+    <ul>
+    {% for item in boundaries %}
+      <li><strong>{{ item.name }}:</strong> {{ item.status }}</li>
+    {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Recent missions</h2>
+  {% if missions %}
+  <ul>
+    {% for mission in missions %}
+      <li><a href="/missions/{{ mission.mission_id }}">{{ mission.mission_id }}</a> — {{ mission.title }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No missions found.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Recent reports</h2>
+  {% if reports %}
+  <ul>
+    {% for report in reports %}
+      <li>{{ report.name }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No sandbox reports found.</p>
+  {% endif %}
+</section>
+{% endblock %}

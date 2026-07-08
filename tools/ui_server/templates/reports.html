@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Reports</h1>
+<section class="card">
+  {% if reports %}
+  <table>
+    <thead><tr><th>Name</th><th>Path</th><th>Size</th></tr></thead>
+    <tbody>
+    {% for report in reports %}
+      <tr><td>{{ report.name }}</td><td>{{ report.path }}</td><td>{{ report.size_bytes }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No reports found under sandbox/reports.</p>
+  {% endif %}
+</section>
+{% endblock %}

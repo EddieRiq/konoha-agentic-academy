@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Mission: {{ mission.mission_id }}</h1>
+
+<section class="card">
+  <h2>Manifest</h2>
+  <pre>{{ mission.manifest | tojson(indent=2) }}</pre>
+</section>
+
+<section class="card">
+  <h2>Charter</h2>
+  <pre>{{ mission.charter }}</pre>
+</section>
+
+<section class="grid">
+  <div class="card">
+    <h2>Plans</h2>
+    <ul>{% for item in mission.plans %}<li>{{ item }}</li>{% endfor %}</ul>
+  </div>
+  <div class="card">
+    <h2>Reports</h2>
+    <ul>{% for item in mission.reports %}<li>{{ item }}</li>{% endfor %}</ul>
+  </div>
+  <div class="card">
+    <h2>Evidence</h2>
+    <ul>{% for item in mission.evidence %}<li>{{ item }}</li>{% endfor %}</ul>
+  </div>
+  <div class="card">
+    <h2>Approvals</h2>
+    <p><a href="/approvals/{{ mission.mission_id }}">Open approval console</a></p>
+    <ul>{% for item in mission.approvals %}<li>{{ item }}</li>{% endfor %}</ul>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Suggested CLI commands</h2>
+  {% for name, command in commands.items() %}
+  <h3>{{ name }}</h3>
+  <pre>{{ command }}</pre>
+  {% endfor %}
+</section>
+{% endblock %}

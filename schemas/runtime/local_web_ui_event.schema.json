@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/local_web_ui_event.schema.json",
+  "title": "Local Web UI Event",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "event_type",
+    "created_at",
+    "ui",
+    "execution",
+    "git_operations",
+    "private_context_access",
+    "real_model_invocation"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "ui": {
+      "const": "local_web_ui_alpha"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "execution": {
+      "const": "blocked"
+    },
+    "repository_apply": {
+      "type": "string"
+    },
+    "git_operations": {
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "const": "blocked"
+    },
+    "real_model_invocation": {
+      "type": "string"
+    },
+    "network_access": {
+      "type": "string"
+    },
+    "ui_adds_authority": {
+      "const": false
+    }
+  }
+}
