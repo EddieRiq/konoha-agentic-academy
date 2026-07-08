@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "suite": "konoha_dogfood_mission_suite",
+  "run_id": "dogfood-example",
+  "status": "passed",
+  "created_at": "2026-01-01T00:00:00+00:00",
+  "repo_root": ".",
+  "sandbox_root": "./sandbox",
+  "report_path": "./sandbox/reports/dogfood-example_dogfood_mission_suite_report.json",
+  "summary": {
+    "total_steps": 8,
+    "passed_steps": 8,
+    "failed_steps": 0,
+    "blockers": []
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "filesystem_mutation": "sandbox reports and delegated sandbox outputs only",
+    "repository_apply": "blocked",
+    "git_operations": "read-only or blocked",
+    "git_write_operations": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "mock only through adapter gate",
+    "real_adapter_execution": "blocked",
+    "network_access": "blocked"
+  },
+  "steps": [
+    {
+      "name": "project_config_validation",
+      "purpose": "Validate public project config and policy defaults.",
+      "status": "passed",
+      "returncode": 0,
+      "command": "python tools/config_validator/validate_konoha_config.py konoha.config.example.json",
+      "stdout_tail": "CONFIG VALIDATION PASSED",
+      "stderr_tail": ""
+    }
+  ],
+  "human_review_required": true
+}

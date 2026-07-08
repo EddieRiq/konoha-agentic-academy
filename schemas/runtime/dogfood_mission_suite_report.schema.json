@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha Dogfood Mission Suite Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "suite",
+    "run_id",
+    "status",
+    "created_at",
+    "summary",
+    "boundaries",
+    "steps",
+    "human_review_required"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "suite": {
+      "const": "konoha_dogfood_mission_suite"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "sandbox_root": {
+      "type": "string"
+    },
+    "report_path": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_steps",
+        "passed_steps",
+        "failed_steps",
+        "blockers"
+      ],
+      "properties": {
+        "total_steps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "passed_steps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed_steps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "boundaries": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "repository_apply",
+        "git_operations",
+        "git_write_operations",
+        "private_context_access",
+        "adapter_execution",
+        "real_adapter_execution",
+        "network_access"
+      ],
+      "properties": {
+        "execution": {
+          "type": "string"
+        },
+        "filesystem_mutation": {
+          "type": "string"
+        },
+        "repository_apply": {
+          "type": "string"
+        },
+        "git_operations": {
+          "type": "string"
+        },
+        "git_write_operations": {
+          "type": "string"
+        },
+        "private_context_access": {
+          "type": "string"
+        },
+        "adapter_execution": {
+          "type": "string"
+        },
+        "real_adapter_execution": {
+          "type": "string"
+        },
+        "network_access": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "purpose",
+          "status",
+          "returncode",
+          "command"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed"
+            ]
+          },
+          "returncode": {
+            "type": "integer"
+          },
+          "command": {
+            "type": "string"
+          },
+          "stdout_tail": {
+            "type": "string"
+          },
+          "stderr_tail": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "human_review_required": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}
