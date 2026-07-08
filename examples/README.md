@@ -100,3 +100,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 
 - `mission_workspace/mission_workspace_manifest.example.json`: example manifest for a formal Konoha Mission Workspace.
 - `mission_workspace/mission_workspace_report.example.json`: example report produced by the Mission Workspace manager.
+
+## Approval console examples
+
+- `approval_console/mission_approval_console_report.example.json`: example report produced by the Human Approval Console CLI.

@@ -256,3 +256,7 @@ Do not hide doctrine changes inside guides.
 ## Mission workspace
 
 - `mission_workspace.md`: defines the mission workspace structure, manifest, charter, approval log, validation flow, path safety rules, and non-authority boundaries.
+
+## Human approval console CLI
+
+- `human_approval_console_cli.md`: defines mission status, inspection, approval, rejection, approval events, evidence listing, report listing, tokens, and non-authority boundaries.

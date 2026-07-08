@@ -517,3 +517,9 @@ UI implementation remains gated: present draft, screens, stack, permissions, and
 - Add Mission Workspace after Product Runtime Bootstrap to formalize mission-local charter, manifest, inputs, context, plans, outputs, reports, approvals, and evidence before approval-console and model work.
 
 UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.
+
+### v1.3.0 Human Approval Console CLI
+
+- Add Human Approval Console CLI after Mission Workspace to define mission status, inspection, approval, rejection, evidence listing, and report listing before model-provider work.
+
+UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.

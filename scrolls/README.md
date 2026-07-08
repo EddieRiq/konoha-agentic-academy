@@ -546,3 +546,7 @@ A Scroll is ready for active use only when:
 ## Mission workspace review
 
 - `mission_workspace_review_scroll.md`: reviews mission workspace structure, manifests, charters, approval logs, evidence folders, validation reports, and safety boundaries.
+
+## Human approval console review
+
+- `human_approval_console_review_scroll.md`: reviews approval-console events, approval tokens, rejection evidence, mission-local reports, and safety boundaries.

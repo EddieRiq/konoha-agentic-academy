@@ -572,3 +572,9 @@ The product runtime bootstrap keeps outputs inside sandbox workspace roots by de
 - Mission Workspace: formalizes mission-local charter, manifest, inputs, context, plans, outputs, reports, approvals, and evidence folders.
 
 The Mission Workspace is a local evidence and organization boundary. It does not authorize execution, real adapter invocation, repository apply, Git operations, network access, private context access, or runtime closure.
+
+## Human approval console CLI
+
+- Human Approval Console CLI: records human approval and rejection evidence inside Mission Workspaces.
+
+The approval console records mission-local approval evidence. It does not execute missions, invoke models, invoke real adapters, access private context, apply repository changes, perform Git operations, use network access, or authorize runtime actions by itself.
