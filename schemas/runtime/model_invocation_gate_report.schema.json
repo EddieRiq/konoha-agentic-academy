@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha Model Invocation Gate Report",
+  "type": "object",
+  "required": [
+    "status",
+    "gate",
+    "provider",
+    "invocation",
+    "execution",
+    "git_operations",
+    "private_context_access",
+    "real_model_invocation",
+    "network_access",
+    "human_review_required",
+    "model_output_is_permission",
+    "blockers"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "target_release": {
+      "type": "string"
+    },
+    "gate": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "invocation": {
+      "type": "string"
+    },
+    "execution": {
+      "type": "string"
+    },
+    "filesystem_mutation": {
+      "type": "string"
+    },
+    "repository_apply": {
+      "type": "string"
+    },
+    "git_operations": {
+      "type": "string"
+    },
+    "private_context_access": {
+      "type": "string"
+    },
+    "real_model_invocation": {
+      "type": "string"
+    },
+    "network_access": {
+      "type": "string"
+    },
+    "human_review_required": {
+      "type": "boolean"
+    },
+    "model_output_is_permission": {
+      "type": "boolean"
+    },
+    "elapsed_ms": {
+      "type": "integer"
+    },
+    "report_path": {
+      "type": "string"
+    },
+    "output_path": {
+      "type": "string"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,17 @@
+{
+  "request_id": "example-mock-request",
+  "mission_id": "example-mission",
+  "provider": "mock",
+  "model": "mock-reviewer",
+  "purpose": "planning",
+  "prompt": "Draft a public mission checklist. Do not execute actions.",
+  "context_sources": [
+    "mission_workspace",
+    "sandbox"
+  ],
+  "estimated_prompt_tokens": 300,
+  "requested_completion_tokens": 250,
+  "estimated_cost_usd": 0.0,
+  "contains_private_context": false,
+  "requires_network": false
+}

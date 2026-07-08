@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha Model Invocation Output",
+  "type": "object",
+  "required": [
+    "provider",
+    "model",
+    "request_id",
+    "mission_id",
+    "status",
+    "review_required",
+    "output_text",
+    "permission_granted"
+  ],
+  "properties": {
+    "provider": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "review_required": {
+      "type": "boolean"
+    },
+    "output_text": {
+      "type": "string"
+    },
+    "permission_granted": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

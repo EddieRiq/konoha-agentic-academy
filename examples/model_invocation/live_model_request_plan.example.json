@@ -1,0 +1,17 @@
+{
+  "request_id": "example-openai-plan-only",
+  "mission_id": "example-mission",
+  "provider": "openai",
+  "model": "gpt-example",
+  "purpose": "planning",
+  "prompt": "Draft a public mission plan. Do not execute actions.",
+  "context_sources": [
+    "mission_workspace",
+    "sandbox"
+  ],
+  "estimated_prompt_tokens": 700,
+  "requested_completion_tokens": 500,
+  "estimated_cost_usd": 0.1,
+  "contains_private_context": false,
+  "requires_network": true
+}
