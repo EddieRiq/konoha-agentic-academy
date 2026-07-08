@@ -52,6 +52,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Unified CLI Entrypoint with allowlisted dispatch over existing Konoha tools, routing tests, CLI example, guide, and review Scroll.
 - Added Git Staging Gate with explicit allowlisted staging, approval token, staging report schema, tests, example report, guide, and review Scroll.
 - Added Git Read-only Gate with allowlisted Git inspection commands, readiness report schema, tests, example report, guide, and review Scroll.
 - Added Human-approved Apply Plan Prototype with preview/apply CLI, explicit approval token, allowlisted destinations, apply report schema, tests, example report, guide, and review Scroll.

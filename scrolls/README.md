@@ -498,3 +498,7 @@ A Scroll is ready for active use only when:
 ## Git staging gate review
 
 - `git_staging_gate_review_scroll.md`: reviews Git staging requests, allowlisted paths, approval evidence, staged files, and no-commit/no-push constraints.
+
+## Unified CLI review
+
+- `unified_cli_review_scroll.md`: reviews unified CLI command routing, allowlisted dispatch, delegated tool boundaries, approval preservation, and non-authority constraints.

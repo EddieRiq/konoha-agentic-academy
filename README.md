@@ -498,3 +498,9 @@ The gate uses allowlisted read-only Git commands to inspect repository readiness
 - Git Staging Gate: stages explicit allowlisted files only with human approval, without commit or push.
 
 The staging gate can preview or stage explicit allowlisted paths using Git. It requires an exact approval token for confirmed staging and does not commit, push, clean, reset, execute missions, invoke adapters, or access private context.
+
+## Unified CLI entrypoint
+
+- Unified CLI Entrypoint: provides one command surface over the existing safe local-first Konoha tools.
+
+The unified CLI delegates to allowlisted internal tools. It does not execute missions, bypass approval gates, perform Git commits or pushes, invoke adapters, access private context, or authorize runtime actions.

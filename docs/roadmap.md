@@ -465,3 +465,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Git staging gate
 
 - Add a Git staging gate after the Git read-only gate, allowing explicit human-approved staging of allowlisted files without commit or push.
+
+### Unified CLI entrypoint
+
+- Add a unified CLI entrypoint after the Git staging gate, exposing existing safe local-first tools through one allowlisted command surface without adding new runtime authority.

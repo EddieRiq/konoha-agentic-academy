@@ -51,3 +51,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Git staging reports
 
 - `git_readiness/git_staging_report.example.json`: example report produced by the Git staging gate.
+
+## CLI examples
+
+- `cli/konoha_cli_help.example.txt`: example help text and command examples for the unified CLI entrypoint.

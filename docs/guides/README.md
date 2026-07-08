@@ -208,3 +208,7 @@ Do not hide doctrine changes inside guides.
 ## Git staging gate
 
 - `git_staging_gate.md`: defines the Git staging gate, explicit path allowlists, approval token, preview mode, staging reports, and no-commit/no-push rules.
+
+## Unified CLI entrypoint
+
+- `unified_cli_entrypoint.md`: defines the unified CLI entrypoint, command groups, allowlisted dispatch, delegated tool boundaries, and non-authority rules.
