@@ -1,0 +1,79 @@
+{
+  "schema_version": "0.1.0",
+  "tool": "integrated_smoke_tests",
+  "status": "passed",
+  "passed": true,
+  "run_id": "v0-26-example",
+  "repo_root": ".",
+  "sandbox_root": "sandbox",
+  "report_path": "sandbox/reports/v0-26-example_integrated_test_report.json",
+  "created_at": "2026-01-01T00:00:00+00:00",
+  "steps": [
+    {
+      "name": "config_validation",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "CONFIG VALIDATION PASSED",
+      "stderr": ""
+    },
+    {
+      "name": "dry_run_runtime",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "DRY-RUN RUNTIME PASSED",
+      "stderr": ""
+    },
+    {
+      "name": "package_validation",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "VALIDATION PASSED",
+      "stderr": ""
+    },
+    {
+      "name": "package_inspection",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "INSPECTION PASSED",
+      "stderr": ""
+    },
+    {
+      "name": "run_registry",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "RUNTIME RUN REGISTRY",
+      "stderr": ""
+    },
+    {
+      "name": "repo_inspection",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "REPO INSPECTION PASSED",
+      "stderr": ""
+    },
+    {
+      "name": "git_readiness",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "GIT READINESS PASSED",
+      "stderr": ""
+    },
+    {
+      "name": "proposed_artifact_workflow",
+      "returncode": 0,
+      "passed": true,
+      "stdout": "PROPOSED ARTIFACT WORKFLOW PASSED",
+      "stderr": ""
+    }
+  ],
+  "failed_steps": [],
+  "safety": {
+    "execution": "blocked",
+    "filesystem_mutation": "sandbox_reports_only",
+    "git_operations": "read_only_or_blocked",
+    "git_write_operations": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "blocked",
+    "network_access": "blocked"
+  }
+}

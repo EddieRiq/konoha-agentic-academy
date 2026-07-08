@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/integrated_test_report.schema.json",
+  "title": "Konoha Integrated Test Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "status",
+    "passed",
+    "run_id",
+    "steps",
+    "safety"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "const": "integrated_smoke_tests"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "sandbox_root": {
+      "type": "string"
+    },
+    "report_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "returncode",
+          "passed"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "command": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "returncode": {
+            "type": "integer"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "stdout": {
+            "type": "string"
+          },
+          "stderr": {
+            "type": "string"
+          },
+          "started_at": {
+            "type": "string"
+          },
+          "completed_at": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "failed_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "git_write_operations",
+        "private_context_access",
+        "adapter_execution",
+        "network_access"
+      ],
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "filesystem_mutation": {
+          "type": "string"
+        },
+        "git_operations": {
+          "type": "string"
+        },
+        "git_write_operations": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "blocked"
+        },
+        "network_access": {
+          "const": "blocked"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
