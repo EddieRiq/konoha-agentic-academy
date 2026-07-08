@@ -522,3 +522,9 @@ The workflow writes a mission workflow report inside the sandbox run. It does no
 - Proposed Artifact Workflow: connects dry-run runtime, sandbox artifact writing, apply preview, optional approved apply, and workflow reporting.
 
 The workflow creates proposed artifacts inside sandbox runs and previews apply plans by default. Confirmed apply still requires the delegated human-approved apply gate, exact approval token, and allowlisted destination paths.
+
+## Git commit gate
+
+- Git Commit Gate: commits already staged allowlisted files only with explicit human approval, without push or history rewrite.
+
+The commit gate can preview or commit already staged allowlisted files. It requires an exact approval token for confirmed commits and does not stage files, push changes, clean/reset files, invoke adapters, access private context, or authorize runtime actions.

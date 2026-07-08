@@ -481,3 +481,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Proposed artifact workflow
 
 - Add a proposed artifact workflow after the end-to-end dry-run mission workflow, connecting sandbox artifact writing, apply preview, optional approved apply, and workflow reporting.
+
+### Git commit gate
+
+- Add a Git commit gate after the Git staging gate, allowing explicit human-approved commits of already staged allowlisted files without push, staging, clean, reset, or history rewrite.

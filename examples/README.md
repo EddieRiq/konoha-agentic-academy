@@ -67,3 +67,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Proposed artifact workflow reports
 
 - `artifact_workflows/proposed_artifact_workflow_report.example.json`: example report produced by the proposed artifact workflow.
+
+## Git commit reports
+
+- `git_readiness/git_commit_report.example.json`: example report produced by the Git commit gate.

@@ -514,3 +514,7 @@ A Scroll is ready for active use only when:
 ## Proposed artifact workflow review
 
 - `proposed_artifact_workflow_review_scroll.md`: reviews proposed artifact workflow reports, delegated steps, apply preview, approval evidence, proposed outputs, and safety boundaries.
+
+## Git commit gate review
+
+- `git_commit_gate_review_scroll.md`: reviews Git commit requests, staged paths, approval evidence, commit message policy, and no-push/no-stage constraints.

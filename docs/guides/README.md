@@ -224,3 +224,7 @@ Do not hide doctrine changes inside guides.
 ## Proposed artifact workflow
 
 - `proposed_artifact_workflow.md`: defines the proposed artifact workflow, sandbox proposed outputs, apply preview, optional approved apply, workflow report, and non-execution boundaries.
+
+## Git commit gate
+
+- `git_commit_gate.md`: defines the Git commit gate, staged-file validation, approval token, commit message policy, preview mode, and no-push/no-stage rules.
