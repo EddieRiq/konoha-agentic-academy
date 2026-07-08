@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/product_runtime_bootstrap_report.schema.json",
+  "title": "Konoha Product Runtime Bootstrap Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "tool_version",
+    "status",
+    "command",
+    "generated_at",
+    "safety_boundaries",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "const": "konoha_product_runtime_bootstrap"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "status": {
+      "enum": ["passed", "failed"]
+    },
+    "command": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "workspace_root": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "mission_dir": {
+      "type": "string"
+    },
+    "required_public_paths": {
+      "type": "object"
+    },
+    "config_validation": {
+      "type": "object"
+    },
+    "safety_boundaries": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "repository_apply",
+        "git_operations",
+        "git_write_operations",
+        "private_context_access",
+        "adapter_execution",
+        "real_adapter_execution",
+        "network_access"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

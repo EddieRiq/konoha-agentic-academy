@@ -1,0 +1,47 @@
+{
+  "blockers": [],
+  "command": "doctor",
+  "config_path": "konoha.config.example.json",
+  "config_validation": {
+    "blockers": [],
+    "checks": {
+      "json_object": true,
+      "mentions_approval": true,
+      "mentions_blocked": true,
+      "mentions_sandbox": true
+    },
+    "config_file": "konoha.config.example.json",
+    "status": "passed"
+  },
+  "generated_at": "2026-01-01T00:00:00+00:00",
+  "required_public_paths": {
+    "checked": 8,
+    "missing": []
+  },
+  "safety_boundaries": {
+    "adapter_execution": "blocked by bootstrap CLI",
+    "execution": "blocked",
+    "filesystem_mutation": "workspace and delegated sandbox outputs only",
+    "git_operations": "read-only or delegated gated tools only",
+    "git_write_operations": "blocked by bootstrap CLI",
+    "network_access": "blocked",
+    "private_context_access": "blocked",
+    "real_adapter_execution": "blocked",
+    "repository_apply": "blocked by bootstrap CLI"
+  },
+  "schema_version": "1.0",
+  "status": "passed",
+  "tool": "konoha_product_runtime_bootstrap",
+  "tool_version": "1.1.0",
+  "workspace": {
+    "exists": true,
+    "expected_directories": [
+      "missions",
+      "reports",
+      "state",
+      "tmp"
+    ],
+    "path": "sandbox/workspace"
+  },
+  "workspace_root": "sandbox/workspace"
+}
