@@ -497,3 +497,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Adapter invocation gate disabled by default
 
 - Add an adapter invocation gate after the mock adapter interface, keeping real adapters disabled by default while allowing explicitly approved mock adapter invocation inside sandbox runs.
+
+### Dogfood mission suite
+
+- Add a dogfood mission suite after the adapter invocation gate, using Konoha safe local-first gates as final pre-1.0 evidence before stable release.

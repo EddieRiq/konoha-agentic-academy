@@ -546,3 +546,9 @@ The mock adapter is local-only and deterministic. It writes review-required outp
 - Adapter Invocation Gate Disabled by Default: gates adapter-shaped workflows while keeping real adapters blocked.
 
 The gate previews adapter requests and can invoke only the deterministic mock adapter with explicit approval, enable flag, and sandbox-only outputs. Real adapter execution remains blocked.
+
+## Dogfood mission suite
+
+- Dogfood Mission Suite: runs Konoha against itself using safe local-first gates before v1.0 stabilization.
+
+The dogfood suite validates config, dry-run mission workflow, proposed artifact workflow, adapter gate behavior, repo inspection, and Git readiness without real adapter execution, Git write operations, private context access, or network access.

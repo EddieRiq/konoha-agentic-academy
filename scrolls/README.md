@@ -530,3 +530,7 @@ A Scroll is ready for active use only when:
 ## Adapter invocation gate review
 
 - `adapter_invocation_gate_review_scroll.md`: reviews adapter invocation gate behavior, real-adapter blockers, mock approval evidence, sandbox outputs, and safety boundaries.
+
+## Dogfood mission suite review
+
+- `dogfood_mission_suite_review_scroll.md`: reviews dogfood suite reports, delegated workflow evidence, Git boundaries, adapter boundaries, and pre-1.0 release readiness.

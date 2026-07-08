@@ -83,3 +83,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Adapter invocation gate reports
 
 - `adapters/adapter_invocation_gate_report.example.json`: example report produced by the Adapter Invocation Gate.
+
+## Dogfood mission suite reports
+
+- `dogfood/dogfood_mission_suite_report.example.json`: example report produced by the Dogfood Mission Suite.

@@ -240,3 +240,7 @@ Do not hide doctrine changes inside guides.
 ## Adapter invocation gate
 
 - `adapter_invocation_gate_disabled_by_default.md`: defines the adapter invocation gate, disabled-by-default real adapter boundary, mock-only approval flow, sandbox outputs, and no-network rules.
+
+## Dogfood mission suite
+
+- `dogfood_mission_suite.md`: defines the dogfood mission suite, delegated safe workflow checks, report output, pre-1.0 evidence role, and non-authority boundaries.
