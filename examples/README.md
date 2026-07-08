@@ -157,3 +157,9 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `yamanaka/advanced/yamanaka_memory_capture_report.example.json`: example report produced by Yamanaka mission memory capture.
 - `yamanaka/advanced/yamanaka_context_pack_manifest.example.json`: example context pack manifest.
 - `yamanaka/advanced/yamanaka_memory_index.example.json`: example local memory index.
+
+## Scroll lifecycle examples
+
+- `scroll_lifecycle/scroll_learning_proposal.example.json`: example mission-local Scroll learning proposal.
+- `scroll_lifecycle/scroll_lifecycle_review_report.example.json`: example lifecycle review report.
+- `scroll_lifecycle/scroll_lifecycle_index.example.json`: example proposal index.

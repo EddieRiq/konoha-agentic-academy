@@ -301,3 +301,7 @@ Do not hide doctrine changes inside guides.
 ## Yamanaka Advanced Memory and Context Packs
 
 - `yamanaka_advanced_memory_and_context_packs.md`: defines advanced Yamanaka memory capture, Obsidian-compatible notes, context packs, memory indexing, approval tokens, and non-authority boundaries.
+
+## Scroll Lifecycle and Learning Proposals
+
+- `scroll_lifecycle_and_learning_proposals.md`: defines Scroll learning proposals, review decisions, promotion plans, approval tokens, lifecycle states, and doctrine non-rewrite boundaries.

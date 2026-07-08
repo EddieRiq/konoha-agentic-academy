@@ -646,3 +646,9 @@ The resolver supports local-first visual customization while keeping public asse
 - Yamanaka Advanced Memory and Context Packs: captures mission evidence into Obsidian-compatible memory notes, builds context packs, and indexes local memory without granting runtime authority.
 
 Memory supports action but does not authorize action. Context packs are not permission. Summaries are not truth. Yamanaka memory does not execute missions, invoke models, invoke adapters, apply repository changes, perform Git operations, access private context by default, rewrite doctrine, or close missions.
+
+## Scroll Lifecycle and Learning Proposals
+
+- Scroll Lifecycle and Learning Proposals: records mission-local learning proposals, review records, indexes, and promotion plans without rewriting doctrine.
+
+Agents may learn, but they may not rewrite doctrine. Learning proposals are evidence only. Review records do not rewrite doctrine. Promotion plans are not permission to modify official Scrolls.

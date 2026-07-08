@@ -590,3 +590,9 @@ A Scroll is ready for active use only when:
 ## Yamanaka Advanced Memory review
 
 - `yamanaka_advanced_memory_review_scroll.md`: reviews memory capture, context packs, indexes, private/public boundaries, approval tokens, and memory non-authority.
+
+## Scroll Lifecycle and Learning Proposals
+
+- `scroll_lifecycle_review_scroll.md`: reviews learning proposals, lifecycle decisions, promotion plans, Shikamaru boundaries, and evidence-only rules.
+- `templates/learning_proposal.template.md`: template for mission-local Scroll learning proposals.
+- `templates/scroll_lifecycle_review.template.md`: template for mission-local Scroll lifecycle reviews.

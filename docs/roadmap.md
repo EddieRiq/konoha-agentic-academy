@@ -577,3 +577,7 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 ### v2.3.0 Yamanaka Advanced Memory and Context Packs
 
 - Add Yamanaka Advanced Memory and Context Packs after the asset resolver, strengthening local memory with mission evidence capture, context pack generation, and memory indexing.
+
+### v2.4.0 Scroll Lifecycle and Learning Proposals
+
+- Add Scroll Lifecycle and Learning Proposals after Yamanaka advanced memory, allowing mission-local learning without automatic doctrine rewrite.
