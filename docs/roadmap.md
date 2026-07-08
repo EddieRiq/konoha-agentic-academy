@@ -493,3 +493,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Mock adapter / Clerk interface
 
 - Add a mock adapter / Clerk interface after integrated tests and CI, producing deterministic sandbox-only outputs without real adapter execution, network access, or private context access.
+
+### Adapter invocation gate disabled by default
+
+- Add an adapter invocation gate after the mock adapter interface, keeping real adapters disabled by default while allowing explicitly approved mock adapter invocation inside sandbox runs.

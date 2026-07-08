@@ -236,3 +236,7 @@ Do not hide doctrine changes inside guides.
 ## Mock adapter clerk interface
 
 - `mock_adapter_clerk_interface.md`: defines the deterministic mock adapter, Clerk boundary, sandbox-only outputs, mock invocation reports, and no-real-adapter rules.
+
+## Adapter invocation gate
+
+- `adapter_invocation_gate_disabled_by_default.md`: defines the adapter invocation gate, disabled-by-default real adapter boundary, mock-only approval flow, sandbox outputs, and no-network rules.

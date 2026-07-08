@@ -540,3 +540,9 @@ The integrated smoke-test runner delegates to existing safe local-first tools an
 - Mock Adapter / Clerk Interface: produces deterministic mock outputs inside sandbox runs without real adapter execution.
 
 The mock adapter is local-only and deterministic. It writes review-required outputs inside sandbox runs and does not call real adapters, use network access, perform Git operations, access private context, or authorize runtime actions.
+
+## Adapter invocation gate
+
+- Adapter Invocation Gate Disabled by Default: gates adapter-shaped workflows while keeping real adapters blocked.
+
+The gate previews adapter requests and can invoke only the deterministic mock adapter with explicit approval, enable flag, and sandbox-only outputs. Real adapter execution remains blocked.

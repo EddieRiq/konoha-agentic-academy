@@ -526,3 +526,7 @@ A Scroll is ready for active use only when:
 ## Mock adapter review
 
 - `mock_adapter_review_scroll.md`: reviews mock adapter behavior, deterministic outputs, sandbox boundaries, review-required status, and no-real-adapter constraints.
+
+## Adapter invocation gate review
+
+- `adapter_invocation_gate_review_scroll.md`: reviews adapter invocation gate behavior, real-adapter blockers, mock approval evidence, sandbox outputs, and safety boundaries.

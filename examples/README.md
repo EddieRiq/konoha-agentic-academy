@@ -79,3 +79,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Mock adapter reports
 
 - `adapters/mock_adapter_invocation_report.example.json`: example report produced by the deterministic mock adapter / Clerk interface.
+
+## Adapter invocation gate reports
+
+- `adapters/adapter_invocation_gate_report.example.json`: example report produced by the Adapter Invocation Gate.
