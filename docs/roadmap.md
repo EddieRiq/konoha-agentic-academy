@@ -489,3 +489,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Integrated tests and CI
 
 - Add integrated tests and CI after the Git commit gate, running unit tests and safe dry-run smoke checks without Git write operations, secrets, adapters, or private context access.
+
+### Mock adapter / Clerk interface
+
+- Add a mock adapter / Clerk interface after integrated tests and CI, producing deterministic sandbox-only outputs without real adapter execution, network access, or private context access.

@@ -232,3 +232,7 @@ Do not hide doctrine changes inside guides.
 ## Integrated tests and CI
 
 - `integrated_tests_and_ci.md`: defines the integrated smoke-test runner, CI workflow, integrated reports, safety checks, and non-execution boundaries.
+
+## Mock adapter clerk interface
+
+- `mock_adapter_clerk_interface.md`: defines the deterministic mock adapter, Clerk boundary, sandbox-only outputs, mock invocation reports, and no-real-adapter rules.

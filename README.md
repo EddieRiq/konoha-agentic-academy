@@ -534,3 +534,9 @@ The commit gate can preview or commit already staged allowlisted files. It requi
 - Integrated Tests and CI: runs unit tests and integrated dry-run smoke tests without adding runtime authority.
 
 The integrated smoke-test runner delegates to existing safe local-first tools and writes reports under sandbox. The CI workflow runs tests and smoke checks without secrets, Git write operations, adapter execution, or private context access.
+
+## Mock adapter clerk interface
+
+- Mock Adapter / Clerk Interface: produces deterministic mock outputs inside sandbox runs without real adapter execution.
+
+The mock adapter is local-only and deterministic. It writes review-required outputs inside sandbox runs and does not call real adapters, use network access, perform Git operations, access private context, or authorize runtime actions.

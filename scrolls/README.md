@@ -522,3 +522,7 @@ A Scroll is ready for active use only when:
 ## Integrated tests and CI review
 
 - `integrated_tests_ci_review_scroll.md`: reviews integrated smoke tests, CI workflow, reports, unit tests, and safety boundaries.
+
+## Mock adapter review
+
+- `mock_adapter_review_scroll.md`: reviews mock adapter behavior, deterministic outputs, sandbox boundaries, review-required status, and no-real-adapter constraints.

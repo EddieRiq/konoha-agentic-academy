@@ -75,3 +75,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Integration reports
 
 - `integration/integrated_test_report.example.json`: example report produced by the integrated smoke-test runner.
+
+## Mock adapter reports
+
+- `adapters/mock_adapter_invocation_report.example.json`: example report produced by the deterministic mock adapter / Clerk interface.
