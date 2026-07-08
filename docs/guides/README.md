@@ -248,3 +248,7 @@ Do not hide doctrine changes inside guides.
 ## v1.0 release readiness
 
 - `v1_release_readiness.md`: defines the v1.0 release-readiness checker, final stabilization evidence, stable release boundary, and non-authority rules.
+
+## Product runtime bootstrap
+
+- `product_runtime_bootstrap.md`: defines the product runtime bootstrap CLI, init, doctor, config validation, mission workspace creation, dry-run delegation, and non-authority boundaries.

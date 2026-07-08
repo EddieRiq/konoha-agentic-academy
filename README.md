@@ -560,3 +560,9 @@ The dogfood suite validates config, dry-run mission workflow, proposed artifact 
 v1.0.0 means Konoha can safely run local-first, human-approved, dry-run-centered agentic workflows that generate, validate, inspect, propose, apply, stage, and commit changes under explicit gates.
 
 v1.0.0 does not mean autonomous execution, real adapter execution by default, network access, private context access by default, Git push automation, or background autonomous missions.
+
+## Product runtime bootstrap
+
+- Product Runtime Bootstrap: adds init, doctor, config validation, mission workspace creation, and delegated dry-run operation from a product-oriented CLI.
+
+The product runtime bootstrap keeps outputs inside sandbox workspace roots by default and does not execute missions, invoke real adapters, access private context, perform Git writes, use network access, or authorize runtime actions.

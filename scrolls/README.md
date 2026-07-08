@@ -538,3 +538,7 @@ A Scroll is ready for active use only when:
 ## v1.0 release readiness review
 
 - `v1_release_readiness_review_scroll.md`: reviews release-readiness evidence, safety boundaries, capability matrix, private-leak checks, and final v1.0 release approval.
+
+## Product runtime bootstrap review
+
+- `product_runtime_bootstrap_review_scroll.md`: reviews product bootstrap outputs, workspace boundaries, mission skeletons, doctor checks, dry-run delegation, and UI approval gate preservation.

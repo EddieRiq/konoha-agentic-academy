@@ -505,3 +505,9 @@ This milestone does not include executable agent runtime, adapter implementation
 ### v1.0.0 stable local-first dry-run runtime
 
 - Stabilize v1.0.0 after the Dogfood Mission Suite as the stable local-first dry-run runtime release.
+
+### v1.1.0 Product Runtime Bootstrap
+
+- Add Product Runtime Bootstrap after v1.0.0 to provide init, doctor, config validation, mission workspace creation, and delegated dry-run operation before model and UI work.
+
+UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.

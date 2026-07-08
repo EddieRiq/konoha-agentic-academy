@@ -91,3 +91,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Release readiness reports
 
 - `release/v1_release_readiness_report.example.json`: example report produced by the v1.0 release-readiness checker.
+
+## Product runtime reports
+
+- `product_runtime/product_runtime_doctor_report.example.json`: example report produced by the Product Runtime Bootstrap doctor.
