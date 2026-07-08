@@ -73,6 +73,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Asset Resolver and Local Visual Layer with logical asset resolution, generic public assets, local override support, asset schemas, tests, examples, guide, and review Scroll.
 - Added Notifications and UI State Escalation with mission notification state manager, state event schema, state report schema, tests, examples, guide, and review Scroll.
 - Added v2.0 Integration, Memory and Mission Closure with Mission Closure Gate, Teachback Record, minimal Yamanaka Memory, Context Pack generation, Notification State schema, tests, examples, guides, reference, and review Scroll.
 - Added Human-in-the-loop Agent Runtime with delegated planning, model-gated evidence, controlled tool execution, runtime report schema, state schema, tests, examples, guide, and review Scroll.

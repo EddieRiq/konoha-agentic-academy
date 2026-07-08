@@ -582,3 +582,7 @@ A Scroll is ready for active use only when:
 ## Notifications and UI State review
 
 - `notifications_ui_state_review_scroll.md`: reviews mission notification state changes, UI escalation behavior, required human action, severity, and evidence-only boundaries.
+
+## Asset Resolver review
+
+- `asset_resolver_review_scroll.md`: reviews asset resolution order, path safety, local/private asset boundaries, license safety, and UI non-authority.

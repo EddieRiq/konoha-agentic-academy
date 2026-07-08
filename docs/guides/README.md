@@ -293,3 +293,7 @@ Do not hide doctrine changes inside guides.
 ## Notifications and UI State Escalation
 
 - `notifications_and_ui_state_escalation.md`: defines mission notification states, UI escalation states, required human action, state reports, and no-new-authority boundaries.
+
+## Asset Resolver and Local Visual Layer
+
+- `asset_resolver_and_local_visual_layer.md`: defines logical UI asset resolution, local/user/public/text fallback tiers, public asset policy, private asset boundaries, and no-new-authority rules.

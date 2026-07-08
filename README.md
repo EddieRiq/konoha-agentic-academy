@@ -634,3 +634,9 @@ Mission closure does not authorize new execution, repository apply, Git operatio
 - Notifications and UI State Escalation: records mission states such as waiting_user_input, waiting_approval, blocked, ready_for_review, ready_for_teachback, and closed.
 
 Notification state is evidence only. It may tell humans what Konoha needs next, but it does not authorize execution, model calls, adapter calls, repository apply, Git operations, private context access, background agents, or mission closure.
+
+## Asset Resolver and Local Visual Layer
+
+- Asset Resolver and Local Visual Layer: resolves logical UI assets through local, user, public generic, and text fallback tiers without granting runtime authority.
+
+The resolver supports local-first visual customization while keeping public assets generic, original, and license-safe. UI display is evidence only and never authorizes execution, model calls, adapter calls, repository apply, Git operations, private context access, or mission closure.

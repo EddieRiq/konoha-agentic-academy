@@ -569,3 +569,7 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 ### v2.1.0 Notifications and UI State Escalation
 
 - Add Notifications and UI State Escalation after v2.0 mission closure, making waiting_user_input, waiting_approval, blocked, ready_for_review, ready_for_teachback, and closed states explicit.
+
+### v2.2.0 Asset Resolver and Local Visual Layer
+
+- Add Asset Resolver and Local Visual Layer after notification state escalation, enabling local-first visual customization through logical asset names and generic public fallbacks.

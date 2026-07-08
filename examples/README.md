@@ -147,3 +147,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 
 - `notifications/mission_notification_event.example.json`: example mission notification state event.
 - `notifications/mission_notification_state_report.example.json`: example report produced by the notification state manager.
+
+## Asset resolver examples
+
+- `assets/asset_resolution_report.example.json`: example report produced by the Asset Resolver.
