@@ -578,3 +578,7 @@ A Scroll is ready for active use only when:
 ## v2.0 mission closure review
 
 - `integration_memory_mission_closure_review_scroll.md`: reviews mission closure, teachback, Yamanaka memory outputs, context packs, notification state, and non-authority boundaries.
+
+## Notifications and UI State review
+
+- `notifications_ui_state_review_scroll.md`: reviews mission notification state changes, UI escalation behavior, required human action, severity, and evidence-only boundaries.

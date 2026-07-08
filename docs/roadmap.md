@@ -565,3 +565,7 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 ### v2.0.0 Integration, Memory and Mission Closure
 
 - Release v2.0.0 as Integration, Memory and Mission Closure after the v2.0 Alignment Review Gate, closing missions only with teachback, explicit approval, memory notes, context packs, and safety boundaries.
+
+### v2.1.0 Notifications and UI State Escalation
+
+- Add Notifications and UI State Escalation after v2.0 mission closure, making waiting_user_input, waiting_approval, blocked, ready_for_review, ready_for_teachback, and closed states explicit.

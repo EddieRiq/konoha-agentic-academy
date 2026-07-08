@@ -142,3 +142,8 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `mission_closure/mission_closure_report.example.json`: example report produced by the Mission Closure Gate.
 - `mission_closure/teachback_record.example.json`: example teachback record required before mission closure.
 - `yamanaka/mission_memory_note.example.md`: example Obsidian-compatible Yamanaka memory note.
+
+## Notification state examples
+
+- `notifications/mission_notification_event.example.json`: example mission notification state event.
+- `notifications/mission_notification_state_report.example.json`: example report produced by the notification state manager.

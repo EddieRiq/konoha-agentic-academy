@@ -628,3 +628,9 @@ Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to veri
 v2.0.0 closes the Konoha mission loop. A mission can close only after explicit human approval and teachback confirmation. Closure writes mission-local reports, teachback records, notification state, and Obsidian-compatible Yamanaka memory notes under an explicit memory root.
 
 Mission closure does not authorize new execution, repository apply, Git operations, model calls, adapter calls, private context access, or doctrine rewrite.
+
+## Notifications and UI State Escalation
+
+- Notifications and UI State Escalation: records mission states such as waiting_user_input, waiting_approval, blocked, ready_for_review, ready_for_teachback, and closed.
+
+Notification state is evidence only. It may tell humans what Konoha needs next, but it does not authorize execution, model calls, adapter calls, repository apply, Git operations, private context access, background agents, or mission closure.

@@ -289,3 +289,7 @@ Do not hide doctrine changes inside guides.
 
 - `integration_memory_and_mission_closure.md`: defines v2.0 integration, minimal Yamanaka memory, teachback, context packs, notification state, and mission closure boundaries.
 - `teachback_protocol_gate.md`: defines the exact teachback confirmation required before mission closure.
+
+## Notifications and UI State Escalation
+
+- `notifications_and_ui_state_escalation.md`: defines mission notification states, UI escalation states, required human action, state reports, and no-new-authority boundaries.
