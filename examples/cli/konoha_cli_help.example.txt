@@ -1,0 +1,14 @@
+usage: konoha [-h] [--repo-root REPO_ROOT] [--version]
+              {runtime,runs,package,sandbox,artifact,apply,git,repo} ...
+
+Unified CLI entrypoint for Konoha safe local-first tooling.
+
+Examples:
+
+  python tools/konoha_cli.py runtime dry-run --title "Demo" --scope "Demo scope" --run-id demo --sandbox-root sandbox --force
+  python tools/konoha_cli.py runs list --sandbox-root sandbox
+  python tools/konoha_cli.py package validate sandbox/runs/demo/runtime_package.json
+  python tools/konoha_cli.py package inspect sandbox/runs/demo/runtime_package.json
+  python tools/konoha_cli.py repo inspect --target-repo-root .
+  python tools/konoha_cli.py git readiness --target-repo-root .
+  python tools/konoha_cli.py git stage --target-repo-root . --path README.md
