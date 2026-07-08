@@ -541,3 +541,11 @@ UI implementation remains gated: present draft, screens, stack, permissions, and
 - Add Hokage Planner Loop after Real Model Invocation Gate to turn gated model evidence into mission-local plan proposals before UI work.
 
 UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.
+
+### v1.7.0 Local Web UI Alpha
+
+- Add Local Web UI Alpha after Hokage Planner Loop, using a localhost-only UI for mission review, approval evidence, reports, and system status without adding new runtime authority.
+
+The UI draft was reviewed before implementation. Future UI expansion must preserve no-new-authority boundaries.
+
+Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before generating v2.0.0 files.

@@ -562,3 +562,7 @@ A Scroll is ready for active use only when:
 ## Hokage planner loop review
 
 - `hokage_planner_loop_review_scroll.md`: reviews planner-loop reports, plan proposals, model-output evidence, human-review requirements, and non-authority boundaries.
+
+## Local Web UI Alpha review
+
+- `local_web_ui_alpha_review_scroll.md`: reviews UI localhost binding, no-new-authority boundary, mission workspace writes, approval-token handling, reports, and v2.0 alignment gate evidence.

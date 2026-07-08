@@ -68,6 +68,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Local Web UI Alpha with localhost-only dashboard, Mission Workspace views, approval evidence recording, reports, system status, schemas, tests, examples, guide, and review Scroll.
 - Added Hokage Planner Loop with planning-only model-evidence flow, plan proposal schema, planner report schema, tests, examples, guide, and review Scroll.
 - Added Real Model Invocation Gate with explicit approval, provider calls, network approval, sandbox-only model outputs, schemas, tests, examples, guide, and review Scroll.
 - Added Model Provider Contract with provider allowlists, model request plans, token/cost budgets, context-source rules, validation CLI, schemas, tests, examples, guide, and review Scroll.

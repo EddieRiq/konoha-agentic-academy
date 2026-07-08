@@ -596,3 +596,11 @@ The Real Model Invocation Gate can call allowlisted providers only with explicit
 - Hokage Planner Loop: turns gated model output into mission-local plan proposals that require human review.
 
 The Hokage Planner Loop creates review-required plan proposals from gated model evidence. Model output is evidence only and never grants permission to execute, apply, stage, commit, push, access private context, or close a mission.
+
+## Local Web UI Alpha
+
+- Local Web UI Alpha: adds a localhost-only browser UI for dashboard, missions, approvals, reports, and system status without adding runtime authority.
+
+The UI is local-only and filesystem-first. It may read Mission Workspaces, create mission skeletons, record human approval evidence, show reports, and display safety boundaries. It may not execute missions, invoke real models, invoke adapters, apply repository changes, perform Git operations, access private context, store tokens, or run background agents.
+
+Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to verify that the project remains aligned with the original intent.

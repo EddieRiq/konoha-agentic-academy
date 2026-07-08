@@ -272,3 +272,7 @@ Do not hide doctrine changes inside guides.
 ## Hokage planner loop
 
 - `hokage_planner_loop.md`: defines the planning-only Hokage loop, gated model evidence, plan proposals, planner reports, and model-output non-authority.
+
+## Local Web UI Alpha
+
+- `local_web_ui_alpha.md`: defines the localhost-only UI alpha, dashboard, missions, approvals, reports, system page, dependency boundary, safety model, and blocked actions.

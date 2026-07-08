@@ -122,3 +122,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 
 - `planner_loop/hokage_plan_proposal.example.md`: example review-required Hokage plan proposal.
 - `planner_loop/hokage_planner_loop_report.example.json`: example report produced by the Hokage Planner Loop.
+
+## Local Web UI examples
+
+- `ui/local_web_ui_session_report.example.json`: example report produced by the Local Web UI Alpha session reporter.
