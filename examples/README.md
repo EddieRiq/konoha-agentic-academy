@@ -151,3 +151,9 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Asset resolver examples
 
 - `assets/asset_resolution_report.example.json`: example report produced by the Asset Resolver.
+
+## Yamanaka advanced memory examples
+
+- `yamanaka/advanced/yamanaka_memory_capture_report.example.json`: example report produced by Yamanaka mission memory capture.
+- `yamanaka/advanced/yamanaka_context_pack_manifest.example.json`: example context pack manifest.
+- `yamanaka/advanced/yamanaka_memory_index.example.json`: example local memory index.

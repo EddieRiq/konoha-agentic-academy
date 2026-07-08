@@ -586,3 +586,7 @@ A Scroll is ready for active use only when:
 ## Asset Resolver review
 
 - `asset_resolver_review_scroll.md`: reviews asset resolution order, path safety, local/private asset boundaries, license safety, and UI non-authority.
+
+## Yamanaka Advanced Memory review
+
+- `yamanaka_advanced_memory_review_scroll.md`: reviews memory capture, context packs, indexes, private/public boundaries, approval tokens, and memory non-authority.

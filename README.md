@@ -640,3 +640,9 @@ Notification state is evidence only. It may tell humans what Konoha needs next, 
 - Asset Resolver and Local Visual Layer: resolves logical UI assets through local, user, public generic, and text fallback tiers without granting runtime authority.
 
 The resolver supports local-first visual customization while keeping public assets generic, original, and license-safe. UI display is evidence only and never authorizes execution, model calls, adapter calls, repository apply, Git operations, private context access, or mission closure.
+
+## Yamanaka Advanced Memory and Context Packs
+
+- Yamanaka Advanced Memory and Context Packs: captures mission evidence into Obsidian-compatible memory notes, builds context packs, and indexes local memory without granting runtime authority.
+
+Memory supports action but does not authorize action. Context packs are not permission. Summaries are not truth. Yamanaka memory does not execute missions, invoke models, invoke adapters, apply repository changes, perform Git operations, access private context by default, rewrite doctrine, or close missions.

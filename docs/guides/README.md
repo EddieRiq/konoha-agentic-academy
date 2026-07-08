@@ -297,3 +297,7 @@ Do not hide doctrine changes inside guides.
 ## Asset Resolver and Local Visual Layer
 
 - `asset_resolver_and_local_visual_layer.md`: defines logical UI asset resolution, local/user/public/text fallback tiers, public asset policy, private asset boundaries, and no-new-authority rules.
+
+## Yamanaka Advanced Memory and Context Packs
+
+- `yamanaka_advanced_memory_and_context_packs.md`: defines advanced Yamanaka memory capture, Obsidian-compatible notes, context packs, memory indexing, approval tokens, and non-authority boundaries.

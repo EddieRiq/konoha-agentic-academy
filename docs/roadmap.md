@@ -573,3 +573,7 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 ### v2.2.0 Asset Resolver and Local Visual Layer
 
 - Add Asset Resolver and Local Visual Layer after notification state escalation, enabling local-first visual customization through logical asset names and generic public fallbacks.
+
+### v2.3.0 Yamanaka Advanced Memory and Context Packs
+
+- Add Yamanaka Advanced Memory and Context Packs after the asset resolver, strengthening local memory with mission evidence capture, context pack generation, and memory indexing.
