@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "local_village_bootstrap_report",
+  "bootstrap_id": "kirigakure-bootstrap-example",
+  "village_name": "kirigakure",
+  "generated_at": "2026-07-08T00:00:00+00:00",
+  "status": "passed",
+  "invocation": "confirmed_bootstrap",
+  "repo_root": "/example/konoha-agentic-academy",
+  "village_root": "/example/private/alliance/kirigakure",
+  "created_paths": [
+    "/example/private/alliance/kirigakure/config",
+    "/example/private/alliance/kirigakure/memory/vault",
+    "/example/private/alliance/kirigakure/assets",
+    "/example/private/alliance/kirigakure/style",
+    "/example/private/alliance/kirigakure/missions",
+    "/example/private/alliance/kirigakure/context",
+    "/example/private/alliance/kirigakure/local_kage",
+    "/example/private/alliance/kirigakure/reports"
+  ],
+  "hardware_profile_embedded": false,
+  "hardware_profile": null,
+  "blockers": [],
+  "privacy": {
+    "project_files_read": false,
+    "env_files_read": false,
+    "credentials_read": false,
+    "emails_read": false,
+    "user_documents_read": false,
+    "arbitrary_directory_scan": false
+  },
+  "authority": {
+    "hardware_profile_is_evidence_only": true,
+    "bootstrap_report_is_evidence_only": true,
+    "local_config_does_not_authorize_execution": true,
+    "local_village_does_not_authorize_private_context_access": true
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "network_access": "blocked",
+    "model_invocation": "blocked",
+    "adapter_invocation": "blocked",
+    "private_context_read": "blocked_by_default",
+    "secret_read": "blocked",
+    "background_agents": "blocked"
+  }
+}

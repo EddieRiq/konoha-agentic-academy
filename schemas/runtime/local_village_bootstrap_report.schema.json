@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/local_village_bootstrap_report.schema.json",
+  "title": "Konoha Local Village Bootstrap Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "bootstrap_id",
+    "village_name",
+    "generated_at",
+    "status",
+    "invocation",
+    "repo_root",
+    "village_root",
+    "created_paths",
+    "privacy",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "report_type": { "const": "local_village_bootstrap_report" },
+    "bootstrap_id": { "type": "string" },
+    "village_name": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "status": { "enum": ["preview", "passed", "failed"] },
+    "invocation": { "enum": ["preview_only", "confirmed_bootstrap", "blocked"] },
+    "repo_root": { "type": "string" },
+    "village_root": { "type": "string" },
+    "created_paths": { "type": "array", "items": { "type": "string" } },
+    "hardware_profile_embedded": { "type": "boolean" },
+    "hardware_profile": { "type": ["object", "null"] },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "privacy": { "type": "object" },
+    "authority": { "type": "object" },
+    "boundaries": { "type": "object" }
+  },
+  "additionalProperties": true
+}

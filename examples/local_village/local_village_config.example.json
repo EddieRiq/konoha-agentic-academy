@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "village_name": "kirigakure",
+  "village_type": "local_private_village",
+  "generated_at": "2026-07-08T00:00:00+00:00",
+  "village_root": "/example/private/alliance/kirigakure",
+  "language_policy": {
+    "public_core_language": "English",
+    "local_village_language": "local_team_language"
+  },
+  "memory": {
+    "format": "markdown_yaml_frontmatter",
+    "obsidian_compatible": true,
+    "root": "memory/vault",
+    "private_by_default": true
+  },
+  "assets": {
+    "root": "assets",
+    "private_by_default": true,
+    "public_assets_must_be_generic_original_license_safe": true
+  },
+  "local_profile": {
+    "machine_tier": "medium",
+    "recommended_workers": 2,
+    "local_models": {
+      "clerk": "use local/free small model if available",
+      "summarizer": "use local/free small model if available",
+      "classifier": "use local/free small model if available",
+      "reasoning_fallback": "use gated remote model only for high-impact reasoning"
+    },
+    "remote_escalation": {
+      "enabled": "user_configured",
+      "use_for": ["architecture", "security-sensitive review"]
+    }
+  },
+  "permissions": {
+    "private_context_access": "requires_explicit_human_approval",
+    "email_access": "blocked_by_default",
+    "secret_access": "blocked",
+    "doctrine_rewrite": "blocked",
+    "git_operations": "blocked",
+    "network_access": "blocked_by_default",
+    "background_agents": "blocked"
+  },
+  "authority": {
+    "hardware_profile_is_evidence_only": true,
+    "bootstrap_report_is_evidence_only": true,
+    "local_config_does_not_authorize_execution": true,
+    "local_village_does_not_authorize_private_context_access": true
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "network_access": "blocked",
+    "model_invocation": "blocked",
+    "adapter_invocation": "blocked",
+    "private_context_read": "blocked_by_default",
+    "secret_read": "blocked",
+    "background_agents": "blocked"
+  }
+}

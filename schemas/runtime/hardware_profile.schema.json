@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/hardware_profile.schema.json",
+  "title": "Konoha Local Hardware Profile",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "profile_id",
+    "village_name",
+    "generated_at",
+    "profile_type",
+    "inspection_mode",
+    "system",
+    "recommended_local_profile",
+    "privacy",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "profile_id": { "type": "string" },
+    "village_name": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "profile_type": { "const": "local_hardware_profile" },
+    "inspection_mode": { "type": "string" },
+    "system": { "type": "object" },
+    "recommended_local_profile": { "type": "object" },
+    "privacy": { "type": "object" },
+    "authority": { "type": "object" },
+    "boundaries": { "type": "object" }
+  },
+  "additionalProperties": true
+}
