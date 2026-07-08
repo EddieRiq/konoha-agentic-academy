@@ -510,3 +510,9 @@ The unified CLI delegates to allowlisted internal tools. It does not execute mis
 - Project Config and Policy Contract: centralizes sandbox paths, allowlists, blocked private paths, approval tokens, and safety defaults.
 
 The config validator is read-only. It validates policy, paths, approval tokens, and safety defaults without executing missions, modifying files, performing Git operations, invoking adapters, or accessing private context.
+
+## End-to-end dry-run mission workflow
+
+- End-to-End Dry-run Mission Workflow: connects config validation, runtime runner, package validation, inspection, registry, repo inspection, and workflow reporting.
+
+The workflow writes a mission workflow report inside the sandbox run. It does not execute missions, perform Git operations, invoke adapters, access private context, or apply repository changes.

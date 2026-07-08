@@ -59,3 +59,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Config validation reports
 
 - `config/konoha_config_validation_report.example.json`: example report produced by the read-only project config validator.
+
+## Mission workflow reports
+
+- `mission_workflows/mission_workflow_report.example.json`: example report produced by the end-to-end dry-run mission workflow.

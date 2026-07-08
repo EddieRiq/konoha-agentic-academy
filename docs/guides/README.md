@@ -216,3 +216,7 @@ Do not hide doctrine changes inside guides.
 ## Project config and policy contract
 
 - `project_config_and_policy_contract.md`: defines the project config contract, sandbox policy, allowlists, blocked private paths, approval tokens, and read-only config validation.
+
+## End-to-end dry-run mission workflow
+
+- `end_to_end_dry_run_mission_workflow.md`: defines the end-to-end dry-run mission workflow, delegated toolchain, workflow report, sandbox outputs, and non-execution boundaries.

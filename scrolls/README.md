@@ -506,3 +506,7 @@ A Scroll is ready for active use only when:
 ## Project config review
 
 - `project_config_review_scroll.md`: reviews project config changes, safety defaults, path allowlists, blocked private paths, approval tokens, and validator evidence.
+
+## End-to-end mission workflow review
+
+- `end_to_end_mission_workflow_review_scroll.md`: reviews end-to-end dry-run mission workflow reports, delegated steps, sandbox outputs, blockers, and non-authority boundaries.

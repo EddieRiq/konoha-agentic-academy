@@ -473,3 +473,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Project config and policy contract
 
 - Add a project config and policy contract after the unified CLI, centralizing sandbox paths, allowlists, blocked private paths, safety defaults, and approval tokens.
+
+### End-to-end dry-run mission workflow
+
+- Add an end-to-end dry-run mission workflow after the project config contract, connecting config validation, runtime runner, package validation, inspection, registry, repo inspection, and workflow reporting.
