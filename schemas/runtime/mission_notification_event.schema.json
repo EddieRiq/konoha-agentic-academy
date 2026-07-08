@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/mission_notification_event.schema.json",
+  "title": "Mission Notification Event",
+  "type": "object",
+  "required": [
+    "event_type",
+    "schema_version",
+    "mission_id",
+    "state",
+    "severity",
+    "reason",
+    "created_at"
+  ],
+  "properties": {
+    "event_type": {
+      "const": "mission_notification_state_update"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "created",
+        "running",
+        "waiting_user_input",
+        "waiting_approval",
+        "blocked",
+        "ready_for_review",
+        "ready_for_teachback",
+        "closed"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "attention",
+        "blocked",
+        "urgent"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "required_human_action": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

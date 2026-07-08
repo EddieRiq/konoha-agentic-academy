@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/mission_notification_state_report.schema.json",
+  "title": "Mission Notification State Report",
+  "type": "object",
+  "required": [
+    "report_type",
+    "schema_version",
+    "command",
+    "mission_id",
+    "status",
+    "invocation",
+    "generated_at",
+    "boundaries"
+  ],
+  "properties": {
+    "report_type": {
+      "const": "mission_notification_state_report"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "command": {
+      "type": "string",
+      "enum": [
+        "set",
+        "inspect"
+      ]
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "invocation": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}
