@@ -534,3 +534,7 @@ A Scroll is ready for active use only when:
 ## Dogfood mission suite review
 
 - `dogfood_mission_suite_review_scroll.md`: reviews dogfood suite reports, delegated workflow evidence, Git boundaries, adapter boundaries, and pre-1.0 release readiness.
+
+## v1.0 release readiness review
+
+- `v1_release_readiness_review_scroll.md`: reviews release-readiness evidence, safety boundaries, capability matrix, private-leak checks, and final v1.0 release approval.

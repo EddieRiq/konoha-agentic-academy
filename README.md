@@ -552,3 +552,11 @@ The gate previews adapter requests and can invoke only the deterministic mock ad
 - Dogfood Mission Suite: runs Konoha against itself using safe local-first gates before v1.0 stabilization.
 
 The dogfood suite validates config, dry-run mission workflow, proposed artifact workflow, adapter gate behavior, repo inspection, and Git readiness without real adapter execution, Git write operations, private context access, or network access.
+
+## v1.0 release readiness
+
+- v1.0 Release Readiness: verifies the stable local-first dry-run runtime before the v1.0.0 release.
+
+v1.0.0 means Konoha can safely run local-first, human-approved, dry-run-centered agentic workflows that generate, validate, inspect, propose, apply, stage, and commit changes under explicit gates.
+
+v1.0.0 does not mean autonomous execution, real adapter execution by default, network access, private context access by default, Git push automation, or background autonomous missions.

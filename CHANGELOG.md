@@ -61,6 +61,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v1.0 release-readiness baseline with readiness checker, report schema, tests, example report, capability matrix, release safety boundaries, guide, and review Scroll.
 - Added Dogfood Mission Suite with safe delegated workflow checks, dogfood report schema, tests, example report, guide, and review Scroll.
 - Added Adapter Invocation Gate Disabled by Default with mock-only approved invocation, real-adapter blocking, gate report schema, policy schema, tests, examples, guide, and review Scroll.
 - Added Mock Adapter / Clerk Interface with deterministic sandbox-only mock outputs, invocation report schema, output schema, tests, examples, guide, and review Scroll.

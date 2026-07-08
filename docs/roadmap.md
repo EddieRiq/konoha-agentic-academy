@@ -501,3 +501,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Dogfood mission suite
 
 - Add a dogfood mission suite after the adapter invocation gate, using Konoha safe local-first gates as final pre-1.0 evidence before stable release.
+
+### v1.0.0 stable local-first dry-run runtime
+
+- Stabilize v1.0.0 after the Dogfood Mission Suite as the stable local-first dry-run runtime release.

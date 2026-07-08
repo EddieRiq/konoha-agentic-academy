@@ -87,3 +87,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Dogfood mission suite reports
 
 - `dogfood/dogfood_mission_suite_report.example.json`: example report produced by the Dogfood Mission Suite.
+
+## Release readiness reports
+
+- `release/v1_release_readiness_report.example.json`: example report produced by the v1.0 release-readiness checker.

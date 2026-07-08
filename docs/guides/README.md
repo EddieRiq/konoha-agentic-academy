@@ -244,3 +244,7 @@ Do not hide doctrine changes inside guides.
 ## Dogfood mission suite
 
 - `dogfood_mission_suite.md`: defines the dogfood mission suite, delegated safe workflow checks, report output, pre-1.0 evidence role, and non-authority boundaries.
+
+## v1.0 release readiness
+
+- `v1_release_readiness.md`: defines the v1.0 release-readiness checker, final stabilization evidence, stable release boundary, and non-authority rules.
