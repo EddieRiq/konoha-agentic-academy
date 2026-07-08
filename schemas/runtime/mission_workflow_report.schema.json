@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/mission_workflow_report.schema.json",
+  "title": "Konoha Mission Workflow Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "generated_at",
+    "mission",
+    "status",
+    "boundaries",
+    "steps",
+    "outputs"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "mission": {
+      "type": "object",
+      "required": [
+        "title",
+        "scope",
+        "run_id"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{1,80}$"
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "boundaries": {
+      "type": "object",
+      "required": [
+        "mode",
+        "execution",
+        "filesystem_mutation",
+        "git_operations",
+        "private_context_access",
+        "adapter_execution",
+        "network_access"
+      ],
+      "properties": {
+        "mode": {
+          "const": "dry_run"
+        },
+        "execution": {
+          "const": "blocked"
+        },
+        "filesystem_mutation": {
+          "enum": [
+            "sandbox_only"
+          ]
+        },
+        "git_operations": {
+          "const": "blocked"
+        },
+        "git_commit": {
+          "const": "blocked"
+        },
+        "git_push": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "blocked"
+        },
+        "network_access": {
+          "const": "blocked"
+        },
+        "repository_apply": {
+          "const": "blocked"
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "returncode",
+          "command"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "failed"
+            ]
+          },
+          "returncode": {
+            "type": "integer"
+          },
+          "command": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array"
+    },
+    "outputs": {
+      "type": "object"
+    }
+  }
+}

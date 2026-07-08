@@ -1,0 +1,81 @@
+{
+  "schema_version": "0.23.0",
+  "tool": "tools/mission_workflow/run_dry_run_mission.py",
+  "generated_at": "2026-01-01T00:00:00+00:00",
+  "mission": {
+    "title": "Example dry-run mission workflow",
+    "scope": "Generate, validate, inspect, register, and report a public dry-run mission.",
+    "run_id": "example-dry-run-mission"
+  },
+  "status": "passed",
+  "repo_root": ".",
+  "sandbox_root": "sandbox",
+  "run_dir": "sandbox/runs/example-dry-run-mission",
+  "runtime_package": "sandbox/runs/example-dry-run-mission/runtime_package.json",
+  "boundaries": {
+    "mode": "dry_run",
+    "execution": "blocked",
+    "filesystem_mutation": "sandbox_only",
+    "git_operations": "blocked",
+    "git_commit": "blocked",
+    "git_push": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "blocked",
+    "network_access": "blocked",
+    "repository_apply": "blocked"
+  },
+  "steps": [
+    {
+      "name": "dry_run_runtime_runner",
+      "status": "passed",
+      "returncode": 0,
+      "command": [
+        "python",
+        "tools/runtime_runner/run_dry_run_runtime.py"
+      ]
+    },
+    {
+      "name": "runtime_package_validation",
+      "status": "passed",
+      "returncode": 0,
+      "command": [
+        "python",
+        "tools/runtime_validator/validate_runtime_package.py"
+      ]
+    },
+    {
+      "name": "runtime_package_inspection",
+      "status": "passed",
+      "returncode": 0,
+      "command": [
+        "python",
+        "tools/runtime_inspector/inspect_runtime_package.py"
+      ]
+    },
+    {
+      "name": "runtime_run_registry",
+      "status": "passed",
+      "returncode": 0,
+      "command": [
+        "python",
+        "tools/runtime_registry/list_runtime_runs.py"
+      ]
+    },
+    {
+      "name": "read_only_repo_inspection",
+      "status": "passed",
+      "returncode": 0,
+      "command": [
+        "python",
+        "tools/repo_inspector/inspect_public_repo.py"
+      ]
+    }
+  ],
+  "blockers": [],
+  "outputs": {
+    "workflow_report": "sandbox/runs/example-dry-run-mission/mission_workflow_report.json",
+    "runtime_package": "sandbox/runs/example-dry-run-mission/runtime_package.json",
+    "runtime_run_summary": "sandbox/runs/example-dry-run-mission/runtime_run_summary.json",
+    "sandbox_run_manifest": "sandbox/runs/example-dry-run-mission/sandbox_run_manifest.json"
+  }
+}
