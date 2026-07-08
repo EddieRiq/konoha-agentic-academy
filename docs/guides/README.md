@@ -264,3 +264,7 @@ Do not hide doctrine changes inside guides.
 ## Model provider contract
 
 - `model_provider_contract.md`: defines model-provider request planning, provider allowlists, token and cost budgets, context-source rules, redaction requirements, and real-model invocation blockers.
+
+## Real model invocation gate
+
+- `real_model_invocation_gate.md`: defines explicitly approved model invocation, provider boundaries, network approval, credential handling, sandbox-only outputs, and non-authority rules.

@@ -584,3 +584,9 @@ The approval console records mission-local approval evidence. It does not execut
 - Model Provider Contract: validates model-shaped request plans, provider allowlists, budgets, context sources, redaction requirements, and non-invocation boundaries.
 
 The Model Provider Contract prepares future model integration without invoking models. A valid request plan is not permission to call a model, use network access, access private context, execute tools, or authorize runtime actions.
+
+## Real model invocation gate
+
+- Real Model Invocation Gate: allows explicitly approved model calls through provider, network, context, budget, and approval boundaries.
+
+The Real Model Invocation Gate can call allowlisted providers only with explicit human approval, exact approval token, safe request plan, no private context, and network approval. Model output is evidence only and never grants permission to execute, apply, stage, commit, push, or close a mission.

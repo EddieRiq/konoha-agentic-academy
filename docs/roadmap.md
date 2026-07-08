@@ -529,3 +529,9 @@ UI implementation remains gated: present draft, screens, stack, permissions, and
 - Add Model Provider Contract after Human Approval Console CLI to define provider allowlists, request plans, token budgets, cost limits, redaction checks, and context-source rules before real model invocation gates.
 
 UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.
+
+### v1.5.0 Real Model Invocation Gate
+
+- Add Real Model Invocation Gate after Model Provider Contract to permit explicitly approved model calls while preserving sandbox-only outputs and model-output non-authority.
+
+UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.

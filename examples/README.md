@@ -110,3 +110,10 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `model_provider/model_provider_contract.example.json`: example Model Provider Contract.
 - `model_provider/model_request_plan.example.json`: example model request plan that validates without invoking a model.
 - `model_provider/model_provider_validation_report.example.json`: example report produced by the Model Provider Contract validator.
+
+## Model invocation examples
+
+- `model_invocation/model_invocation_contract.example.json`: example contract for mock and explicitly gated real model providers.
+- `model_invocation/mock_model_request_plan.example.json`: mock request plan for local model-gate smoke tests.
+- `model_invocation/live_model_request_plan.example.json`: real-provider request plan requiring explicit approval and network flag.
+- `model_invocation/model_invocation_gate_report.example.json`: example report produced by the Real Model Invocation Gate.

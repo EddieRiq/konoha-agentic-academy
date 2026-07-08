@@ -554,3 +554,7 @@ A Scroll is ready for active use only when:
 ## Model provider contract review
 
 - `model_provider_contract_review_scroll.md`: reviews model-provider contracts, request plans, context sources, token budgets, cost limits, redaction evidence, and non-invocation boundaries.
+
+## Real model invocation gate review
+
+- `real_model_invocation_gate_review_scroll.md`: reviews model invocation requests, provider allowlists, network approval, token/cost budgets, private-context blockers, and model-output non-authority.
