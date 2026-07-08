@@ -504,3 +504,9 @@ The staging gate can preview or stage explicit allowlisted paths using Git. It r
 - Unified CLI Entrypoint: provides one command surface over the existing safe local-first Konoha tools.
 
 The unified CLI delegates to allowlisted internal tools. It does not execute missions, bypass approval gates, perform Git commits or pushes, invoke adapters, access private context, or authorize runtime actions.
+
+## Project config and policy contract
+
+- Project Config and Policy Contract: centralizes sandbox paths, allowlists, blocked private paths, approval tokens, and safety defaults.
+
+The config validator is read-only. It validates policy, paths, approval tokens, and safety defaults without executing missions, modifying files, performing Git operations, invoking adapters, or accessing private context.

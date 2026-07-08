@@ -502,3 +502,7 @@ A Scroll is ready for active use only when:
 ## Unified CLI review
 
 - `unified_cli_review_scroll.md`: reviews unified CLI command routing, allowlisted dispatch, delegated tool boundaries, approval preservation, and non-authority constraints.
+
+## Project config review
+
+- `project_config_review_scroll.md`: reviews project config changes, safety defaults, path allowlists, blocked private paths, approval tokens, and validator evidence.

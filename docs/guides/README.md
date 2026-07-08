@@ -212,3 +212,7 @@ Do not hide doctrine changes inside guides.
 ## Unified CLI entrypoint
 
 - `unified_cli_entrypoint.md`: defines the unified CLI entrypoint, command groups, allowlisted dispatch, delegated tool boundaries, and non-authority rules.
+
+## Project config and policy contract
+
+- `project_config_and_policy_contract.md`: defines the project config contract, sandbox policy, allowlists, blocked private paths, approval tokens, and read-only config validation.

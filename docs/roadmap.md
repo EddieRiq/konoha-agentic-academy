@@ -469,3 +469,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Unified CLI entrypoint
 
 - Add a unified CLI entrypoint after the Git staging gate, exposing existing safe local-first tools through one allowlisted command surface without adding new runtime authority.
+
+### Project config and policy contract
+
+- Add a project config and policy contract after the unified CLI, centralizing sandbox paths, allowlists, blocked private paths, safety defaults, and approval tokens.

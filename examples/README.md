@@ -55,3 +55,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## CLI examples
 
 - `cli/konoha_cli_help.example.txt`: example help text and command examples for the unified CLI entrypoint.
+
+## Config validation reports
+
+- `config/konoha_config_validation_report.example.json`: example report produced by the read-only project config validator.
