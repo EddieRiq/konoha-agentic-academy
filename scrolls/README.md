@@ -510,3 +510,7 @@ A Scroll is ready for active use only when:
 ## End-to-end mission workflow review
 
 - `end_to_end_mission_workflow_review_scroll.md`: reviews end-to-end dry-run mission workflow reports, delegated steps, sandbox outputs, blockers, and non-authority boundaries.
+
+## Proposed artifact workflow review
+
+- `proposed_artifact_workflow_review_scroll.md`: reviews proposed artifact workflow reports, delegated steps, apply preview, approval evidence, proposed outputs, and safety boundaries.

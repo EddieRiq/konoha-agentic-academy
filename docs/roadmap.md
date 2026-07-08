@@ -477,3 +477,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### End-to-end dry-run mission workflow
 
 - Add an end-to-end dry-run mission workflow after the project config contract, connecting config validation, runtime runner, package validation, inspection, registry, repo inspection, and workflow reporting.
+
+### Proposed artifact workflow
+
+- Add a proposed artifact workflow after the end-to-end dry-run mission workflow, connecting sandbox artifact writing, apply preview, optional approved apply, and workflow reporting.

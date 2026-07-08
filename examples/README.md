@@ -63,3 +63,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Mission workflow reports
 
 - `mission_workflows/mission_workflow_report.example.json`: example report produced by the end-to-end dry-run mission workflow.
+
+## Proposed artifact workflow reports
+
+- `artifact_workflows/proposed_artifact_workflow_report.example.json`: example report produced by the proposed artifact workflow.

@@ -220,3 +220,7 @@ Do not hide doctrine changes inside guides.
 ## End-to-end dry-run mission workflow
 
 - `end_to_end_dry_run_mission_workflow.md`: defines the end-to-end dry-run mission workflow, delegated toolchain, workflow report, sandbox outputs, and non-execution boundaries.
+
+## Proposed artifact workflow
+
+- `proposed_artifact_workflow.md`: defines the proposed artifact workflow, sandbox proposed outputs, apply preview, optional approved apply, workflow report, and non-execution boundaries.

@@ -516,3 +516,9 @@ The config validator is read-only. It validates policy, paths, approval tokens, 
 - End-to-End Dry-run Mission Workflow: connects config validation, runtime runner, package validation, inspection, registry, repo inspection, and workflow reporting.
 
 The workflow writes a mission workflow report inside the sandbox run. It does not execute missions, perform Git operations, invoke adapters, access private context, or apply repository changes.
+
+## Proposed artifact workflow
+
+- Proposed Artifact Workflow: connects dry-run runtime, sandbox artifact writing, apply preview, optional approved apply, and workflow reporting.
+
+The workflow creates proposed artifacts inside sandbox runs and previews apply plans by default. Confirmed apply still requires the delegated human-approved apply gate, exact approval token, and allowlisted destination paths.

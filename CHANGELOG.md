@@ -55,6 +55,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Proposed Artifact Workflow with sandbox artifact workflow CLI, workflow report schema, tests, example report, guide, and review Scroll.
 - Added End-to-End Dry-run Mission Workflow with mission workflow CLI, unified CLI mission command, workflow report schema, tests, example report, guide, and review Scroll.
 - Added Project Config and Policy Contract with example config, config schema, read-only config validator, tests, example report, guide, and review Scroll.
 - Added Unified CLI Entrypoint with allowlisted dispatch over existing Konoha tools, routing tests, CLI example, guide, and review Scroll.
