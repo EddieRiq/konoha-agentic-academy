@@ -117,3 +117,8 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `model_invocation/mock_model_request_plan.example.json`: mock request plan for local model-gate smoke tests.
 - `model_invocation/live_model_request_plan.example.json`: real-provider request plan requiring explicit approval and network flag.
 - `model_invocation/model_invocation_gate_report.example.json`: example report produced by the Real Model Invocation Gate.
+
+## Planner loop examples
+
+- `planner_loop/hokage_plan_proposal.example.md`: example review-required Hokage plan proposal.
+- `planner_loop/hokage_planner_loop_report.example.json`: example report produced by the Hokage Planner Loop.

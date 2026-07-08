@@ -558,3 +558,7 @@ A Scroll is ready for active use only when:
 ## Real model invocation gate review
 
 - `real_model_invocation_gate_review_scroll.md`: reviews model invocation requests, provider allowlists, network approval, token/cost budgets, private-context blockers, and model-output non-authority.
+
+## Hokage planner loop review
+
+- `hokage_planner_loop_review_scroll.md`: reviews planner-loop reports, plan proposals, model-output evidence, human-review requirements, and non-authority boundaries.

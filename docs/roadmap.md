@@ -535,3 +535,9 @@ UI implementation remains gated: present draft, screens, stack, permissions, and
 - Add Real Model Invocation Gate after Model Provider Contract to permit explicitly approved model calls while preserving sandbox-only outputs and model-output non-authority.
 
 UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.
+
+### v1.6.0 Hokage Planner Loop
+
+- Add Hokage Planner Loop after Real Model Invocation Gate to turn gated model evidence into mission-local plan proposals before UI work.
+
+UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.

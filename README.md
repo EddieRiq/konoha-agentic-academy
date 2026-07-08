@@ -590,3 +590,9 @@ The Model Provider Contract prepares future model integration without invoking m
 - Real Model Invocation Gate: allows explicitly approved model calls through provider, network, context, budget, and approval boundaries.
 
 The Real Model Invocation Gate can call allowlisted providers only with explicit human approval, exact approval token, safe request plan, no private context, and network approval. Model output is evidence only and never grants permission to execute, apply, stage, commit, push, or close a mission.
+
+## Hokage planner loop
+
+- Hokage Planner Loop: turns gated model output into mission-local plan proposals that require human review.
+
+The Hokage Planner Loop creates review-required plan proposals from gated model evidence. Model output is evidence only and never grants permission to execute, apply, stage, commit, push, access private context, or close a mission.
