@@ -485,3 +485,7 @@ This milestone does not include executable agent runtime, adapter implementation
 ### Git commit gate
 
 - Add a Git commit gate after the Git staging gate, allowing explicit human-approved commits of already staged allowlisted files without push, staging, clean, reset, or history rewrite.
+
+### Integrated tests and CI
+
+- Add integrated tests and CI after the Git commit gate, running unit tests and safe dry-run smoke checks without Git write operations, secrets, adapters, or private context access.

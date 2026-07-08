@@ -57,6 +57,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Integrated Tests and CI with integrated smoke-test runner, report schema, tests, example report, GitHub Actions workflow, guide, and review Scroll.
 - Added Git Commit Gate with staged-file validation, approval token, commit report schema, tests, example report, guide, and review Scroll.
 - Added Proposed Artifact Workflow with sandbox artifact workflow CLI, workflow report schema, tests, example report, guide, and review Scroll.
 - Added End-to-End Dry-run Mission Workflow with mission workflow CLI, unified CLI mission command, workflow report schema, tests, example report, guide, and review Scroll.

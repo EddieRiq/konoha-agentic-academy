@@ -228,3 +228,7 @@ Do not hide doctrine changes inside guides.
 ## Git commit gate
 
 - `git_commit_gate.md`: defines the Git commit gate, staged-file validation, approval token, commit message policy, preview mode, and no-push/no-stage rules.
+
+## Integrated tests and CI
+
+- `integrated_tests_and_ci.md`: defines the integrated smoke-test runner, CI workflow, integrated reports, safety checks, and non-execution boundaries.

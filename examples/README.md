@@ -71,3 +71,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Git commit reports
 
 - `git_readiness/git_commit_report.example.json`: example report produced by the Git commit gate.
+
+## Integration reports
+
+- `integration/integrated_test_report.example.json`: example report produced by the integrated smoke-test runner.

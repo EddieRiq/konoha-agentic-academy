@@ -528,3 +528,9 @@ The workflow creates proposed artifacts inside sandbox runs and previews apply p
 - Git Commit Gate: commits already staged allowlisted files only with explicit human approval, without push or history rewrite.
 
 The commit gate can preview or commit already staged allowlisted files. It requires an exact approval token for confirmed commits and does not stage files, push changes, clean/reset files, invoke adapters, access private context, or authorize runtime actions.
+
+## Integrated tests and CI
+
+- Integrated Tests and CI: runs unit tests and integrated dry-run smoke tests without adding runtime authority.
+
+The integrated smoke-test runner delegates to existing safe local-first tools and writes reports under sandbox. The CI workflow runs tests and smoke checks without secrets, Git write operations, adapter execution, or private context access.

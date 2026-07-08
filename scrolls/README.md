@@ -518,3 +518,7 @@ A Scroll is ready for active use only when:
 ## Git commit gate review
 
 - `git_commit_gate_review_scroll.md`: reviews Git commit requests, staged paths, approval evidence, commit message policy, and no-push/no-stage constraints.
+
+## Integrated tests and CI review
+
+- `integrated_tests_ci_review_scroll.md`: reviews integrated smoke tests, CI workflow, reports, unit tests, and safety boundaries.
