@@ -1,0 +1,30 @@
+{
+  "contract_version": "1.4.0",
+  "provider_allowlist": [
+    "mock",
+    "openai",
+    "anthropic",
+    "ollama"
+  ],
+  "default_provider": "mock",
+  "network_access": "blocked",
+  "real_model_invocation": "blocked",
+  "private_context_access": "blocked",
+  "max_prompt_tokens": 4000,
+  "max_completion_tokens": 1000,
+  "max_estimated_cost_usd": 0.5,
+  "allowed_context_sources": [
+    "mission_workspace",
+    "sandbox",
+    "public_repo"
+  ],
+  "blocked_context_sources": [
+    "private_village",
+    "env",
+    "credentials",
+    "secrets"
+  ],
+  "required_approval_token": "INVOKE_MODEL_PROVIDER_GATE",
+  "redaction_required": true,
+  "logging_required": true
+}

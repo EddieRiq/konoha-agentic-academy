@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/model_request_plan.schema.json",
+  "title": "Konoha Model Request Plan",
+  "type": "object",
+  "required": [
+    "request_id",
+    "mission_id",
+    "provider",
+    "model",
+    "purpose",
+    "prompt",
+    "context_sources",
+    "estimated_prompt_tokens",
+    "requested_completion_tokens",
+    "estimated_cost_usd",
+    "contains_private_context",
+    "requires_network"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "review",
+        "summarization",
+        "classification",
+        "coding_assistance",
+        "documentation",
+        "risk_review"
+      ]
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "estimated_prompt_tokens": {
+      "type": "number",
+      "minimum": 0
+    },
+    "requested_completion_tokens": {
+      "type": "number",
+      "minimum": 0
+    },
+    "estimated_cost_usd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "contains_private_context": {
+      "type": "boolean"
+    },
+    "requires_network": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

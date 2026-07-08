@@ -1,0 +1,35 @@
+{
+  "report_type": "model_provider_contract_validation",
+  "contract_version": "1.4.0",
+  "request_id": "example-model-request-001",
+  "mission_id": "example-mission",
+  "provider": "mock",
+  "model": "mock-planner-v1",
+  "purpose": "planning",
+  "status": "passed",
+  "checks": {
+    "contract_shape": "passed",
+    "request_shape": "passed",
+    "provider_allowlist": "passed",
+    "budget": "passed",
+    "private_context": "blocked",
+    "network_access": "blocked",
+    "real_model_invocation": "blocked",
+    "filesystem_mutation": "blocked",
+    "git_operations": "blocked",
+    "runtime_authorization": "blocked"
+  },
+  "limits": {
+    "max_prompt_tokens": 4000,
+    "max_completion_tokens": 1000,
+    "max_estimated_cost_usd": 0.5
+  },
+  "request_budget": {
+    "estimated_prompt_tokens": 600,
+    "requested_completion_tokens": 400,
+    "estimated_cost_usd": 0.0
+  },
+  "blockers": [],
+  "human_review_required": true,
+  "approval_token_required_for_future_invocation": "INVOKE_MODEL_PROVIDER_GATE"
+}

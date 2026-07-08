@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/model_provider_contract.schema.json",
+  "title": "Konoha Model Provider Contract",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "provider_allowlist",
+    "default_provider",
+    "network_access",
+    "real_model_invocation",
+    "private_context_access",
+    "max_prompt_tokens",
+    "max_completion_tokens",
+    "max_estimated_cost_usd",
+    "allowed_context_sources",
+    "blocked_context_sources",
+    "required_approval_token",
+    "redaction_required",
+    "logging_required"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "provider_allowlist": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "default_provider": {
+      "type": "string"
+    },
+    "network_access": {
+      "const": "blocked"
+    },
+    "real_model_invocation": {
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "const": "blocked"
+    },
+    "max_prompt_tokens": {
+      "type": "number",
+      "minimum": 0
+    },
+    "max_completion_tokens": {
+      "type": "number",
+      "minimum": 0
+    },
+    "max_estimated_cost_usd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "allowed_context_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blocked_context_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "required_approval_token": {
+      "type": "string",
+      "minLength": 1
+    },
+    "redaction_required": {
+      "const": true
+    },
+    "logging_required": {
+      "const": true
+    }
+  },
+  "additionalProperties": false
+}
