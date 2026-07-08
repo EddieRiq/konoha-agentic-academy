@@ -549,3 +549,9 @@ UI implementation remains gated: present draft, screens, stack, permissions, and
 The UI draft was reviewed before implementation. Future UI expansion must preserve no-new-authority boundaries.
 
 Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before generating v2.0.0 files.
+
+### v1.8.0 Controlled Tool Execution Gate
+
+- Add Controlled Tool Execution Gate after Local Web UI Alpha to allow explicitly approved execution of fixed internal Konoha tools without arbitrary shell, network access, Git operations, repository apply, real model invocation, or private context access.
+
+Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before generating v2.0.0 files.

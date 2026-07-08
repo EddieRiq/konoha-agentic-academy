@@ -604,3 +604,11 @@ The Hokage Planner Loop creates review-required plan proposals from gated model 
 The UI is local-only and filesystem-first. It may read Mission Workspaces, create mission skeletons, record human approval evidence, show reports, and display safety boundaries. It may not execute missions, invoke real models, invoke adapters, apply repository changes, perform Git operations, access private context, store tokens, or run background agents.
 
 Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to verify that the project remains aligned with the original intent.
+
+## Controlled Tool Execution Gate
+
+- Controlled Tool Execution Gate: executes only allowlisted internal Konoha tools with explicit human approval and sandbox reporting.
+
+The gate does not accept arbitrary shell commands. Controlled tool results are evidence only and never grant permission to apply, stage, commit, push, invoke models, invoke adapters, access private context, or close a mission.
+
+Before v2.0.0, Konoha requires a v2.0 Alignment Review Gate conversation to verify that the project remains aligned with the original intent.

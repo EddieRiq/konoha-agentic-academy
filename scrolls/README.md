@@ -566,3 +566,7 @@ A Scroll is ready for active use only when:
 ## Local Web UI Alpha review
 
 - `local_web_ui_alpha_review_scroll.md`: reviews UI localhost binding, no-new-authority boundary, mission workspace writes, approval-token handling, reports, and v2.0 alignment gate evidence.
+
+## Controlled Tool Execution Gate review
+
+- `controlled_tool_execution_review_scroll.md`: reviews controlled tool plans, allowlisted actions, approval evidence, blocked capabilities, sandbox reports, and evidence-only boundaries.

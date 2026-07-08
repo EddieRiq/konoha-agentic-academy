@@ -276,3 +276,7 @@ Do not hide doctrine changes inside guides.
 ## Local Web UI Alpha
 
 - `local_web_ui_alpha.md`: defines the localhost-only UI alpha, dashboard, missions, approvals, reports, system page, dependency boundary, safety model, and blocked actions.
+
+## Controlled Tool Execution Gate
+
+- `controlled_tool_execution_gate.md`: defines allowlisted internal tool execution, approval token, sandbox reports, blocked shell/network/Git/model/private-context actions, and evidence-only outputs.

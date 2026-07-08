@@ -126,3 +126,8 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Local Web UI examples
 
 - `ui/local_web_ui_session_report.example.json`: example report produced by the Local Web UI Alpha session reporter.
+
+## Controlled tool execution examples
+
+- `tool_execution/controlled_tool_execution_plan.example.json`: example plan for an allowlisted controlled tool execution.
+- `tool_execution/controlled_tool_execution_report.example.json`: example report produced by the Controlled Tool Execution Gate.
