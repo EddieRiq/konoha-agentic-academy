@@ -1,0 +1,2 @@
+[X] Blocked
+    Konoha stopped because a safety or context boundary was reached.

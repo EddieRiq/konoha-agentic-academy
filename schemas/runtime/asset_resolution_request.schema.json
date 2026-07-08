@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/asset_resolution_request.schema.json",
+  "title": "Asset Resolution Request",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "logical_name",
+    "resolution_order"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "logical_name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]{0,120}$"
+    },
+    "resolution_order": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "local_village",
+          "user",
+          "public_generic",
+          "text_fallback"
+        ]
+      },
+      "minItems": 1
+    },
+    "allowed_asset_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "privacy_mode": {
+      "enum": [
+        "redacted_paths",
+        "show_private_paths"
+      ],
+      "default": "redacted_paths"
+    }
+  },
+  "additionalProperties": false
+}

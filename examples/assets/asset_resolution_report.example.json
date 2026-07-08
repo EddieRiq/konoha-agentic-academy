@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "asset_resolution_report",
+  "generated_at": "2026-07-08T00:00:00+00:00",
+  "status": "resolved",
+  "logical_name": "status.waiting_user_input",
+  "source_tier": "public_generic",
+  "asset_type": "ascii",
+  "display_path": "shinobi/assets/generic/ascii/status/waiting_user_input.txt",
+  "content_preview": "[?] Waiting for user input\n    No input, no progress.",
+  "blockers": [],
+  "write_report": true,
+  "roots": {
+    "repo_root": ".",
+    "sandbox_root": "sandbox"
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "real_model_invocation": "blocked",
+    "adapter_invocation": "blocked",
+    "network_access": "blocked",
+    "background_agents": "blocked"
+  },
+  "authority": {
+    "asset_resolution_is_evidence_only": true,
+    "asset_resolution_does_not_authorize_execution": true,
+    "asset_resolution_does_not_close_mission": true
+  }
+}

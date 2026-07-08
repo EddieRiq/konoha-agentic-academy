@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/asset_resolution_report.schema.json",
+  "title": "Asset Resolution Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "logical_name",
+    "source_tier",
+    "boundaries",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "asset_resolution_report"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "resolved",
+        "fallback",
+        "failed"
+      ]
+    },
+    "logical_name": {
+      "type": "string"
+    },
+    "source_tier": {
+      "enum": [
+        "local_village",
+        "user",
+        "public_generic",
+        "text_fallback"
+      ]
+    },
+    "asset_type": {
+      "type": "string"
+    },
+    "display_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "content_preview": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "write_report": {
+      "type": "boolean"
+    },
+    "report_path": {
+      "type": "string"
+    },
+    "roots": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

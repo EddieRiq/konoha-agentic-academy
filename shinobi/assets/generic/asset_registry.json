@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Generic public asset registry for Konoha local visual layer.",
+  "assets": {
+    "status.waiting_user_input": {
+      "path": "ascii/status/waiting_user_input.txt",
+      "type": "ascii",
+      "description": "Generic status indicator for waiting on user input."
+    },
+    "status.waiting_approval": {
+      "path": "ascii/status/waiting_approval.txt",
+      "type": "ascii",
+      "description": "Generic status indicator for waiting on human approval."
+    },
+    "status.blocked": {
+      "path": "ascii/status/blocked.txt",
+      "type": "ascii",
+      "description": "Generic status indicator for blocked mission state."
+    },
+    "status.ready_for_review": {
+      "path": "ascii/status/ready_for_review.txt",
+      "type": "ascii",
+      "description": "Generic status indicator for review readiness."
+    },
+    "status.ready_for_teachback": {
+      "path": "ascii/status/ready_for_teachback.txt",
+      "type": "ascii",
+      "description": "Generic status indicator for teachback readiness."
+    },
+    "status.closed": {
+      "path": "ascii/status/closed.txt",
+      "type": "ascii",
+      "description": "Generic status indicator for closed mission state."
+    },
+    "avatar.kagebunshin.coding": {
+      "path": "ascii/avatars/worker_coding.txt",
+      "type": "ascii",
+      "description": "Generic coding worker avatar."
+    },
+    "background.cubicles_active": {
+      "path": "ascii/backgrounds/cubicles_active.txt",
+      "type": "ascii",
+      "description": "Generic active workspace background."
+    }
+  }
+}
