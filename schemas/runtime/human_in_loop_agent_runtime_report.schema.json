@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/human_in_loop_agent_runtime_report.schema.json",
+  "title": "Human-in-the-loop Agent Runtime Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "created_at",
+    "run_id",
+    "mission_id",
+    "status",
+    "mode",
+    "steps",
+    "safety",
+    "non_authority_rules"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "human_in_loop_agent_runtime_report"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "preview",
+        "confirmed"
+      ]
+    },
+    "human_approval_required": {
+      "type": "boolean"
+    },
+    "planning": {
+      "type": "object"
+    },
+    "controlled_tool_execution": {
+      "type": "object"
+    },
+    "paths": {
+      "type": "object"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "safety": {
+      "type": "object"
+    },
+    "non_authority_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

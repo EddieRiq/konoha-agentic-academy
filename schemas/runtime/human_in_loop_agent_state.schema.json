@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/human_in_loop_agent_state.schema.json",
+  "title": "Human-in-the-loop Agent State",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "mission_id",
+    "state",
+    "human_review_required"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "draft",
+        "planning_previewed",
+        "planning_confirmed",
+        "tool_previewed",
+        "tool_confirmed",
+        "blocked",
+        "review_required"
+      ]
+    },
+    "last_run_id": {
+      "type": "string"
+    },
+    "human_review_required": {
+      "type": "boolean"
+    },
+    "allowed_next_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blocked_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

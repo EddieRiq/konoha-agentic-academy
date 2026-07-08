@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "report_type": "human_in_loop_agent_runtime_report",
+  "created_at": "2026-01-01T00:00:00+00:00",
+  "run_id": "example-agent-run",
+  "mission_id": "example-agent-mission",
+  "status": "passed",
+  "mode": "confirmed",
+  "human_approval_required": true,
+  "planning": {
+    "requested": true,
+    "confirmed": true,
+    "approval_token_name": "INVOKE_REAL_MODEL",
+    "model_output_authority": "evidence_only"
+  },
+  "controlled_tool_execution": {
+    "requested": true,
+    "confirmed": true,
+    "approval_token_name": "EXECUTE_CONTROLLED_TOOL",
+    "tool_result_authority": "evidence_only"
+  },
+  "paths": {
+    "repo_root": ".",
+    "workspace_root": "sandbox/workspace",
+    "sandbox_root": "sandbox",
+    "contract": "examples/model_invocation/model_invocation_contract.example.json",
+    "request": "examples/model_invocation/mock_model_request_plan.example.json",
+    "tool_plan": "examples/tool_execution/controlled_tool_execution_plan.example.json"
+  },
+  "steps": [
+    {
+      "name": "mission_workspace_validate",
+      "returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "hokage_planner_loop",
+      "returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "controlled_tool_execution",
+      "returncode": 0,
+      "passed": true
+    }
+  ],
+  "blockers": [],
+  "safety": {
+    "execution": "human_in_loop_only",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "real_model_invocation": "gated",
+    "adapter_invocation": "blocked",
+    "arbitrary_shell": "blocked",
+    "autonomous_closure": "blocked"
+  },
+  "non_authority_rules": [
+    "Model output is evidence only.",
+    "Model inference is never permission.",
+    "Controlled tool output is evidence only.",
+    "A plan proposal is not permission to execute.",
+    "Agent runtime output is not permission to apply, stage, commit, push, access private context, or close a mission."
+  ]
+}
