@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_type": "yamanaka_context_pack_manifest",
+  "generated_at": "2026-07-08T00:00:00+00:00",
+  "mission_id": "example-mission",
+  "context_pack_id": "example-context-pack",
+  "context_pack_path": "60-context-packs/example-context-pack.md",
+  "notes_included": [
+    "10-missions/example-mission_example-capture.md"
+  ],
+  "source_reports": [
+    "_reports/example-capture_yamanaka_memory_capture_report.json"
+  ],
+  "purpose": "Compact mission context for future review.",
+  "authority": {
+    "memory_supports_action_but_does_not_authorize_action": true,
+    "context_packs_are_not_permission": true,
+    "summaries_are_not_truth": true,
+    "mission_closure_is_not_performed_by_this_tool": true
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked_by_default",
+    "real_model_invocation": "blocked",
+    "adapter_invocation": "blocked",
+    "network_access": "blocked",
+    "background_agents": "blocked"
+  }
+}

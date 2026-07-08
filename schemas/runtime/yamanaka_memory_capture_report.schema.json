@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/yamanaka_memory_capture_report.schema.json",
+  "title": "Yamanaka Memory Capture Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "command",
+    "status",
+    "boundaries",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "yamanaka_capture_mission_report"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "command": {
+      "const": "capture_mission"
+    },
+    "status": {
+      "enum": [
+        "preview",
+        "passed",
+        "failed"
+      ]
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "capture_id": {
+      "type": "string"
+    },
+    "memory_root": {
+      "type": "string"
+    },
+    "mission_memory_note": {
+      "type": "string"
+    },
+    "capture_report": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "object"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

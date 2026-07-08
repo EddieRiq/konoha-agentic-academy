@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/yamanaka_context_pack_manifest.schema.json",
+  "title": "Yamanaka Context Pack Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "manifest_type",
+    "generated_at",
+    "mission_id",
+    "context_pack_id",
+    "context_pack_path",
+    "notes_included",
+    "source_reports",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "manifest_type": {
+      "const": "yamanaka_context_pack_manifest"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "context_pack_id": {
+      "type": "string"
+    },
+    "context_pack_path": {
+      "type": "string"
+    },
+    "notes_included": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_reports": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

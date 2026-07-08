@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/yamanaka_memory_index.schema.json",
+  "title": "Yamanaka Memory Index",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "index_type",
+    "generated_at",
+    "memory_root",
+    "counts",
+    "files",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "index_type": {
+      "const": "yamanaka_memory_index"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "memory_root": {
+      "type": "string"
+    },
+    "counts": {
+      "type": "object"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
