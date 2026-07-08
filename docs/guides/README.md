@@ -252,3 +252,7 @@ Do not hide doctrine changes inside guides.
 ## Product runtime bootstrap
 
 - `product_runtime_bootstrap.md`: defines the product runtime bootstrap CLI, init, doctor, config validation, mission workspace creation, dry-run delegation, and non-authority boundaries.
+
+## Mission workspace
+
+- `mission_workspace.md`: defines the mission workspace structure, manifest, charter, approval log, validation flow, path safety rules, and non-authority boundaries.

@@ -95,3 +95,8 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Product runtime reports
 
 - `product_runtime/product_runtime_doctor_report.example.json`: example report produced by the Product Runtime Bootstrap doctor.
+
+## Mission workspace examples
+
+- `mission_workspace/mission_workspace_manifest.example.json`: example manifest for a formal Konoha Mission Workspace.
+- `mission_workspace/mission_workspace_report.example.json`: example report produced by the Mission Workspace manager.

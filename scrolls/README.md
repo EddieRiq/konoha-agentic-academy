@@ -542,3 +542,7 @@ A Scroll is ready for active use only when:
 ## Product runtime bootstrap review
 
 - `product_runtime_bootstrap_review_scroll.md`: reviews product bootstrap outputs, workspace boundaries, mission skeletons, doctor checks, dry-run delegation, and UI approval gate preservation.
+
+## Mission workspace review
+
+- `mission_workspace_review_scroll.md`: reviews mission workspace structure, manifests, charters, approval logs, evidence folders, validation reports, and safety boundaries.

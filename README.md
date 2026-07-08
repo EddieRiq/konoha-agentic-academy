@@ -566,3 +566,9 @@ v1.0.0 does not mean autonomous execution, real adapter execution by default, ne
 - Product Runtime Bootstrap: adds init, doctor, config validation, mission workspace creation, and delegated dry-run operation from a product-oriented CLI.
 
 The product runtime bootstrap keeps outputs inside sandbox workspace roots by default and does not execute missions, invoke real adapters, access private context, perform Git writes, use network access, or authorize runtime actions.
+
+## Mission workspace
+
+- Mission Workspace: formalizes mission-local charter, manifest, inputs, context, plans, outputs, reports, approvals, and evidence folders.
+
+The Mission Workspace is a local evidence and organization boundary. It does not authorize execution, real adapter invocation, repository apply, Git operations, network access, private context access, or runtime closure.

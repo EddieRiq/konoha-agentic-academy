@@ -511,3 +511,9 @@ This milestone does not include executable agent runtime, adapter implementation
 - Add Product Runtime Bootstrap after v1.0.0 to provide init, doctor, config validation, mission workspace creation, and delegated dry-run operation before model and UI work.
 
 UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.
+
+### v1.2.0 Mission Workspace
+
+- Add Mission Workspace after Product Runtime Bootstrap to formalize mission-local charter, manifest, inputs, context, plans, outputs, reports, approvals, and evidence before approval-console and model work.
+
+UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.
