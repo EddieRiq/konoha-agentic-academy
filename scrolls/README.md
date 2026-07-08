@@ -550,3 +550,7 @@ A Scroll is ready for active use only when:
 ## Human approval console review
 
 - `human_approval_console_review_scroll.md`: reviews approval-console events, approval tokens, rejection evidence, mission-local reports, and safety boundaries.
+
+## Model provider contract review
+
+- `model_provider_contract_review_scroll.md`: reviews model-provider contracts, request plans, context sources, token budgets, cost limits, redaction evidence, and non-invocation boundaries.

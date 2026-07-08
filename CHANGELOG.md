@@ -65,6 +65,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Model Provider Contract with provider allowlists, model request plans, token/cost budgets, context-source rules, validation CLI, schemas, tests, examples, guide, and review Scroll.
 - Added Human Approval Console CLI with mission status, inspection, approval, rejection, approval-event listing, evidence/report listing, schemas, tests, examples, guide, and review Scroll.
 - Added Mission Workspace with mission-local charter, manifest, approval log, evidence structure, validation CLI, schemas, tests, examples, guide, and review Scroll.
 - Added Product Runtime Bootstrap with init, doctor, config validation, mission workspace creation, delegated dry-run operation, report schema, tests, example report, guide, and review Scroll.

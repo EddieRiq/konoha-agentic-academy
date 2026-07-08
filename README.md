@@ -578,3 +578,9 @@ The Mission Workspace is a local evidence and organization boundary. It does not
 - Human Approval Console CLI: records human approval and rejection evidence inside Mission Workspaces.
 
 The approval console records mission-local approval evidence. It does not execute missions, invoke models, invoke real adapters, access private context, apply repository changes, perform Git operations, use network access, or authorize runtime actions by itself.
+
+## Model provider contract
+
+- Model Provider Contract: validates model-shaped request plans, provider allowlists, budgets, context sources, redaction requirements, and non-invocation boundaries.
+
+The Model Provider Contract prepares future model integration without invoking models. A valid request plan is not permission to call a model, use network access, access private context, execute tools, or authorize runtime actions.

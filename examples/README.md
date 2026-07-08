@@ -104,3 +104,9 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Approval console examples
 
 - `approval_console/mission_approval_console_report.example.json`: example report produced by the Human Approval Console CLI.
+
+## Model provider examples
+
+- `model_provider/model_provider_contract.example.json`: example Model Provider Contract.
+- `model_provider/model_request_plan.example.json`: example model request plan that validates without invoking a model.
+- `model_provider/model_provider_validation_report.example.json`: example report produced by the Model Provider Contract validator.

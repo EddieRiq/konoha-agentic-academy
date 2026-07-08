@@ -260,3 +260,7 @@ Do not hide doctrine changes inside guides.
 ## Human approval console CLI
 
 - `human_approval_console_cli.md`: defines mission status, inspection, approval, rejection, approval events, evidence listing, report listing, tokens, and non-authority boundaries.
+
+## Model provider contract
+
+- `model_provider_contract.md`: defines model-provider request planning, provider allowlists, token and cost budgets, context-source rules, redaction requirements, and real-model invocation blockers.

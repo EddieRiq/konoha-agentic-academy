@@ -523,3 +523,9 @@ UI implementation remains gated: present draft, screens, stack, permissions, and
 - Add Human Approval Console CLI after Mission Workspace to define mission status, inspection, approval, rejection, evidence listing, and report listing before model-provider work.
 
 UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.
+
+### v1.4.0 Model Provider Contract
+
+- Add Model Provider Contract after Human Approval Console CLI to define provider allowlists, request plans, token budgets, cost limits, redaction checks, and context-source rules before real model invocation gates.
+
+UI implementation remains gated: present draft, screens, stack, permissions, and file plan before creating UI files.
