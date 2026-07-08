@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/mock_adapter_invocation_report.schema.json",
+  "title": "Konoha Mock Adapter Invocation Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "status",
+    "created_at",
+    "run_id",
+    "mode",
+    "task",
+    "output_path",
+    "boundaries",
+    "review_required"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "const": "mock_adapter"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed",
+        "blocked"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "draft_summary",
+        "checklist",
+        "template_note"
+      ]
+    },
+    "task": {
+      "type": "string"
+    },
+    "sandbox_root": {
+      "type": "string"
+    },
+    "run_dir": {
+      "type": "string"
+    },
+    "output_path": {
+      "type": "string"
+    },
+    "boundaries": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "repository_apply",
+        "git_operations",
+        "private_context_access",
+        "adapter_execution",
+        "network_access",
+        "runtime_authorization"
+      ],
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "filesystem_mutation": {
+          "const": "sandbox_adapter_outputs_only"
+        },
+        "repository_apply": {
+          "const": "blocked"
+        },
+        "git_operations": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "mock_only"
+        },
+        "network_access": {
+          "const": "blocked"
+        },
+        "runtime_authorization": {
+          "const": "blocked"
+        }
+      }
+    },
+    "review_required": {
+      "const": true
+    }
+  },
+  "additionalProperties": true
+}

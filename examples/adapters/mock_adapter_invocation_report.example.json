@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.27.0",
+  "tool": "mock_adapter",
+  "status": "passed",
+  "created_at": "2026-01-01T00:00:00+00:00",
+  "run_id": "example-mock-adapter-run",
+  "mode": "draft_summary",
+  "task": "Draft a public dry-run summary",
+  "sandbox_root": "sandbox",
+  "run_dir": "sandbox/runs/example-mock-adapter-run",
+  "output_path": "sandbox/runs/example-mock-adapter-run/adapter_outputs/mock_adapter_output.md",
+  "boundaries": {
+    "execution": "blocked",
+    "filesystem_mutation": "sandbox_adapter_outputs_only",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "adapter_execution": "mock_only",
+    "network_access": "blocked",
+    "runtime_authorization": "blocked"
+  },
+  "review_required": true
+}

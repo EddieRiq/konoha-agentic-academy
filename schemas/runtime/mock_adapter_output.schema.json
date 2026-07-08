@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/mock_adapter_output.schema.json",
+  "title": "Konoha Mock Adapter Output Metadata",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "adapter",
+    "mode",
+    "output_kind",
+    "review_required",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "adapter": {
+      "const": "mock_adapter"
+    },
+    "mode": {
+      "enum": [
+        "draft_summary",
+        "checklist",
+        "template_note"
+      ]
+    },
+    "output_kind": {
+      "enum": [
+        "markdown"
+      ]
+    },
+    "review_required": {
+      "const": true
+    },
+    "boundaries": {
+      "type": "object",
+      "properties": {
+        "execution": {
+          "const": "blocked"
+        },
+        "adapter_execution": {
+          "const": "mock_only"
+        },
+        "git_operations": {
+          "const": "blocked"
+        },
+        "private_context_access": {
+          "const": "blocked"
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}
