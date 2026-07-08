@@ -1,0 +1,20 @@
+{
+  "report_type": "konoha_project_config_validation",
+  "config_path": "konoha.config.example.json",
+  "schema_version": "0.22.0",
+  "status": "passed",
+  "errors": [],
+  "warnings": [],
+  "safety": {
+    "execution": "blocked",
+    "filesystem_mutation": "blocked_by_default",
+    "sandbox_writes": "allowed_by_policy",
+    "repository_apply": "approval_required",
+    "git_staging": "approval_required",
+    "git_commit": "blocked",
+    "git_push": "blocked",
+    "adapter_execution": "blocked",
+    "private_context_access": "blocked",
+    "network_access": "blocked"
+  }
+}

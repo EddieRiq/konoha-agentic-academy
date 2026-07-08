@@ -1,0 +1,70 @@
+{
+  "config_type": "konoha_project_config",
+  "schema_version": "0.22.0",
+  "project": {
+    "name": "konoha-agentic-academy",
+    "mode": "local_first",
+    "status": "pre_release_alpha"
+  },
+  "sandbox": {
+    "root": "sandbox",
+    "runs_dir": "sandbox/runs",
+    "tmp_dir": "sandbox/tmp",
+    "reports_dir": "sandbox/reports"
+  },
+  "paths": {
+    "allowed_apply_destinations": [
+      "sandbox/tmp",
+      "docs",
+      "examples",
+      "schemas",
+      "scrolls",
+      "tests",
+      "tools"
+    ],
+    "allowed_staging_paths": [
+      "README.md",
+      "CHANGELOG.md",
+      "docs",
+      "examples",
+      "schemas",
+      "scrolls",
+      "tests",
+      "tools"
+    ],
+    "blocked_private_paths": [
+      "alliance/kirigakure",
+      "alliance/*/private-library",
+      "alliance/*/vault",
+      "alliance/*/memory/local",
+      ".env",
+      "secrets",
+      "credentials"
+    ]
+  },
+  "safety": {
+    "execution_blocked": true,
+    "filesystem_mutation_default": "blocked",
+    "sandbox_writes_allowed": true,
+    "repository_apply_requires_approval": true,
+    "git_staging_requires_approval": true,
+    "git_commit_blocked": true,
+    "git_push_blocked": true,
+    "adapter_execution_blocked": true,
+    "private_context_access_blocked": true,
+    "network_access_blocked": true
+  },
+  "approvals": {
+    "apply_plan_token": "APPLY_SANDBOX_PLAN",
+    "git_staging_token": "STAGE_ALLOWLISTED_FILES"
+  },
+  "tools": {
+    "unified_cli": "tools/konoha_cli.py",
+    "runtime_runner": "tools/runtime_runner/run_dry_run_runtime.py",
+    "package_validator": "tools/runtime_validator/validate_runtime_package.py",
+    "package_inspector": "tools/runtime_inspector/inspect_runtime_package.py",
+    "repo_inspector": "tools/repo_inspector/inspect_public_repo.py",
+    "git_readiness": "tools/git_readiness/inspect_git_readiness.py",
+    "git_staging": "tools/git_staging/stage_allowlisted_files.py"
+  }
+}

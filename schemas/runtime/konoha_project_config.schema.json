@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/konoha_project_config.schema.json",
+  "title": "Konoha Project Config",
+  "type": "object",
+  "required": [
+    "config_type",
+    "schema_version",
+    "project",
+    "sandbox",
+    "paths",
+    "safety",
+    "approvals",
+    "tools"
+  ],
+  "properties": {
+    "config_type": {
+      "const": "konoha_project_config"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "name",
+        "mode",
+        "status"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "mode": {
+          "const": "local_first"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "sandbox": {
+      "type": "object",
+      "required": [
+        "root",
+        "runs_dir",
+        "tmp_dir",
+        "reports_dir"
+      ],
+      "properties": {
+        "root": {
+          "type": "string"
+        },
+        "runs_dir": {
+          "type": "string"
+        },
+        "tmp_dir": {
+          "type": "string"
+        },
+        "reports_dir": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "paths": {
+      "type": "object",
+      "required": [
+        "allowed_apply_destinations",
+        "allowed_staging_paths",
+        "blocked_private_paths"
+      ],
+      "properties": {
+        "allowed_apply_destinations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowed_staging_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blocked_private_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "execution_blocked",
+        "filesystem_mutation_default",
+        "sandbox_writes_allowed",
+        "repository_apply_requires_approval",
+        "git_staging_requires_approval",
+        "git_commit_blocked",
+        "git_push_blocked",
+        "adapter_execution_blocked",
+        "private_context_access_blocked",
+        "network_access_blocked"
+      ],
+      "properties": {
+        "execution_blocked": {
+          "const": true
+        },
+        "filesystem_mutation_default": {
+          "const": "blocked"
+        },
+        "sandbox_writes_allowed": {
+          "const": true
+        },
+        "repository_apply_requires_approval": {
+          "const": true
+        },
+        "git_staging_requires_approval": {
+          "const": true
+        },
+        "git_commit_blocked": {
+          "const": true
+        },
+        "git_push_blocked": {
+          "const": true
+        },
+        "adapter_execution_blocked": {
+          "const": true
+        },
+        "private_context_access_blocked": {
+          "const": true
+        },
+        "network_access_blocked": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "approvals": {
+      "type": "object",
+      "required": [
+        "apply_plan_token",
+        "git_staging_token"
+      ],
+      "properties": {
+        "apply_plan_token": {
+          "const": "APPLY_SANDBOX_PLAN"
+        },
+        "git_staging_token": {
+          "const": "STAGE_ALLOWLISTED_FILES"
+        }
+      },
+      "additionalProperties": false
+    },
+    "tools": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}
