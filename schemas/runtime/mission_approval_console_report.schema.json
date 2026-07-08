@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/mission_approval_console_report.schema.json",
+  "title": "Konoha Mission Approval Console Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "mission_id",
+    "latest_event",
+    "approval_event_count",
+    "report_created_at_utc",
+    "safety_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "tool": {
+      "const": "human_approval_console_cli"
+    },
+    "mission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "latest_event": {
+      "type": "object"
+    },
+    "approval_event_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "report_created_at_utc": {
+      "type": "string",
+      "minLength": 1
+    },
+    "safety_boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}
