@@ -652,3 +652,9 @@ Memory supports action but does not authorize action. Context packs are not perm
 - Scroll Lifecycle and Learning Proposals: records mission-local learning proposals, review records, indexes, and promotion plans without rewriting doctrine.
 
 Agents may learn, but they may not rewrite doctrine. Learning proposals are evidence only. Review records do not rewrite doctrine. Promotion plans are not permission to modify official Scrolls.
+
+## Local Village Bootstrap and Hardware Profile
+
+- Local Village Bootstrap and Hardware Profile: creates private Local Village scaffolding and read-only hardware profiles without granting runtime authority.
+
+Private context stays local. Hardware profile is evidence only. Local config is not permission. Local Village bootstrap does not authorize execution, private context access, model calls, adapter calls, repository apply, Git operations, doctrine rewrite, background agents, or mission closure.

@@ -305,3 +305,7 @@ Do not hide doctrine changes inside guides.
 ## Scroll Lifecycle and Learning Proposals
 
 - `scroll_lifecycle_and_learning_proposals.md`: defines Scroll learning proposals, review decisions, promotion plans, approval tokens, lifecycle states, and doctrine non-rewrite boundaries.
+
+## Local Village Bootstrap and Hardware Profile
+
+- `local_village_bootstrap_and_hardware_profile.md`: defines private Local Village bootstrap, read-only hardware profiling, local config, privacy boundaries, approval tokens, and non-authority rules.

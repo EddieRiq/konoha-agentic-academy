@@ -309,3 +309,7 @@ Do not commit a real local Village unless it has been explicitly reviewed and ap
 
 - `knowledge_source_card.template.md`: local template for documenting private sources without exposing source content.
 - `principle_card.template.md`: local template for distilling source-backed principles in user-written language.
+
+## Local Village templates
+
+- `templates/local_village/`: public-safe template documentation for private Local Village structure.

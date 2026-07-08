@@ -163,3 +163,9 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `scroll_lifecycle/scroll_learning_proposal.example.json`: example mission-local Scroll learning proposal.
 - `scroll_lifecycle/scroll_lifecycle_review_report.example.json`: example lifecycle review report.
 - `scroll_lifecycle/scroll_lifecycle_index.example.json`: example proposal index.
+
+## Local Village examples
+
+- `local_village/hardware_profile.example.json`: example read-only local hardware profile.
+- `local_village/local_village_config.example.json`: example private Local Village config.
+- `local_village/local_village_bootstrap_report.example.json`: example Local Village bootstrap report.

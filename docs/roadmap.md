@@ -581,3 +581,7 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 ### v2.4.0 Scroll Lifecycle and Learning Proposals
 
 - Add Scroll Lifecycle and Learning Proposals after Yamanaka advanced memory, allowing mission-local learning without automatic doctrine rewrite.
+
+### v2.5.0 Local Village Bootstrap and Hardware Profile
+
+- Add Local Village Bootstrap and Hardware Profile after Scroll lifecycle, giving private local Villages a safe scaffold, read-only hardware profile, and local config boundary.

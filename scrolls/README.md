@@ -596,3 +596,7 @@ A Scroll is ready for active use only when:
 - `scroll_lifecycle_review_scroll.md`: reviews learning proposals, lifecycle decisions, promotion plans, Shikamaru boundaries, and evidence-only rules.
 - `templates/learning_proposal.template.md`: template for mission-local Scroll learning proposals.
 - `templates/scroll_lifecycle_review.template.md`: template for mission-local Scroll lifecycle reviews.
+
+## Local Village Bootstrap review
+
+- `local_village_bootstrap_review_scroll.md`: reviews Local Village bootstrap, hardware profile boundaries, explicit roots, private/public separation, approval tokens, and non-authority.
