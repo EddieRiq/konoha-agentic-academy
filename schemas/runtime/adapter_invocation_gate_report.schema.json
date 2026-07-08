@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/adapter_invocation_gate_report.schema.json",
+  "title": "Adapter Invocation Gate Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "run_id",
+    "adapter_requested",
+    "adapter_effective",
+    "mode",
+    "task",
+    "invocation_state",
+    "approval",
+    "boundaries",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "adapter_invocation_gate_report"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "preview",
+        "passed",
+        "blocked"
+      ]
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "adapter_requested": {
+      "enum": [
+        "mock",
+        "real"
+      ]
+    },
+    "adapter_effective": {
+      "enum": [
+        "none",
+        "mock"
+      ]
+    },
+    "mode": {
+      "type": "string"
+    },
+    "task": {
+      "type": "string"
+    },
+    "invocation_state": {
+      "enum": [
+        "preview_only",
+        "mock_invoked",
+        "blocked"
+      ]
+    },
+    "approval": {
+      "type": "object",
+      "required": [
+        "required_for_invocation",
+        "provided",
+        "token_name"
+      ],
+      "properties": {
+        "required_for_invocation": {
+          "type": "boolean"
+        },
+        "provided": {
+          "type": "boolean"
+        },
+        "token_name": {
+          "const": "INVOKE_ADAPTER_GATE"
+        }
+      },
+      "additionalProperties": true
+    },
+    "output_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

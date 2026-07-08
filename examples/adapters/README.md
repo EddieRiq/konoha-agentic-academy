@@ -1,9 +1,9 @@
 # Adapter examples
 
-Public examples for adapter-related dry-run artifacts.
+Public adapter-related examples for Konoha Agentic Academy.
 
-These examples are generic and non-executable. They do not invoke real adapters, call external APIs, access private context, or authorize runtime actions.
+These examples are documentation and fixture artifacts. They do not call real adapters, use network access, access private context, execute missions, or authorize runtime actions.
 
-## Mock adapter
+## Adapter invocation gate
 
-- `mock_adapter_invocation_report.example.json`: example report produced by the deterministic mock adapter / clerk interface.
+- `adapter_invocation_gate_report.example.json`: example report produced by the Adapter Invocation Gate with deterministic mock adapter invocation.

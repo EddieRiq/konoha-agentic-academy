@@ -1,0 +1,35 @@
+{
+  "schema_version": "0.28.0",
+  "report_type": "adapter_invocation_gate_report",
+  "generated_at": "2026-01-01T00:00:00+00:00",
+  "status": "passed",
+  "run_id": "example-run",
+  "adapter_requested": "mock",
+  "adapter_effective": "mock",
+  "mode": "checklist",
+  "task": "Draft a public dry-run checklist.",
+  "invocation_state": "mock_invoked",
+  "approval": {
+    "required_for_invocation": true,
+    "provided": true,
+    "token_name": "INVOKE_ADAPTER_GATE"
+  },
+  "output_path": "sandbox/runs/example-run/adapter_outputs/adapter_gate_mock_output.md",
+  "boundaries": {
+    "execution": "blocked",
+    "real_adapter_execution": "blocked",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "network_access": "blocked",
+    "runtime_authorization": "blocked",
+    "filesystem_mutation": "sandbox_adapter_outputs_only"
+  },
+  "findings": [
+    {
+      "severity": "info",
+      "code": "mock_adapter_invoked",
+      "message": "Deterministic mock adapter output written inside sandbox run."
+    }
+  ]
+}

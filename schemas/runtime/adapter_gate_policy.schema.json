@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/adapter_gate_policy.schema.json",
+  "title": "Adapter Gate Policy",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "real_adapters_enabled_by_default",
+    "mock_adapter_allowed",
+    "approval_token_name"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "real_adapters_enabled_by_default": {
+      "const": false
+    },
+    "mock_adapter_allowed": {
+      "type": "boolean"
+    },
+    "approval_token_name": {
+      "const": "INVOKE_ADAPTER_GATE"
+    },
+    "allowed_output_root": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}
