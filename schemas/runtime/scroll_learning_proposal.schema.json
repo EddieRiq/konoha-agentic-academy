@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/scroll_learning_proposal.schema.json",
+  "title": "Scroll Learning Proposal",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "mission_id",
+    "scroll_name",
+    "created_at",
+    "created_by",
+    "lifecycle_state",
+    "learning_summary",
+    "proposed_behavior_change",
+    "evidence",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "proposal_id": { "type": "string" },
+    "mission_id": { "type": "string" },
+    "scroll_name": { "type": "string" },
+    "created_at": { "type": "string" },
+    "created_by": { "type": "string" },
+    "lifecycle_state": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review_required",
+        "approved_for_experiment",
+        "rejected",
+        "deferred",
+        "promotion_planned"
+      ]
+    },
+    "learning_summary": { "type": "string" },
+    "proposed_behavior_change": { "type": "string" },
+    "risk_notes": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "authority": { "type": "object" },
+    "boundaries": { "type": "object" }
+  },
+  "additionalProperties": true
+}

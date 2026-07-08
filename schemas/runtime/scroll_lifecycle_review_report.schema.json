@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/runtime/scroll_lifecycle_review_report.schema.json",
+  "title": "Scroll Lifecycle Review Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "command",
+    "status",
+    "invocation",
+    "generated_at",
+    "mission_id",
+    "boundaries",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "report_type": { "type": "string" },
+    "command": { "type": "string" },
+    "status": { "type": "string", "enum": ["passed", "failed", "preview"] },
+    "invocation": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "mission_id": { "type": ["string", "null"] },
+    "proposal_id": { "type": "string" },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "approve_for_experiment",
+        "reject",
+        "defer",
+        "request_changes",
+        "plan_promotion"
+      ]
+    },
+    "outputs": { "type": "object" },
+    "boundaries": { "type": "object" },
+    "authority": { "type": "object" }
+  },
+  "additionalProperties": true
+}

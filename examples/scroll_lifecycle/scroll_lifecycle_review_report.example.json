@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "scroll_lifecycle_report",
+  "command": "review-proposal",
+  "status": "passed",
+  "invocation": "confirmed",
+  "generated_at": "2026-07-08T00:00:00+00:00",
+  "mission_id": "example-mission",
+  "proposal_id": "example-scroll-learning",
+  "decision": "approve_for_experiment",
+  "outputs": {
+    "review_markdown": "missions/example-mission/learning_proposals/example-scroll-learning_review.md",
+    "review_report": "missions/example-mission/reports/example-scroll-learning_scroll_lifecycle_review_report.json"
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "model_invocation": "blocked",
+    "adapter_invocation": "blocked",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "doctrine_rewrite": "blocked",
+    "mission_closure": "blocked"
+  },
+  "authority": {
+    "learning_proposals_are_evidence_only": true,
+    "review_records_do_not_rewrite_doctrine": true,
+    "promotion_plans_are_not_permission_to_modify_scrolls": true,
+    "shikamaru_and_human_approval_required_for_doctrine_changes": true
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "proposal_id": "example-scroll-learning",
+  "mission_id": "example-mission",
+  "scroll_name": "runtime-review-scroll",
+  "created_at": "2026-07-08T00:00:00+00:00",
+  "created_by": "eduardo",
+  "lifecycle_state": "review_required",
+  "learning_summary": "A repeated review checklist item should be made explicit.",
+  "proposed_behavior_change": "Add a checklist item requiring explicit evidence before a mission is marked complete.",
+  "risk_notes": "Proposal only. No doctrine rewrite.",
+  "evidence": [
+    "reports/example-runtime-report.json"
+  ],
+  "authority": {
+    "learning_proposals_are_evidence_only": true,
+    "review_records_do_not_rewrite_doctrine": true,
+    "promotion_plans_are_not_permission_to_modify_scrolls": true
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "model_invocation": "blocked",
+    "adapter_invocation": "blocked",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "doctrine_rewrite": "blocked",
+    "mission_closure": "blocked"
+  }
+}
