@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/yamanaka_memory_note.schema.json",
+  "title": "Yamanaka Memory Note Metadata",
+  "type": "object",
+  "required": [
+    "type",
+    "mission_id",
+    "created_at",
+    "source"
+  ],
+  "properties": {
+    "type": {
+      "enum": [
+        "mission_memory",
+        "decision",
+        "tactic",
+        "failure",
+        "context_pack"
+      ]
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "closure_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

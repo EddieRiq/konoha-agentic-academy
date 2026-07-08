@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "tool": "mission_closure_gate",
+  "status": "passed",
+  "target_release": "v2.0.0 - Integration, Memory and Mission Closure",
+  "created_at": "2026-07-08T00:00:00+00:00",
+  "mission_id": "example-mission",
+  "closure_id": "example-mission-closure",
+  "state": {
+    "execution": "blocked",
+    "filesystem_mutation": "mission workspace and explicit memory root only",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "private_context_access": "blocked",
+    "real_model_invocation": "blocked",
+    "adapter_invocation": "blocked",
+    "network_access": "blocked",
+    "teachback": "passed",
+    "mission_closure": "closed_by_human"
+  },
+  "evidence": {
+    "reports": [
+      "reports/agent_runtime_report.json"
+    ],
+    "plans": [
+      "plans/hokage_plan_proposal.md"
+    ],
+    "approvals": [
+      "approvals/approval_log.md"
+    ],
+    "evidence": [
+      "evidence/review_note.md"
+    ]
+  },
+  "memory_outputs": [
+    "memory/vault/10-missions/example-mission.md",
+    "memory/vault/20-decisions/example-mission_closure_decision.md",
+    "memory/vault/60-context-packs/example-mission_context_pack.md"
+  ],
+  "mission_outputs": [
+    "reports/example-mission-closure_mission_closure_report.json",
+    "reports/example-mission-closure_teachback_record.json"
+  ],
+  "notification_state": "closed",
+  "blockers": [],
+  "warnings": []
+}

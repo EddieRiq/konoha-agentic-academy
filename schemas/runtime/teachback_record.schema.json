@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/teachback_record.schema.json",
+  "title": "Konoha Teachback Record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "mission_id",
+    "closure_id",
+    "status",
+    "teachback_confirmation",
+    "teachback_summary",
+    "human_actor",
+    "recorded_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "closure_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed",
+        "needs_review"
+      ]
+    },
+    "teachback_confirmation": {
+      "type": "string"
+    },
+    "teachback_summary": {
+      "type": "string"
+    },
+    "human_actor": {
+      "type": "string"
+    },
+    "recorded_at": {
+      "type": "string"
+    },
+    "non_authority": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}
