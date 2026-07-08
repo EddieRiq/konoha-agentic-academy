@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha Mission Workspace Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "mission_id",
+    "title",
+    "scope",
+    "status",
+    "created_at_utc",
+    "workspace_boundary",
+    "safety",
+    "review"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "blocked",
+        "review",
+        "closed"
+      ]
+    },
+    "created_at_utc": {
+      "type": "string"
+    },
+    "workspace_boundary": {
+      "type": "object"
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "execution",
+        "filesystem_mutation",
+        "repository_apply",
+        "git_operations",
+        "private_context_access",
+        "real_adapter_execution",
+        "network_access"
+      ]
+    },
+    "review": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

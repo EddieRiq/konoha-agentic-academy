@@ -1,0 +1,37 @@
+{
+  "blockers": [],
+  "checks": {
+    "execution": "blocked",
+    "filesystem_mutation": "mission workspace only",
+    "git_operations": "blocked",
+    "network_access": "blocked",
+    "private_context_access": "blocked",
+    "real_adapter_execution": "blocked",
+    "repository_apply": "blocked"
+  },
+  "command": "create",
+  "created_at_utc": "2026-01-01T00:00:00Z",
+  "details": {
+    "created_directories": [
+      "inputs",
+      "context",
+      "plans",
+      "outputs",
+      "reports",
+      "approvals",
+      "evidence"
+    ],
+    "created_files": [
+      "mission_manifest.json",
+      "charter.md",
+      "README.md",
+      "approvals/approval_log.md"
+    ],
+    "mission_root": "sandbox/workspace/missions/example-mission"
+  },
+  "mission_id": "example-mission",
+  "schema_version": "1.0",
+  "status": "passed",
+  "tool": "mission_workspace",
+  "workspace_root": "sandbox/workspace"
+}

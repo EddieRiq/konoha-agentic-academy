@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha Mission Workspace Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool",
+    "command",
+    "status",
+    "created_at_utc",
+    "workspace_root",
+    "checks",
+    "blockers",
+    "details"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "tool": {
+      "const": "mission_workspace"
+    },
+    "command": {
+      "type": "string",
+      "enum": [
+        "create",
+        "validate",
+        "inspect",
+        "list"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workspace_root": {
+      "type": "string"
+    },
+    "checks": {
+      "type": "object"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "details": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

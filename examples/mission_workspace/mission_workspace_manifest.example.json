@@ -1,0 +1,36 @@
+{
+  "created_at_utc": "2026-01-01T00:00:00Z",
+  "mission_id": "example-mission",
+  "review": {
+    "requires_human_approval_for_apply": true,
+    "requires_human_approval_for_execution": true,
+    "requires_human_approval_for_git": true,
+    "teachback_required_for_closure": true
+  },
+  "safety": {
+    "execution": "blocked",
+    "filesystem_mutation": "mission workspace only",
+    "git_operations": "blocked",
+    "network_access": "blocked",
+    "private_context_access": "blocked",
+    "real_adapter_execution": "blocked",
+    "repository_apply": "blocked"
+  },
+  "schema_version": "1.0",
+  "scope": "Create a public example mission workspace.",
+  "status": "draft",
+  "title": "Example mission workspace",
+  "workspace_boundary": {
+    "mission_root": "sandbox/workspace/missions/example-mission",
+    "required_directories": [
+      "inputs",
+      "context",
+      "plans",
+      "outputs",
+      "reports",
+      "approvals",
+      "evidence"
+    ],
+    "workspace_root": "sandbox/workspace"
+  }
+}
