@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "general_task_execution_workbench_report",
+  "command": "review",
+  "status": "passed",
+  "mission_id": "example-mission",
+  "run_id": "example-review",
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "blockers": [],
+  "readiness": {
+    "has_plan": true,
+    "has_command_batches": true,
+    "has_recorded_results": false,
+    "ready_for_v3_supervised_execution": true
+  },
+  "authority": {
+    "workbench_reports_authorize_execution": false
+  },
+  "boundaries": {
+    "command_execution": "blocked_in_v2_8"
+  }
+}

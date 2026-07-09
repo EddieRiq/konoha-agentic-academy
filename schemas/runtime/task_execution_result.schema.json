@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/task_execution_result.schema.json",
+  "title": "Task Execution Result Evidence",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "result_id",
+    "mission_id",
+    "command_id",
+    "command",
+    "exit_code",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "result_id": { "type": "string" },
+    "mission_id": { "type": "string" },
+    "command_id": { "type": "string" },
+    "command": { "type": "string" },
+    "execution_context": { "type": "string" },
+    "executed_by": { "type": "string" },
+    "exit_code": { "type": "integer" },
+    "stdout_summary": { "type": "string" },
+    "stderr_summary": { "type": "string" },
+    "observation": { "type": "string" },
+    "recorded_at": { "type": "string" },
+    "authority": { "type": "object" },
+    "boundaries": { "type": "object" }
+  },
+  "additionalProperties": true
+}

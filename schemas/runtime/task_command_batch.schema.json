@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/task_command_batch.schema.json",
+  "title": "Task Command Batch",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "plan_id",
+    "report_type",
+    "batches",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "plan_id": { "type": "string" },
+    "report_type": { "const": "task_command_batches" },
+    "generated_at": { "type": "string" },
+    "authority": { "type": "object" },
+    "boundaries": { "type": "object" },
+    "batches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["batch_id", "title", "approval_mode", "execution_mode", "commands"],
+        "properties": {
+          "batch_id": { "type": "string" },
+          "title": { "type": "string" },
+          "approval_mode": { "type": "string" },
+          "execution_mode": { "type": "string" },
+          "commands": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["command_id", "purpose", "proposed_command", "risk", "requires_human_approval"],
+              "properties": {
+                "command_id": { "type": "string" },
+                "purpose": { "type": "string" },
+                "proposed_command": { "type": "string" },
+                "risk": { "type": "string" },
+                "requires_human_approval": { "type": "boolean" },
+                "notes": { "type": "string" }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

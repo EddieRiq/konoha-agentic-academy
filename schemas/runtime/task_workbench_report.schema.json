@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/task_workbench_report.schema.json",
+  "title": "General Task Workbench Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "command",
+    "status",
+    "mission_id",
+    "run_id",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "report_type": { "const": "general_task_execution_workbench_report" },
+    "command": { "type": "string" },
+    "status": { "type": "string" },
+    "mission_id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "blockers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "authority": { "type": "object" },
+    "boundaries": { "type": "object" },
+    "output_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

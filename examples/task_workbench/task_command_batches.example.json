@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "plan_id": "example-plan",
+  "report_type": "task_command_batches",
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "authority": {
+    "command_proposals_are_permission": false
+  },
+  "boundaries": {
+    "command_execution": "blocked_in_v2_8"
+  },
+  "batches": [
+    {
+      "batch_id": "example-plan-inspect",
+      "title": "Environment inspection proposals",
+      "approval_mode": "batch_or_individual",
+      "execution_mode": "human_supervised_external",
+      "commands": [
+        {
+          "command_id": "inspect-01",
+          "purpose": "Identify current working directory.",
+          "proposed_command": "pwd",
+          "risk": "low",
+          "requires_human_approval": true
+        }
+      ]
+    }
+  ]
+}

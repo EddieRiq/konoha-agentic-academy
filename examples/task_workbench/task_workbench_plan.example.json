@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "plan_id": "example-plan",
+  "mission_id": "example-mission",
+  "task": "Prepare a supervised technical task with environment inspection, command proposals, validation, and evidence capture.",
+  "task_domain": "general",
+  "target_environment": "mixed",
+  "risk_level": "medium",
+  "privacy_level": "local_private",
+  "approval_mode": "individual",
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "playbook": {
+    "playbook_type": "general_supervised_task",
+    "detected_tags": ["general"],
+    "principle": "inspect, plan, ask, execute externally with approval, verify, record evidence"
+  },
+  "phases": [
+    "clarify_task",
+    "inspect_environment_with_permission",
+    "prepare_command_batches",
+    "human_review",
+    "external_supervised_execution",
+    "record_results",
+    "verify",
+    "self_review"
+  ],
+  "authority": {
+    "command_proposals_are_permission": false,
+    "recorded_results_are_permission": false,
+    "workbench_reports_authorize_execution": false,
+    "human_approval_required_for_execution": true,
+    "v2_8_executes_commands": false
+  },
+  "boundaries": {
+    "command_execution": "blocked_in_v2_8",
+    "arbitrary_shell": "blocked",
+    "repository_apply": "blocked",
+    "git_operations": "blocked",
+    "model_invocation": "blocked",
+    "adapter_invocation": "blocked",
+    "private_context_access": "blocked_by_default",
+    "network_access": "blocked",
+    "background_agents": "blocked",
+    "mission_closure": "blocked"
+  }
+}

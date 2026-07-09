@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "result_id": "example-result",
+  "mission_id": "example-mission",
+  "command_id": "inspect-01",
+  "command": "python --version",
+  "execution_context": "human_supervised_external",
+  "executed_by": "human",
+  "exit_code": 0,
+  "stdout_summary": "Python 3.x",
+  "stderr_summary": "",
+  "observation": "Command succeeded during supervised execution.",
+  "recorded_at": "2026-07-09T00:00:00+00:00",
+  "authority": {
+    "recorded_results_are_permission": false
+  },
+  "boundaries": {
+    "command_execution": "blocked_in_v2_8"
+  }
+}
