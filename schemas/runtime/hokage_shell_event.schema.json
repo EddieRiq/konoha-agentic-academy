@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/runtime/hokage_shell_event.schema.json",
+  "title": "Hokage Shell Event",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "event_id",
+    "mission_id",
+    "event_type",
+    "created_at",
+    "data",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "hokage_shell_event"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

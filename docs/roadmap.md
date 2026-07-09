@@ -617,3 +617,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.0.2 Repo Audit Deterministic Guard
 
 - Add deterministic marker checks for repo audits before the Hokage Terminal Shell, separating model-suggested issues, validated issues and suppressed possible false positives.
+
+### v3.1.0 Hokage Terminal Shell
+
+- Add minimal terminal-first Hokage Shell before any Web UI, enabling SSH-friendly mission control, persona selection, ASCII status panels, deterministic repo scan, optional Ollama audit handoff, and private Obsidian-compatible local memory.

@@ -628,3 +628,7 @@ A Scroll is ready for active use only when:
 ## Repo Audit Deterministic Guard review
 
 - `repo_audit_deterministic_guard_review_scroll.md`: reviews deterministic marker checks, suppressed false positives, validated issues and patch planning boundaries.
+
+## Hokage Terminal Shell review
+
+- `hokage_terminal_shell_review_scroll.md`: reviews terminal UI safety, persona boundaries, local memory privacy, event logs, deterministic scan behavior, and local model audit handoff.

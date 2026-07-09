@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "hokage_shell_session",
+  "mission_id": "example-readme-audit",
+  "task": "Review README, CHANGELOG and roadmap alignment with v3.0.1.",
+  "state": "needs_human_review",
+  "persona": {
+    "persona_id": "sarcastic_lab_ai",
+    "display_name": "Sarcastic Lab AI"
+  },
+  "authority": {
+    "ui_is_not_permission": true,
+    "hokage_orchestrates_but_does_not_execute": true,
+    "model_output_is_evidence_only": true,
+    "memory_does_not_authorize_action": true
+  },
+  "boundaries": {
+    "autonomous_background_agents": "blocked",
+    "unapproved_command_execution": "blocked",
+    "unapproved_git_operations": "blocked",
+    "private_context_access_by_default": "blocked"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/runtime/hokage_shell_session.schema.json",
+  "title": "Hokage Shell Session",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "mission_id",
+    "task",
+    "state",
+    "persona",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "hokage_shell_session"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "task": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "workspace_root": {
+      "type": "string"
+    },
+    "memory_root": {
+      "type": "string"
+    },
+    "persona": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "outputs": {
+      "type": "object"
+    },
+    "token_usage": {
+      "type": "object"
+    },
+    "next_recommended_action": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

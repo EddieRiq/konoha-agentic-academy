@@ -208,3 +208,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Guarded local repo audit example
 
 - `local_model_audit/local_repo_consistency_audit_guarded.example.json`: shows a local model false positive suppressed by deterministic README/docs evidence.
+
+## Hokage Shell examples
+
+- `hokage_shell/`: example shell session, event log, and Obsidian-compatible mission note for terminal-first Hokage mission control.

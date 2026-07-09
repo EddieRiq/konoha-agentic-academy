@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/runtime/hokage_persona.schema.json",
+  "title": "Hokage Persona",
+  "type": "object",
+  "required": [
+    "persona_id",
+    "display_name",
+    "tone",
+    "must_not_override_safety"
+  ],
+  "properties": {
+    "persona_id": {
+      "type": "string"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "tone": {
+      "type": "string"
+    },
+    "humor_level": {
+      "type": "string"
+    },
+    "verbosity": {
+      "type": "string"
+    },
+    "desk_symbol": {
+      "type": "string"
+    },
+    "opening_line": {
+      "type": "string"
+    },
+    "approval_style": {
+      "type": "string"
+    },
+    "must_not_override_safety": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}

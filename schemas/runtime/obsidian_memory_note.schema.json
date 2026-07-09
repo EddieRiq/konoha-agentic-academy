@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/runtime/obsidian_memory_note.schema.json",
+  "title": "Obsidian Memory Note",
+  "type": "object",
+  "required": [
+    "type",
+    "mission_id",
+    "status",
+    "tags"
+  ],
+  "properties": {
+    "type": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "persona": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

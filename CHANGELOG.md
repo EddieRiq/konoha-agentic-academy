@@ -84,6 +84,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v3.1.0 Hokage Terminal Shell with terminal-first mission UI, persona selection, ASCII panels, deterministic repo scan, optional local model audit handoff, event logs, schemas, examples, guide, roadmap, review Scroll, and private Obsidian-compatible memory notes.
 - Added v3.0.2 Repo Audit Deterministic Guard with model-suggested issues, deterministic marker validation, validated issues, suppressed possible false positives, guarded patch planning, schema update, tests, examples, guide, roadmap, and review Scroll.
 - Added v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow with WSL/local computer profile, Ollama model recommendation, approved model download, local model repo consistency audit, documentation patch plan, schemas, tests, examples, guide, roadmap, and review Scroll.
 - Added Konoha Beta Real Supervised Task Runtime with terminal mission runtime, Claude Code adapter, Codex adapter, Ollama adapter, command approval execution, token ledger, self-review, Git gates, teachback closure, schemas, tests, examples, guide, roadmap, and review Scroll.

@@ -706,3 +706,9 @@ Local model audits are evidence only. Model output is not permission. Repository
 - Repo Audit Deterministic Guard: separates local model suggested issues from validated issues, suppresses known false positives with deterministic README/CHANGELOG/docs evidence, and generates patch plans only from validated issues.
 
 Local model output remains evidence only. Suppressed issues are recorded for review but do not authorize patches.
+
+## v3.1.0 Hokage Terminal Shell
+
+- Hokage Terminal Shell: adds a local terminal-first UI for supervised missions, persona selection, ASCII mission panels, deterministic repo scan, optional local model audit handoff, event logging, and private Obsidian-compatible memory notes.
+
+The shell is not permission. Hokage orchestrates but does not execute. Model output and memory notes remain evidence only.

@@ -337,3 +337,7 @@ Do not hide doctrine changes inside guides.
 ## Repo Audit Deterministic Guard
 
 - `../roadmap/v3_0_2_repo_audit_deterministic_guard.md`: defines the v3.0.2 false-positive suppression guard for local model repository audits.
+
+## Hokage Terminal Shell
+
+- `hokage_terminal_shell.md`: defines the terminal-first SSH-friendly Hokage Shell with personas, ASCII mission panels, deterministic repo scan, local model audit handoff, event logs, and private Obsidian-compatible memory notes.
