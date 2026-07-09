@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/mission_command_proposal.schema.json",
+  "title": "Mission Command Proposal Set",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "proposal_type",
+    "mission_id",
+    "run_id",
+    "commands",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "proposal_type": {
+      "const": "mission_command_proposal_set"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "command_id",
+          "command",
+          "purpose",
+          "requires_human_approval",
+          "execution_status"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "risk_level": {
+            "type": "string"
+          },
+          "requires_human_approval": {
+            "type": "boolean"
+          },
+          "execution_status": {
+            "const": "proposed_only"
+          },
+          "allowed_after": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

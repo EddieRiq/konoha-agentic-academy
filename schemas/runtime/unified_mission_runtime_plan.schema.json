@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/unified_mission_runtime_plan.schema.json",
+  "title": "Unified Mission Runtime Plan",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "plan_type",
+    "mission_id",
+    "run_id",
+    "task",
+    "phases",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "plan_type": {
+      "const": "unified_mission_runtime_plan"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "task": {
+      "type": "string"
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "task_tags": {
+      "type": "object"
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "next_required_human_action": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

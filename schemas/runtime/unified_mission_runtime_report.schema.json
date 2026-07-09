@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha-agentic-academy.local/schemas/unified_mission_runtime_report.schema.json",
+  "title": "Unified Mission Runtime Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "status",
+    "invocation",
+    "mission_id",
+    "run_id",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "unified_mission_runtime_report"
+    },
+    "status": {
+      "enum": [
+        "preview",
+        "prepared",
+        "failed"
+      ]
+    },
+    "invocation": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "task": {
+      "type": "string"
+    },
+    "human_actor": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "object"
+    },
+    "workspace_root": {
+      "type": "string"
+    },
+    "mission_path": {
+      "type": "string"
+    },
+    "runtime_plan_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "command_proposals_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "memory_note_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "blockers": {
+      "type": "array"
+    },
+    "next_required_human_action": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

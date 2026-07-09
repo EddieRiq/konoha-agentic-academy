@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "unified_mission_runtime_report",
+  "status": "prepared",
+  "invocation": "confirmed_start",
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "mission_id": "example-mission",
+  "run_id": "example-run",
+  "title": "Example technical task",
+  "task": "Prepare a supervised technical task with command proposals.",
+  "human_actor": "eduardo",
+  "platform": {
+    "python": "3.x",
+    "system": "Windows",
+    "machine": "AMD64"
+  },
+  "workspace_root": "sandbox/workspace",
+  "mission_path": "sandbox/workspace/missions/example-mission",
+  "runtime_plan_path": "sandbox/workspace/missions/example-mission/plans/example-run_unified_mission_runtime_plan.json",
+  "command_proposals_path": "sandbox/workspace/missions/example-mission/plans/example-run_command_proposals.json",
+  "memory_note_path": null,
+  "blockers": [],
+  "next_required_human_action": "Review mission plan and command proposals.",
+  "authority": {
+    "runtime_report_is_evidence_only": true
+  },
+  "boundaries": {
+    "execution": "blocked",
+    "command_execution": "proposed_only"
+  }
+}

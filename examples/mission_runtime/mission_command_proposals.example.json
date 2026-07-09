@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "proposal_type": "mission_command_proposal_set",
+  "mission_id": "example-mission",
+  "run_id": "example-run",
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "commands": [
+    {
+      "command_id": "inspect-python-version",
+      "command": "python --version",
+      "purpose": "Inspect Python availability.",
+      "risk_level": "low",
+      "requires_human_approval": true,
+      "execution_status": "proposed_only",
+      "allowed_after": "explicit_command_or_batch_approval_in_future_gate",
+      "notes": "Read-only proposal."
+    }
+  ],
+  "authority": {
+    "command_proposals_are_not_permission": true,
+    "future_execution_requires_separate_approval": true
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "plan_type": "unified_mission_runtime_plan",
+  "mission_id": "example-mission",
+  "run_id": "example-run",
+  "title": "Example technical task",
+  "task": "Prepare a supervised technical task with command proposals.",
+  "risk_level": "medium",
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "task_tags": {
+    "docker": false,
+    "server": false,
+    "python": true
+  },
+  "phases": [
+    {
+      "phase_id": "mission_intake",
+      "status": "prepared"
+    },
+    {
+      "phase_id": "environment_understanding",
+      "status": "requires_human_review"
+    },
+    {
+      "phase_id": "controlled_execution",
+      "status": "blocked_in_v2_6"
+    }
+  ],
+  "next_required_human_action": "Review mission plan and command proposals.",
+  "authority": {
+    "runtime_report_is_evidence_only": true
+  },
+  "boundaries": {
+    "command_execution": "proposed_only",
+    "git_operations": "blocked"
+  }
+}
