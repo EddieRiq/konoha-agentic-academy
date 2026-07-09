@@ -321,3 +321,7 @@ Do not hide doctrine changes inside guides.
 ## General Task Execution Workbench
 
 - `general_task_execution_workbench.md`: defines the general task workbench, playbooks, command batches, evidence recording, verification checklists, rollback notes, and non-authority boundaries.
+
+## Self-Review, Optimization and Git Operation Gate
+
+- `self_review_optimization_and_git_operation_gate.md`: defines mission self-review, optimization plans, Git operation plans, stage/commit/push gates, approval tokens, and non-authority boundaries.

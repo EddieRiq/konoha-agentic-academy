@@ -189,3 +189,10 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `task_workbench/task_command_batches.example.json`: example command batch proposal set.
 - `task_workbench/task_execution_result.example.json`: example externally supervised command result evidence.
 - `task_workbench/task_workbench_report.example.json`: example workbench readiness report.
+
+## Self-review and Git gate examples
+
+- `self_review/self_review_report.example.json`: example mission self-review report.
+- `self_review/optimization_plan.example.json`: example optimization plan.
+- `self_review/git_operation_plan.example.json`: example Git operation plan.
+- `self_review/git_operation_gate_report.example.json`: example Git gate report.

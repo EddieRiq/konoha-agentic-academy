@@ -80,6 +80,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Self-Review, Optimization and Git Operation Gate with mission self-review, optimization plans, Git operation plans, gated stage/commit/push operations, schemas, tests, examples, guide, roadmap reference, and review Scroll.
 - Added General Task Execution Workbench with mission initialization, general playbooks, command batch proposals, verification checklists, rollback notes, command result evidence recording, review reports, schemas, tests, examples, guide, and review Scroll.
 - Added Model Router and Token Economy with model runtime profiling, routing decisions, local model download plans, token usage ledger, calibration, summaries, schemas, tests, examples, guide, and review Scroll.
 - Added Unified Mission Runtime with mission-level charter, manifest, runtime plan, command proposals, notification state, evidence, reports, optional memory note, schemas, tests, examples, guide, and review Scroll.

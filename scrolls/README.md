@@ -612,3 +612,7 @@ A Scroll is ready for active use only when:
 ## General Task Execution Workbench review
 
 - `general_task_execution_workbench_review_scroll.md`: reviews task workbench plans, command proposals, evidence records, verification checklists, rollback notes, and execution boundaries.
+
+## Self-Review, Optimization and Git Operation Gate review
+
+- `self_review_optimization_git_gate_review_scroll.md`: reviews self-review reports, optimization plans, Git plans, gated Git operations, approval tokens, and non-authority rules.

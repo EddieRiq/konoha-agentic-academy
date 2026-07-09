@@ -603,3 +603,9 @@ v2.7 does not invoke models or download models. It prepares evidence and cost aw
 - Add General Task Execution Workbench after Model Router and Token Economy, preparing general supervised technical task execution for the v3.0 beta.
 
 v2.8 is intentionally general. It is not tied to Airflow, Docker, servers, data pipelines, or documentation tasks. It prepares the common workbench for any supervised technical mission.
+
+### v2.9.0 Self-Review, Optimization and Git Operation Gate
+
+- Add Self-Review, Optimization and Git Operation Gate before v3.0 beta, enabling mission self-review, optimization proposals, and explicit Git add/commit/push gates.
+
+v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervised Task Runtime.

@@ -676,3 +676,9 @@ Model routing is evidence only. Model choice is not permission. Token estimates 
 - General Task Execution Workbench: prepares general supervised technical tasks with playbooks, command batches, verification checklists, rollback notes, evidence capture, and readiness review.
 
 Command proposals are not permission. Recorded command results are evidence only. v2.8 does not execute arbitrary commands. The workbench prepares Konoha for v3.0 supervised real task execution.
+
+## Self-Review, Optimization and Git Operation Gate
+
+- Self-Review, Optimization and Git Operation Gate: records mission self-review, optimization proposals, Git operation plans, and gated git add/commit/push execution.
+
+Self-review is evidence only. Optimization plans are not permission. Git plans are not permission. Git stage, commit and push require separate explicit approvals.
