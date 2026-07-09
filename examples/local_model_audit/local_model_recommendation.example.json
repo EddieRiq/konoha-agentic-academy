@@ -1,0 +1,18 @@
+{
+  "report_type": "local_model_recommendation",
+  "schema_version": "1.0.0",
+  "recommended_provider": "ollama",
+  "recommended_model": "qwen2.5-coder:7b",
+  "fallback_model": "qwen2.5-coder:1.5b",
+  "authority": {
+    "recommendation_is_evidence_only": true,
+    "download_requires_separate_approval": true
+  },
+  "reasons": [
+    "RAM supports a 4B-7B model for supervised audits."
+  ],
+  "blockers": [],
+  "suggested_commands": {
+    "download_model": "ollama pull qwen2.5-coder:7b"
+  }
+}

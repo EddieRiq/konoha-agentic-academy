@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local Model Download Report",
+  "type": "object",
+  "required": [
+    "report_type",
+    "provider",
+    "model",
+    "exit_code",
+    "success"
+  ],
+  "properties": {
+    "report_type": {
+      "const": "local_model_download_report"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "exit_code": {
+      "type": "integer"
+    },
+    "success": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}

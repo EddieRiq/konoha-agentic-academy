@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local Repo Patch Plan",
+  "type": "object",
+  "required": [
+    "report_type",
+    "operations",
+    "recommended_commit_message",
+    "authority"
+  ],
+  "properties": {
+    "report_type": {
+      "const": "local_repo_patch_plan"
+    },
+    "operations": {
+      "type": "array"
+    },
+    "recommended_commit_message": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

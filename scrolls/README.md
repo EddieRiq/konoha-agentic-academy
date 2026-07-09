@@ -616,3 +616,11 @@ A Scroll is ready for active use only when:
 ## Self-Review, Optimization and Git Operation Gate review
 
 - `self_review_optimization_git_gate_review_scroll.md`: reviews self-review reports, optimization plans, Git plans, gated Git operations, approval tokens, and non-authority rules.
+
+## Konoha Beta Runtime review
+
+- `konoha_beta_runtime_review_scroll.md`: reviews beta missions, external agent evidence, command approvals, token usage, Git gates, self-review, and teachback closure.
+
+## Local Model Audit review
+
+- `local_model_audit_review_scroll.md`: reviews local model recommendations, Ollama download approvals, local repo consistency audits, patch plans, token usage, and Git gate boundaries.

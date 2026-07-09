@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local Model Recommendation",
+  "type": "object",
+  "required": [
+    "report_type",
+    "schema_version",
+    "recommended_provider",
+    "recommended_model",
+    "authority"
+  ],
+  "properties": {
+    "report_type": {
+      "const": "local_model_recommendation"
+    },
+    "recommended_provider": {
+      "type": "string"
+    },
+    "recommended_model": {
+      "type": "string"
+    },
+    "fallback_model": {
+      "type": "string"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

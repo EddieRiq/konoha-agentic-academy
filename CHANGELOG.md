@@ -81,6 +81,10 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+
+- Added v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow with WSL/local computer profile, Ollama model recommendation, approved model download, local model repo consistency audit, documentation patch plan, schemas, tests, examples, guide, roadmap, and review Scroll.
+- Added Konoha Beta Real Supervised Task Runtime with terminal mission runtime, Claude Code adapter, Codex adapter, Ollama adapter, command approval execution, token ledger, self-review, Git gates, teachback closure, schemas, tests, examples, guide, roadmap, and review Scroll.
 - Added Self-Review, Optimization and Git Operation Gate with mission self-review, optimization plans, Git operation plans, gated stage/commit/push operations, schemas, tests, examples, guide, roadmap reference, and review Scroll.
 - Added General Task Execution Workbench with mission initialization, general playbooks, command batch proposals, verification checklists, rollback notes, command result evidence recording, review reports, schemas, tests, examples, guide, and review Scroll.
 - Added Model Router and Token Economy with model runtime profiling, routing decisions, local model download plans, token usage ledger, calibration, summaries, schemas, tests, examples, guide, and review Scroll.

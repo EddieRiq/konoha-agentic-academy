@@ -682,3 +682,21 @@ Command proposals are not permission. Recorded command results are evidence only
 - Self-Review, Optimization and Git Operation Gate: records mission self-review, optimization proposals, Git operation plans, and gated git add/commit/push execution.
 
 Self-review is evidence only. Optimization plans are not permission. Git plans are not permission. Git stage, commit and push require separate explicit approvals.
+
+## Konoha Beta Real Supervised Task Runtime
+
+- Konoha Beta Real Supervised Task Runtime: runs supervised real technical missions through terminal workflow, Claude/Codex/Ollama adapters, command approvals, token ledger, self-review, Git gates, and teachback closure.
+
+v3.0.0 is the first beta intended for real supervised technical tasks. It is not autonomous: external agents, local models, command execution, Git operations, and mission closure all require explicit approvals.
+
+## v3.0.1 Local Model Bootstrap
+
+- Local Model Bootstrap, Repo Audit and Patch Flow: profiles the local computer, recommends an Ollama model, prepares install/download approvals, runs a local model repository consistency audit, proposes documentation patches, and hands Git operations to the beta Git gate.
+
+Local model output is evidence only. Patch plans are not permission. Git operations still require explicit approval.
+
+## Konoha Beta Local Model Audit
+
+Konoha v3.0.1 adds a local-first beta patch flow for computer profiling, Ollama local model recommendation, approved local model download, repository consistency audit, documentation patch planning, and gated Git follow-up.
+
+Local model audits are evidence only. Model output is not permission. Repository changes, commits, and pushes still require explicit human approval.

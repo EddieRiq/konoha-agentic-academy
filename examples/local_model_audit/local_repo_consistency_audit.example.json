@@ -1,0 +1,23 @@
+{
+  "report_type": "local_repo_consistency_audit",
+  "schema_version": "1.0.0",
+  "provider": "ollama",
+  "model": "qwen2.5-coder:7b",
+  "authority": {
+    "local_model_output_is_evidence_only": true
+  },
+  "usage": {
+    "usage_source": "provider_reported",
+    "input_tokens": 1000,
+    "output_tokens": 300
+  },
+  "inconsistencies": [
+    {
+      "id": "readme_missing_v3_beta_status",
+      "severity": "medium",
+      "evidence": "README does not mention beta status",
+      "suggested_change": "Add beta status"
+    }
+  ],
+  "question_for_human": "\u00bfEst\u00e1 bien aplicar el patch plan propuesto o quer\u00e9s ajustar qu\u00e9 documentaci\u00f3n debe cambiar?"
+}

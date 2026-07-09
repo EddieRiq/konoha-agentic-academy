@@ -325,3 +325,11 @@ Do not hide doctrine changes inside guides.
 ## Self-Review, Optimization and Git Operation Gate
 
 - `self_review_optimization_and_git_operation_gate.md`: defines mission self-review, optimization plans, Git operation plans, stage/commit/push gates, approval tokens, and non-authority boundaries.
+
+## Konoha Beta Runtime
+
+- `konoha_beta_real_supervised_task_runtime.md`: defines v3.0 beta terminal runtime, Claude/Codex/Ollama adapters, approved command execution, token ledger, Git gates, and teachback closure.
+
+## Local Model Bootstrap and Repo Audit
+
+- `local_model_bootstrap_repo_audit_and_patch_flow.md`: defines local computer profiling, Ollama recommendation, approved model download, local model repo consistency audit, documentation patch planning, and Git gate handoff.

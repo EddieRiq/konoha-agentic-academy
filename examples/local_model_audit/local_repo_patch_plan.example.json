@@ -1,0 +1,16 @@
+{
+  "report_type": "local_repo_patch_plan",
+  "schema_version": "1.0.0",
+  "authority": {
+    "patch_plan_is_not_permission": true
+  },
+  "operations": [
+    {
+      "operation": "append_once",
+      "path": "README.md",
+      "marker": "## Konoha Beta Local Model Audit",
+      "content": "## Konoha Beta Local Model Audit\\n\\n..."
+    }
+  ],
+  "recommended_commit_message": "Update beta local model audit documentation"
+}

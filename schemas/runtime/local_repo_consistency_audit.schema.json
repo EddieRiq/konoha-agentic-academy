@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local Repo Consistency Audit",
+  "type": "object",
+  "required": [
+    "report_type",
+    "provider",
+    "model",
+    "inconsistencies",
+    "usage",
+    "authority"
+  ],
+  "properties": {
+    "report_type": {
+      "const": "local_repo_consistency_audit"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "inconsistencies": {
+      "type": "array"
+    },
+    "usage": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

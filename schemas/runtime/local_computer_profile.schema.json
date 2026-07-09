@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local Computer Profile",
+  "type": "object",
+  "required": [
+    "report_type",
+    "schema_version",
+    "generated_at",
+    "runtime",
+    "hardware",
+    "tools",
+    "boundaries"
+  ],
+  "properties": {
+    "report_type": {
+      "const": "local_computer_profile"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "runtime": {
+      "type": "object"
+    },
+    "hardware": {
+      "type": "object"
+    },
+    "tools": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

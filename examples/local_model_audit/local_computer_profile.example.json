@@ -1,0 +1,26 @@
+{
+  "report_type": "local_computer_profile",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "authority": {
+    "hardware_profile_is_evidence_only": true
+  },
+  "runtime": {
+    "is_wsl": true,
+    "python_version": "3.x"
+  },
+  "hardware": {
+    "cpu_count": 8,
+    "ram_gib": 31.5,
+    "gpu": "not_inspected",
+    "disk_free_gib_at_repo_root": 120
+  },
+  "tools": {
+    "ollama": "/usr/bin/ollama",
+    "claude": "/usr/local/bin/claude",
+    "codex": "/usr/local/bin/codex"
+  },
+  "boundaries": {
+    "remote_model_invocation": "blocked"
+  }
+}

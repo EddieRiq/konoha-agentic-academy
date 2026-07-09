@@ -196,3 +196,11 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `self_review/optimization_plan.example.json`: example optimization plan.
 - `self_review/git_operation_plan.example.json`: example Git operation plan.
 - `self_review/git_operation_gate_report.example.json`: example Git gate report.
+
+## Konoha Beta Runtime examples
+
+- `beta_runtime/`: examples for v3.0 beta mission manifest, agent invocation, command execution report, token ledger, and Git gate report.
+
+## Local model audit examples
+
+- `local_model_audit/`: examples for local computer profile, model recommendation, local repo consistency audit, and repo patch plan.
