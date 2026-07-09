@@ -1,0 +1,19 @@
+{
+  "authority": {
+    "model_choice_does_not_grant_permission": true
+  },
+  "decision_id": "example-decision",
+  "mission_id": "example-mission",
+  "profile_id": "example-profile",
+  "report_type": "model_routing_decision",
+  "routing_mode": "local_first",
+  "schema_version": "1.0.0",
+  "selected": {
+    "local_download_required_before_use": false,
+    "model": "qwen2.5-coder:7b-instruct",
+    "model_invocation_status": "not_invoked",
+    "provider": "ollama",
+    "remote_model_gate_required": false
+  },
+  "status": "recorded"
+}

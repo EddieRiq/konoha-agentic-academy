@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "profile_id": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "model_runtime_profile"
+    },
+    "routing_recommendation": {
+      "type": "object"
+    },
+    "runtime_tools_detected": {
+      "type": "object"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "preview",
+        "profiled"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "profile_id",
+    "status",
+    "runtime_tools_detected",
+    "routing_recommendation",
+    "authority"
+  ],
+  "title": "Konoha Model Runtime Profile",
+  "type": "object"
+}

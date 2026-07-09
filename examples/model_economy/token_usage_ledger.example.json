@@ -1,0 +1,31 @@
+{
+  "authority": {
+    "usage_reports_do_not_authorize_execution": true
+  },
+  "ledger_type": "token_usage_ledger",
+  "records": [
+    {
+      "estimated_cost_usd": null,
+      "input_tokens": 250,
+      "mission_id": "example-mission",
+      "model": "qwen2.5-coder:7b-instruct",
+      "output_tokens": 800,
+      "provider": "ollama",
+      "stage": "planning",
+      "token_estimation_method": "chars_div_4_heuristic",
+      "total_tokens": 1050,
+      "usage_id": "example-usage-1",
+      "usage_source": "estimated"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "totals": {
+    "actual_records": 0,
+    "estimated_cost_usd": null,
+    "estimated_records": 1,
+    "input_tokens": 250,
+    "output_tokens": 800,
+    "records": 1,
+    "total_tokens": 1050
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "authority": {
+    "model_routing_is_evidence_only": true,
+    "token_estimates_are_not_truth": true
+  },
+  "invocation": "confirmed_profile",
+  "profile_id": "example-profile",
+  "report_type": "model_runtime_profile",
+  "routing_recommendation": {
+    "candidate_models": [
+      {
+        "available_runtime_detected": true,
+        "model": "qwen2.5-coder:7b-instruct",
+        "provider": "ollama"
+      }
+    ],
+    "mode": "local_first",
+    "reasons": [
+      "privacy level prefers local processing or explicit redaction before remote use"
+    ]
+  },
+  "runtime_tools_detected": {
+    "claude_code": false,
+    "codex_cli": false,
+    "lmstudio": false,
+    "ollama": true
+  },
+  "schema_version": "1.0.0",
+  "status": "profiled",
+  "task": {
+    "estimated_input_tokens": 250,
+    "estimated_output_tokens": 800,
+    "estimated_total_tokens": 1050,
+    "privacy_level": "local_private",
+    "risk_level": "medium",
+    "task_type": "technical_development",
+    "token_estimation_method": "chars_div_4_heuristic"
+  }
+}

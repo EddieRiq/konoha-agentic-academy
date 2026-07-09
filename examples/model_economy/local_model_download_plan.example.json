@@ -1,0 +1,18 @@
+{
+  "authority": {
+    "download_plans_do_not_download_models": true
+  },
+  "download_status": "not_downloaded",
+  "execution_status": "not_executed",
+  "model": "qwen2.5-coder:7b-instruct",
+  "plan_id": "example-download-plan",
+  "proposed_command": [
+    "ollama",
+    "pull",
+    "qwen2.5-coder:7b-instruct"
+  ],
+  "provider": "ollama",
+  "report_type": "local_model_download_plan",
+  "schema_version": "1.0.0",
+  "status": "planned"
+}

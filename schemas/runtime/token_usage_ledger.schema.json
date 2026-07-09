@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "ledger_type": {
+      "const": "token_usage_ledger"
+    },
+    "records": {
+      "type": "array"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "totals": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "ledger_type",
+    "records",
+    "totals",
+    "authority"
+  ],
+  "title": "Konoha Token Usage Ledger",
+  "type": "object"
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "download_status": {
+      "const": "not_downloaded"
+    },
+    "model": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "proposed_command": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "provider": {
+      "enum": [
+        "ollama",
+        "lmstudio"
+      ]
+    },
+    "report_type": {
+      "const": "local_model_download_plan"
+    },
+    "schema_version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "plan_id",
+    "provider",
+    "model",
+    "proposed_command",
+    "download_status",
+    "authority"
+  ],
+  "title": "Konoha Local Model Download Plan",
+  "type": "object"
+}
