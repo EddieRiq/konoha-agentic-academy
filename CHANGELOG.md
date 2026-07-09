@@ -77,6 +77,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added Unified Mission Runtime with mission-level charter, manifest, runtime plan, command proposals, notification state, evidence, reports, optional memory note, schemas, tests, examples, guide, and review Scroll.
 - Added Local Village Bootstrap and Hardware Profile with private Village scaffolding, read-only hardware profile, local config schema, bootstrap report schema, tests, examples, guide, alliance template, and review Scroll.
 - Added Scroll Lifecycle and Learning Proposals with mission-local learning proposals, lifecycle reviews, promotion plans, proposal indexing, schemas, templates, tests, examples, guide, and review Scroll.
 - Added Yamanaka Advanced Memory and Context Packs with memory vault initialization, mission capture, context pack generation, memory indexing, schemas, tests, examples, guide, templates, and review Scroll.

@@ -600,3 +600,7 @@ A Scroll is ready for active use only when:
 ## Local Village Bootstrap review
 
 - `local_village_bootstrap_review_scroll.md`: reviews Local Village bootstrap, hardware profile boundaries, explicit roots, private/public separation, approval tokens, and non-authority.
+
+## Unified Mission Runtime review
+
+- `unified_mission_runtime_review_scroll.md`: reviews mission runtime plans, command proposals, reports, notification state, optional memory notes, and command non-execution boundaries.

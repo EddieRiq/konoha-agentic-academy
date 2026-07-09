@@ -309,3 +309,7 @@ Do not hide doctrine changes inside guides.
 ## Local Village Bootstrap and Hardware Profile
 
 - `local_village_bootstrap_and_hardware_profile.md`: defines private Local Village bootstrap, read-only hardware profiling, local config, privacy boundaries, approval tokens, and non-authority rules.
+
+## Unified Mission Runtime
+
+- `unified_mission_runtime.md`: defines the v2.6 mission runtime spine, command proposal model, reports, notification state, optional memory note, approval tokens, and non-authority boundaries.

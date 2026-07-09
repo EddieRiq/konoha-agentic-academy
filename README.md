@@ -658,3 +658,9 @@ Agents may learn, but they may not rewrite doctrine. Learning proposals are evid
 - Local Village Bootstrap and Hardware Profile: creates private Local Village scaffolding and read-only hardware profiles without granting runtime authority.
 
 Private context stays local. Hardware profile is evidence only. Local config is not permission. Local Village bootstrap does not authorize execution, private context access, model calls, adapter calls, repository apply, Git operations, doctrine rewrite, background agents, or mission closure.
+
+## Unified Mission Runtime
+
+- Unified Mission Runtime: prepares one mission-level runtime surface with charter, manifest, plan, command proposals, notification state, evidence, reports, and optional memory note.
+
+Command proposals are not permission. Runtime reports are evidence only. v2.6 prepares the mission runtime surface but does not execute arbitrary commands, invoke models, invoke adapters, apply repository changes, perform Git operations, access private context by default, or close missions.

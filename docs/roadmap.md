@@ -585,3 +585,9 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 ### v2.5.0 Local Village Bootstrap and Hardware Profile
 
 - Add Local Village Bootstrap and Hardware Profile after Scroll lifecycle, giving private local Villages a safe scaffold, read-only hardware profile, and local config boundary.
+
+### v2.6.0 Unified Mission Runtime
+
+- Add Unified Mission Runtime as the first large post-v2.5 block, replacing micro-releases with a mission-level runtime spine that prepares plans, command proposals, evidence, notification state, reports, and optional memory notes.
+
+Post-v2.5 releases are larger operational blocks. v3.0.0 is targeted as the first beta for supervised real project tasks.
