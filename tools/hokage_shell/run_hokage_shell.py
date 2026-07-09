@@ -178,7 +178,7 @@ def frame(title: str, lines: Iterable[str], width: int = 76) -> str:
 def print_header(persona: Dict[str, Any], plain: bool = False) -> None:
     title_lines = [
         "KONOHAGAKURE TERMINAL",
-        "Hokage Mission Control v3.1.0",
+        "Hokage Mission Control v3.1.1",
         "Terminal-first · SSH-friendly · evidence before action",
     ]
     print(frame("Konoha", title_lines))
@@ -436,7 +436,7 @@ def deterministic_repo_scan(repo_root: Path) -> Dict[str, Any]:
         "beta_runtime_status": ["Konoha Beta", "v3.0.0", "Real Supervised Task Runtime", "tools/beta_runtime"],
         "local_model_bootstrap": ["v3.0.1", "Local Model Bootstrap", "Ollama", "local model"],
         "repo_audit_guard": ["v3.0.2", "Deterministic Guard", "suppressed", "validated issues"],
-        "terminal_shell": ["v3.1.0", "Hokage Terminal Shell", "terminal", "persona"],
+        "terminal_shell": ["v3.1.0", "v3.1.1", "Hokage Terminal Shell", "terminal", "persona"],
     }
 
     coverage: Dict[str, List[Dict[str, Any]]] = {}
@@ -489,19 +489,27 @@ def choose_ollama_model() -> Optional[str]:
 def run_local_model_audit(paths: ShellPaths, mission_id: str, model: Optional[str], no_animation: bool = False) -> Dict[str, Any]:
     script = paths.repo_root / "tools" / "local_model_audit" / "manage_local_model_audit.py"
     if not script.exists():
-        return {
+        audit = {
             "status": "skipped",
             "blockers": [f"local model audit tool not found: {script}"],
             "usage": {},
         }
+        summary = summarize_audit_result(audit, paths.repo_root)
+        report_path = write_local_audit_markdown(paths, mission_id, audit, summary)
+        audit["markdown_report_path"] = str(report_path)
+        return audit
 
     model = model or choose_ollama_model()
     if not model:
-        return {
+        audit = {
             "status": "skipped",
             "blockers": ["No Ollama model available. Run local model recommendation/download first."],
             "usage": {},
         }
+        summary = summarize_audit_result(audit, paths.repo_root)
+        report_path = write_local_audit_markdown(paths, mission_id, audit, summary)
+        audit["markdown_report_path"] = str(report_path)
+        return audit
 
     output_dir = session_dir(paths, mission_id) / "local_model_audit"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -539,9 +547,11 @@ def run_local_model_audit(paths: ShellPaths, mission_id: str, model: Optional[st
             parsed = None
 
     report_path = output_dir / f"{audit_id}_repo_consistency_audit.json"
+    patch_plan_path = output_dir / f"{audit_id}_repo_patch_plan.json"
     report = read_json(report_path) if report_path.exists() else {}
+    root = _audit_root(report)
 
-    return {
+    audit = {
         "status": "passed" if proc.returncode == 0 else "failed",
         "model": model,
         "exit_code": proc.returncode,
@@ -549,13 +559,17 @@ def run_local_model_audit(paths: ShellPaths, mission_id: str, model: Optional[st
         "stderr_preview": proc.stderr[-2000:],
         "parsed_stdout": parsed,
         "report_path": str(report_path) if report_path.exists() else None,
-        "patch_plan_path": str(output_dir / f"{audit_id}_repo_patch_plan.json"),
-        "usage": report.get("usage") or report.get("audit", {}).get("usage") or {},
-        "validated_issues": report.get("validated_issues") or report.get("audit", {}).get("validated_issues"),
-        "suppressed_issues": report.get("suppressed_issues") or report.get("audit", {}).get("suppressed_issues"),
-        "inconsistencies": report.get("inconsistencies") or report.get("audit", {}).get("inconsistencies"),
+        "patch_plan_path": str(patch_plan_path) if patch_plan_path.exists() else str(patch_plan_path),
+        "usage": root.get("usage") or {},
+        "validated_issues": root.get("validated_issues"),
+        "suppressed_issues": root.get("suppressed_issues"),
+        "inconsistencies": root.get("inconsistencies"),
     }
-
+    summary = summarize_audit_result(audit, paths.repo_root)
+    markdown_report = write_local_audit_markdown(paths, mission_id, audit, summary)
+    audit["markdown_report_path"] = str(markdown_report)
+    audit["summary"] = summary
+    return audit
 
 def memory_summary(memory_root: Path) -> Dict[str, Any]:
     notes = sorted(memory_root.glob("**/*.md")) if memory_root.exists() else []
@@ -574,6 +588,362 @@ def ask_yes_no(prompt: str, default: bool = False) -> bool:
     return value in {"y", "yes", "s", "si", "sí"}
 
 
+
+def step_reports_dir(paths: ShellPaths, mission_id: str) -> Path:
+    folder = session_dir(paths, mission_id) / "step_reports"
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
+
+
+def next_step_report_path(paths: ShellPaths, mission_id: str, slug: str) -> Path:
+    folder = step_reports_dir(paths, mission_id)
+    count = len(sorted(folder.glob("*.md"))) + 1
+    return folder / f"{count:03d}_{safe_slug(slug)}.md"
+
+
+def short_path(path_value: Optional[str], repo_root: Optional[Path] = None) -> str:
+    if not path_value:
+        return "not_written"
+    path = Path(path_value)
+    try:
+        if repo_root is not None:
+            return str(path.resolve().relative_to(repo_root.resolve()))
+    except Exception:
+        pass
+    try:
+        return str(path.relative_to(Path.cwd()))
+    except Exception:
+        return str(path)
+
+
+def _audit_root(report: Dict[str, Any]) -> Dict[str, Any]:
+    return report.get("audit") if isinstance(report.get("audit"), dict) else report
+
+
+def _as_list(value: Any) -> List[Any]:
+    return value if isinstance(value, list) else []
+
+
+def _issue_lines(issues: List[Any], label: str) -> List[str]:
+    if not issues:
+        return [f"- {label}: none."]
+    lines = []
+    for issue in issues:
+        if isinstance(issue, dict):
+            issue_id = issue.get("id", "issue")
+            severity = issue.get("severity", "unknown")
+            status = issue.get("status") or issue.get("suppression_reason") or ""
+            detail = f" ({status})" if status else ""
+            evidence = issue.get("evidence") or issue.get("reason") or ""
+            lines.append(f"- {issue_id} [{severity}]{detail}: {evidence}")
+        else:
+            lines.append(f"- {issue}")
+    return lines
+
+
+def load_patch_plan(path_value: Optional[str]) -> Dict[str, Any]:
+    if not path_value:
+        return {}
+    path = Path(path_value)
+    if not path.exists():
+        return {}
+    try:
+        return read_json(path)
+    except Exception:
+        return {}
+
+
+def summarize_audit_result(audit: Dict[str, Any], repo_root: Optional[Path] = None) -> Dict[str, Any]:
+    report: Dict[str, Any] = {}
+    report_path = audit.get("report_path")
+    if report_path and Path(report_path).exists():
+        try:
+            report = read_json(Path(report_path))
+        except Exception:
+            report = {}
+    root = _audit_root(report)
+
+    validated = _as_list(root.get("validated_issues") or audit.get("validated_issues"))
+    suppressed = _as_list(root.get("suppressed_issues") or audit.get("suppressed_issues"))
+    suggested = _as_list(
+        root.get("model_suggested_issues")
+        or root.get("inconsistencies")
+        or audit.get("inconsistencies")
+    )
+    patch_plan = load_patch_plan(audit.get("patch_plan_path"))
+    operations = _as_list(patch_plan.get("operations"))
+    usage = root.get("usage") or audit.get("usage") or {}
+
+    if audit.get("status") == "skipped":
+        recommendation = "Audit skipped. Resolve blockers before review."
+    elif validated:
+        recommendation = "Human review required. Patch may be proposed from validated issues only."
+    elif suppressed:
+        recommendation = "No patch recommended. Suggested issue(s) were suppressed by deterministic evidence."
+    elif operations:
+        recommendation = "Patch plan contains operations. Review before approval."
+    else:
+        recommendation = "No patch recommended."
+
+    return {
+        "status": audit.get("status"),
+        "model": audit.get("model") or root.get("model"),
+        "provider": root.get("provider") or "ollama",
+        "usage": usage,
+        "validated_count": len(validated),
+        "suppressed_count": len(suppressed),
+        "suggested_count": len(suggested),
+        "patch_operations_count": len(operations),
+        "validated_issues": validated,
+        "suppressed_issues": suppressed,
+        "suggested_issues": suggested,
+        "patch_operations": operations,
+        "recommendation": recommendation,
+        "report_path": report_path,
+        "patch_plan_path": audit.get("patch_plan_path"),
+        "markdown_report_path": audit.get("markdown_report_path"),
+        "blockers": _as_list(audit.get("blockers")),
+    }
+
+
+def audit_summary_lines(summary: Dict[str, Any]) -> List[str]:
+    usage = summary.get("usage") or {}
+    lines = [
+        f"status: {summary.get('status')}",
+        f"model: {summary.get('model') or 'not_available'}",
+        f"suggested issues: {summary.get('suggested_count', 0)}",
+        f"validated issues: {summary.get('validated_count', 0)}",
+        f"suppressed issues: {summary.get('suppressed_count', 0)}",
+        f"patch operations: {summary.get('patch_operations_count', 0)}",
+        f"recommendation: {summary.get('recommendation')}",
+    ]
+    if usage:
+        lines.append(
+            "tokens: "
+            f"input={usage.get('input_tokens', 'n/a')} "
+            f"output={usage.get('output_tokens', 'n/a')} "
+            f"source={usage.get('usage_source', 'n/a')}"
+        )
+    for blocker in summary.get("blockers") or []:
+        lines.append(f"blocker: {blocker}")
+    return lines
+
+
+def write_deterministic_scan_markdown(paths: ShellPaths, mission_id: str, scan: Dict[str, Any], scan_json_path: Path) -> Path:
+    report_path = next_step_report_path(paths, mission_id, "deterministic_repo_scan")
+    lines = [
+        f"# Step: deterministic repo scan",
+        "",
+        "## Summary",
+        "",
+        f"- status: `{scan.get('status')}`",
+        "- deterministic scan is evidence only.",
+        "- scan does not authorize patching.",
+        "",
+        "## Marker coverage",
+        "",
+    ]
+    for item in scan.get("marker_summary", []):
+        lines.append(f"- {item}")
+    lines += [
+        "",
+        "## Files considered",
+        "",
+    ]
+    for item in scan.get("files_considered", []):
+        lines.append(f"- `{item}`")
+    lines += [
+        "",
+        "## Evidence JSON",
+        "",
+        f"- `{short_path(str(scan_json_path), paths.repo_root)}`",
+        "",
+        "## Next step",
+        "",
+        "Review marker coverage. Invoke local model audit only if human approval is explicit.",
+        "",
+    ]
+    report_path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+    return report_path
+
+
+def write_local_audit_markdown(paths: ShellPaths, mission_id: str, audit: Dict[str, Any], summary: Dict[str, Any]) -> Path:
+    report_path = next_step_report_path(paths, mission_id, "local_model_audit_review")
+    usage = summary.get("usage") or {}
+    lines = [
+        "# Step: local model repo audit review",
+        "",
+        "## Summary",
+        "",
+        f"- status: `{summary.get('status')}`",
+        f"- provider: `{summary.get('provider')}`",
+        f"- model: `{summary.get('model') or 'not_available'}`",
+        f"- suggested issues: `{summary.get('suggested_count', 0)}`",
+        f"- validated issues: `{summary.get('validated_count', 0)}`",
+        f"- suppressed issues: `{summary.get('suppressed_count', 0)}`",
+        f"- patch operations: `{summary.get('patch_operations_count', 0)}`",
+        f"- recommendation: **{summary.get('recommendation')}**",
+        "",
+        "Local model output is evidence only. Patch plans are not permission.",
+        "",
+        "## Token usage",
+        "",
+    ]
+    if usage:
+        for key in sorted(usage):
+            lines.append(f"- {key}: `{usage[key]}`")
+    else:
+        lines.append("- Not recorded.")
+    lines += [
+        "",
+        "## Model suggested issues",
+        "",
+        *_issue_lines(summary.get("suggested_issues", []), "model suggested issues"),
+        "",
+        "## Validated issues",
+        "",
+        *_issue_lines(summary.get("validated_issues", []), "validated issues"),
+        "",
+        "## Suppressed issues",
+        "",
+        *_issue_lines(summary.get("suppressed_issues", []), "suppressed issues"),
+        "",
+        "## Patch operations",
+        "",
+    ]
+    operations = summary.get("patch_operations") or []
+    if operations:
+        for idx, op in enumerate(operations, start=1):
+            if isinstance(op, dict):
+                lines.append(f"{idx}. `{op.get('operation', 'operation')}` on `{op.get('path', 'unknown')}`")
+            else:
+                lines.append(f"{idx}. {op}")
+    else:
+        lines.append("- No patch operation recommended.")
+    lines += [
+        "",
+        "## Evidence files",
+        "",
+        f"- audit JSON: `{short_path(summary.get('report_path'), paths.repo_root)}`",
+        f"- patch plan JSON: `{short_path(summary.get('patch_plan_path'), paths.repo_root)}`",
+        "",
+        "## Review controls",
+        "",
+        "- View this report before approving anything.",
+        "- View raw JSON only when technical inspection is needed.",
+        "- Apply patches only through the approved patch flow.",
+        "",
+    ]
+    report_path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+    return report_path
+
+
+def latest_step_report(paths: ShellPaths, mission_id: Optional[str]) -> Optional[Path]:
+    if not mission_id:
+        return None
+    folder = step_reports_dir(paths, mission_id)
+    reports = sorted(folder.glob("*.md"))
+    return reports[-1] if reports else None
+
+
+def latest_audit_json(paths: ShellPaths, mission_id: Optional[str]) -> Optional[Path]:
+    if not mission_id:
+        return None
+    folder = session_dir(paths, mission_id)
+    candidates = sorted(folder.glob("**/*_repo_consistency_audit.json"))
+    return candidates[-1] if candidates else None
+
+
+def latest_patch_plan_json(paths: ShellPaths, mission_id: Optional[str]) -> Optional[Path]:
+    if not mission_id:
+        return None
+    folder = session_dir(paths, mission_id)
+    candidates = sorted(folder.glob("**/*_repo_patch_plan.json"))
+    return candidates[-1] if candidates else None
+
+
+def render_file_preview(path: Path, max_lines: int = 80) -> str:
+    text = read_text_if_exists(path, max_chars=80_000)
+    lines = text.splitlines()
+    if len(lines) > max_lines:
+        lines = lines[:max_lines] + [f"... ({len(text.splitlines()) - max_lines} more lines; open with viewer for full report)"]
+    return "\n".join(lines)
+
+
+def view_file(path: Optional[Path], *, title: str = "Details", prefer_pager: bool = True) -> None:
+    if path is None or not path.exists():
+        print(frame(title, ["No detail file available."]))
+        return
+
+    if prefer_pager and sys.stdout.isatty():
+        for cmd in (["glow", str(path)], ["bat", "--paging=always", str(path)], ["less", "-R", str(path)]):
+            if shutil.which(cmd[0]):
+                subprocess.run(cmd)
+                return
+
+    print(frame(title, render_file_preview(path).splitlines(), width=96))
+
+
+def print_review_summary(paths: ShellPaths, mission_id: Optional[str]) -> None:
+    report = latest_step_report(paths, mission_id)
+    if report is None:
+        print(frame("Review Latest Result", ["No report available yet. Run a scan or audit first."]))
+        return
+    preview = render_file_preview(report, max_lines=28).splitlines()
+    print(frame("Review Latest Result", preview, width=96))
+
+
+def review_latest_result(paths: ShellPaths, mission_id: Optional[str]) -> None:
+    if not mission_id:
+        print(frame("Review Latest Result", ["No active mission. Start or continue a mission first."]))
+        return
+    while True:
+        print_review_summary(paths, mission_id)
+        print(frame("Review Options", [
+            "v. view markdown report",
+            "j. view raw audit JSON",
+            "p. view patch plan JSON",
+            "b. back",
+        ]))
+        choice = input("Review> ").strip().lower()
+        if choice in {"", "b", "back"}:
+            return
+        if choice == "v":
+            view_file(latest_step_report(paths, mission_id), title="Markdown Report")
+            continue
+        if choice == "j":
+            view_file(latest_audit_json(paths, mission_id), title="Raw Audit JSON")
+            continue
+        if choice == "p":
+            view_file(latest_patch_plan_json(paths, mission_id), title="Patch Plan JSON")
+            continue
+        print(frame("Review", ["Unknown option."]))
+
+
+def print_timeline(paths: ShellPaths, mission_id: Optional[str]) -> None:
+    if not mission_id:
+        print(frame("Mission Timeline", ["No active mission."]))
+        return
+    path = events_path(paths, mission_id)
+    if not path.exists():
+        print(frame("Mission Timeline", ["No events recorded yet."]))
+        return
+    lines: List[str] = []
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        try:
+            event = json.loads(raw)
+            lines.append(f"{event.get('created_at')} · {event.get('event_type')}")
+        except Exception:
+            lines.append(raw[:120])
+    print(frame("Mission Timeline", clamp_lines(lines, max_lines=24), width=96))
+
+
+def latest_mission_id(paths: ShellPaths) -> Optional[str]:
+    folder = paths.workspace_root / "missions"
+    missions = sorted([p for p in folder.glob("*") if p.is_dir()]) if folder.exists() else []
+    return missions[-1].name if missions else None
+
+
 def run_smoke(args: argparse.Namespace) -> int:
     paths = make_paths(args.repo_root, args.workspace_root, args.memory_root)
     persona = load_persona(args.persona, paths.repo_root)
@@ -583,7 +953,8 @@ def run_smoke(args: argparse.Namespace) -> int:
     deterministic = deterministic_repo_scan(paths.repo_root)
     scan_path = session_dir(paths, mission_id) / "deterministic_repo_scan.json"
     write_json(scan_path, deterministic)
-    append_event(paths, mission_id, "deterministic_repo_scan_recorded", {"status": deterministic["status"], "path": str(scan_path)})
+    scan_md_path = write_deterministic_scan_markdown(paths, mission_id, deterministic, scan_path)
+    append_event(paths, mission_id, "deterministic_repo_scan_recorded", {"status": deterministic["status"], "path": str(scan_path), "markdown_report": str(scan_md_path)})
 
     summary: Dict[str, Any] = {
         "deterministic_scan": deterministic,
@@ -593,7 +964,7 @@ def run_smoke(args: argparse.Namespace) -> int:
     if args.run_local_audit:
         audit = run_local_model_audit(paths, mission_id, args.model, no_animation=args.no_animation)
         summary["local_model_audit"] = audit
-        append_event(paths, mission_id, "local_model_audit_recorded", {"status": audit.get("status"), "usage": audit.get("usage")})
+        append_event(paths, mission_id, "local_model_audit_recorded", {"status": audit.get("status"), "usage": audit.get("usage"), "markdown_report": audit.get("markdown_report_path")})
 
     session = update_session(
         paths,
@@ -601,6 +972,7 @@ def run_smoke(args: argparse.Namespace) -> int:
         state="needs_human_review",
         outputs={
             "deterministic_repo_scan": str(scan_path),
+            "deterministic_repo_scan_markdown": str(scan_md_path),
             "events": str(events_path(paths, mission_id)),
         },
         token_usage=(summary.get("local_model_audit") or {}).get("usage") or {},
@@ -619,6 +991,7 @@ def run_smoke(args: argparse.Namespace) -> int:
         "session_path": str(session_path(paths, mission_id)),
         "events_path": str(events_path(paths, mission_id)),
         "memory_note_path": str(note_path),
+        "latest_report_path": str(latest_step_report(paths, mission_id) or ""),
         "deterministic_status": deterministic["status"],
         "local_model_audit_status": (summary.get("local_model_audit") or {}).get("status"),
         "boundaries": BOUNDARIES,
@@ -660,7 +1033,7 @@ def run_states(args: argparse.Namespace) -> int:
         "schema_version": SCHEMA_VERSION,
         "report_type": "hokage_shell_states",
         "status": "passed",
-        "commands": ["interactive", "smoke", "personas", "states"],
+        "commands": ["interactive", "smoke", "review", "personas", "states"],
         "approval_tokens": APPROVAL_TOKENS,
         "boundaries": BOUNDARIES,
     }
@@ -673,7 +1046,9 @@ def interactive_loop(args: argparse.Namespace) -> int:
     persona = load_persona(args.persona, paths.repo_root)
     print_header(persona, plain=args.plain)
 
-    active_mission_id: Optional[str] = None
+    active_mission_id: Optional[str] = latest_mission_id(paths) if args.continue_latest else None
+    if active_mission_id:
+        print_hokage(persona, f"Continuando misión local: {active_mission_id}", plain=args.plain)
 
     while True:
         print_agents([
@@ -682,13 +1057,18 @@ def interactive_loop(args: argparse.Namespace) -> int:
             {"name": "repo-auditor", "state": "idle", "provider": "ollama"},
             {"name": "memory", "state": "idle", "provider": "obsidian-local"},
         ])
+        mission_label = active_mission_id or "none"
         print(frame("Menu", [
+            f"active mission: {mission_label}",
             "1. Start new mission",
             "2. Run deterministic repo scan",
             "3. Run local model repo audit",
-            "4. Memory summary",
-            "5. Change persona",
-            "6. Show approval tokens",
+            "4. Review latest result",
+            "5. View mission timeline",
+            "6. Memory summary",
+            "7. Change persona",
+            "8. Show approval tokens",
+            "9. Continue latest mission",
             "0. Exit",
         ]))
         choice = input("Mission> ").strip()
@@ -725,8 +1105,14 @@ def interactive_loop(args: argparse.Namespace) -> int:
             scan = deterministic_repo_scan(paths.repo_root)
             out = session_dir(paths, active_mission_id) / "deterministic_repo_scan.json"
             write_json(out, scan)
-            append_event(paths, active_mission_id, "deterministic_repo_scan_recorded", {"status": scan["status"], "path": str(out)})
-            print(frame("Deterministic Guard", scan["marker_summary"]))
+            md = write_deterministic_scan_markdown(paths, active_mission_id, scan, out)
+            append_event(paths, active_mission_id, "deterministic_repo_scan_recorded", {"status": scan["status"], "path": str(out), "markdown_report": str(md)})
+            lines = [
+                f"status: {scan.get('status')}",
+                "summary: marker coverage recorded",
+                "next: review result or run local model audit",
+            ] + scan["marker_summary"]
+            print(frame("Deterministic Guard", lines))
             continue
 
         if choice == "3":
@@ -739,25 +1125,31 @@ def interactive_loop(args: argparse.Namespace) -> int:
                 continue
             model = input("Model [auto]: ").strip() or None
             audit = run_local_model_audit(paths, active_mission_id, model, no_animation=args.no_animation)
-            append_event(paths, active_mission_id, "local_model_audit_recorded", {"status": audit.get("status"), "usage": audit.get("usage")})
-            lines = [
-                f"status: {audit.get('status')}",
-                f"model: {audit.get('model')}",
-                f"usage: {audit.get('usage')}",
-                f"report: {audit.get('report_path')}",
-                f"patch_plan: {audit.get('patch_plan_path')}",
-            ]
-            if audit.get("blockers"):
-                lines += [f"blocker: {b}" for b in audit["blockers"]]
-            print(frame("Repo Auditor", lines))
+            append_event(paths, active_mission_id, "local_model_audit_recorded", {"status": audit.get("status"), "usage": audit.get("usage"), "markdown_report": audit.get("markdown_report_path")})
+            summary = audit.get("summary") or summarize_audit_result(audit, paths.repo_root)
+            print(frame("Repo Auditor Summary", audit_summary_lines(summary)))
+            if summary.get("suppressed_count", 0) > 0 and summary.get("validated_count", 0) == 0:
+                print_hokage(persona, "El agente local parece haber producido un falso positivo. Qué giro tan completamente inesperado. No recomiendo patch.", plain=args.plain)
+            print(frame("Next", [
+                "Use option 4 to review the Markdown report.",
+                "Raw JSON and patch plan are hidden unless requested.",
+            ]))
             continue
 
         if choice == "4":
+            review_latest_result(paths, active_mission_id)
+            continue
+
+        if choice == "5":
+            print_timeline(paths, active_mission_id)
+            continue
+
+        if choice == "6":
             summary = memory_summary(paths.memory_root)
             print(frame("Obsidian Memory", [f"notes_count: {summary['notes_count']}"] + summary["latest_notes"]))
             continue
 
-        if choice == "5":
+        if choice == "7":
             personas = list_personas(paths.repo_root)
             print(frame("Personas", [f"{k}: {v.get('display_name')} ({v.get('tone')})" for k, v in sorted(personas.items())]))
             new_id = input("Persona id> ").strip()
@@ -769,12 +1161,48 @@ def interactive_loop(args: argparse.Namespace) -> int:
                     print(str(exc))
             continue
 
-        if choice == "6":
+        if choice == "8":
             print(frame("Approval Tokens", [f"{k}: {v}" for k, v in APPROVAL_TOKENS.items()]))
+            continue
+
+        if choice == "9":
+            latest = latest_mission_id(paths)
+            if latest:
+                active_mission_id = latest
+                print_hokage(persona, f"Continuando misión local: {active_mission_id}", plain=args.plain)
+            else:
+                print_hokage(persona, "No hay misión local para continuar.", plain=args.plain)
             continue
 
         print_hokage(persona, "Opción desconocida. Innovador, pero no útil.", plain=args.plain)
 
+
+def run_review(args: argparse.Namespace) -> int:
+    paths = make_paths(args.repo_root, args.workspace_root, args.memory_root)
+    mission_id = args.mission_id or latest_mission_id(paths)
+    report = latest_step_report(paths, mission_id)
+    payload = {
+        "schema_version": SCHEMA_VERSION,
+        "report_type": "hokage_shell_review_report",
+        "status": "passed" if report else "not_found",
+        "mission_id": mission_id,
+        "latest_report_path": str(report) if report else None,
+        "latest_audit_json": str(latest_audit_json(paths, mission_id)) if latest_audit_json(paths, mission_id) else None,
+        "latest_patch_plan_json": str(latest_patch_plan_json(paths, mission_id)) if latest_patch_plan_json(paths, mission_id) else None,
+    }
+    if args.json:
+        print(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True))
+    else:
+        print(frame("Review Latest Result", [
+            f"status: {payload['status']}",
+            f"mission_id: {payload.get('mission_id')}",
+            f"latest_report: {short_path(payload.get('latest_report_path'), paths.repo_root)}",
+            f"latest_audit_json: {short_path(payload.get('latest_audit_json'), paths.repo_root)}",
+            f"latest_patch_plan_json: {short_path(payload.get('latest_patch_plan_json'), paths.repo_root)}",
+        ]))
+        if args.view and report:
+            view_file(report, title="Markdown Report")
+    return 0
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Konoha Hokage Terminal Shell")
@@ -788,6 +1216,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--persona", default="sarcastic_lab_ai", help="Persona id.")
     parser.add_argument("--no-animation", action="store_true", help="Disable ASCII spinner animation.")
     parser.add_argument("--plain", action="store_true", help="Plain terminal mode.")
+    parser.add_argument("--continue-latest", action="store_true", help="Continue the latest local mission in interactive mode.")
 
     sub = parser.add_subparsers(dest="command")
 
@@ -801,6 +1230,12 @@ def build_parser() -> argparse.ArgumentParser:
     smoke.add_argument("--model", default=None, help="Ollama model to use.")
     smoke.add_argument("--json", action="store_true", help="Print JSON report.")
     smoke.set_defaults(func=run_smoke)
+
+    review = sub.add_parser("review", help="Review latest mission report.")
+    review.add_argument("--mission-id", default=None, help="Mission id. Defaults to latest mission.")
+    review.add_argument("--json", action="store_true", help="Print JSON.")
+    review.add_argument("--view", action="store_true", help="Open or print latest Markdown report.")
+    review.set_defaults(func=run_review)
 
     personas = sub.add_parser("personas", help="List available personas.")
     personas.add_argument("--json", action="store_true", help="Print JSON.")

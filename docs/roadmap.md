@@ -621,3 +621,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.1.0 Hokage Terminal Shell
 
 - Add minimal terminal-first Hokage Shell before any Web UI, enabling SSH-friendly mission control, persona selection, ASCII status panels, deterministic repo scan, optional Ollama audit handoff, and private Obsidian-compatible local memory.
+
+### v3.1.1 Hokage Shell Review Panels
+
+- Add review panels to the terminal-first Hokage Shell, replacing path-heavy output with summaries and on-demand Markdown, JSON and patch-plan views.

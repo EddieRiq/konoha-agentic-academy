@@ -341,3 +341,7 @@ Do not hide doctrine changes inside guides.
 ## Hokage Terminal Shell
 
 - `hokage_terminal_shell.md`: defines the terminal-first SSH-friendly Hokage Shell with personas, ASCII mission panels, deterministic repo scan, local model audit handoff, event logs, and private Obsidian-compatible memory notes.
+
+## Hokage Shell Review Panels
+
+- `hokage_terminal_shell_review_panels.md`: defines review panels, Markdown step reports, detail viewer fallback, raw JSON/patch-plan views, and false-positive summary behavior.

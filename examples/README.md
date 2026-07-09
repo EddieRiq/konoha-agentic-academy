@@ -212,3 +212,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Hokage Shell examples
 
 - `hokage_shell/`: example shell session, event log, and Obsidian-compatible mission note for terminal-first Hokage mission control.
+
+## Hokage Shell review panel example
+
+- `hokage_shell/hokage_shell_step_report.example.md`: example Markdown step report displayed by the terminal review panel.

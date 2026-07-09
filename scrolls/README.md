@@ -632,3 +632,7 @@ A Scroll is ready for active use only when:
 ## Hokage Terminal Shell review
 
 - `hokage_terminal_shell_review_scroll.md`: reviews terminal UI safety, persona boundaries, local memory privacy, event logs, deterministic scan behavior, and local model audit handoff.
+
+## Hokage Shell Review Panels review
+
+- `hokage_shell_review_panels_review_scroll.md`: reviews terminal summaries, detail viewers, timeline, suppressed issues, patch visibility and safety boundaries.

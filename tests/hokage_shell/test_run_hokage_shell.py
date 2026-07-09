@@ -109,5 +109,106 @@ class HokageShellTests(unittest.TestCase):
         self.assertTrue(Path(payload["memory_note_path"]).exists())
 
 
+    def test_deterministic_scan_writes_markdown_report(self):
+        paths = self.module.make_paths(
+            str(self.repo),
+            str(self.root / "workspace"),
+            str(self.root / "memory" / "obsidian"),
+        )
+        persona = self.module.load_persona("calm_mentor", self.repo)
+        session = self.module.create_session(paths, "Review repo docs", persona, mission_id="mission-md")
+        scan = self.module.deterministic_repo_scan(self.repo)
+        scan_json = paths.workspace_root / "missions" / session["mission_id"] / "deterministic_repo_scan.json"
+        self.module.write_json(scan_json, scan)
+        md = self.module.write_deterministic_scan_markdown(paths, session["mission_id"], scan, scan_json)
+        self.assertTrue(md.exists())
+        text = md.read_text(encoding="utf-8")
+        self.assertIn("deterministic repo scan", text)
+        self.assertIn("Marker coverage", text)
+
+    def test_audit_summary_suppresses_false_positive_without_patch(self):
+        paths = self.module.make_paths(
+            str(self.repo),
+            str(self.root / "workspace"),
+            str(self.root / "memory" / "obsidian"),
+        )
+        persona = self.module.load_persona("calm_mentor", self.repo)
+        session = self.module.create_session(paths, "Review repo docs", persona, mission_id="mission-audit")
+        audit_dir = paths.workspace_root / "missions" / "mission-audit" / "local_model_audit"
+        audit_dir.mkdir(parents=True)
+        audit_json = audit_dir / "audit_repo_consistency_audit.json"
+        patch_json = audit_dir / "audit_repo_patch_plan.json"
+        self.module.write_json(audit_json, {
+            "audit": {
+                "status": "no_validated_inconsistencies_found",
+                "provider": "ollama",
+                "model": "mock",
+                "usage": {"input_tokens": 10, "output_tokens": 5, "usage_source": "mock_estimated"},
+                "model_suggested_issues": [{"id": "readme_missing_v3_beta_status", "severity": "medium"}],
+                "validated_issues": [],
+                "suppressed_issues": [{"id": "readme_missing_v3_beta_status", "severity": "medium", "reason": "covered by markers"}],
+            }
+        })
+        self.module.write_json(patch_json, {"operations": []})
+        audit = {"status": "passed", "model": "mock", "report_path": str(audit_json), "patch_plan_path": str(patch_json)}
+        summary = self.module.summarize_audit_result(audit, self.repo)
+        self.assertEqual(summary["validated_count"], 0)
+        self.assertEqual(summary["suppressed_count"], 1)
+        self.assertIn("No patch recommended", summary["recommendation"])
+        md = self.module.write_local_audit_markdown(paths, "mission-audit", audit, summary)
+        self.assertTrue(md.exists())
+        self.assertIn("Suppressed issues", md.read_text(encoding="utf-8"))
+
+    def test_review_cli_json(self):
+        subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--repo-root",
+                str(self.repo),
+                "--workspace-root",
+                str(self.root / "workspace"),
+                "--memory-root",
+                str(self.root / "memory" / "obsidian"),
+                "--persona",
+                "sarcastic_lab_ai",
+                "--no-animation",
+                "smoke",
+                "--task",
+                "Review README alignment",
+                "--mission-id",
+                "review-mission",
+                "--json",
+            ],
+            text=True,
+            capture_output=True,
+            timeout=30,
+            check=True,
+        )
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--repo-root",
+                str(self.repo),
+                "--workspace-root",
+                str(self.root / "workspace"),
+                "--memory-root",
+                str(self.root / "memory" / "obsidian"),
+                "review",
+                "--mission-id",
+                "review-mission",
+                "--json",
+            ],
+            text=True,
+            capture_output=True,
+            timeout=30,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload["status"], "passed")
+        self.assertTrue(payload["latest_report_path"].endswith(".md"))
+
+
 if __name__ == "__main__":
     unittest.main()
