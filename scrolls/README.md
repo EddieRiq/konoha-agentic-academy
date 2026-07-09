@@ -608,3 +608,7 @@ A Scroll is ready for active use only when:
 ## Model Router and Token Economy review
 
 - `model_router_token_economy_review_scroll.md`: reviews model routing decisions, token ledgers, local model download plans, calibration, cost awareness, and non-authority rules.
+
+## General Task Execution Workbench review
+
+- `general_task_execution_workbench_review_scroll.md`: reviews task workbench plans, command proposals, evidence records, verification checklists, rollback notes, and execution boundaries.

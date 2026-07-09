@@ -670,3 +670,9 @@ Command proposals are not permission. Runtime reports are evidence only. v2.6 pr
 - Model Router and Token Economy: profiles local model runtime, records routing decisions, prepares local model download plans, tracks actual or estimated token usage, and summarizes efficiency.
 
 Model routing is evidence only. Model choice is not permission. Token estimates are not truth. Usage reports do not authorize execution. Local model download plans do not download models.
+
+## General Task Execution Workbench
+
+- General Task Execution Workbench: prepares general supervised technical tasks with playbooks, command batches, verification checklists, rollback notes, evidence capture, and readiness review.
+
+Command proposals are not permission. Recorded command results are evidence only. v2.8 does not execute arbitrary commands. The workbench prepares Konoha for v3.0 supervised real task execution.

@@ -317,3 +317,7 @@ Do not hide doctrine changes inside guides.
 ## Model Router and Token Economy
 
 - `model_router_and_token_economy.md`: defines model runtime profiling, local/remote model routing, download planning, token usage ledgers, calibration, efficiency summaries, and non-authority boundaries.
+
+## General Task Execution Workbench
+
+- `general_task_execution_workbench.md`: defines the general task workbench, playbooks, command batches, evidence recording, verification checklists, rollback notes, and non-authority boundaries.

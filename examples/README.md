@@ -182,3 +182,10 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `model_economy/model_routing_decision.example.json`: example model routing decision.
 - `model_economy/local_model_download_plan.example.json`: example local model download plan; not executed.
 - `model_economy/token_usage_ledger.example.json`: example token usage ledger.
+
+## General task workbench examples
+
+- `task_workbench/task_workbench_plan.example.json`: example general task workbench plan.
+- `task_workbench/task_command_batches.example.json`: example command batch proposal set.
+- `task_workbench/task_execution_result.example.json`: example externally supervised command result evidence.
+- `task_workbench/task_workbench_report.example.json`: example workbench readiness report.

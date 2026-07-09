@@ -597,3 +597,9 @@ Post-v2.5 releases are larger operational blocks. v3.0.0 is targeted as the firs
 - Add Model Router and Token Economy after Unified Mission Runtime, preparing local/remote model selection, local model download planning, token ledgers, calibration, and efficiency review for v3.0 beta missions.
 
 v2.7 does not invoke models or download models. It prepares evidence and cost awareness for supervised runtime execution.
+
+### v2.8.0 General Task Execution Workbench
+
+- Add General Task Execution Workbench after Model Router and Token Economy, preparing general supervised technical task execution for the v3.0 beta.
+
+v2.8 is intentionally general. It is not tied to Airflow, Docker, servers, data pipelines, or documentation tasks. It prepares the common workbench for any supervised technical mission.
