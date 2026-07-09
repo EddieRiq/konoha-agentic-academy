@@ -591,3 +591,9 @@ Before v2.0.0, pause for a v2.0 Alignment Review Gate conversation before genera
 - Add Unified Mission Runtime as the first large post-v2.5 block, replacing micro-releases with a mission-level runtime spine that prepares plans, command proposals, evidence, notification state, reports, and optional memory notes.
 
 Post-v2.5 releases are larger operational blocks. v3.0.0 is targeted as the first beta for supervised real project tasks.
+
+### v2.7.0 Model Router and Token Economy
+
+- Add Model Router and Token Economy after Unified Mission Runtime, preparing local/remote model selection, local model download planning, token ledgers, calibration, and efficiency review for v3.0 beta missions.
+
+v2.7 does not invoke models or download models. It prepares evidence and cost awareness for supervised runtime execution.

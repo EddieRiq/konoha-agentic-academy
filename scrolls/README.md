@@ -604,3 +604,7 @@ A Scroll is ready for active use only when:
 ## Unified Mission Runtime review
 
 - `unified_mission_runtime_review_scroll.md`: reviews mission runtime plans, command proposals, reports, notification state, optional memory notes, and command non-execution boundaries.
+
+## Model Router and Token Economy review
+
+- `model_router_token_economy_review_scroll.md`: reviews model routing decisions, token ledgers, local model download plans, calibration, cost awareness, and non-authority rules.

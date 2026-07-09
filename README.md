@@ -664,3 +664,9 @@ Private context stays local. Hardware profile is evidence only. Local config is 
 - Unified Mission Runtime: prepares one mission-level runtime surface with charter, manifest, plan, command proposals, notification state, evidence, reports, and optional memory note.
 
 Command proposals are not permission. Runtime reports are evidence only. v2.6 prepares the mission runtime surface but does not execute arbitrary commands, invoke models, invoke adapters, apply repository changes, perform Git operations, access private context by default, or close missions.
+
+## Model Router and Token Economy
+
+- Model Router and Token Economy: profiles local model runtime, records routing decisions, prepares local model download plans, tracks actual or estimated token usage, and summarizes efficiency.
+
+Model routing is evidence only. Model choice is not permission. Token estimates are not truth. Usage reports do not authorize execution. Local model download plans do not download models.

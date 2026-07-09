@@ -175,3 +175,10 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `mission_runtime/unified_mission_runtime_plan.example.json`: example plan produced by the Unified Mission Runtime.
 - `mission_runtime/mission_command_proposals.example.json`: example command proposal set; proposals are not permission.
 - `mission_runtime/unified_mission_runtime_report.example.json`: example report produced by the Unified Mission Runtime.
+
+## Model economy examples
+
+- `model_economy/model_runtime_profile.example.json`: example model runtime profile.
+- `model_economy/model_routing_decision.example.json`: example model routing decision.
+- `model_economy/local_model_download_plan.example.json`: example local model download plan; not executed.
+- `model_economy/token_usage_ledger.example.json`: example token usage ledger.

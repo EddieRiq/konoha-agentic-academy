@@ -313,3 +313,7 @@ Do not hide doctrine changes inside guides.
 ## Unified Mission Runtime
 
 - `unified_mission_runtime.md`: defines the v2.6 mission runtime spine, command proposal model, reports, notification state, optional memory note, approval tokens, and non-authority boundaries.
+
+## Model Router and Token Economy
+
+- `model_router_and_token_economy.md`: defines model runtime profiling, local/remote model routing, download planning, token usage ledgers, calibration, efficiency summaries, and non-authority boundaries.
