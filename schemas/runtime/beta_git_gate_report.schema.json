@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "report_type": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at"
+  ],
+  "title": "Konoha Beta Git Gate Report",
+  "type": "object"
+}

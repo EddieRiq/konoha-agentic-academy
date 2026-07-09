@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "boundaries": {
+      "type": "object"
+    },
+    "command": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "report_type": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "command",
+    "status",
+    "generated_at"
+  ],
+  "title": "Konoha Beta Runtime Report",
+  "type": "object"
+}

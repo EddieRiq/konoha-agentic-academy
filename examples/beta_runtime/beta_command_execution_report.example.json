@@ -1,0 +1,15 @@
+{
+  "authority": {
+    "command_result_does_not_authorize_next_action": true,
+    "recorded_command_result_is_evidence_only": true
+  },
+  "command": "python --version",
+  "command_id": "inspect-python",
+  "exit_code": 0,
+  "mission_id": "example-beta-mission",
+  "report_type": "beta_command_execution_report",
+  "result_id": "example-command",
+  "schema_version": "1.0.0",
+  "stderr": "",
+  "stdout": "Python 3.x"
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "plan_type": "git_operation_plan",
+  "plan_id": "example-git-plan",
+  "status": "recorded",
+  "repo_root": "/path/to/repo",
+  "paths": [
+    "tools/example.py",
+    "tests/example/test_example.py"
+  ],
+  "remote": "origin",
+  "branch": "main",
+  "commit_message": "Add supervised task runtime patch",
+  "required_sequence": [
+    "human reviews diff",
+    "tests/audit commands pass",
+    "APPROVE_GIT_STAGE",
+    "APPROVE_GIT_COMMIT",
+    "APPROVE_GIT_PUSH plus --allow-network for push"
+  ],
+  "authority": {
+    "git_plan_is_not_permission": true
+  }
+}

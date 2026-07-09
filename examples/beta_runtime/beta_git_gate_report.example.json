@@ -1,0 +1,9 @@
+{
+  "authority": {
+    "git_commit_requires_explicit_approval": true
+  },
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "plan_id": "example-git-plan",
+  "report_type": "beta_git_commit_report",
+  "schema_version": "1.0.0"
+}

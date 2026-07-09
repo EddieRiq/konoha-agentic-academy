@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/controlled_tool_execution_report.schema.json",
+  "title": "Controlled Tool Execution Report",
+  "type": "object",
+  "required": [
+    "report_type",
+    "schema_version",
+    "status",
+    "execution_id",
+    "action",
+    "invocation",
+    "execution",
+    "repository_apply",
+    "git_operations",
+    "private_context_access",
+    "real_model_invocation",
+    "network_access",
+    "arbitrary_shell",
+    "blockers"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "report_type": {
+      "const": "controlled_tool_execution_report"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "status": {
+      "enum": ["preview", "passed", "failed"]
+    },
+    "execution_id": {
+      "type": ["string", "null"]
+    },
+    "mission_id": {
+      "type": ["string", "null"]
+    },
+    "action": {
+      "type": ["string", "null"]
+    },
+    "invocation": {
+      "enum": ["preview_only", "confirmed", "blocked"]
+    },
+    "execution": {
+      "type": "string"
+    },
+    "filesystem_mutation": {
+      "type": "string"
+    },
+    "repository_apply": {
+      "const": "blocked"
+    },
+    "git_operations": {
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "const": "blocked"
+    },
+    "real_model_invocation": {
+      "const": "blocked"
+    },
+    "network_access": {
+      "const": "blocked"
+    },
+    "arbitrary_shell": {
+      "const": "blocked"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

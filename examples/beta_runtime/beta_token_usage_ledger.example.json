@@ -1,0 +1,25 @@
+{
+  "authority": {
+    "token_estimates_are_not_truth": true,
+    "usage_reports_do_not_authorize_execution": true
+  },
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "records": [
+    {
+      "input_tokens": 1000,
+      "model": "default",
+      "output_tokens": 250,
+      "provider": "codex",
+      "usage_id": "example",
+      "usage_source": "provider_reported"
+    }
+  ],
+  "report_type": "beta_token_usage_ledger",
+  "schema_version": "1.0.0",
+  "totals": {
+    "actual_input_tokens": 1000,
+    "actual_output_tokens": 250,
+    "actual_records": 1,
+    "estimated_records": 0
+  }
+}

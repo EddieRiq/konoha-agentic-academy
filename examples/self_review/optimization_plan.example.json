@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "optimization_plan",
+  "optimization_id": "example-optimization",
+  "mission_id": "example-mission",
+  "status": "recorded",
+  "human_decision_required": true,
+  "optimizations": [
+    {
+      "area": "token_economy",
+      "recommendation": "Use local model for low-risk summaries.",
+      "authority": "proposal_only"
+    },
+    {
+      "area": "handholding",
+      "recommendation": "Batch low-risk confirmations.",
+      "authority": "proposal_only"
+    }
+  ]
+}

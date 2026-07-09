@@ -1,0 +1,29 @@
+{
+  "boundaries": {
+    "arbitrary_shell": "blocked",
+    "autonomous_background_agents": "blocked",
+    "mission_closure_without_teachback": "blocked",
+    "network_access_by_default": "blocked",
+    "private_context_access_by_default": "blocked",
+    "unapproved_command_execution": "blocked",
+    "unapproved_git_operations": "blocked",
+    "unapproved_model_invocation": "blocked"
+  },
+  "mission_id": "example-beta-mission",
+  "model_strategy": {
+    "fallback_provider": "mock",
+    "model_choice_is_not_permission": true,
+    "primary_provider": "codex"
+  },
+  "schema_version": "1.0.0",
+  "status": "planned",
+  "task": "Prepare a supervised technical task with approved commands and evidence capture.",
+  "task_info": {
+    "domain": "general",
+    "risk_level": "medium",
+    "tags": [
+      "general"
+    ]
+  },
+  "title": "Example beta mission"
+}

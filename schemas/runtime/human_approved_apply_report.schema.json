@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "human_approved_apply_report.schema.json",
+  "title": "Konoha Human-approved Apply Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "plan_id",
+    "mode",
+    "status",
+    "execution",
+    "filesystem_mutation",
+    "repository_apply",
+    "git_operations",
+    "adapter_execution",
+    "private_context_access",
+    "network_access",
+    "applied_changes"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "mode": {
+      "const": "human_approved_apply_plan"
+    },
+    "status": {
+      "enum": [
+        "preview",
+        "applied",
+        "blocked"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "sandbox_root": {
+      "type": "string"
+    },
+    "confirm_apply": {
+      "type": "boolean"
+    },
+    "approval_token_provided": {
+      "type": "boolean"
+    },
+    "allow_overwrite": {
+      "type": "boolean"
+    },
+    "execution": {
+      "const": "blocked"
+    },
+    "filesystem_mutation": {
+      "enum": [
+        "preview_only",
+        "repo_allowlist_only"
+      ]
+    },
+    "repository_apply": {
+      "enum": [
+        "preview_only",
+        "applied",
+        "blocked"
+      ]
+    },
+    "git_operations": {
+      "const": "blocked"
+    },
+    "adapter_execution": {
+      "const": "blocked"
+    },
+    "private_context_access": {
+      "const": "blocked"
+    },
+    "network_access": {
+      "const": "blocked"
+    },
+    "applied_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "change_id",
+          "operation",
+          "source_sandbox_artifact_path",
+          "destination_repo_path",
+          "status",
+          "source_sha256",
+          "requires_human_approval"
+        ],
+        "properties": {
+          "change_id": {
+            "type": "string"
+          },
+          "operation": {
+            "const": "copy_proposed_file"
+          },
+          "source_sandbox_artifact_path": {
+            "type": "string"
+          },
+          "destination_repo_path": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "would_apply",
+              "applied",
+              "blocked"
+            ]
+          },
+          "artifact_kind": {
+            "type": "string"
+          },
+          "source_sha256": {
+            "type": "string"
+          },
+          "destination_existed_before": {
+            "type": "boolean"
+          },
+          "overwrite_allowed": {
+            "type": "boolean"
+          },
+          "requires_human_approval": {
+            "const": true
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "invocation_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "provider": {
+      "enum": [
+        "mock",
+        "claude",
+        "codex",
+        "ollama"
+      ]
+    },
+    "report_type": {
+      "const": "beta_agent_invocation"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "usage": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "invocation_id",
+    "mission_id",
+    "provider",
+    "usage",
+    "authority"
+  ],
+  "title": "Konoha Beta Agent Invocation",
+  "type": "object"
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "records": {
+      "type": "array"
+    },
+    "report_type": {
+      "const": "beta_token_usage_ledger"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "totals": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "records",
+    "totals",
+    "authority"
+  ],
+  "title": "Konoha Beta Token Usage Ledger",
+  "type": "object"
+}

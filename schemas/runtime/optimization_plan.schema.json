@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha Optimization Plan",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "optimization_id",
+    "mission_id",
+    "status",
+    "optimizations"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "optimization_plan"
+    },
+    "optimization_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "optimizations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "human_decision_required": {
+      "type": "boolean"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

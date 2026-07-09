@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "git_operation_gate_report",
+  "operation": "stage",
+  "plan_id": "example-git-plan",
+  "status": "passed",
+  "paths": [
+    "tools/example.py"
+  ],
+  "command_result": {
+    "args": [
+      "git",
+      "add",
+      "--",
+      "tools/example.py"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "authority": {
+    "git_stage_commit_push_require_separate_tokens": true
+  }
+}

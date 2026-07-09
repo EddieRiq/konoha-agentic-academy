@@ -1,0 +1,39 @@
+{
+  "action": "mission_workspace_validate",
+  "approval_required": true,
+  "approval_token_name": "EXECUTE_CONTROLLED_TOOL",
+  "arbitrary_shell": "blocked",
+  "blockers": [],
+  "command": [
+    "python",
+    "tools/mission_workspace/manage_mission_workspace.py",
+    "validate",
+    "--workspace-root",
+    "sandbox/workspace",
+    "--mission-id",
+    "example-mission"
+  ],
+  "command_metadata": {
+    "action": "mission_workspace_validate",
+    "description": "Validate a Mission Workspace.",
+    "tool_script": "tools/mission_workspace/manage_mission_workspace.py"
+  },
+  "execution": "allowlisted_tool_only",
+  "execution_id": "example-controlled-tool-execution",
+  "exit_code": 0,
+  "filesystem_mutation": "sandbox reports and delegated tool outputs only",
+  "git_operations": "blocked",
+  "invocation": "confirmed",
+  "mission_id": "example-mission",
+  "model_output_authority": "evidence_only",
+  "network_access": "blocked",
+  "private_context_access": "blocked",
+  "real_model_invocation": "blocked",
+  "report_path": "sandbox/reports/example-controlled-tool-execution_controlled_tool_execution_report.json",
+  "report_type": "controlled_tool_execution_report",
+  "repository_apply": "blocked",
+  "schema_version": "1.0",
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "MISSION WORKSPACE VALIDATION PASSED"
+}

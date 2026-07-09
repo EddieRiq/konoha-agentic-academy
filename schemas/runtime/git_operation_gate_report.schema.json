@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha Git Operation Gate Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "operation",
+    "plan_id",
+    "status",
+    "command_result"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "git_operation_gate_report"
+    },
+    "operation": {
+      "enum": [
+        "stage",
+        "commit",
+        "push"
+      ]
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "command_result": {
+      "type": "object"
+    },
+    "paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

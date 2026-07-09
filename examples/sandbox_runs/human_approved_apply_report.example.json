@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/runtime/human_approved_apply_report.schema.json",
+  "schema_version": "0.1",
+  "run_id": "example-run",
+  "plan_id": "apply-plan-example-run",
+  "mode": "human_approved_apply_plan",
+  "status": "preview",
+  "created_at": "2026-01-01T00:00:00+00:00",
+  "repo_root": ".",
+  "sandbox_root": "./sandbox",
+  "confirm_apply": false,
+  "approval_token_provided": false,
+  "allow_overwrite": false,
+  "execution": "blocked",
+  "filesystem_mutation": "preview_only",
+  "repository_apply": "preview_only",
+  "git_operations": "blocked",
+  "adapter_execution": "blocked",
+  "private_context_access": "blocked",
+  "network_access": "blocked",
+  "applied_changes": [
+    {
+      "change_id": "change-001",
+      "operation": "copy_proposed_file",
+      "source_sandbox_artifact_path": "proposed_outputs/docs/proposed_note.md",
+      "destination_repo_path": "docs/proposed_note.md",
+      "status": "would_apply",
+      "artifact_kind": "markdown",
+      "source_sha256": "example-sha256",
+      "destination_existed_before": false,
+      "overwrite_allowed": false,
+      "requires_human_approval": true
+    }
+  ],
+  "notes": [
+    "This example is a preview report.",
+    "It does not authorize mission execution or repository version-control operations."
+  ]
+}

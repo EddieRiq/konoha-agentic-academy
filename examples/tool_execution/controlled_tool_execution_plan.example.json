@@ -1,0 +1,19 @@
+{
+  "execution_id": "example-controlled-tool-execution",
+  "mission_id": "example-mission",
+  "action": "mission_workspace_validate",
+  "requires_human_approval": true,
+  "parameters": {
+    "mission_id": "example-mission"
+  },
+  "safety": {
+    "execution_scope": "allowlisted_tool_only",
+    "private_context_access": false,
+    "network_access": false,
+    "git_operations": false,
+    "repository_apply": false,
+    "real_model_invocation": false,
+    "arbitrary_shell": false,
+    "background_agent": false
+  }
+}

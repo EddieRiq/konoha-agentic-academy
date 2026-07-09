@@ -1,0 +1,30 @@
+{
+  "authority": {
+    "model_inference_is_never_permission": true,
+    "model_output_is_evidence_only": true
+  },
+  "boundaries": {
+    "arbitrary_shell": "blocked",
+    "autonomous_background_agents": "blocked",
+    "mission_closure_without_teachback": "blocked",
+    "network_access_by_default": "blocked",
+    "private_context_access_by_default": "blocked",
+    "unapproved_command_execution": "blocked",
+    "unapproved_git_operations": "blocked",
+    "unapproved_model_invocation": "blocked"
+  },
+  "exit_code": 0,
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "invocation_id": "example-agent",
+  "mission_id": "example-beta-mission",
+  "model": "default",
+  "provider": "codex",
+  "report_type": "beta_agent_invocation",
+  "schema_version": "1.0.0",
+  "usage": {
+    "input_tokens": 1000,
+    "output_tokens": 250,
+    "token_estimates_are_not_truth": false,
+    "usage_source": "provider_reported"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konoha.local/schemas/runtime/controlled_tool_execution_plan.schema.json",
+  "title": "Controlled Tool Execution Plan",
+  "type": "object",
+  "required": [
+    "execution_id",
+    "mission_id",
+    "action",
+    "requires_human_approval",
+    "parameters",
+    "safety"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "execution_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "mission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "mission_workspace_validate",
+        "mission_workspace_inspect",
+        "approval_status",
+        "approval_reports_list",
+        "runtime_package_validate"
+      ]
+    },
+    "requires_human_approval": {
+      "const": true
+    },
+    "parameters": {
+      "type": "object"
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "execution_scope",
+        "private_context_access",
+        "network_access",
+        "git_operations",
+        "repository_apply",
+        "real_model_invocation",
+        "arbitrary_shell",
+        "background_agent"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "execution_scope": {
+          "const": "allowlisted_tool_only"
+        },
+        "private_context_access": {
+          "const": false
+        },
+        "network_access": {
+          "const": false
+        },
+        "git_operations": {
+          "const": false
+        },
+        "repository_apply": {
+          "const": false
+        },
+        "real_model_invocation": {
+          "const": false
+        },
+        "arbitrary_shell": {
+          "const": false
+        },
+        "background_agent": {
+          "const": false
+        }
+      }
+    }
+  }
+}

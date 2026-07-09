@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "boundaries": {
+      "type": "object"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "model_strategy": {
+      "type": "object"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "task": {
+      "type": "string"
+    },
+    "task_info": {
+      "type": "object"
+    },
+    "title": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "mission_id",
+    "title",
+    "task",
+    "status",
+    "boundaries"
+  ],
+  "title": "Konoha Beta Mission Manifest",
+  "type": "object"
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha Self Review Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "review_id",
+    "mission_id",
+    "status",
+    "authority",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "self_review_report"
+    },
+    "review_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "mission_inventory": {
+      "type": "object"
+    },
+    "token_summary": {
+      "type": "object"
+    },
+    "quality_assessment": {
+      "type": "object"
+    },
+    "handholding_findings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_next_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}
