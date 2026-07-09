@@ -700,3 +700,9 @@ Local model output is evidence only. Patch plans are not permission. Git operati
 Konoha v3.0.1 adds a local-first beta patch flow for computer profiling, Ollama local model recommendation, approved local model download, repository consistency audit, documentation patch planning, and gated Git follow-up.
 
 Local model audits are evidence only. Model output is not permission. Repository changes, commits, and pushes still require explicit human approval.
+
+## v3.0.2 Repo Audit Deterministic Guard
+
+- Repo Audit Deterministic Guard: separates local model suggested issues from validated issues, suppresses known false positives with deterministic README/CHANGELOG/docs evidence, and generates patch plans only from validated issues.
+
+Local model output remains evidence only. Suppressed issues are recorded for review but do not authorize patches.

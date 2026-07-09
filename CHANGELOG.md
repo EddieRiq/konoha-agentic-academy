@@ -83,6 +83,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v3.0.2 Repo Audit Deterministic Guard with model-suggested issues, deterministic marker validation, validated issues, suppressed possible false positives, guarded patch planning, schema update, tests, examples, guide, roadmap, and review Scroll.
 - Added v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow with WSL/local computer profile, Ollama model recommendation, approved model download, local model repo consistency audit, documentation patch plan, schemas, tests, examples, guide, roadmap, and review Scroll.
 - Added Konoha Beta Real Supervised Task Runtime with terminal mission runtime, Claude Code adapter, Codex adapter, Ollama adapter, command approval execution, token ledger, self-review, Git gates, teachback closure, schemas, tests, examples, guide, roadmap, and review Scroll.
 - Added Self-Review, Optimization and Git Operation Gate with mission self-review, optimization plans, Git operation plans, gated stage/commit/push operations, schemas, tests, examples, guide, roadmap reference, and review Scroll.

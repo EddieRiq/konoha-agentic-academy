@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Konoha v3.0.1 local model bootstrap, repository audit, and patch planning.
+"""Konoha v3.0.2 local model bootstrap, deterministic repository audit, and patch planning.
 
-This tool is intentionally local-first and approval-gated.
+This tool is intentionally local-first, approval-gated, and guarded by deterministic evidence checks.
 
 It can:
 - profile the local machine/runtime from WSL/Linux/Windows using read-only inspection;
@@ -9,6 +9,7 @@ It can:
 - create an Ollama install plan without executing it;
 - pull a local model only with explicit network approval;
 - run a repository consistency audit through a local Ollama model or a mock model;
+- validate model-suggested issues with deterministic marker checks before patch planning;
 - generate a patch plan for README/docs consistency;
 - apply only approved documentation patch operations.
 
@@ -479,40 +480,183 @@ def read_snippet(repo_root: Path, rel: str, max_chars: int = 5000) -> str:
     return text[:max_chars]
 
 
-def heuristic_inconsistencies(repo_root: Path, files: List[str]) -> List[Dict[str, Any]]:
+
+def text_contains_any(text: str, needles: Iterable[str]) -> bool:
+    lower = text.lower()
+    return any(n.lower() in lower for n in needles)
+
+
+def marker_evidence(path: str, text: str, needles: Iterable[str]) -> List[Dict[str, Any]]:
+    evidence: List[Dict[str, Any]] = []
+    lines = text.splitlines()
+    for idx, line in enumerate(lines, start=1):
+        lower = line.lower()
+        for needle in needles:
+            if needle.lower() in lower:
+                evidence.append({
+                    "path": path,
+                    "line": idx,
+                    "marker": needle,
+                    "excerpt": line.strip()[:220],
+                })
+                break
+    return evidence
+
+
+def collect_deterministic_markers(repo_root: Path) -> Dict[str, Any]:
+    """Collect deterministic public documentation markers.
+
+    This is intentionally simple and explainable. It prevents a small local model
+    from repeatedly proposing a patch when README/docs already contain the required
+    public markers.
+    """
+    docs = {
+        "README.md": read_snippet(repo_root, "README.md", 60000),
+        "CHANGELOG.md": read_snippet(repo_root, "CHANGELOG.md", 60000),
+        "docs/roadmap.md": read_snippet(repo_root, "docs/roadmap.md", 60000),
+        "docs/guides/README.md": read_snippet(repo_root, "docs/guides/README.md", 60000),
+    }
+
+    marker_groups = {
+        "beta_runtime_status": ["Konoha Beta", "v3.0.0", "v3.0", "Real Supervised Task Runtime", "beta runtime"],
+        "local_model_bootstrap": ["v3.0.1", "Local Model Bootstrap", "Ollama", "local model", "repo consistency audit"],
+        "beta_runtime_entrypoint": ["tools/beta_runtime", "run_konoha_beta.py", "Konoha Beta Runtime"],
+        "changelog_v3_0_1": ["v3.0.1", "Local Model Bootstrap", "Ollama", "local model repo consistency audit"],
+    }
+
+    evidence_by_group: Dict[str, List[Dict[str, Any]]] = {key: [] for key in marker_groups}
+    for doc_path, content in docs.items():
+        for group, needles in marker_groups.items():
+            evidence_by_group[group].extend(marker_evidence(doc_path, content, needles))
+
+    coverage = {
+        "readme_has_beta_runtime_status": (
+            text_contains_any(docs["README.md"], ["Konoha Beta", "Real Supervised Task Runtime", "beta runtime"])
+            and text_contains_any(docs["README.md"], ["v3.0.0", "v3.0", "v3.0.1"])
+        ),
+        "readme_has_local_model_bootstrap": (
+            text_contains_any(docs["README.md"], ["v3.0.1", "Local Model Bootstrap", "Konoha Beta Local Model Audit"])
+            and text_contains_any(docs["README.md"], ["Ollama", "local model"])
+        ),
+        "readme_has_beta_runtime_entrypoint": text_contains_any(docs["README.md"], ["tools/beta_runtime", "Konoha Beta Real Supervised Task Runtime"]),
+        "changelog_has_v3_0_1": (
+            text_contains_any(docs["CHANGELOG.md"], ["v3.0.1"])
+            and text_contains_any(docs["CHANGELOG.md"], ["Local Model Bootstrap", "Ollama", "local model"])
+        ),
+        "guides_index_has_local_model_audit": text_contains_any(
+            docs["docs/guides/README.md"],
+            ["local_model_bootstrap_repo_audit_and_patch_flow.md", "Local Model Bootstrap"]
+        ),
+        "roadmap_has_v3_0_1": text_contains_any(
+            docs["docs/roadmap.md"],
+            ["v3.0.1 Local Model Bootstrap", "Repo Audit and Patch Flow"]
+        ),
+    }
+
+    return {
+        "coverage": coverage,
+        "evidence_by_group": evidence_by_group,
+        "documents_checked": list(docs.keys()),
+    }
+
+
+ISSUE_COVERAGE_RULES = {
+    "readme_missing_v3_beta_status": {
+        "coverage_keys": ["readme_has_beta_runtime_status"],
+        "reason": "README already contains beta runtime status markers.",
+    },
+    "readme_missing_local_model_runtime": {
+        "coverage_keys": ["readme_has_local_model_bootstrap"],
+        "reason": "README already contains local model/Ollama v3.0.1 markers.",
+    },
+    "readme_missing_beta_runtime_path": {
+        "coverage_keys": ["readme_has_beta_runtime_entrypoint"],
+        "reason": "README already surfaces the beta runtime entrypoint or status section.",
+    },
+    "changelog_missing_v3_0_1": {
+        "coverage_keys": ["changelog_has_v3_0_1"],
+        "reason": "CHANGELOG already contains v3.0.1 local model/bootstrap markers.",
+    },
+}
+
+
+def heuristic_inconsistencies(repo_root: Path, files: List[str], markers: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     issues: List[Dict[str, Any]] = []
-    readme = read_snippet(repo_root, "README.md", 20000)
-    changelog = read_snippet(repo_root, "CHANGELOG.md", 20000)
-    if "Konoha Beta" not in readme and "v3.0.0" not in readme:
+    markers = markers or collect_deterministic_markers(repo_root)
+    coverage = markers.get("coverage", {})
+
+    if not coverage.get("readme_has_beta_runtime_status"):
         issues.append({
             "id": "readme_missing_v3_beta_status",
             "severity": "medium",
             "evidence": "README.md does not clearly mention Konoha Beta/v3.0 runtime status.",
             "suggested_change": "Add a concise current beta status section to README.md.",
+            "source": "deterministic_heuristic",
         })
-    if "local model" not in readme.lower() and "Ollama" not in readme:
+    if not coverage.get("readme_has_local_model_bootstrap"):
         issues.append({
             "id": "readme_missing_local_model_runtime",
             "severity": "medium",
             "evidence": "README.md does not clearly mention local model bootstrap/Ollama audit path.",
             "suggested_change": "Add v3.0.1 local model bootstrap and repo consistency audit note.",
+            "source": "deterministic_heuristic",
         })
-    if any(f.startswith("tools/beta_runtime") for f in files) and "tools/beta_runtime" not in readme:
+    if any(f.startswith("tools/beta_runtime") for f in files) and not coverage.get("readme_has_beta_runtime_entrypoint"):
         issues.append({
             "id": "readme_missing_beta_runtime_path",
             "severity": "low",
             "evidence": "tools/beta_runtime exists but README.md may not surface the terminal beta runtime path.",
             "suggested_change": "Mention tools/beta_runtime as beta terminal runtime entrypoint.",
+            "source": "deterministic_heuristic",
         })
-    if "v3.0.1" not in changelog:
+    if not coverage.get("changelog_has_v3_0_1"):
         issues.append({
             "id": "changelog_missing_v3_0_1",
             "severity": "low",
             "evidence": "CHANGELOG.md does not mention v3.0.1 local model audit patch.",
             "suggested_change": "Add v3.0.1 entry under Unreleased/Added.",
+            "source": "deterministic_heuristic",
         })
     return issues
 
+
+def merge_issues(model_issues: List[Any], heuristic_issues: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    combined: List[Dict[str, Any]] = []
+    seen = set()
+    for issue in list(model_issues) + heuristic_issues:
+        if not isinstance(issue, dict):
+            continue
+        item = dict(issue)
+        ident = item.get("id") or item.get("evidence") or json.dumps(item, sort_keys=True)
+        if ident in seen:
+            continue
+        seen.add(ident)
+        combined.append(item)
+    return combined
+
+
+def validate_issues_against_markers(issues: List[Dict[str, Any]], markers: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Split issues into validated issues and suppressed possible false positives."""
+    coverage = markers.get("coverage", {})
+    validated: List[Dict[str, Any]] = []
+    suppressed: List[Dict[str, Any]] = []
+
+    for issue in issues:
+        ident = str(issue.get("id", ""))
+        rule = ISSUE_COVERAGE_RULES.get(ident)
+        if rule and all(bool(coverage.get(key)) for key in rule["coverage_keys"]):
+            suppressed_issue = dict(issue)
+            suppressed_issue["suppression_status"] = "possible_false_positive"
+            suppressed_issue["suppression_reason"] = rule["reason"]
+            suppressed_issue["deterministic_coverage_keys"] = rule["coverage_keys"]
+            suppressed_issue["deterministic_evidence"] = markers.get("evidence_by_group", {})
+            suppressed.append(suppressed_issue)
+            continue
+        validated_issue = dict(issue)
+        validated_issue["validation_status"] = "validated_or_uncovered_by_markers"
+        validated.append(validated_issue)
+
+    return validated, suppressed
 
 def build_audit_prompt(repo_root: Path, files: List[str]) -> str:
     readme = read_snippet(repo_root, "README.md", 12000)
@@ -590,9 +734,11 @@ def parse_jsonish(text: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+
 def make_patch_plan(repo_root: Path, issues: List[Dict[str, Any]], model_summary: str, recommended_commit: str) -> Dict[str, Any]:
     operations: List[Dict[str, Any]] = []
     issue_ids = {i.get("id") for i in issues}
+
     if "readme_missing_v3_beta_status" in issue_ids or "readme_missing_local_model_runtime" in issue_ids:
         operations.append({
             "operation": "append_once",
@@ -604,6 +750,17 @@ Konoha v3.0.1 adds a local-first beta patch flow for computer profiling, Ollama 
 
 Local model audits are evidence only. Model output is not permission. Repository changes, commits, and pushes still require explicit human approval."""
         })
+
+    if "readme_missing_beta_runtime_path" in issue_ids:
+        operations.append({
+            "operation": "append_once",
+            "path": "README.md",
+            "marker": "`tools/beta_runtime/run_konoha_beta.py`",
+            "content": """## Konoha Beta Terminal Runtime Entrypoint
+
+- `tools/beta_runtime/run_konoha_beta.py`: terminal-first beta runtime entrypoint for supervised missions, command approvals, local/remote agent invocation evidence, token ledger, Git gates, and teachback closure."""
+        })
+
     if "changelog_missing_v3_0_1" in issue_ids:
         operations.append({
             "operation": "append_once",
@@ -615,14 +772,21 @@ Local model audits are evidence only. Model output is not permission. Repository
 
 - Added v3.0.1 Local Model Bootstrap, Repo Consistency Audit and Auto-Git Patch Flow with WSL/local computer profile, Ollama recommendation, approved model download, local model repository audit, documentation patch planning, and gated Git follow-up."""
         })
-    operations.append({
-        "operation": "append_once",
-        "path": "docs/roadmap.md",
-        "marker": "v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow",
-        "content": """### v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow
+
+    if issue_ids:
+        operations.append({
+            "operation": "append_once",
+            "path": "docs/roadmap.md",
+            "marker": "v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow",
+            "content": """### v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow
 
 - Add initial local computer analysis, local model recommendation, approved Ollama model download, local model repository consistency audit, and documentation patch planning before broader v3.1 optimization patches."""
-    })
+        })
+
+    commit = recommended_commit or (
+        "Update Konoha beta local model audit documentation" if operations else "No documentation patch recommended"
+    )
+
     return {
         "report_type": "local_repo_patch_plan",
         "schema_version": SCHEMA_VERSION,
@@ -631,19 +795,19 @@ Local model audits are evidence only. Model output is not permission. Repository
             "patch_plan_is_not_permission": True,
             "apply_requires_separate_approval": True,
             "git_requires_existing_beta_git_gate": True,
+            "patch_plan_uses_validated_issues_only": True,
         },
         "boundaries": BOUNDARIES,
         "summary": model_summary,
         "issues_considered": issues,
         "operations": operations,
-        "recommended_commit_message": recommended_commit or "Update Konoha beta local model audit documentation",
+        "recommended_commit_message": commit,
         "requires_approval_token": TOKENS["apply_patch"],
         "next_git_gate": {
             "use_existing_command": "tools/beta_runtime/run_konoha_beta.py git-plan/git-stage/git-commit/git-push",
-            "suggested_commit_message": recommended_commit or "Update Konoha beta local model audit documentation",
+            "suggested_commit_message": commit,
         },
     }
-
 
 def cmd_audit_repo(args: argparse.Namespace) -> int:
     blockers = require_token(args.confirm_audit, args.approval_token, TOKENS["audit"], "audit-repo")
@@ -659,8 +823,9 @@ def cmd_audit_repo(args: argparse.Namespace) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     files = repo_file_inventory(repo_root, limit=args.file_limit)
+    deterministic_markers = collect_deterministic_markers(repo_root)
     prompt = build_audit_prompt(repo_root, files)
-    heuristic_issues = heuristic_inconsistencies(repo_root, files)
+    heuristic_issues = heuristic_inconsistencies(repo_root, files, deterministic_markers)
     model_raw = ""
     usage: Dict[str, Any] = {"usage_source": "not_used", "input_tokens": None, "output_tokens": None}
     model_json: Optional[Dict[str, Any]] = None
@@ -694,17 +859,11 @@ def cmd_audit_repo(args: argparse.Namespace) -> int:
     if not isinstance(model_issues, list):
         model_issues = []
 
-    # Preserve heuristic issues even if the model misses them.
-    combined = []
-    seen = set()
-    for issue in list(model_issues) + heuristic_issues:
-        if not isinstance(issue, dict):
-            continue
-        ident = issue.get("id") or issue.get("evidence") or json.dumps(issue, sort_keys=True)
-        if ident in seen:
-            continue
-        seen.add(ident)
-        combined.append(issue)
+    # Preserve heuristic issues even if the model misses them, then validate every
+    # candidate against deterministic markers before any patch plan is produced.
+    model_suggested_issues = [i for i in model_issues if isinstance(i, dict)]
+    all_candidate_issues = merge_issues(model_suggested_issues, heuristic_issues)
+    validated_issues, suppressed_issues = validate_issues_against_markers(all_candidate_issues, deterministic_markers)
 
     audit = {
         "report_type": "local_repo_consistency_audit",
@@ -725,11 +884,18 @@ def cmd_audit_repo(args: argparse.Namespace) -> int:
         "model_raw_response": model_raw,
         "model_parsed": model_json,
         "usage": usage,
-        "inconsistencies": combined,
-        "status": "needs_human_review" if combined else "no_obvious_inconsistencies_found",
+        "deterministic_markers": deterministic_markers,
+        "model_suggested_issues": model_suggested_issues,
+        "heuristic_issues": heuristic_issues,
+        "all_candidate_issues": all_candidate_issues,
+        "validated_issues": validated_issues,
+        "suppressed_issues": suppressed_issues,
+        # Backward-compatible field: only validated issues are actionable.
+        "inconsistencies": validated_issues,
+        "status": "needs_human_review" if validated_issues else "no_validated_inconsistencies_found",
         "question_for_human": "¿Está bien aplicar el patch plan propuesto o querés ajustar qué documentación debe cambiar?",
     }
-    patch_plan = make_patch_plan(repo_root, combined, model_summary or "Local repo consistency audit completed.", recommended_commit)
+    patch_plan = make_patch_plan(repo_root, validated_issues, model_summary or "Local repo consistency audit completed.", recommended_commit)
 
     audit_json = output_dir / f"{args.audit_id}_repo_consistency_audit.json"
     audit_md = output_dir / f"{args.audit_id}_repo_consistency_audit.md"
@@ -752,8 +918,21 @@ def cmd_audit_repo(args: argparse.Namespace) -> int:
         "## Proposed inconsistencies / faltantes",
         "",
     ]
-    for issue in combined:
-        md.append(f"- **{issue.get('id', 'issue')}** ({issue.get('severity', 'unknown')}): {issue.get('evidence', '')} Proposed: {issue.get('suggested_change', '')}")
+    if validated_issues:
+        for issue in validated_issues:
+            md.append(f"- **{issue.get('id', 'issue')}** ({issue.get('severity', 'unknown')}): {issue.get('evidence', '')} Proposed: {issue.get('suggested_change', '')}")
+    else:
+        md.append("- No validated inconsistencies after deterministic marker checks.")
+    md += [
+        "",
+        "## Suppressed possible false positives",
+        "",
+    ]
+    if suppressed_issues:
+        for issue in suppressed_issues:
+            md.append(f"- **{issue.get('id', 'issue')}**: {issue.get('suppression_reason', 'suppressed by deterministic evidence')}")
+    else:
+        md.append("- None.")
     md += [
         "",
         "## Human question",
@@ -843,7 +1022,7 @@ def cmd_states(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="Konoha v3.0.1 local model bootstrap and repo audit")
+    p = argparse.ArgumentParser(description="Konoha v3.0.2 local model bootstrap and deterministic repo audit")
     sub = p.add_subparsers(dest="command", required=True)
 
     def add_common(sp):

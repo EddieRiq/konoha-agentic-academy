@@ -69,3 +69,20 @@ Repository audit uses the local Ollama API at `http://localhost:11434/api/genera
 The test suite uses `--mock-local-model` so CI does not require Ollama, network, or a downloaded local model.
 
 Real beta validation should run the same audit with `--use-ollama`.
+
+
+## v3.0.2 deterministic repo audit guard
+
+v3.0.2 adds a deterministic guard between local model output and patch planning.
+
+The audit now separates:
+
+- `model_suggested_issues`: issues proposed by the local model;
+- `heuristic_issues`: issues found by deterministic public documentation checks;
+- `all_candidate_issues`: merged candidate issue list;
+- `validated_issues`: issues not contradicted by deterministic markers;
+- `suppressed_issues`: possible false positives suppressed because README, CHANGELOG, roadmap or guide indexes already contain the required markers.
+
+Patch plans are generated only from `validated_issues`.
+
+This prevents a small local model from repeatedly proposing README fixes that are already present.

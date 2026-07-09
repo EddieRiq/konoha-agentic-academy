@@ -121,6 +121,70 @@ class LocalModelAuditTests(unittest.TestCase):
         files = self.m.repo_file_inventory(self.repo)
         self.assertNotIn("alliance/kirigakure/secret.md", files)
 
+
+    def test_model_false_positive_is_suppressed_by_deterministic_markers(self):
+        (self.repo / "README.md").write_text(
+            "# Demo Repo\n\n"
+            "## Konoha Beta Real Supervised Task Runtime\n\n"
+            "v3.0.0 is the first beta intended for real supervised technical tasks.\n\n"
+            "## v3.0.1 Local Model Bootstrap\n\n"
+            "Local Model Bootstrap uses Ollama and local model repo consistency audit.\n\n"
+            "## Konoha Beta Local Model Audit\n\n"
+            "Konoha v3.0.1 adds a local-first beta patch flow for computer profiling, Ollama local model recommendation, approved local model download, repository consistency audit, documentation patch planning, and gated Git follow-up.\n",
+            encoding="utf-8",
+        )
+        (self.repo / "CHANGELOG.md").write_text(
+            "## [Unreleased]\n\n### Added\n\n- Added v3.0.1 Local Model Bootstrap with Ollama local model repo consistency audit.\n",
+            encoding="utf-8",
+        )
+        (self.repo / "docs" / "guides").mkdir(parents=True, exist_ok=True)
+        (self.repo / "docs" / "guides" / "README.md").write_text(
+            "## Local Model Bootstrap and Repo Audit\n\n- local_model_bootstrap_repo_audit_and_patch_flow.md\n",
+            encoding="utf-8",
+        )
+        (self.repo / "docs" / "roadmap.md").write_text(
+            "### v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow\n\n- Done.\n",
+            encoding="utf-8",
+        )
+
+        original_call = self.m.call_ollama
+        try:
+            self.m.call_ollama = lambda model, prompt, host, timeout: (
+                json.dumps({
+                    "summary": "Model claims a missing README beta status.",
+                    "inconsistencies": [
+                        {
+                            "id": "readme_missing_v3_beta_status",
+                            "severity": "medium",
+                            "evidence": "README.md does not clearly mention Konoha Beta/v3.0 runtime status.",
+                            "suggested_change": "Add a concise current beta status section to README.md.",
+                        }
+                    ],
+                    "recommended_commit_message": "Update beta docs"
+                }),
+                {"usage_source": "provider_reported", "input_tokens": 10, "output_tokens": 20},
+            )
+            outdir = self.root / "guarded-audit"
+            rc = self.run_cli([
+                "audit-repo", "--repo-root", ".", "--audit-id", "guarded",
+                "--model", "mock-ollama", "--output-dir", str(outdir), "--use-ollama",
+                "--allow-localhost", "--confirm-audit", "--approval-token", "RUN_LOCAL_MODEL_AUDIT",
+                "--force", "--json"
+            ])
+        finally:
+            self.m.call_ollama = original_call
+
+        self.assertEqual(rc, 0)
+        audit = json.loads((outdir / "guarded_repo_consistency_audit.json").read_text(encoding="utf-8"))
+        plan = json.loads((outdir / "guarded_repo_patch_plan.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(audit["status"], "no_validated_inconsistencies_found")
+        self.assertEqual(audit["inconsistencies"], [])
+        self.assertEqual(len(audit["validated_issues"]), 0)
+        self.assertEqual(len(audit["suppressed_issues"]), 1)
+        self.assertEqual(audit["suppressed_issues"][0]["suppression_status"], "possible_false_positive")
+        self.assertEqual(plan["operations"], [])
+
     def test_states(self):
         rc = self.run_cli(["states", "--json"])
         self.assertEqual(rc, 0)

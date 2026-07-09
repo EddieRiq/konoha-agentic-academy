@@ -624,3 +624,7 @@ A Scroll is ready for active use only when:
 ## Local Model Audit review
 
 - `local_model_audit_review_scroll.md`: reviews local model recommendations, Ollama download approvals, local repo consistency audits, patch plans, token usage, and Git gate boundaries.
+
+## Repo Audit Deterministic Guard review
+
+- `repo_audit_deterministic_guard_review_scroll.md`: reviews deterministic marker checks, suppressed false positives, validated issues and patch planning boundaries.

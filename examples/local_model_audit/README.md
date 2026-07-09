@@ -11,3 +11,5 @@ Authority boundaries:
 - Local model audit output is evidence only.
 - Patch plans require explicit approval.
 - Git operations must use the existing v3 beta Git gate.
+
+- `local_repo_consistency_audit_guarded.example.json`: shows a suppressed local model false positive after deterministic marker validation.

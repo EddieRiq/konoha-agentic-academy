@@ -204,3 +204,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Local model audit examples
 
 - `local_model_audit/`: examples for local computer profile, model recommendation, local repo consistency audit, and repo patch plan.
+
+## Guarded local repo audit example
+
+- `local_model_audit/local_repo_consistency_audit_guarded.example.json`: shows a local model false positive suppressed by deterministic README/docs evidence.

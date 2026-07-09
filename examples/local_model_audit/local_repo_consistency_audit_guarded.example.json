@@ -1,0 +1,53 @@
+{
+  "report_type": "local_repo_consistency_audit",
+  "schema_version": "1.0.0",
+  "provider": "ollama",
+  "model": "qwen2.5-coder:1.5b",
+  "status": "no_validated_inconsistencies_found",
+  "model_suggested_issues": [
+    {
+      "id": "readme_missing_v3_beta_status",
+      "severity": "medium",
+      "evidence": "README.md does not clearly mention Konoha Beta/v3.0 runtime status.",
+      "suggested_change": "Add a concise current beta status section to README.md."
+    }
+  ],
+  "heuristic_issues": [],
+  "all_candidate_issues": [
+    {
+      "id": "readme_missing_v3_beta_status",
+      "severity": "medium",
+      "evidence": "README.md does not clearly mention Konoha Beta/v3.0 runtime status.",
+      "suggested_change": "Add a concise current beta status section to README.md."
+    }
+  ],
+  "validated_issues": [],
+  "suppressed_issues": [
+    {
+      "id": "readme_missing_v3_beta_status",
+      "suppression_status": "possible_false_positive",
+      "suppression_reason": "README already contains beta runtime status markers.",
+      "deterministic_coverage_keys": [
+        "readme_has_beta_runtime_status"
+      ]
+    }
+  ],
+  "inconsistencies": [],
+  "deterministic_markers": {
+    "coverage": {
+      "readme_has_beta_runtime_status": true,
+      "readme_has_local_model_bootstrap": true,
+      "changelog_has_v3_0_1": true
+    }
+  },
+  "usage": {
+    "usage_source": "provider_reported",
+    "input_tokens": 2050,
+    "output_tokens": 1432
+  },
+  "authority": {
+    "local_model_output_is_evidence_only": true,
+    "audit_report_is_not_permission": true,
+    "token_usage_is_evidence_only": true
+  }
+}

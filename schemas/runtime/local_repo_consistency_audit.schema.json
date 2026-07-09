@@ -1,7 +1,50 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Local Repo Consistency Audit",
-  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "all_candidate_issues": {
+      "type": "array"
+    },
+    "deterministic_markers": {
+      "type": "object"
+    },
+    "heuristic_issues": {
+      "type": "array"
+    },
+    "inconsistencies": {
+      "description": "Backward-compatible list of validated/actionable issues only.",
+      "type": "array"
+    },
+    "model": {
+      "type": "string"
+    },
+    "model_suggested_issues": {
+      "type": "array"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "local_repo_consistency_audit"
+    },
+    "status": {
+      "enum": [
+        "needs_human_review",
+        "no_validated_inconsistencies_found",
+        "no_obvious_inconsistencies_found"
+      ],
+      "type": "string"
+    },
+    "suppressed_issues": {
+      "type": "array"
+    },
+    "usage": {
+      "type": "object"
+    },
+    "validated_issues": {
+      "type": "array"
+    }
+  },
   "required": [
     "report_type",
     "provider",
@@ -10,22 +53,6 @@
     "usage",
     "authority"
   ],
-  "properties": {
-    "report_type": {
-      "const": "local_repo_consistency_audit"
-    },
-    "provider": {
-      "type": "string"
-    },
-    "model": {
-      "type": "string"
-    },
-    "inconsistencies": {
-      "type": "array"
-    },
-    "usage": {
-      "type": "object"
-    }
-  },
-  "additionalProperties": true
+  "title": "Local Repo Consistency Audit with Deterministic Guard",
+  "type": "object"
 }

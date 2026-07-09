@@ -333,3 +333,7 @@ Do not hide doctrine changes inside guides.
 ## Local Model Bootstrap and Repo Audit
 
 - `local_model_bootstrap_repo_audit_and_patch_flow.md`: defines local computer profiling, Ollama recommendation, approved model download, local model repo consistency audit, documentation patch planning, and Git gate handoff.
+
+## Repo Audit Deterministic Guard
+
+- `../roadmap/v3_0_2_repo_audit_deterministic_guard.md`: defines the v3.0.2 false-positive suppression guard for local model repository audits.

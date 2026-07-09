@@ -613,3 +613,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.0.1 Local Model Bootstrap, Repo Audit and Patch Flow
 
 - Add local computer analysis, local model recommendation, approved Ollama model download, local model repository consistency audit, documentation patch planning, and beta Git gate handoff.
+
+### v3.0.2 Repo Audit Deterministic Guard
+
+- Add deterministic marker checks for repo audits before the Hokage Terminal Shell, separating model-suggested issues, validated issues and suppressed possible false positives.
