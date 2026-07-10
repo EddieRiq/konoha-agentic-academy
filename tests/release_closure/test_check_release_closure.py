@@ -291,5 +291,60 @@ class ReleaseClosureGuardTests(unittest.TestCase):
 
 
 
+    def test_collect_github_release_uses_compatible_auth_command(self):
+        responses = [
+            {
+                "command": [],
+                "returncode": 0,
+                "passed": True,
+                "stdout": "authenticated",
+                "stderr": "",
+                "timed_out": False,
+            },
+            {
+                "command": [],
+                "returncode": 0,
+                "passed": True,
+                "stdout": "[]",
+                "stderr": "",
+                "timed_out": False,
+            },
+        ]
+
+        with mock.patch.object(
+            self.module.shutil,
+            "which",
+            return_value="/usr/bin/gh",
+        ):
+            with mock.patch.object(
+                self.module,
+                "run_command",
+                side_effect=responses,
+            ) as mocked_run:
+                result = self.module.collect_github_release(
+                    self.repo,
+                    "owner/repository",
+                    "v3.1.4",
+                )
+
+        auth_command = mocked_run.call_args_list[0].args[0]
+
+        self.assertEqual(
+            auth_command,
+            [
+                "gh",
+                "auth",
+                "status",
+                "--hostname",
+                "github.com",
+            ],
+        )
+        self.assertNotIn("--active", auth_command)
+        self.assertTrue(result["authenticated"])
+        self.assertTrue(result["query_passed"])
+        self.assertFalse(result["release_exists"])
+
+
+
 if __name__ == "__main__":
     unittest.main()

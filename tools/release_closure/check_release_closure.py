@@ -374,7 +374,7 @@ def collect_github_release(
         }
 
     auth = run_command(
-        ["gh", "auth", "status", "--active", "--hostname", "github.com"],
+        ["gh", "auth", "status", "--hostname", "github.com"],
         repo_root,
         timeout=60,
     )
