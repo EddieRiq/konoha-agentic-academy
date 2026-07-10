@@ -495,3 +495,7 @@ Before a tool becomes active:
 ## Hokage Shell mission continuity
 
 - `hokage_shell/mission_continuity.py`: validates local mission sessions, lists valid and invalid missions, and builds read-only reentry snapshots.
+
+## Hokage terminal operator status
+
+- `hokage_shell/operator_status.py`: builds a local, read-only operator snapshot without creating workspace or memory directories.

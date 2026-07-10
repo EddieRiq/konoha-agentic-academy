@@ -652,3 +652,7 @@ A Scroll is ready for active use only when:
 ## Hokage Shell Mission Continuity review
 
 - `hokage_shell_mission_continuity_review_scroll.md`: reviews mission selection, session integrity, path safety, event summaries and non-authorization boundaries.
+
+## Hokage Terminal Operator Baseline review
+
+- `hokage_terminal_operator_baseline_review_scroll.md`: reviews status determinism, no-workspace-creation, terminal fallback and non-authorization boundaries.

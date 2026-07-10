@@ -42,6 +42,12 @@ from mission_continuity import (
     list_missions,
 )
 
+from operator_status import (
+    build_operator_status,
+    exit_code_for_report as operator_status_exit_code,
+    operator_status_lines,
+)
+
 SCHEMA_VERSION = "1.0.0"
 
 BOUNDARIES = {
@@ -188,7 +194,7 @@ def frame(title: str, lines: Iterable[str], width: int = 76) -> str:
 def print_header(persona: Dict[str, Any], plain: bool = False) -> None:
     title_lines = [
         "KONOHAGAKURE TERMINAL",
-        "Hokage Mission Control v3.1.1",
+        "Hokage Mission Control v3.1.6",
         "Terminal-first · SSH-friendly · evidence before action",
     ]
     print(frame("Konoha", title_lines))
@@ -1092,6 +1098,21 @@ def run_resume(args: argparse.Namespace) -> int:
     return exit_code_for_report(report)
 
 
+
+def run_status(args: argparse.Namespace) -> int:
+    report = build_operator_status(
+        Path(args.repo_root),
+        Path(args.workspace_root),
+        plain_requested=args.plain,
+        approval_tokens=APPROVAL_TOKENS,
+    )
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True))
+    else:
+        print(frame("Operator Status", operator_status_lines(report), width=96))
+    return operator_status_exit_code(report)
+
+
 def run_personas(args: argparse.Namespace) -> int:
     repo_root = Path(args.repo_root).resolve() if args.repo_root else None
     personas = list_personas(repo_root)
@@ -1114,6 +1135,7 @@ def run_states(args: argparse.Namespace) -> int:
             "review",
             "missions",
             "resume",
+            "status",
             "personas",
             "states",
         ],
@@ -1341,6 +1363,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     resume.add_argument("--json", action="store_true", help="Print JSON.")
     resume.set_defaults(func=run_resume)
+
+
+    status = sub.add_parser(
+        "status",
+        help="Show a compact read-only terminal operator snapshot.",
+    )
+    status.add_argument("--json", action="store_true", help="Print JSON.")
+    status.set_defaults(func=run_status)
 
     personas = sub.add_parser("personas", help="List available personas.")
     personas.add_argument("--json", action="store_true", help="Print JSON.")

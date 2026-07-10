@@ -1,0 +1,91 @@
+{
+  "$id": "https://example.invalid/konoha/hokage_operator_status_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "approval_tokens": {
+      "type": "object"
+    },
+    "attention_reasons": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "mission": {
+      "required": [
+        "workspace_root",
+        "workspace_exists",
+        "mission_count",
+        "invalid_mission_count",
+        "latest_mission_id",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "next_recommended_action": {
+      "type": "string"
+    },
+    "operator_state": {
+      "enum": [
+        "ready",
+        "attention_required"
+      ]
+    },
+    "repo": {
+      "required": [
+        "repo_root",
+        "head",
+        "head_short",
+        "branch",
+        "working_tree_clean",
+        "changed_path_count"
+      ],
+      "type": "object"
+    },
+    "report_type": {
+      "const": "hokage_operator_status_report"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "const": "passed"
+    },
+    "terminal": {
+      "required": [
+        "stdout_is_tty",
+        "plain_requested",
+        "columns",
+        "lines",
+        "viewers",
+        "preferred_viewer"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "operator_state",
+    "repo",
+    "mission",
+    "terminal",
+    "next_recommended_action",
+    "authority",
+    "boundaries"
+  ],
+  "title": "Hokage Operator Status Report",
+  "type": "object"
+}

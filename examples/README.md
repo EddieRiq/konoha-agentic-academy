@@ -228,3 +228,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Hokage Shell mission continuity example
 
 - `hokage_shell/hokage_mission_continuity_report.example.json`: example of a validated read-only resume snapshot.
+
+## Hokage operator status example
+
+- `hokage_shell/hokage_operator_status_report.example.json`: example of a compact read-only terminal operator snapshot.

@@ -746,3 +746,8 @@ The guard never creates commits, tags or releases.
 - The Hokage Shell can list local missions and build read-only resume snapshots using validated session evidence.
 - Latest selection uses mission timestamps rather than directory names.
 - Resume does not authorize tools, models, Git operations, patches or mission closure.
+
+## v3.1.6 Terminal Operator Baseline
+
+- `tools/hokage_shell/run_hokage_shell.py status` provides a compact read-only snapshot of repository, mission, evidence and terminal context.
+- Status is evidence only and does not authorize execution, Git writes, model invocation, network access or private-memory reads.

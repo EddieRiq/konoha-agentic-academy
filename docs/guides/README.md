@@ -361,3 +361,7 @@ Do not hide doctrine changes inside guides.
 ## Hokage Shell Mission Continuity
 
 - `hokage_shell_mission_continuity.md`: documents deterministic mission inventory, validated latest selection, resume snapshots and reentry boundaries.
+
+## Hokage Terminal Operator Baseline
+
+- `hokage_terminal_operator_baseline.md`: documents the read-only `status` command, operator states, terminal fallback and authority boundaries.

@@ -641,3 +641,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.1.5 Hokage Shell Mission Continuity
 
 - Add deterministic local mission inventory and read-only reentry snapshots without daemon, background autonomy or private-memory dependency.
+
+### v3.1.6 Terminal Operator Baseline
+
+- Add a compact read-only terminal status surface for repository, mission, evidence and terminal capability context.

@@ -1,0 +1,76 @@
+{
+  "approval_tokens": {
+    "inspect_repo": "INSPECT_PUBLIC_REPO",
+    "run_local_audit": "RUN_LOCAL_MODEL_AUDIT",
+    "start_mission": "START_HOKAGE_MISSION",
+    "write_memory": "WRITE_LOCAL_OBSIDIAN_MEMORY"
+  },
+  "attention_reasons": [],
+  "authority": {
+    "approval_tokens_are_required_by_sensitive_flows": true,
+    "mission_state_does_not_authorize_execution": true,
+    "status_does_not_authorize_execution": true,
+    "status_report_is_evidence_only": true
+  },
+  "boundaries": {
+    "arbitrary_shell": "blocked",
+    "autonomous_background_agents": "blocked",
+    "git_operations": "read_only",
+    "model_invocation": "blocked",
+    "network_access": "blocked",
+    "private_memory_read": "blocked",
+    "repository_source_mutation": "blocked",
+    "workspace_mutation": "blocked"
+  },
+  "generated_at": "2026-07-10T20:30:00+00:00",
+  "mission": {
+    "evidence": {
+      "events_path": "/local/sandbox/hokage-shell/missions/review-release/events.ndjson",
+      "latest_audit_json_path": null,
+      "latest_patch_plan_path": null,
+      "latest_step_report_path": "/local/sandbox/hokage-shell/missions/review-release/step_reports/001_review.md"
+    },
+    "invalid_mission_count": 0,
+    "latest_mission": {
+      "mission_id": "review-release",
+      "next_recommended_action": "Review evidence before action.",
+      "state": "needs_human_review"
+    },
+    "latest_mission_id": "review-release",
+    "mission_count": 1,
+    "workspace_exists": true,
+    "workspace_root": "/local/konoha-agentic-academy/sandbox/hokage-shell"
+  },
+  "next_recommended_action": "Review evidence before action.",
+  "operator_state": "ready",
+  "repo": {
+    "ahead": 0,
+    "behind": 0,
+    "branch": "main",
+    "changed_path_count": 0,
+    "head": "ffb815ba24588c7e21e190c599225e746704c9bb",
+    "head_short": "ffb815b",
+    "latest_tag": "v3.1.5",
+    "repo_root": "/local/konoha-agentic-academy",
+    "top_level": "/local/konoha-agentic-academy",
+    "tracking_synced": true,
+    "upstream": "origin/main",
+    "working_tree_clean": true
+  },
+  "report_type": "hokage_operator_status_report",
+  "schema_version": "1.0.0",
+  "status": "passed",
+  "terminal": {
+    "columns": 163,
+    "lines": 48,
+    "plain_requested": false,
+    "preferred_viewer": "less",
+    "stdout_is_tty": true,
+    "term": "xterm-256color",
+    "viewers": {
+      "bat": null,
+      "glow": null,
+      "less": "/usr/bin/less"
+    }
+  }
+}
