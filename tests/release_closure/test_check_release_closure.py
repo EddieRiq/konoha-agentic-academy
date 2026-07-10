@@ -346,5 +346,90 @@ class ReleaseClosureGuardTests(unittest.TestCase):
 
 
 
+    def test_collect_github_release_parses_large_release_list(self):
+        filler = [
+            {
+                "tagName": f"v0.0.{index}",
+                "name": "Historical release " + ("x" * 160),
+                "isLatest": False,
+                "isDraft": False,
+                "isPrerelease": False,
+                "publishedAt": "2026-01-01T00:00:00Z",
+            }
+            for index in range(99)
+        ]
+        target = {
+            "tagName": "v3.1.4",
+            "name": "Konoha Agentic Academy v3.1.4",
+            "isLatest": False,
+            "isDraft": False,
+            "isPrerelease": False,
+            "publishedAt": "2026-07-10T00:00:00Z",
+        }
+        listing_stdout = json.dumps([*filler, target])
+
+        self.assertGreater(len(listing_stdout), 8000)
+
+        def fake_run_command(
+            command,
+            cwd,
+            timeout=120,
+            truncate_output=True,
+        ):
+            if command[:3] == ["gh", "auth", "status"]:
+                return {
+                    "command": command,
+                    "returncode": 0,
+                    "passed": True,
+                    "stdout": "authenticated",
+                    "stderr": "",
+                    "timed_out": False,
+                }
+
+            stdout = listing_stdout
+            if truncate_output:
+                stdout = self.module.truncate(stdout)
+
+            return {
+                "command": command,
+                "returncode": 0,
+                "passed": True,
+                "stdout": stdout,
+                "stderr": "",
+                "timed_out": False,
+            }
+
+        with mock.patch.object(
+            self.module.shutil,
+            "which",
+            return_value="/usr/bin/gh",
+        ):
+            with mock.patch.object(
+                self.module,
+                "run_command",
+                side_effect=fake_run_command,
+            ) as mocked_run:
+                result = self.module.collect_github_release(
+                    self.repo,
+                    "owner/repository",
+                    "v3.1.4",
+                )
+
+        listing_call = mocked_run.call_args_list[1]
+
+        self.assertIs(
+            listing_call.kwargs["truncate_output"],
+            False,
+        )
+        self.assertTrue(result["authenticated"])
+        self.assertTrue(result["query_passed"])
+        self.assertTrue(result["release_exists"])
+        self.assertEqual(
+            result["release"]["tagName"],
+            "v3.1.4",
+        )
+
+
+
 if __name__ == "__main__":
     unittest.main()

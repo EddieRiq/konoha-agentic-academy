@@ -401,6 +401,7 @@ def collect_github_release(
         ],
         repo_root,
         timeout=120,
+        truncate_output=False,
     )
     if not listing["passed"]:
         return {
