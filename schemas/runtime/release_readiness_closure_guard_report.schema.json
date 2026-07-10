@@ -1,0 +1,82 @@
+{
+  "$id": "https://example.invalid/konoha/release_readiness_closure_guard_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "git": {
+      "type": "object"
+    },
+    "github_release": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "github_repo": {
+      "type": "string"
+    },
+    "network_approved": {
+      "type": "boolean"
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "release_closed": {
+      "type": "boolean"
+    },
+    "remote_git": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "report_type": {
+      "const": "release_readiness_closure_guard_report"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "incomplete"
+      ]
+    },
+    "status_code": {
+      "type": "string"
+    },
+    "target_version": {
+      "type": "string"
+    },
+    "test_gate": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "target_version",
+    "github_repo",
+    "status",
+    "status_code",
+    "release_closed",
+    "next_action",
+    "git",
+    "test_gate",
+    "network_approved",
+    "boundaries",
+    "authority"
+  ],
+  "title": "Konoha Release Readiness and Closure Guard Report",
+  "type": "object"
+}

@@ -220,3 +220,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Canonical release test gate example
 
 - `release_testing/canonical_release_test_gate_report.example.json`: example aggregate report for independently executed test suites.
+
+## Release readiness and closure example
+
+- `release_closure/release_readiness_closure_guard_report.example.json`: example of an incomplete release that still needs GitHub Release publication.

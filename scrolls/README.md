@@ -644,3 +644,7 @@ A Scroll is ready for active use only when:
 ## Canonical Release Test Gate review
 
 - `canonical_release_test_gate_review_scroll.md`: reviews suite discovery, failure propagation, report boundaries and release-test evidence.
+
+## Release Readiness and Closure Guard review
+
+- `release_readiness_and_closure_guard_review_scroll.md`: reviews commit-bound tests, network gates, tag/release alignment and non-mutation boundaries.

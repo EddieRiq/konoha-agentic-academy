@@ -487,3 +487,7 @@ Before a tool becomes active:
 ## Canonical release test gate
 
 - `release_testing/run_release_tests.py`: discovers and executes each immediate test suite independently, aggregates results, and optionally writes a JSON report under `sandbox/`.
+
+## Release readiness and closure guard
+
+- `release_closure/check_release_closure.py`: binds test evidence to a commit and detects incomplete local, remote-tag and GitHub Release states without mutation.

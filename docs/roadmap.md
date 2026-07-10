@@ -633,3 +633,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.1.3 Canonical Release Test Gate
 
 - Add one reliable release-test command that discovers non-package test directories, executes every suite independently and fails if any suite fails.
+
+### v3.1.4 Release Readiness and Closure Guard
+
+- Add a deterministic read-only guard for clean worktrees, tested commits, synchronized branches, tag targets, GitHub Release publication and Latest state.

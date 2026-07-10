@@ -734,3 +734,9 @@ python tools/release_testing/run_release_tests.py
 ```
 
 Test results are evidence only and do not authorize Git or release operations.
+
+## v3.1.4 Release Readiness and Closure Guard
+
+- The read-only closure guard binds canonical test evidence to `HEAD`, verifies branch and tag alignment, detects missing GitHub Releases or Latest promotion, and reports the next required human-approved action.
+
+The guard never creates commits, tags or releases.

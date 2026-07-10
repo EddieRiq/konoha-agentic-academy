@@ -88,6 +88,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v3.1.4 Release Readiness and Closure Guard with commit-bound canonical test evidence, local and remote Git/tag checks, GitHub Release state inspection, stable closure codes, schema, example, tests, guide, roadmap scope and review Scroll.
 - Added v3.1.3 Canonical Release Test Gate with deterministic suite discovery, independent unittest execution, continue-after-failure behavior, aggregate summaries, sandbox-only JSON reports, tests, schema, example, guide, roadmap scope and review Scroll.
 - Added v3.1.2 Sandbox Evidence Hygiene to keep generated runtime evidence under `sandbox/` local while preserving the public README and placeholder files.
 - Added v3.1.1 Hokage Shell Review Panels with human summaries, Markdown step reports, review-latest-result flow, mission timeline view, on-demand JSON/patch-plan viewers, token summaries, suppressed issue visibility, tests, examples, guide, roadmap, and review Scroll.

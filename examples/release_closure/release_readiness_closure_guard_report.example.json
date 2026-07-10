@@ -1,0 +1,81 @@
+{
+  "authority": {
+    "github_release_mutation_requires_separate_approval": true,
+    "guard_report_is_evidence_only": true,
+    "tag_creation_requires_separate_approval": true,
+    "tag_push_requires_separate_approval": true
+  },
+  "boundaries": {
+    "arbitrary_shell": "blocked",
+    "git_write_operations": "blocked",
+    "model_invocation": "blocked",
+    "network_access": "blocked_unless_allow_network",
+    "private_context_access": "blocked",
+    "release_mutation": "blocked",
+    "report_writes": "optional_sandbox_only",
+    "repository_source_mutation": "blocked"
+  },
+  "generated_at": "2026-07-10T17:00:00+00:00",
+  "git": {
+    "ahead": 0,
+    "behind": 0,
+    "branch": "main",
+    "branch_matches": true,
+    "expected_branch": "main",
+    "head": "0123456789abcdef0123456789abcdef01234567",
+    "local_tag": {
+      "exists": true,
+      "name": "v3.1.4",
+      "object": "89abcdef0123456789abcdef0123456789abcdef",
+      "target": "0123456789abcdef0123456789abcdef01234567",
+      "target_matches_head": true
+    },
+    "status_short": "",
+    "tracked_remote_head": "0123456789abcdef0123456789abcdef01234567",
+    "tracking_ref": "origin/main",
+    "tracking_ref_exists": true,
+    "tracking_synced": true,
+    "working_tree_clean": true
+  },
+  "github_release": {
+    "authenticated": true,
+    "checked": true,
+    "gh_available": true,
+    "is_latest": null,
+    "query_passed": true,
+    "release_exists": false
+  },
+  "github_repo": "EddieRiq/konoha-agentic-academy",
+  "network_approved": true,
+  "next_action": "Create the GitHub Release.",
+  "release_closed": false,
+  "remote_git": {
+    "branch_head": "0123456789abcdef0123456789abcdef01234567",
+    "checked": true,
+    "passed": true,
+    "tag_exists": true,
+    "tag_target": "0123456789abcdef0123456789abcdef01234567"
+  },
+  "report_type": "release_readiness_closure_guard_report",
+  "schema_version": "1.0.0",
+  "status": "incomplete",
+  "status_code": "NEEDS_RELEASE_PUBLICATION",
+  "target_version": "v3.1.4",
+  "test_gate": {
+    "head_after": "0123456789abcdef0123456789abcdef01234567",
+    "head_before": "0123456789abcdef0123456789abcdef01234567",
+    "head_unchanged": true,
+    "passed": true,
+    "source": "executed_now",
+    "summary": {
+      "discovered_suite_count": 45,
+      "error_count": 0,
+      "failed_suite_count": 0,
+      "failure_count": 0,
+      "passed_suite_count": 45,
+      "selected_suite_count": 45,
+      "test_count": 291,
+      "timeout_count": 0
+    }
+  }
+}

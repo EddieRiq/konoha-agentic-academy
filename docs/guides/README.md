@@ -353,3 +353,7 @@ Do not hide doctrine changes inside guides.
 ## Canonical Release Test Gate
 
 - `canonical_release_test_gate.md`: defines deterministic suite discovery, continue-after-failure execution, aggregate results, sandbox-only reports and non-authority boundaries.
+
+## Release Readiness and Closure Guard
+
+- `release_readiness_and_closure_guard.md`: documents tested-commit evidence, release-state codes, read-only remote checks and separate publication gates.
