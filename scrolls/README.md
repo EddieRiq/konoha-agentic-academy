@@ -648,3 +648,7 @@ A Scroll is ready for active use only when:
 ## Release Readiness and Closure Guard review
 
 - `release_readiness_and_closure_guard_review_scroll.md`: reviews commit-bound tests, network gates, tag/release alignment and non-mutation boundaries.
+
+## Hokage Shell Mission Continuity review
+
+- `hokage_shell_mission_continuity_review_scroll.md`: reviews mission selection, session integrity, path safety, event summaries and non-authorization boundaries.

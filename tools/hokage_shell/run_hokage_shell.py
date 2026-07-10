@@ -32,6 +32,16 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 
+HOKAGE_SHELL_DIR = Path(__file__).resolve().parent
+if str(HOKAGE_SHELL_DIR) not in sys.path:
+    sys.path.insert(0, str(HOKAGE_SHELL_DIR))
+
+from mission_continuity import (
+    build_resume_report,
+    exit_code_for_report,
+    list_missions,
+)
+
 SCHEMA_VERSION = "1.0.0"
 
 BOUNDARIES = {
@@ -939,9 +949,11 @@ def print_timeline(paths: ShellPaths, mission_id: Optional[str]) -> None:
 
 
 def latest_mission_id(paths: ShellPaths) -> Optional[str]:
-    folder = paths.workspace_root / "missions"
-    missions = sorted([p for p in folder.glob("*") if p.is_dir()]) if folder.exists() else []
-    return missions[-1].name if missions else None
+    report = list_missions(
+        paths.workspace_root,
+        repo_root=paths.repo_root,
+    )
+    return report.get("latest_mission_id")
 
 
 def run_smoke(args: argparse.Namespace) -> int:
@@ -1017,6 +1029,69 @@ def run_smoke(args: argparse.Namespace) -> int:
     return 0
 
 
+
+def continuity_text_lines(report: Dict[str, Any]) -> List[str]:
+    if report.get("mode") == "list":
+        lines = [
+            f"status: {report.get('status')}",
+            f"valid missions: {report.get('mission_count', 0)}",
+            f"invalid missions: {report.get('invalid_mission_count', 0)}",
+            f"latest mission: {report.get('latest_mission_id') or 'none'}",
+        ]
+        for mission in report.get("missions", [])[:10]:
+            lines.append(
+                f"{mission.get('mission_id')} · "
+                f"{mission.get('state')} · "
+                f"updated={mission.get('updated_at')}"
+            )
+        return lines
+
+    mission = report.get("mission") or {}
+    continuity = report.get("continuity") or {}
+    if report.get("status") != "passed":
+        return [
+            f"status: {report.get('status')}",
+            f"blocker: {report.get('blocker')}",
+        ]
+    return [
+        f"status: {report.get('status')}",
+        f"mission: {mission.get('mission_id')}",
+        f"state: {continuity.get('active_state')}",
+        f"last event: {continuity.get('last_event_type') or 'none'}",
+        f"events: {continuity.get('event_count', 0)}",
+        f"invalid event lines: {continuity.get('invalid_event_count', 0)}",
+        f"latest report: {continuity.get('latest_step_report_path') or 'none'}",
+        f"next: {continuity.get('next_recommended_action')}",
+        "resume report is evidence only",
+    ]
+
+
+def run_missions(args: argparse.Namespace) -> int:
+    report = list_missions(
+        Path(args.workspace_root),
+        repo_root=Path(args.repo_root),
+    )
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True))
+    else:
+        print(frame("Mission Continuity", continuity_text_lines(report), width=96))
+    return 0
+
+
+def run_resume(args: argparse.Namespace) -> int:
+    report = build_resume_report(
+        Path(args.workspace_root),
+        repo_root=Path(args.repo_root),
+        mission_id=args.mission_id,
+        latest=args.latest,
+    )
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True))
+    else:
+        print(frame("Mission Resume", continuity_text_lines(report), width=96))
+    return exit_code_for_report(report)
+
+
 def run_personas(args: argparse.Namespace) -> int:
     repo_root = Path(args.repo_root).resolve() if args.repo_root else None
     personas = list_personas(repo_root)
@@ -1033,7 +1108,15 @@ def run_states(args: argparse.Namespace) -> int:
         "schema_version": SCHEMA_VERSION,
         "report_type": "hokage_shell_states",
         "status": "passed",
-        "commands": ["interactive", "smoke", "review", "personas", "states"],
+        "commands": [
+            "interactive",
+            "smoke",
+            "review",
+            "missions",
+            "resume",
+            "personas",
+            "states",
+        ],
         "approval_tokens": APPROVAL_TOKENS,
         "boundaries": BOUNDARIES,
     }
@@ -1236,6 +1319,28 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--json", action="store_true", help="Print JSON.")
     review.add_argument("--view", action="store_true", help="Open or print latest Markdown report.")
     review.set_defaults(func=run_review)
+
+
+    missions = sub.add_parser(
+        "missions",
+        help="List valid and invalid local missions.",
+    )
+    missions.add_argument("--json", action="store_true", help="Print JSON.")
+    missions.set_defaults(func=run_missions)
+
+    resume = sub.add_parser(
+        "resume",
+        help="Build a read-only mission continuity snapshot.",
+    )
+    resume_choice = resume.add_mutually_exclusive_group(required=True)
+    resume_choice.add_argument("--mission-id", default=None, help="Mission id.")
+    resume_choice.add_argument(
+        "--latest",
+        action="store_true",
+        help="Resume the latest valid mission by updated_at.",
+    )
+    resume.add_argument("--json", action="store_true", help="Print JSON.")
+    resume.set_defaults(func=run_resume)
 
     personas = sub.add_parser("personas", help="List available personas.")
     personas.add_argument("--json", action="store_true", help="Print JSON.")

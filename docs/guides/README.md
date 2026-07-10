@@ -357,3 +357,7 @@ Do not hide doctrine changes inside guides.
 ## Release Readiness and Closure Guard
 
 - `release_readiness_and_closure_guard.md`: documents tested-commit evidence, release-state codes, read-only remote checks and separate publication gates.
+
+## Hokage Shell Mission Continuity
+
+- `hokage_shell_mission_continuity.md`: documents deterministic mission inventory, validated latest selection, resume snapshots and reentry boundaries.

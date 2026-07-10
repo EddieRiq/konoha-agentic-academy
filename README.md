@@ -740,3 +740,9 @@ Test results are evidence only and do not authorize Git or release operations.
 - The read-only closure guard binds canonical test evidence to `HEAD`, verifies branch and tag alignment, detects missing GitHub Releases or Latest promotion, and reports the next required human-approved action.
 
 The guard never creates commits, tags or releases.
+
+## v3.1.5 Hokage Shell Mission Continuity
+
+- The Hokage Shell can list local missions and build read-only resume snapshots using validated session evidence.
+- Latest selection uses mission timestamps rather than directory names.
+- Resume does not authorize tools, models, Git operations, patches or mission closure.

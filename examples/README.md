@@ -224,3 +224,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Release readiness and closure example
 
 - `release_closure/release_readiness_closure_guard_report.example.json`: example of an incomplete release that still needs GitHub Release publication.
+
+## Hokage Shell mission continuity example
+
+- `hokage_shell/hokage_mission_continuity_report.example.json`: example of a validated read-only resume snapshot.

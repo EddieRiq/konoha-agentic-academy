@@ -637,3 +637,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.1.4 Release Readiness and Closure Guard
 
 - Add a deterministic read-only guard for clean worktrees, tested commits, synchronized branches, tag targets, GitHub Release publication and Latest state.
+
+### v3.1.5 Hokage Shell Mission Continuity
+
+- Add deterministic local mission inventory and read-only reentry snapshots without daemon, background autonomy or private-memory dependency.

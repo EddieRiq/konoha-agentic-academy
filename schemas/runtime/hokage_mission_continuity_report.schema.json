@@ -1,0 +1,92 @@
+{
+  "$id": "https://example.invalid/konoha/hokage_mission_continuity_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "blocker": {
+      "type": "string"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "continuity": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "invalid_mission_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "invalid_missions": {
+      "type": "array"
+    },
+    "latest_mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mission": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "mission_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "missions": {
+      "type": "array"
+    },
+    "mode": {
+      "enum": [
+        "list",
+        "resume"
+      ]
+    },
+    "repo_root": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "report_type": {
+      "const": "hokage_mission_continuity_report"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "blocked"
+      ]
+    },
+    "workspace_root": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "mode",
+    "boundaries",
+    "authority"
+  ],
+  "title": "Hokage Mission Continuity Report",
+  "type": "object"
+}

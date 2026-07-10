@@ -491,3 +491,7 @@ Before a tool becomes active:
 ## Release readiness and closure guard
 
 - `release_closure/check_release_closure.py`: binds test evidence to a commit and detects incomplete local, remote-tag and GitHub Release states without mutation.
+
+## Hokage Shell mission continuity
+
+- `hokage_shell/mission_continuity.py`: validates local mission sessions, lists valid and invalid missions, and builds read-only reentry snapshots.
