@@ -1,0 +1,204 @@
+{
+  "$id": "https://example.invalid/konoha/canonical_release_test_gate_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "pattern": {
+      "type": "string"
+    },
+    "python_executable": {
+      "type": "string"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "canonical_release_test_gate_report"
+    },
+    "requested_suites": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "suites": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "command": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "duration_seconds": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "errors": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "failures": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          },
+          "returncode": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "skipped": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "timeout"
+            ]
+          },
+          "stderr": {
+            "type": "string"
+          },
+          "stdout": {
+            "type": "string"
+          },
+          "suite": {
+            "type": "string"
+          },
+          "tests": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "timed_out": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "suite",
+          "path",
+          "command",
+          "status",
+          "passed",
+          "duration_seconds",
+          "tests",
+          "failures",
+          "errors"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "summary": {
+      "additionalProperties": true,
+      "properties": {
+        "discovered_suite_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "duration_seconds": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "error_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "failed_suite_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "failure_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "passed_suite_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "selected_suite_count": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "skipped_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "test_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "timeout_count": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "discovered_suite_count",
+        "selected_suite_count",
+        "passed_suite_count",
+        "failed_suite_count",
+        "test_count",
+        "failure_count",
+        "error_count",
+        "skipped_count",
+        "timeout_count",
+        "duration_seconds"
+      ],
+      "type": "object"
+    },
+    "tests_root": {
+      "type": "string"
+    },
+    "timeout_seconds_per_suite": {
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "passed",
+    "repo_root",
+    "tests_root",
+    "pattern",
+    "boundaries",
+    "summary",
+    "suites",
+    "authority"
+  ],
+  "title": "Konoha Canonical Release Test Gate Report",
+  "type": "object"
+}

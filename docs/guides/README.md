@@ -349,3 +349,7 @@ Do not hide doctrine changes inside guides.
 ## Sandbox Evidence Hygiene
 
 - `sandbox_evidence_hygiene.md`: defines the public sandbox allowlist, local runtime evidence boundary and deterministic verification steps.
+
+## Canonical Release Test Gate
+
+- `canonical_release_test_gate.md`: defines deterministic suite discovery, continue-after-failure execution, aggregate results, sandbox-only reports and non-authority boundaries.

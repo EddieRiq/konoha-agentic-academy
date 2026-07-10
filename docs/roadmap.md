@@ -629,3 +629,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.1.2 Sandbox Evidence Hygiene
 
 - Ignore generated runtime evidence under `sandbox/` while preserving public documentation and placeholder files.
+
+### v3.1.3 Canonical Release Test Gate
+
+- Add one reliable release-test command that discovers non-package test directories, executes every suite independently and fails if any suite fails.

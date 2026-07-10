@@ -87,6 +87,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v3.1.3 Canonical Release Test Gate with deterministic suite discovery, independent unittest execution, continue-after-failure behavior, aggregate summaries, sandbox-only JSON reports, tests, schema, example, guide, roadmap scope and review Scroll.
 - Added v3.1.2 Sandbox Evidence Hygiene to keep generated runtime evidence under `sandbox/` local while preserving the public README and placeholder files.
 - Added v3.1.1 Hokage Shell Review Panels with human summaries, Markdown step reports, review-latest-result flow, mission timeline view, on-demand JSON/patch-plan viewers, token summaries, suppressed issue visibility, tests, examples, guide, roadmap, and review Scroll.
 - Added v3.1.0 Hokage Terminal Shell with terminal-first mission UI, persona selection, ASCII panels, deterministic repo scan, optional local model audit handoff, event logs, schemas, examples, guide, roadmap, review Scroll, and private Obsidian-compatible memory notes.

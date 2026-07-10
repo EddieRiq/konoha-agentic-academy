@@ -216,3 +216,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Hokage Shell review panel example
 
 - `hokage_shell/hokage_shell_step_report.example.md`: example Markdown step report displayed by the terminal review panel.
+
+## Canonical release test gate example
+
+- `release_testing/canonical_release_test_gate_report.example.json`: example aggregate report for independently executed test suites.

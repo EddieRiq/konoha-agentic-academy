@@ -483,3 +483,7 @@ Before a tool becomes active:
 - review level is assigned;
 - Shikamaru has drafted documentation;
 - required approval has been granted.
+
+## Canonical release test gate
+
+- `release_testing/run_release_tests.py`: discovers and executes each immediate test suite independently, aggregates results, and optionally writes a JSON report under `sandbox/`.

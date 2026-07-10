@@ -1,0 +1,95 @@
+{
+  "authority": {
+    "git_operations_require_separate_approval": true,
+    "test_report_is_evidence_only": true,
+    "test_success_is_not_permission": true
+  },
+  "boundaries": {
+    "arbitrary_shell": "blocked",
+    "git_operations": "blocked",
+    "model_invocation": "blocked",
+    "network_access": "blocked",
+    "private_context_access": "blocked",
+    "report_writes": "optional_sandbox_only",
+    "repository_mutation": "blocked"
+  },
+  "generated_at": "2026-07-10T15:00:00+00:00",
+  "passed": true,
+  "pattern": "test_*.py",
+  "python_executable": "/example/.venv/bin/python",
+  "repo_root": "/example/konoha-agentic-academy",
+  "report_type": "canonical_release_test_gate_report",
+  "requested_suites": [],
+  "schema_version": "1.0.0",
+  "status": "passed",
+  "suites": [
+    {
+      "command": [
+        "/example/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/alpha",
+        "-p",
+        "test_*.py"
+      ],
+      "duration_seconds": 0.101,
+      "errors": 0,
+      "expected_failures": 0,
+      "failures": 0,
+      "passed": true,
+      "path": "tests/alpha",
+      "returncode": 0,
+      "skipped": 0,
+      "status": "passed",
+      "stderr": ".\nRan 1 test\n\nOK\n",
+      "stdout": "",
+      "suite": "alpha",
+      "tests": 1,
+      "timed_out": false,
+      "unexpected_successes": 0
+    },
+    {
+      "command": [
+        "/example/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/beta",
+        "-p",
+        "test_*.py"
+      ],
+      "duration_seconds": 0.13,
+      "errors": 0,
+      "expected_failures": 0,
+      "failures": 0,
+      "passed": true,
+      "path": "tests/beta",
+      "returncode": 0,
+      "skipped": 0,
+      "status": "passed",
+      "stderr": "..\nRan 2 tests\n\nOK\n",
+      "stdout": "",
+      "suite": "beta",
+      "tests": 2,
+      "timed_out": false,
+      "unexpected_successes": 0
+    }
+  ],
+  "summary": {
+    "discovered_suite_count": 2,
+    "duration_seconds": 0.231,
+    "error_count": 0,
+    "failed_suite_count": 0,
+    "failure_count": 0,
+    "passed_suite_count": 2,
+    "selected_suite_count": 2,
+    "skipped_count": 0,
+    "test_count": 3,
+    "timeout_count": 0
+  },
+  "tests_root": "/example/konoha-agentic-academy/tests",
+  "timeout_seconds_per_suite": 180
+}

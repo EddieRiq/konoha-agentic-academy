@@ -724,3 +724,13 @@ The shell still does not authorize patches, commands, Git operations or mission 
 - Sandbox Evidence Hygiene keeps generated mission sessions, audit reports, Git Gate evidence and smoke outputs local while preserving the public sandbox README and placeholder files.
 
 The change does not delete existing evidence and does not alter Hokage Shell, local model audit or beta runtime behavior.
+
+## v3.1.3 Canonical Release Test Gate
+
+- The canonical release test gate discovers every immediate `tests/*` suite containing `test_*.py`, executes each suite independently, continues after failures, and returns a non-zero result when any suite fails.
+
+```bash
+python tools/release_testing/run_release_tests.py
+```
+
+Test results are evidence only and do not authorize Git or release operations.

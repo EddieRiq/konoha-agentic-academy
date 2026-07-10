@@ -640,3 +640,7 @@ A Scroll is ready for active use only when:
 ## Sandbox Evidence Hygiene review
 
 - `sandbox_evidence_hygiene_review_scroll.md`: reviews ignore behavior, public sandbox allowlist, smoke cleanliness and private-context boundaries.
+
+## Canonical Release Test Gate review
+
+- `canonical_release_test_gate_review_scroll.md`: reviews suite discovery, failure propagation, report boundaries and release-test evidence.
