@@ -718,3 +718,9 @@ The shell is not permission. Hokage orchestrates but does not execute. Model out
 - Hokage Shell Review Panels: improves the terminal UI with human summaries, Markdown step reports, review-latest-result flow, mission timeline view, on-demand raw JSON/patch plan views, and terminal-friendly detail rendering.
 
 The shell still does not authorize patches, commands, Git operations or mission closure.
+
+## v3.1.2 Sandbox Evidence Hygiene
+
+- Sandbox Evidence Hygiene keeps generated mission sessions, audit reports, Git Gate evidence and smoke outputs local while preserving the public sandbox README and placeholder files.
+
+The change does not delete existing evidence and does not alter Hokage Shell, local model audit or beta runtime behavior.

@@ -345,3 +345,7 @@ Do not hide doctrine changes inside guides.
 ## Hokage Shell Review Panels
 
 - `hokage_terminal_shell_review_panels.md`: defines review panels, Markdown step reports, detail viewer fallback, raw JSON/patch-plan views, and false-positive summary behavior.
+
+## Sandbox Evidence Hygiene
+
+- `sandbox_evidence_hygiene.md`: defines the public sandbox allowlist, local runtime evidence boundary and deterministic verification steps.

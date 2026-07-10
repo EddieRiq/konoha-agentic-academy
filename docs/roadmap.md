@@ -625,3 +625,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.1.1 Hokage Shell Review Panels
 
 - Add review panels to the terminal-first Hokage Shell, replacing path-heavy output with summaries and on-demand Markdown, JSON and patch-plan views.
+
+### v3.1.2 Sandbox Evidence Hygiene
+
+- Ignore generated runtime evidence under `sandbox/` while preserving public documentation and placeholder files.

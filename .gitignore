@@ -178,6 +178,15 @@ Thumbs.db
 
 # --- End Konoha local/private boundary ---
 
-# Keep public sandbox placeholder
+# Local sandbox runtime evidence
+# Keep only the public README and placeholder files visible to Git.
+sandbox/*
+!sandbox/README.md
+
 !sandbox/tmp/
+sandbox/tmp/*
 !sandbox/tmp/.gitkeep
+
+!sandbox/worktrees/
+sandbox/worktrees/*
+!sandbox/worktrees/.gitkeep

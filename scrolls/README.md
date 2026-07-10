@@ -636,3 +636,7 @@ A Scroll is ready for active use only when:
 ## Hokage Shell Review Panels review
 
 - `hokage_shell_review_panels_review_scroll.md`: reviews terminal summaries, detail viewers, timeline, suppressed issues, patch visibility and safety boundaries.
+
+## Sandbox Evidence Hygiene review
+
+- `sandbox_evidence_hygiene_review_scroll.md`: reviews ignore behavior, public sandbox allowlist, smoke cleanliness and private-context boundaries.

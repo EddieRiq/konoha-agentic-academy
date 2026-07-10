@@ -86,6 +86,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v3.1.2 Sandbox Evidence Hygiene to keep generated runtime evidence under `sandbox/` local while preserving the public README and placeholder files.
 - Added v3.1.1 Hokage Shell Review Panels with human summaries, Markdown step reports, review-latest-result flow, mission timeline view, on-demand JSON/patch-plan viewers, token summaries, suppressed issue visibility, tests, examples, guide, roadmap, and review Scroll.
 - Added v3.1.0 Hokage Terminal Shell with terminal-first mission UI, persona selection, ASCII panels, deterministic repo scan, optional local model audit handoff, event logs, schemas, examples, guide, roadmap, review Scroll, and private Obsidian-compatible memory notes.
 - Added v3.0.2 Repo Audit Deterministic Guard with model-suggested issues, deterministic marker validation, validated issues, suppressed possible false positives, guarded patch planning, schema update, tests, examples, guide, roadmap, and review Scroll.
