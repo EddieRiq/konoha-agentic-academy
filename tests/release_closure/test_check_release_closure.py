@@ -1,9 +1,13 @@
 import importlib.util
+import io
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "tools" / "release_closure" / "check_release_closure.py"
@@ -211,6 +215,80 @@ class ReleaseClosureGuardTests(unittest.TestCase):
         )
         self.assertFalse(loaded["passed"])
         self.assertFalse(loaded["evidence_head_matches"])
+
+
+    def test_run_canonical_tests_parses_large_json_without_truncation(self):
+        repo = Path(self.tmp.name) / "large-json-repo"
+        runner = repo / "tools" / "release_testing" / "run_release_tests.py"
+        runner.parent.mkdir(parents=True)
+
+        runner.write_text(
+            "import json\n"
+            "payload = {\n"
+            "    'report_type': 'canonical_release_test_gate_report',\n"
+            "    'schema_version': '1.0.0',\n"
+            "    'passed': True,\n"
+            "    'summary': {\n"
+            "        'failed_suite_count': 0,\n"
+            "        'passed_suite_count': 1,\n"
+            "    },\n"
+            "    'padding': 'x' * 9000,\n"
+            "}\n"
+            "print(json.dumps(payload))\n",
+            encoding="utf-8",
+        )
+
+        commands = [
+            ["git", "init"],
+            ["git", "config", "user.email", "tests@example.invalid"],
+            ["git", "config", "user.name", "Konoha Tests"],
+            ["git", "add", "."],
+            ["git", "commit", "-m", "Create large JSON fixture"],
+        ]
+        for command in commands:
+            subprocess.run(
+                command,
+                cwd=repo,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+
+        result = self.module.run_canonical_tests(repo, timeout=30)
+
+        self.assertTrue(result["parsed"])
+        self.assertTrue(result["passed"])
+        self.assertEqual(
+            result["summary"]["failed_suite_count"],
+            0,
+        )
+
+    def test_main_returns_one_when_release_is_incomplete(self):
+        report = {
+            "status": "incomplete",
+            "status_code": "NEEDS_TAG_CREATION",
+            "release_closed": False,
+        }
+
+        argv = [
+            "--target-version",
+            "v3.1.4",
+            "--github-repo",
+            "owner/repository",
+            "--run-tests",
+            "--json",
+        ]
+
+        with mock.patch.object(
+            self.module,
+            "build_report",
+            return_value=report,
+        ):
+            with redirect_stdout(io.StringIO()):
+                returncode = self.module.main(argv)
+
+        self.assertEqual(returncode, 1)
+
 
 
 if __name__ == "__main__":

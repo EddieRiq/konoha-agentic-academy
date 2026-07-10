@@ -48,6 +48,7 @@ def run_command(
     command: Sequence[str],
     cwd: Path,
     timeout: int = 120,
+    truncate_output: bool = True,
 ) -> dict[str, Any]:
     try:
         completed = subprocess.run(
@@ -63,8 +64,16 @@ def run_command(
             "command": list(command),
             "returncode": completed.returncode,
             "passed": completed.returncode == 0,
-            "stdout": truncate(completed.stdout),
-            "stderr": truncate(completed.stderr),
+            "stdout": (
+                truncate(completed.stdout)
+                if truncate_output
+                else completed.stdout
+            ),
+            "stderr": (
+                truncate(completed.stderr)
+                if truncate_output
+                else completed.stderr
+            ),
             "timed_out": False,
         }
     except subprocess.TimeoutExpired as exc:
@@ -72,8 +81,16 @@ def run_command(
             "command": list(command),
             "returncode": None,
             "passed": False,
-            "stdout": truncate(exc.stdout if isinstance(exc.stdout, str) else ""),
-            "stderr": truncate(exc.stderr if isinstance(exc.stderr, str) else ""),
+            "stdout": (
+                truncate(exc.stdout if isinstance(exc.stdout, str) else "")
+                if truncate_output
+                else (exc.stdout if isinstance(exc.stdout, str) else "")
+            ),
+            "stderr": (
+                truncate(exc.stderr if isinstance(exc.stderr, str) else "")
+                if truncate_output
+                else (exc.stderr if isinstance(exc.stderr, str) else "")
+            ),
             "timed_out": True,
         }
 
@@ -200,7 +217,12 @@ def run_canonical_tests(repo_root: Path, timeout: int) -> dict[str, Any]:
         ".",
         "--json",
     ]
-    result = run_command(command, repo_root, timeout=timeout)
+    result = run_command(
+        command,
+        repo_root,
+        timeout=timeout,
+        truncate_output=False,
+    )
     head_after = git_stdout(repo_root, "rev-parse", "HEAD")
     status_after = git_stdout(
         repo_root,
@@ -250,7 +272,7 @@ def run_canonical_tests(repo_root: Path, timeout: int) -> dict[str, Any]:
         "head_unchanged": head_before == head_after,
         "status_before": status_before,
         "status_after": status_after,
-        "stderr": result["stderr"],
+        "stderr": truncate(result["stderr"]),
     }
 
 
