@@ -121,6 +121,8 @@ def build_charter(mission_id: str, title: str, task: str, risk_level: str, actor
 mission_id: {mission_id}
 risk_level: {risk_level}
 human_actor: {actor}
+teachback_required: true
+teachback_required_level: {teachback_level_for_risk(risk_level)}
 generated_at: {utc_now()}
 
 ## Goal
@@ -163,6 +165,15 @@ notification state, and optional memory notes under explicitly provided roots.
 """
 
 
+def teachback_level_for_risk(risk_level: str) -> int:
+    return {
+        "low": 1,
+        "medium": 2,
+        "high": 3,
+        "critical": 4,
+    }.get((risk_level or "medium").lower(), 2)
+
+
 def build_manifest(mission_id: str, title: str, task: str, risk_level: str, run_id: str, actor: str) -> Dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,
@@ -174,6 +185,11 @@ def build_manifest(mission_id: str, title: str, task: str, risk_level: str, run_
         "created_at": utc_now(),
         "created_by": actor,
         "current_run_id": run_id,
+        "teachback": {
+            "required": True,
+            "required_level": teachback_level_for_risk(risk_level),
+            "skip_allowed": False,
+        },
         "authority": AUTHORITY,
         "boundaries": BOUNDARIES,
     }

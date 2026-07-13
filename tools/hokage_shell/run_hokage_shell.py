@@ -66,6 +66,7 @@ APPROVAL_TOKENS = {
     "inspect_repo": "INSPECT_PUBLIC_REPO",
     "run_local_audit": "RUN_LOCAL_MODEL_AUDIT",
     "write_memory": "WRITE_LOCAL_OBSIDIAN_MEMORY",
+    "record_review": "RECORD_HOKAGE_REVIEW",
 }
 
 DEFAULT_PERSONAS: Dict[str, Dict[str, Any]] = {
@@ -331,6 +332,50 @@ def create_session(paths: ShellPaths, task: str, persona: Dict[str, Any], missio
         "token_usage": {},
         "next_recommended_action": "Request human approval before inspecting repository files.",
     }
+    mission_path = session_dir(paths, mission_id)
+    for relative in [
+        "reports",
+        "plans",
+        "approvals",
+        "evidence",
+        "inputs",
+        "context",
+        "outputs",
+    ]:
+        (mission_path / relative).mkdir(parents=True, exist_ok=True)
+
+    write_json(
+        mission_path / "mission_manifest.json",
+        {
+            "schema_version": SCHEMA_VERSION,
+            "mission_id": mission_id,
+            "title": task.splitlines()[0][:120] or mission_id,
+            "task": task,
+            "risk_level": "medium",
+            "runtime": "hokage_shell",
+            "created_at": utc_now(),
+            "teachback": {
+                "required": True,
+                "required_level": 2,
+                "skip_allowed": False,
+            },
+            "boundaries": BOUNDARIES,
+        },
+    )
+    (mission_path / "charter.md").write_text(
+        (
+            f"# Mission Charter: {mission_id}\n\n"
+            "risk_level: medium\n"
+            "teachback_required: true\n"
+            "teachback_required_level: 2\n\n"
+            "## Goal\n\n"
+            f"{task}\n\n"
+            "## Boundary\n\n"
+            "The Hokage Shell is a supervised UI. "
+            "Review, Teachback and closure remain explicit gates.\n"
+        ),
+        encoding="utf-8",
+    )
     write_json(session_path(paths, mission_id), payload)
     append_event(paths, mission_id, "session_created", {"task": task, "persona": payload["persona"]})
     return payload
@@ -1133,6 +1178,7 @@ def run_states(args: argparse.Namespace) -> int:
             "interactive",
             "smoke",
             "review",
+            "review --confirm-review",
             "missions",
             "resume",
             "status",
@@ -1283,30 +1329,140 @@ def interactive_loop(args: argparse.Namespace) -> int:
 
 
 def run_review(args: argparse.Namespace) -> int:
-    paths = make_paths(args.repo_root, args.workspace_root, args.memory_root)
+    paths = make_paths(
+        args.repo_root,
+        args.workspace_root,
+        args.memory_root,
+    )
     mission_id = args.mission_id or latest_mission_id(paths)
-    report = latest_step_report(paths, mission_id)
-    payload = {
-        "schema_version": SCHEMA_VERSION,
-        "report_type": "hokage_shell_review_report",
-        "status": "passed" if report else "not_found",
-        "mission_id": mission_id,
-        "latest_report_path": str(report) if report else None,
-        "latest_audit_json": str(latest_audit_json(paths, mission_id)) if latest_audit_json(paths, mission_id) else None,
-        "latest_patch_plan_json": str(latest_patch_plan_json(paths, mission_id)) if latest_patch_plan_json(paths, mission_id) else None,
-    }
-    if args.json:
-        print(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True))
+    report_path = latest_step_report(paths, mission_id)
+
+    if args.confirm_review:
+        if args.approval_token != "RECORD_HOKAGE_REVIEW":
+            print("HOKAGE REVIEW BLOCKED")
+            print("Blocker: invalid review approval token")
+            return 1
+        if args.decision not in {
+            "approved",
+            "changes_requested",
+        }:
+            print("HOKAGE REVIEW BLOCKED")
+            print(
+                "Blocker: --decision must be approved "
+                "or changes_requested"
+            )
+            return 1
+        if not mission_id:
+            print("HOKAGE REVIEW BLOCKED")
+            print("Blocker: no mission selected")
+            return 1
+        if not report_path:
+            print("HOKAGE REVIEW BLOCKED")
+            print("Blocker: no step report available")
+            return 1
+        if len((args.review_summary or "").strip()) < 20:
+            print("HOKAGE REVIEW BLOCKED")
+            print(
+                "Blocker: review summary must be at least "
+                "20 characters"
+            )
+            return 1
+
+        review_id = safe_slug(
+            args.review_id
+            or f"{mission_id}-review"
+        )
+        output = (
+            session_dir(paths, mission_id)
+            / "reports"
+            / f"{review_id}_konoha_human_review_record.json"
+        )
+        payload = {
+            "schema_version": SCHEMA_VERSION,
+            "report_type": "konoha_human_review_record",
+            "status": "passed",
+            "review_id": review_id,
+            "mission_id": mission_id,
+            "review_decision": args.decision,
+            "human_approval": args.decision == "approved",
+            "reviewed_by": args.human_actor,
+            "review_summary": args.review_summary.strip(),
+            "source_report": str(
+                report_path.relative_to(
+                    session_dir(paths, mission_id)
+                )
+            ),
+            "generated_at": utc_now(),
+            "authority": {
+                "review_records_human_evidence_only": True,
+                "review_does_not_authorize_execution": True,
+                "review_does_not_close_mission": True,
+            },
+            "boundaries": BOUNDARIES,
+        }
+        write_json(output, payload)
+        append_event(
+            paths,
+            mission_id,
+            "human_review_recorded",
+            {
+                "decision": args.decision,
+                "path": str(output),
+            },
+        )
     else:
-        print(frame("Review Latest Result", [
-            f"status: {payload['status']}",
-            f"mission_id: {payload.get('mission_id')}",
-            f"latest_report: {short_path(payload.get('latest_report_path'), paths.repo_root)}",
-            f"latest_audit_json: {short_path(payload.get('latest_audit_json'), paths.repo_root)}",
-            f"latest_patch_plan_json: {short_path(payload.get('latest_patch_plan_json'), paths.repo_root)}",
-        ]))
-        if args.view and report:
-            view_file(report, title="Markdown Report")
+        payload = {
+            "schema_version": SCHEMA_VERSION,
+            "report_type": "hokage_shell_review_report",
+            "status": "passed" if report_path else "not_found",
+            "mission_id": mission_id,
+            "latest_report_path": (
+                str(report_path) if report_path else None
+            ),
+            "latest_audit_json": (
+                str(latest_audit_json(paths, mission_id))
+                if latest_audit_json(paths, mission_id)
+                else None
+            ),
+            "latest_patch_plan_json": (
+                str(latest_patch_plan_json(paths, mission_id))
+                if latest_patch_plan_json(paths, mission_id)
+                else None
+            ),
+            "authority": {
+                "display_is_not_review_approval": True,
+            },
+        }
+
+    if args.json:
+        print(
+            json.dumps(
+                payload,
+                indent=2,
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+        )
+    else:
+        print(
+            frame(
+                "Review Latest Result",
+                [
+                    f"status: {payload['status']}",
+                    f"mission_id: {payload.get('mission_id')}",
+                    (
+                        "decision: "
+                        f"{payload.get('review_decision') or 'not_recorded'}"
+                    ),
+                    (
+                        "latest_report: "
+                        f"{short_path(payload.get('latest_report_path'), paths.repo_root)}"
+                    ),
+                ],
+            )
+        )
+        if args.view and report_path:
+            view_file(report_path, title="Markdown Report")
     return 0
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1340,6 +1496,15 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--mission-id", default=None, help="Mission id. Defaults to latest mission.")
     review.add_argument("--json", action="store_true", help="Print JSON.")
     review.add_argument("--view", action="store_true", help="Open or print latest Markdown report.")
+    review.add_argument("--confirm-review", action="store_true")
+    review.add_argument("--approval-token", default="")
+    review.add_argument(
+        "--decision",
+        choices=["approved", "changes_requested"],
+    )
+    review.add_argument("--review-id")
+    review.add_argument("--review-summary", default="")
+    review.add_argument("--human-actor", default="human")
     review.set_defaults(func=run_review)
 
 

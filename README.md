@@ -24,19 +24,39 @@ Konoha is designed to reduce hallucinations, uncontrolled edits, hidden assumpti
 
 ## Current status
 
-This repository contains the public Academy baseline:
+Konoha is a local-first, terminal-first supervised mission framework.
+
+The current public repository includes:
 
 ```text
-- foundational doctrine;
-- mission, approval, safety, context, review, learning, memory, and teachback protocols;
-- role policies for Hokage, Kagebunshin, Jounin, Shikamaru, and Council;
-- public Clans for reusable specialization;
-- Scrolls for bounded workflows;
-- templates for missions, reviews, memory, learning, and evals;
-- guides for first use, local villages, coding loops, and private literature handling.
+- Unified Mission Runtime and Konoha Beta supervised task runtime;
+- Hokage Terminal Shell with review panels, continuity and operator status;
+- controlled command, model, apply and Git approval gates;
+- deterministic task contracts, evidence bundles and action proposals;
+- structured Teachback evidence and evidence-bound mission closure;
+- local/private Obsidian-compatible memory;
+- canonical release tests, supervised release workflow and recovery status;
+- supervised package installation scope guard;
+- one canonical Python CLI entrypoint backed by a command registry.
 ```
 
-Runtime automation, UI implementation, marketplace sync, adapters, and local model orchestration are intentionally deferred until the manual workflow is clear and reviewable.
+The canonical repository entrypoint is:
+
+```bash
+python tools/konoha_cli.py --help
+```
+
+`v3.2.6` closes repository consolidation, Teachback integration and CLI
+coherence. The remaining product milestones are intentionally bounded:
+
+```text
+v3.3.0  one-line terminal installation + package-to-release wrapper
+v3.4.0  finished product experience and release closure
+```
+
+Historical documentation below records how the repository evolved. Statements
+describing runtime, CLI or UI as “future” apply to their original release
+baseline, not to the current product.
 
 ## Repository map
 
@@ -501,9 +521,10 @@ The staging gate can preview or stage explicit allowlisted paths using Git. It r
 
 ## Unified CLI entrypoint
 
-- Unified CLI Entrypoint: provides one command surface over the existing safe local-first Konoha tools.
-
-The unified CLI delegates to allowlisted internal tools. It does not execute missions, bypass approval gates, perform Git commits or pushes, invoke adapters, access private context, or authorize runtime actions.
+- `tools/konoha_cli.py` is the canonical repository entrypoint.
+- `tools/command_registry.py` defines active and deprecated delegated commands.
+- The CLI exposes doctor, status, shell, mission, package and release surfaces.
+- It never injects approval tokens, enables network, or weakens delegated gates.
 
 ## Project config and policy contract
 
@@ -781,3 +802,18 @@ The guard never creates commits, tags or releases.
 
 - `tools/package_installation/run_supervised_package_installation.py` validates extracted package paths separately from bounded helper changes.
 - Package installation completes only when their exact public union matches the manifest.
+
+
+## v3.2.6 Repository Consolidation, Teachback Closure and CLI Coherence
+
+- Structured Teachback records use levels `0..4`, explicit human evidence,
+  execution/review sources and deterministic conflict detection.
+- Mission Closure validates successful execution, approved human review and a
+  closure-eligible Teachback record before accepting the separate closure token.
+- Identical closure reentry is idempotent; contradictory evidence remains
+  blocked even when `--force` is present.
+- Beta Runtime and Hokage Shell record the same human review contract.
+- Unified Mission Runtime, Product Runtime and Hokage Shell declare compatible
+  Teachback requirements in their mission manifests.
+- The canonical CLI delegates through one command registry while preserving all
+  underlying approval, network and filesystem boundaries.

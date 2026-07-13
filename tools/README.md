@@ -523,3 +523,10 @@ Before a tool becomes active:
 ## Supervised package installation
 
 - `package_installation/run_supervised_package_installation.py`: previews or applies a bounded package helper while enforcing exact direct/helper/public scopes.
+
+## v3.2.6 canonical CLI and Teachback
+
+- `konoha_cli.py` is the canonical repository entrypoint.
+- `command_registry.py` defines active/deprecated routes and non-authority metadata.
+- `teachback/manage_teachback.py` records structured human Teachback evidence.
+- `mission_closure/close_mission.py` composes execution, approved review, Teachback and explicit closure approval.

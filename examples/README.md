@@ -257,3 +257,11 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Supervised package installation example
 
 - `package_installation/supervised_package_installation_manifest.example.json`: separates direct ZIP paths, helper paths and their exact public union.
+
+## v3.2.6 Teachback and canonical CLI examples
+
+- `teachback/teachback_record.example.json`: structured human Teachback evidence.
+- `mission_closure/mission_closure_sources.example.json`: execution/review/Teachback closure source mapping.
+- `cli/konoha_command_registry.example.json`: active and deprecated canonical CLI registry.
+- `package_installation/v3_2_6_repository_consolidation_manifest.example.json`: exact package installation scope.
+- `release_workflow/v3_2_6_repository_consolidation_release_plan.example.json`: supervised release plan.

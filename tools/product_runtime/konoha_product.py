@@ -283,6 +283,10 @@ def create_mission(
 
 {scope}
 
+## Teachback
+
+Teachback is required at level 2 before mission closure.
+
 ## Execution boundary
 
 Execution: blocked.
@@ -313,6 +317,12 @@ Private context access is blocked by default.
         "mission_dir": str(mission_dir),
         "directories": MISSION_DIRS,
         "status": "draft",
+        "risk_level": "medium",
+        "teachback": {
+            "required": True,
+            "required_level": 2,
+            "skip_allowed": False,
+        },
         "requires_human_approval": True,
         "safety_boundaries": dict(SAFETY_BOUNDARIES),
     }

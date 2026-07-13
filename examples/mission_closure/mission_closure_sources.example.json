@@ -1,0 +1,21 @@
+{
+  "closure": {
+    "approval_token": "CLOSE_MISSION_WITH_TEACHBACK",
+    "authority": "human approval only"
+  },
+  "execution": {
+    "expected_state": "successful or exit_code 0",
+    "path": "evidence/command_results/execution.json"
+  },
+  "mission_id": "example-mission",
+  "review": {
+    "expected_decision": "approved",
+    "human_approval": true,
+    "path": "reports/human-review_konoha_human_review_record.json"
+  },
+  "teachback": {
+    "completed_by_user": true,
+    "expected_result": "passed",
+    "path": "reports/example-teachback_teachback_record.json"
+  }
+}

@@ -1,38 +1,18 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://konoha.local/schemas/runtime/mission_closure_report.schema.json",
-  "title": "Konoha Mission Closure Report",
-  "type": "object",
-  "required": [
-    "schema_version",
-    "tool",
-    "status",
-    "mission_id",
-    "closure_id",
-    "state",
-    "evidence"
-  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
   "properties": {
-    "schema_version": {
-      "type": "string"
+    "blockers": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
     },
-    "tool": {
-      "const": "mission_closure_gate"
+    "closure": {
+      "type": "object"
     },
-    "status": {
-      "enum": [
-        "preview",
-        "passed",
-        "failed"
-      ]
-    },
-    "target_release": {
-      "type": "string"
-    },
-    "created_at": {
-      "type": "string"
-    },
-    "mission_id": {
+    "closure_fingerprint": {
       "type": [
         "string",
         "null"
@@ -44,42 +24,106 @@
         "null"
       ]
     },
-    "state": {
-      "type": "object"
+    "closure_material": {
+      "type": [
+        "object",
+        "null"
+      ]
     },
-    "paths": {
-      "type": "object"
+    "created_at": {
+      "type": "string"
     },
     "evidence": {
       "type": "object"
     },
+    "idempotent_reentry": {
+      "type": "boolean"
+    },
     "memory_outputs": {
-      "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "type": "array"
+    },
+    "mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "mission_outputs": {
-      "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "type": "array"
     },
     "notification_state": {
       "type": "string"
     },
-    "blockers": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+    "paths": {
+      "type": "object"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "state": {
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "preview",
+        "passed",
+        "failed"
+      ]
+    },
+    "status_code": {
+      "enum": [
+        "READY_FOR_CLOSURE_REVIEW",
+        "READY_FOR_HUMAN_CLOSURE",
+        "MISSION_CLOSED",
+        "BLOCKED_MISSION_CLOSURE"
+      ]
+    },
+    "target_release": {
+      "type": "string"
+    },
+    "teachback": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "tool": {
+      "const": "mission_closure_gate"
+    },
+    "validated_sources": {
+      "type": "object"
     },
     "warnings": {
-      "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "type": "array"
     }
   },
-  "additionalProperties": true
+  "required": [
+    "schema_version",
+    "tool",
+    "status",
+    "status_code",
+    "mission_id",
+    "closure_id",
+    "state",
+    "paths",
+    "evidence",
+    "validated_sources",
+    "teachback",
+    "closure_fingerprint",
+    "idempotent_reentry",
+    "notification_state",
+    "blockers",
+    "warnings"
+  ],
+  "title": "Konoha Mission Closure Report",
+  "type": "object"
 }

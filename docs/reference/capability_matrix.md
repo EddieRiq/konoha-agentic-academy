@@ -1,44 +1,63 @@
 # Konoha Capability Matrix
 
-This matrix summarizes what Konoha Agentic Academy supports at v1.0.0.
+## Canonical operator surfaces
 
-| Capability | v1.0.0 status | Boundary |
-|---|---:|---|
-| Mission Charter doctrine | Supported | Required before execution-style workflows |
-| Dry-run runtime packages | Supported | Validated before use |
-| Runtime package validation | Supported | Read-only |
-| Runtime package inspection | Supported | Read-only |
-| Sandbox run preparation | Supported | Sandbox-only |
-| Dry-run runtime runner | Supported | No mission execution |
-| Run registry | Supported | Read-only |
-| Public repo inspection | Supported | Read-only |
-| Controlled artifact writing | Supported | Sandbox proposed outputs only |
-| Apply plan preview | Supported | Preview by default |
-| Approved apply to allowlisted paths | Supported | Human token required |
-| Git readiness inspection | Supported | Read-only |
-| Git staging gate | Supported | Explicit approval required |
-| Git commit gate | Supported | Already staged allowlisted files only |
-| Integrated smoke tests | Supported | Delegated safe checks |
-| Mock adapter | Supported | Deterministic, local-only |
-| Adapter invocation gate | Supported | Real adapters blocked by default |
-| Dogfood mission suite | Supported | Final pre-release evidence |
-| Real adapter execution | Not supported by default | Blocked |
-| Autonomous shell execution | Not supported | Blocked |
-| Autonomous Git push | Not supported | Blocked |
-| Private context access by default | Not supported | Blocked |
-| Network access | Not supported by runtime gates | Blocked |
-| Background autonomous missions | Not supported | Blocked |
+| Capability | Canonical command | Delegated component | Mutation | Network | Approval |
+|---|---|---|---|---|---|
+| Doctor | `doctor` | Product Runtime | read-only | blocked | none |
+| Operator status | `status` | Hokage Shell | read-only | blocked | none |
+| Terminal shell | `shell` | Hokage Shell | supervised local | explicit delegated only | delegated |
+| Mission start | `mission start` | Beta Runtime | mission workspace | blocked | `START_BETA_MISSION` |
+| Mission runtime | `mission run` | Unified Mission Runtime | mission workspace | blocked | `START_UNIFIED_MISSION_RUNTIME` |
+| Mission plan | `mission plan` | Beta Runtime | mission workspace | blocked | `PLAN_BETA_MISSION` |
+| Human review | `mission review` | Beta Runtime | human evidence | blocked | `RECORD_BETA_REVIEW` |
+| Teachback | `mission teachback` | Teachback Gate | human evidence | blocked | `RECORD_TEACHBACK_EVIDENCE` |
+| Mission closure | `mission close` | Mission Closure | mission + explicit memory | blocked | `CLOSE_MISSION_WITH_TEACHBACK` |
+| Package status | `package status` | Package Installation | read-only | blocked | none |
+| Package install | `package install` | Package Installation | exact manifest scope | blocked | `APPLY_SUPERVISED_PACKAGE_INSTALLATION` |
+| Release status | `release status` | Release Workflow | read-only | optional read-only | none |
 
-## v1.0 interpretation
+## Component roles
 
-v1.0.0 is a stable safe local-first dry-run runtime. It is not a fully autonomous agent platform.
+```text
+tools/konoha_cli.py
+  public repository entrypoint
 
-The system is stable when:
+tools/command_registry.py
+  command and delegation metadata
 
-- the command surface is understandable;
-- evidence is generated before action;
-- sandbox boundaries are preserved;
-- approval tokens are required for sensitive transitions;
-- real adapters remain disabled by default;
-- Git write actions remain gated;
-- release readiness can be checked repeatably.
+tools/beta_runtime/run_konoha_beta.py
+  supervised mission start, plan, evidence, review and Git gates
+
+tools/mission_runtime/run_unified_mission.py
+  mission charter, plan, proposals and runtime evidence
+
+tools/hokage_shell/run_hokage_shell.py
+  terminal UX, inspection, continuity and human review recording
+
+tools/teachback/manage_teachback.py
+  structured human understanding evidence
+
+tools/mission_closure/close_mission.py
+  evidence composition and final human closure
+
+tools/package_installation/run_supervised_package_installation.py
+  exact direct/helper/public package scope
+
+tools/release_workflow/run_supervised_release.py
+  Acceptance → Git → tag → GitHub Release closure
+```
+
+## Deprecated compatibility
+
+Deprecated CLI commands remain routed only for compatibility. They are not the
+recommended product surface. Their replacements are listed by:
+
+```bash
+python tools/konoha_cli.py --registry-json
+```
+
+## Authority
+
+No row grants permission. The delegated tool validates all tokens, paths,
+network flags and evidence.

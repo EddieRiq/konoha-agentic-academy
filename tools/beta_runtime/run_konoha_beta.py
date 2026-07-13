@@ -32,6 +32,13 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from tools.mission_closure.close_mission import main as close_mission_main  # noqa: E402
+
+
 APPROVAL_TOKENS = {
     "START_BETA_MISSION": "Start or update a supervised beta mission workspace.",
     "PLAN_BETA_MISSION": "Record beta plan and command proposals.",
@@ -46,10 +53,12 @@ APPROVAL_TOKENS = {
     "APPROVE_BETA_GIT_STAGE": "Run gated git add for approved paths.",
     "APPROVE_BETA_GIT_COMMIT": "Run gated git commit for approved message.",
     "APPROVE_BETA_GIT_PUSH": "Run gated git push with --allow-network.",
-    "CLOSE_BETA_MISSION": "Close beta mission after teachback.",
+    "RECORD_TEACHBACK_EVIDENCE": "Record structured human Teachback evidence.",
+    "CLOSE_MISSION_WITH_TEACHBACK": "Close a mission after validated execution, review and Teachback evidence.",
+    "CLOSE_BETA_MISSION": "Deprecated alias. Use CLOSE_MISSION_WITH_TEACHBACK through the shared closure gate.",
 }
 
-TEACHBACK_CONFIRMATION = "I_CAN_EXPLAIN_AND_DEFEND_THIS_MISSION"
+TEACHBACK_CONFIRMATION = "I_CAN_EXPLAIN_AND_DEFEND_THIS_MISSION"  # deprecated compatibility marker
 
 BOUNDARIES = {
     "autonomous_background_agents": "blocked",
@@ -513,6 +522,15 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     return 0
 
 
+def teachback_level_for_risk(risk_level: str) -> int:
+    return {
+        "low": 1,
+        "medium": 2,
+        "high": 3,
+        "critical": 4,
+    }.get((risk_level or "medium").lower(), 2)
+
+
 def cmd_start(args: argparse.Namespace) -> int:
     if not args.confirm_start:
         payload = {
@@ -549,6 +567,13 @@ def cmd_start(args: argparse.Namespace) -> int:
         "runtime": "konoha_beta_v3",
         "task_info": task_info,
         "model_strategy": model_strategy,
+        "teachback": {
+            "required": True,
+            "required_level": teachback_level_for_risk(
+                task_info.get("risk_level", "medium")
+            ),
+            "skip_allowed": False,
+        },
         "boundaries": BOUNDARIES,
     }
     manifest_path = base / "mission_manifest.json"
@@ -1175,61 +1200,104 @@ def cmd_status(args: argparse.Namespace) -> int:
 
 
 def cmd_review(args: argparse.Namespace) -> int:
-    base = mission_dir(safe_root(args.workspace_root), args.mission_id)
+    base = mission_dir(
+        safe_root(args.workspace_root),
+        args.mission_id,
+    )
     if not args.confirm_review:
-        print_json({
-            "schema_version": "1.0.0",
-            "report_type": "konoha_beta_self_review_preview",
-            "command": "review",
-            "status": "preview",
-            "generated_at": now(),
-            "summary": "Preview only. No review written.",
-            "boundaries": BOUNDARIES,
-        }, args.json)
+        print_json(
+            {
+                "schema_version": "1.0.0",
+                "report_type": "konoha_beta_review_preview",
+                "command": "review",
+                "status": "preview",
+                "generated_at": now(),
+                "summary": (
+                    "Preview only. No human review decision written."
+                ),
+                "boundaries": BOUNDARIES,
+            },
+            args.json,
+        )
         return 0
+
     require_token(args.approval_token, "RECORD_BETA_REVIEW")
+    if args.decision not in {"approved", "changes_requested"}:
+        raise ValueError(
+            "--decision must be approved or changes_requested"
+        )
+    if len((args.review_summary or "").strip()) < 20:
+        raise ValueError(
+            "review summary must be at least 20 characters"
+        )
+    if not (args.human_actor or "").strip():
+        raise ValueError("human actor is required")
+
     summary = summarize_mission(base)
-    suggestions = []
+    suggestions: List[str] = []
     if summary["agent_invocations_count"] == 0:
-        suggestions.append("Run at least one approved agent planning/review step before execution-heavy missions.")
+        suggestions.append(
+            "No approved agent invocation is recorded."
+        )
     if summary["command_failures_count"] > 0:
-        suggestions.append("Analyze failed command evidence before proposing retries.")
-    if summary.get("token_totals", {}).get("estimated_records", 0) > 0:
-        suggestions.append("Calibrate token estimates against provider-reported usage when available.")
+        suggestions.append(
+            "Analyze failed command evidence before retry."
+        )
     if not suggestions:
-        suggestions.append("Current mission evidence looks coherent. Continue with human validation and teachback.")
+        suggestions.append(
+            "Mission evidence is coherent for the recorded decision."
+        )
+
     report = {
         "schema_version": "1.0.0",
-        "report_type": "konoha_beta_self_review_report",
-        "review_id": args.review_id,
+        "report_type": "konoha_human_review_record",
+        "review_id": safe_id(args.review_id, "review_id"),
         "mission_id": args.mission_id,
+        "status": "passed",
+        "review_decision": args.decision,
+        "human_approval": args.decision == "approved",
+        "reviewed_by": args.human_actor,
+        "review_summary": args.review_summary.strip(),
         "generated_at": now(),
-        "summary": summary,
+        "mission_summary": summary,
         "quality_assessment": {
-            "status": "needs_human_review",
-            "handholding_notes": "Beta runtime still requires explicit human approvals by design.",
+            "status": args.decision,
             "suggested_optimizations": suggestions,
         },
         "authority": {
-            "self_review_is_evidence_only": True,
-            "optimization_suggestions_are_not_permission": True,
+            "review_records_human_evidence_only": True,
+            "review_does_not_authorize_execution": True,
+            "review_does_not_close_mission": True,
         },
         "boundaries": BOUNDARIES,
     }
-    out = base / "reports" / f"{safe_id(args.review_id, 'review_id')}_konoha_beta_self_review_report.json"
+    out = (
+        base
+        / "reports"
+        / (
+            f"{safe_id(args.review_id, 'review_id')}"
+            "_konoha_human_review_record.json"
+        )
+    )
     write_json(out, report, force=args.force)
-    print_json({
-        "schema_version": "1.0.0",
-        "report_type": "konoha_beta_self_review_gate_report",
-        "command": "review",
-        "status": "passed",
-        "generated_at": now(),
-        "output_paths": [str(out)],
-        "boundaries": BOUNDARIES,
-        "summary": "Self-review recorded. Human review still required.",
-    }, args.json)
+    print_json(
+        {
+            "schema_version": "1.0.0",
+            "report_type": "konoha_beta_review_gate_report",
+            "command": "review",
+            "status": "passed",
+            "review_decision": args.decision,
+            "generated_at": now(),
+            "output_paths": [str(out)],
+            "boundaries": BOUNDARIES,
+            "summary": (
+                "Human review decision recorded. "
+                "Mission closure remains a separate gate."
+            ),
+        },
+        args.json,
+    )
     return 0
-
 
 def validate_git_paths(paths: Iterable[str]) -> None:
     for path in paths:
@@ -1366,49 +1434,39 @@ def cmd_git_push(args: argparse.Namespace) -> int:
 
 
 def cmd_close(args: argparse.Namespace) -> int:
-    base = mission_dir(safe_root(args.workspace_root), args.mission_id)
-    if not args.confirm_close:
-        print_json({"schema_version": "1.0.0", "command": "close", "status": "preview", "generated_at": now(), "summary": "Preview only. Mission not closed.", "boundaries": BOUNDARIES}, args.json)
-        return 0
-    require_token(args.approval_token, "CLOSE_BETA_MISSION")
-    if args.teachback_confirmation != TEACHBACK_CONFIRMATION:
-        raise PermissionError(f"Expected teachback confirmation {TEACHBACK_CONFIRMATION!r}")
-    if len(args.teachback_summary or "") < 40:
-        raise ValueError("Teachback summary is too short.")
-    summary = summarize_mission(base)
-    closure = {
-        "schema_version": "1.0.0",
-        "report_type": "konoha_beta_closure_report",
-        "closure_id": args.closure_id,
-        "mission_id": args.mission_id,
-        "closed_at": now(),
-        "human_actor": args.human_actor or "human",
-        "teachback_confirmation": args.teachback_confirmation,
-        "teachback_summary": args.teachback_summary,
-        "mission_summary": summary,
-        "authority": {
-            "mission_closed_after_teachback": True,
-            "closure_does_not_authorize_future_actions": True,
-        },
-        "boundaries": BOUNDARIES,
-    }
-    out = base / "reports" / f"{safe_id(args.closure_id, 'closure_id')}_konoha_beta_closure_report.json"
-    write_json(out, closure, force=args.force)
-    state = load_state(base)
-    state["status"] = "closed"
-    state["updated_at"] = now()
-    state.setdefault("events", []).append({"at": now(), "type": "mission_closed", "approval_token": "CLOSE_BETA_MISSION"})
-    save_state(base, state)
-    write_json(base / "mission_notification_state.json", {
-        "schema_version": "1.0.0",
-        "state": "closed",
-        "severity": "info",
-        "reason": "Mission closed after explicit teachback.",
-        "updated_at": now(),
-    }, force=True)
-    print_json({"schema_version": "1.0.0", "command": "close", "status": "passed", "generated_at": now(), "output_paths": [str(out)], "boundaries": BOUNDARIES}, args.json)
-    return 0
-
+    delegated = [
+        "--workspace-root",
+        args.workspace_root,
+        "--mission-id",
+        args.mission_id,
+        "--memory-root",
+        args.memory_root,
+        "--closure-id",
+        args.closure_id,
+        "--execution-evidence",
+        args.execution_evidence,
+        "--review-evidence",
+        args.review_evidence,
+        "--teachback-record",
+        args.teachback_record,
+        "--human-actor",
+        args.human_actor or "human",
+        "--closure-reason",
+        args.closure_reason or "",
+    ]
+    if args.confirm_close:
+        delegated.extend(
+            [
+                "--confirm-close",
+                "--approval-token",
+                args.approval_token or "",
+            ]
+        )
+    if args.force:
+        delegated.append("--force")
+    if args.json:
+        delegated.append("--json")
+    return int(close_mission_main(delegated))
 
 def cmd_states(args: argparse.Namespace) -> int:
     payload = {
@@ -1562,6 +1620,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--workspace-root", required=True)
     p.add_argument("--mission-id", required=True)
     p.add_argument("--review-id", required=True)
+    p.add_argument(
+        "--decision",
+        choices=["approved", "changes_requested"],
+    )
+    p.add_argument("--review-summary", default="")
+    p.add_argument("--human-actor", default="human")
     p.add_argument("--confirm-review", action="store_true")
     p.add_argument("--approval-token")
     p.set_defaults(func=cmd_review)
@@ -1607,10 +1671,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--workspace-root", required=True)
     p.add_argument("--mission-id", required=True)
     p.add_argument("--closure-id", required=True)
+    p.add_argument("--memory-root", required=True)
+    p.add_argument("--execution-evidence", required=True)
+    p.add_argument("--review-evidence", required=True)
+    p.add_argument("--teachback-record", required=True)
+    p.add_argument("--closure-reason", default="")
     p.add_argument("--confirm-close", action="store_true")
     p.add_argument("--approval-token")
-    p.add_argument("--teachback-confirmation")
-    p.add_argument("--teachback-summary", default="")
     p.add_argument("--human-actor", default="human")
     p.set_defaults(func=cmd_close)
 

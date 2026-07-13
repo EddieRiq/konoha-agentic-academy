@@ -6,20 +6,35 @@ It is not a commitment to implement every item in order. Work that changes doctr
 
 ## Current status
 
-Konoha Agentic Academy has its initial public doctrine and first operational workflows in place.
+Konoha has moved beyond the doctrine-only and dry-run baselines.
 
-The repository currently includes:
+Current operational capabilities include:
 
 ```text
-- foundational laws and agent conduct;
-- mission, context, safety, approval, review, learning, teachback, and memory policies;
-- role policies for Hokage, Kagebunshin, Jounin, Shikamaru, Council, UI, Shinobi, tools, adapters, Marketplace, Sandbox, and Allied Villages;
-- mission, Kage Summit, memory, learning, and eval templates;
-- initial public Clans for software engineering and Python;
-- operational Scrolls for repo review, documentation review, planning, Git safety, coding, code review, Python review, refactoring, test-first work, local context, sensitive data review, teachback, release readiness, learning capture, error triage, dependency review, adapter review, tool review, memory review, publication safety, release notes, changelog maintenance, private literature extraction, and doctrine updates;
-- guides for first mission walkthrough, local Village bootstrap, private literature handling, agentic coding loops, and repository audit;
-- public contribution, asset, architecture, narrative, and changelog documentation.
+- terminal-first Hokage Shell and canonical CLI;
+- supervised mission planning and bounded execution;
+- human review, structured Teachback and evidence-bound closure;
+- local model routing and deterministic repository audit;
+- controlled tool, apply and Git gates;
+- local/private memory;
+- supervised package installation;
+- canonical tests and supervised release closure.
 ```
+
+The roadmap is now frozen to three product milestones:
+
+```text
+v3.2.6  repository consolidation, Teachback closure and CLI coherence
+v3.3.0  one-line terminal distribution and package-to-release wrapper
+v3.4.0  finished product UX, onboarding and stable completion flow
+```
+
+No additional `v3.2.x` feature release is planned after `v3.2.6`. A separate
+patch is justified only by security, data corruption, installation/startup
+failure, approval bypass or a regression that blocks the primary flow.
+
+Older phases below are retained as historical planning context. They are not
+the active work queue.
 
 ## Guiding principle
 
@@ -669,3 +684,39 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.2.5 Package Installation Scope Guard
 
 - Replace package-specific recovery Bash with a reusable supervised installation scope guard.
+
+
+### v3.2.6 Repository Consolidation, Teachback Closure and CLI Coherence
+
+- Replace phrase-only Teachback closure with structured human evidence.
+- Bind closure to explicit successful execution and approved review sources.
+- Make identical reentry idempotent and contradictory evidence non-overridable.
+- Align Beta Runtime, Unified Mission Runtime, Product Runtime and Hokage Shell
+  on one Teachback manifest contract.
+- Make `tools/konoha_cli.py` the canonical repository entrypoint through a
+  validated command registry.
+- Update current-state documentation and deprecate competing CLI narratives.
+
+Exit criteria:
+
+```text
+- focused consolidation suites pass;
+- canonical test gate passes on the exact release commit;
+- no approval token or network flag is injected by the CLI;
+- package/release regression suites remain green;
+- public/private boundary scan passes;
+- release closes through the existing supervised workflow.
+```
+
+### v3.3.0 Installable Terminal Distribution
+
+- Add packaging, a one-line installer, the global `konoha` command, doctor,
+  init, upgrade/uninstall guidance and a supervised package-to-release wrapper.
+- Compose existing package and release tools; do not duplicate their authority.
+
+### v3.4.0 Finished Product
+
+- Close onboarding, primary mission UX, error recovery, documentation and
+  stable product acceptance.
+- Do not add another infrastructure program unless it blocks the primary user
+  journey or a mandatory safety boundary.

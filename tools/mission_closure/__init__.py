@@ -1,0 +1,1 @@
+"""Mission closure evidence gate."""

@@ -1,53 +1,126 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://konoha.local/schemas/runtime/teachback_record.schema.json",
-  "title": "Konoha Teachback Record",
-  "type": "object",
-  "required": [
-    "schema_version",
-    "mission_id",
-    "closure_id",
-    "status",
-    "teachback_confirmation",
-    "teachback_summary",
-    "human_actor",
-    "recorded_at"
-  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
   "properties": {
-    "schema_version": {
-      "type": "string"
+    "achieved_level": {
+      "maximum": 4,
+      "minimum": 0,
+      "type": "integer"
     },
-    "mission_id": {
-      "type": "string"
+    "completed_by_user": {
+      "type": "boolean"
     },
-    "closure_id": {
-      "type": "string"
-    },
-    "status": {
-      "enum": [
-        "passed",
-        "failed",
-        "needs_review"
-      ]
-    },
-    "teachback_confirmation": {
-      "type": "string"
-    },
-    "teachback_summary": {
-      "type": "string"
+    "gaps": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
     },
     "human_actor": {
+      "minLength": 1,
       "type": "string"
+    },
+    "human_evidence": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "mission_id": {
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "type": "string"
+    },
+    "next_explanation_needed": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "non_authority": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
     },
     "recorded_at": {
       "type": "string"
     },
-    "non_authority": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+    "report_type": {
+      "const": "teachback_record"
+    },
+    "required": {
+      "type": "boolean"
+    },
+    "required_level": {
+      "maximum": 4,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "result": {
+      "enum": [
+        "passed",
+        "needs_clarification",
+        "failed",
+        "skipped"
+      ]
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "skip_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_execution": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_review": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "teachback_id": {
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "type": "string"
     }
   },
-  "additionalProperties": false
+  "required": [
+    "schema_version",
+    "report_type",
+    "teachback_id",
+    "mission_id",
+    "required",
+    "required_level",
+    "achieved_level",
+    "result",
+    "completed_by_user",
+    "summary",
+    "gaps",
+    "next_explanation_needed",
+    "human_actor",
+    "human_evidence",
+    "source_execution",
+    "source_review",
+    "skip_reason",
+    "recorded_at",
+    "non_authority"
+  ],
+  "title": "Konoha Teachback Record",
+  "type": "object"
 }

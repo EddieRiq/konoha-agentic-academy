@@ -240,6 +240,35 @@ The following are violations of this policy:
 - using shame, pressure, or condescension when the user does not understand;
 - storing sensitive teachback notes in public memory.
 
+
+## Executable implementation contract
+
+The executable implementation records Teachback separately from Mission
+Closure.
+
+Canonical tool:
+
+```text
+tools/teachback/manage_teachback.py
+```
+
+Canonical record:
+
+```text
+schemas/runtime/teachback_record.schema.json
+```
+
+A `passed` record must include human evidence, achieved level, required level,
+empty gaps, and mission-local execution/review source paths.
+
+Mission Closure must consume the record. It may not manufacture `passed`
+Teachback evidence from a confirmation phrase.
+
+Identical Teachback reentry is idempotent. Different evidence under the same
+Teachback ID is a conflict and may not be overwritten by `--force`.
+
+The closure approval token remains separate from the Teachback recording token.
+
 ## Relationship with other policies
 
 This policy extends:

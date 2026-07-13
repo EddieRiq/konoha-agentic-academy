@@ -1,0 +1,94 @@
+{
+  "$defs": {
+    "entry": {
+      "additionalProperties": true,
+      "properties": {
+        "approval_token": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "fixed_args": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "network": {
+          "type": "string"
+        },
+        "replacement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "script": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "deprecated"
+          ]
+        }
+      },
+      "required": [
+        "script",
+        "fixed_args",
+        "mode",
+        "network",
+        "approval_token",
+        "status",
+        "description"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://konoha.local/schemas/runtime/konoha_command_registry.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "active": {
+      "additionalProperties": {
+        "$ref": "#/$defs/entry"
+      },
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "deprecated": {
+      "additionalProperties": {
+        "$ref": "#/$defs/entry"
+      },
+      "type": "object"
+    },
+    "report_type": {
+      "const": "konoha_command_registry"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "version",
+    "active",
+    "deprecated",
+    "authority"
+  ],
+  "title": "Konoha Command Registry",
+  "type": "object"
+}

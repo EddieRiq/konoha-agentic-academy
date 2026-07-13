@@ -1,0 +1,29 @@
+{
+  "achieved_level": 2,
+  "completed_by_user": true,
+  "gaps": [],
+  "human_actor": "human",
+  "human_evidence": [
+    "The user explained inputs, outputs, validation, common failures and recovery in their own words."
+  ],
+  "mission_id": "example-mission",
+  "next_explanation_needed": null,
+  "non_authority": [
+    "teachback evidence does not authorize mission actions",
+    "teachback evidence does not authorize repository apply",
+    "teachback evidence does not authorize Git operations",
+    "teachback evidence does not authorize model invocation",
+    "teachback evidence does not close the mission"
+  ],
+  "recorded_at": "2026-07-13T00:00:00+00:00",
+  "report_type": "teachback_record",
+  "required": true,
+  "required_level": 2,
+  "result": "passed",
+  "schema_version": "1.0.0",
+  "skip_reason": null,
+  "source_execution": "evidence/command_results/execution.json",
+  "source_review": "reports/human-review_konoha_human_review_record.json",
+  "summary": "The user can explain what ran, why it ran, how it was validated, and the known limitations.",
+  "teachback_id": "example-teachback"
+}

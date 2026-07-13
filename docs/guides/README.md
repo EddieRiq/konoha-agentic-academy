@@ -211,7 +211,7 @@ Do not hide doctrine changes inside guides.
 
 ## Unified CLI entrypoint
 
-- `unified_cli_entrypoint.md`: defines the unified CLI entrypoint, command groups, allowlisted dispatch, delegated tool boundaries, and non-authority rules.
+- `unified_cli_entrypoint.md`: defines the v3.2.6 canonical CLI, command registry, active/deprecated surfaces, delegated boundaries and non-authority rules.
 
 ## Project config and policy contract
 
@@ -288,7 +288,7 @@ Do not hide doctrine changes inside guides.
 ## v2.0 Integration, Memory and Mission Closure
 
 - `integration_memory_and_mission_closure.md`: defines v2.0 integration, minimal Yamanaka memory, teachback, context packs, notification state, and mission closure boundaries.
-- `teachback_protocol_gate.md`: defines the exact teachback confirmation required before mission closure.
+- `teachback_protocol_gate.md`: defines structured Teachback levels, human evidence, source binding, clarification, skip policy and idempotent conflict handling.
 
 ## Notifications and UI State Escalation
 
@@ -389,3 +389,10 @@ Do not hide doctrine changes inside guides.
 ## Package Installation Scope Guard
 
 - `package_installation_scope_guard.md`: documents direct extraction scope, bounded helper scope, union validation and idempotent reentry.
+
+
+## Repository consolidation and capability references
+
+- `../reference/capability_matrix.md`: maps canonical commands to delegated components, mutation levels, network boundaries and approval requirements.
+- `../reference/release_safety_boundaries.md`: separates product and maintainer surfaces and records package, release and public/private stop conditions.
+- `../roadmap/v3_2_6_repository_consolidation_scope.md`: freezes the final `v3.2.x` consolidation scope and the `v3.3.0`/`v3.4.0` path.

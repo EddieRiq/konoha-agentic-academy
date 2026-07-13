@@ -117,36 +117,151 @@ class KonohaBetaRuntimeTests(unittest.TestCase):
         reason = self.module.command_is_dangerous("rm -rf /")
         self.assertIsNotNone(reason)
 
-    def test_close_requires_exact_teachback(self):
+    def test_review_records_human_decision(self):
         workspace = self.tmp / "workspace"
         self.module.main([
-            "start", "--workspace-root", str(workspace), "--mission-id", "close-smoke",
-            "--title", "Close smoke", "--task", "Close task.", "--confirm-start",
-            "--approval-token", "START_BETA_MISSION", "--force",
+            "start",
+            "--workspace-root", str(workspace),
+            "--mission-id", "review-smoke",
+            "--title", "Review smoke",
+            "--task", "Review a supervised task.",
+            "--confirm-start",
+            "--approval-token", "START_BETA_MISSION",
+            "--force",
         ])
         rc = self.module.main([
-            "close",
+            "review",
             "--workspace-root", str(workspace),
-            "--mission-id", "close-smoke",
-            "--closure-id", "bad-close",
-            "--confirm-close",
-            "--approval-token", "CLOSE_BETA_MISSION",
-            "--teachback-confirmation", "WRONG",
-            "--teachback-summary", "This should fail because the confirmation is wrong.",
-        ])
-        self.assertEqual(rc, 1)
-        rc = self.module.main([
-            "close",
-            "--workspace-root", str(workspace),
-            "--mission-id", "close-smoke",
-            "--closure-id", "good-close",
-            "--confirm-close",
-            "--approval-token", "CLOSE_BETA_MISSION",
-            "--teachback-confirmation", "I_CAN_EXPLAIN_AND_DEFEND_THIS_MISSION",
-            "--teachback-summary", "I can explain what was done, why it was done, what evidence was recorded, and how to defend the mission result.",
+            "--mission-id", "review-smoke",
+            "--review-id", "human-review",
+            "--decision", "approved",
+            "--review-summary",
+            "The human reviewer approved the evidence and recorded remaining limitations.",
+            "--human-actor", "eduardo",
+            "--confirm-review",
+            "--approval-token", "RECORD_BETA_REVIEW",
             "--force",
         ])
         self.assertEqual(rc, 0)
+        review = json.loads(
+            (
+                workspace
+                / "missions"
+                / "review-smoke"
+                / "reports"
+                / "human-review_konoha_human_review_record.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(review["review_decision"], "approved")
+        self.assertTrue(review["human_approval"])
+
+    def test_close_delegates_to_structured_evidence(self):
+        workspace = self.tmp / "workspace"
+        memory = self.tmp / "memory"
+        mission_id = "close-smoke"
+        base = workspace / "missions" / mission_id
+
+        self.module.main([
+            "start",
+            "--workspace-root", str(workspace),
+            "--mission-id", mission_id,
+            "--title", "Close smoke",
+            "--task", "Close task.",
+            "--confirm-start",
+            "--approval-token", "START_BETA_MISSION",
+            "--force",
+        ])
+        self.module.main([
+            "record-result",
+            "--workspace-root", str(workspace),
+            "--mission-id", mission_id,
+            "--result-id", "execution",
+            "--command-id", "human-task",
+            "--command", "human supervised task",
+            "--exit-code", "0",
+            "--stdout-summary", "Task completed successfully.",
+            "--observation", "Execution evidence reviewed.",
+            "--executed-by", "eduardo",
+            "--confirm-record",
+            "--approval-token", "RECORD_EXTERNAL_RESULT",
+            "--force",
+        ])
+        self.module.main([
+            "review",
+            "--workspace-root", str(workspace),
+            "--mission-id", mission_id,
+            "--review-id", "review",
+            "--decision", "approved",
+            "--review-summary",
+            "The human reviewer approved execution evidence and documented limitations.",
+            "--human-actor", "eduardo",
+            "--confirm-review",
+            "--approval-token", "RECORD_BETA_REVIEW",
+            "--force",
+        ])
+
+        teachback_tool = (
+            REPO_ROOT
+            / "tools"
+            / "teachback"
+            / "manage_teachback.py"
+        )
+        spec = importlib.util.spec_from_file_location(
+            "beta_teachback_module",
+            teachback_tool,
+        )
+        teachback = importlib.util.module_from_spec(spec)
+        assert spec and spec.loader
+        sys.modules[spec.name] = teachback
+        spec.loader.exec_module(teachback)
+
+        rc = teachback.main([
+            "record",
+            "--workspace-root", str(workspace),
+            "--mission-id", mission_id,
+            "--teachback-id", "teachback",
+            "--result", "passed",
+            "--achieved-level", "2",
+            "--completed-by-user",
+            "--summary",
+            "I can explain what ran, why it ran, how it was validated, and the remaining limitations.",
+            "--human-evidence",
+            "The user explained operation, evidence, risks and recovery in their own words.",
+            "--source-execution",
+            "evidence/command_results/execution.json",
+            "--source-review",
+            "reports/review_konoha_human_review_record.json",
+            "--human-actor", "eduardo",
+            "--confirm-record",
+            "--approval-token", "RECORD_TEACHBACK_EVIDENCE",
+        ])
+        self.assertEqual(rc, 0)
+
+        rc = self.module.main([
+            "close",
+            "--workspace-root", str(workspace),
+            "--mission-id", mission_id,
+            "--closure-id", "closure",
+            "--memory-root", str(memory),
+            "--execution-evidence",
+            "evidence/command_results/execution.json",
+            "--review-evidence",
+            "reports/review_konoha_human_review_record.json",
+            "--teachback-record",
+            "reports/teachback_teachback_record.json",
+            "--closure-reason",
+            "Mission evidence and Teachback are complete.",
+            "--human-actor", "eduardo",
+            "--confirm-close",
+            "--approval-token", "CLOSE_MISSION_WITH_TEACHBACK",
+        ])
+        self.assertEqual(rc, 0)
+        status = json.loads(
+            (base / "mission_status.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(status["status"], "closed")
 
     def test_git_stage_and_commit_gate_on_temp_repo(self):
         if not shutil.which("git"):

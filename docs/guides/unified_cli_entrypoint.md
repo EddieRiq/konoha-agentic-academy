@@ -1,158 +1,118 @@
-# Unified CLI Entrypoint
+# Canonical Konoha CLI Entrypoint
 
-Status: v0.21.0 baseline.
-
-The Unified CLI Entrypoint provides one command surface for the existing Konoha safe local-first tools.
-
-It does not replace the underlying gates. It delegates to them.
-
-## Purpose
-
-Before this baseline, Konoha had several independent tools:
-
-- dry-run runtime runner;
-- runtime run registry;
-- runtime package validator;
-- runtime package inspector;
-- sandbox preparation;
-- sandbox artifact writer;
-- human-approved apply plan;
-- Git read-only gate;
-- Git staging gate;
-- read-only repo inspector.
-
-The unified CLI makes those tools easier to use without weakening their boundaries.
-
-## Non-goals
-
-This CLI does not:
-
-- execute missions;
-- run arbitrary shell commands;
-- invoke adapters;
-- access private Village context;
-- bypass approval tokens;
-- bypass allowlists;
-- create commits;
-- push changes;
-- clean or reset the repository;
-- authorize runtime actions.
-
-## Entrypoint
-
-The initial command is:
+Status: v3.2.6 canonical repository entrypoint.
 
 ```bash
 python tools/konoha_cli.py --help
 ```
 
-A future packaging release may expose it as:
+The future `v3.3.0` distribution will expose the same registry through the
+global `konoha` command. `v3.2.6` intentionally does not install anything into
+`PATH`.
 
-```bash
-python -m konoha
+## Registry
+
+Commands are defined in:
+
+```text
+tools/command_registry.py
 ```
 
-## Command groups
+Each entry declares:
 
-### Runtime
-
-```bash
-python tools/konoha_cli.py runtime dry-run --title "Demo" --scope "Demo scope" --run-id "demo" --sandbox-root sandbox --force
+```text
+public command
+delegated script
+fixed non-authorizing arguments
+mode
+network boundary
+approval token requirement
+active or deprecated state
+replacement when deprecated
 ```
 
-Delegates to the dry-run runtime runner.
+Registry metadata is evidence only.
 
-### Runs
-
-```bash
-python tools/konoha_cli.py runs list --sandbox-root sandbox
-```
-
-Delegates to the runtime run registry.
-
-### Package
+## Active surface
 
 ```bash
-python tools/konoha_cli.py package validate sandbox/runs/demo/runtime_package.json
-python tools/konoha_cli.py package inspect sandbox/runs/demo/runtime_package.json
+python tools/konoha_cli.py doctor
+python tools/konoha_cli.py init
+python tools/konoha_cli.py status
+python tools/konoha_cli.py shell
+
+python tools/konoha_cli.py mission start
+python tools/konoha_cli.py mission run
+python tools/konoha_cli.py mission plan
+python tools/konoha_cli.py mission review
+python tools/konoha_cli.py mission teachback-prepare
+python tools/konoha_cli.py mission teachback
+python tools/konoha_cli.py mission teachback-status
+python tools/konoha_cli.py mission close
+python tools/konoha_cli.py mission status
+python tools/konoha_cli.py mission resume
+
+python tools/konoha_cli.py package status
+python tools/konoha_cli.py package install
+python tools/konoha_cli.py release status
 ```
 
-Delegates to the runtime validator and inspector.
+## Delegation rules
 
-### Sandbox
+The CLI:
+
+- resolves only registered keys;
+- constructs argv lists with `shell=False`;
+- uses a fixed internal script path;
+- propagates the delegated return code;
+- does not inject approval tokens;
+- does not add `--allow-network`;
+- does not convert preview into apply;
+- does not convert review display into approval;
+- does not infer mission closure consent.
+
+`package install` adds only the semantic `--apply` mode. The package installer
+still requires its own explicit approval token.
+
+`release status` adds only `--status`. Network remains optional and read-only
+when the user explicitly supplies `--allow-network`.
+
+## Registry inspection
 
 ```bash
-python tools/konoha_cli.py sandbox prepare --run-id demo --mission-title "Demo mission"
+python tools/konoha_cli.py --registry-json
+python tools/konoha_cli.py --validate-registry
 ```
 
-Delegates to the sandbox boundary.
+The validator checks active script paths and registry shape. Deprecated commands
+remain compatibility routes and name their replacement.
 
-### Artifact
+## Versions
+
+The repository CLI reports:
 
 ```bash
-python tools/konoha_cli.py artifact write --run-id demo --artifact-path docs/proposal.md --content "# Proposal" --artifact-kind markdown
+python tools/konoha_cli.py --version
 ```
 
-Delegates to the controlled sandbox artifact writer.
+Expected for this release:
 
-### Apply
-
-```bash
-python tools/konoha_cli.py apply preview --run-id demo
-python tools/konoha_cli.py apply confirm --run-id demo --approval-token APPLY_SANDBOX_PLAN
+```text
+3.2.6
 ```
 
-Delegates to the human-approved apply plan prototype.
-
-### Git
-
-```bash
-python tools/konoha_cli.py git readiness
-python tools/konoha_cli.py git stage --path README.md
-```
-
-Delegates to Git gates.
-
-The staging command still requires the underlying staging gate's explicit confirmation and approval token for confirmed staging.
-
-### Repo
-
-```bash
-python tools/konoha_cli.py repo inspect
-```
-
-Delegates to the read-only repo inspector.
-
-## Dispatch boundary
-
-The CLI dispatches only to allowlisted internal Python scripts.
-
-It must not accept arbitrary script names, shell fragments, commands, URLs, adapter names, or private context paths as executable targets.
-
-## Safety rules
-
-The CLI must preserve the strongest boundary of the delegated tool.
-
-If a delegated tool requires approval, the CLI must not hide or synthesize that approval.
-
-If a delegated tool blocks an operation, the CLI must propagate the non-zero exit code.
-
-If a delegated tool writes only inside sandbox, the CLI must not redirect it outside sandbox.
-
-If a delegated tool is read-only, the CLI must not add mutation behavior.
+The Product Runtime and historical tools may retain their own component
+versions. They no longer compete as public entrypoints.
 
 ## Exit behavior
 
-The CLI returns the exit code from the delegated tool.
+```text
+0  delegated command passed
+1  delegated gate blocked or failed
+2  command resolution or CLI usage failed
+```
 
-Common outcomes:
+## Boundary
 
-- `0`: delegated command passed;
-- `1`: delegated command failed due to validation, inspection, readiness, or gate blockers;
-- `2`: CLI dispatch failed, tool missing, or command invalid.
-
-## Version boundary
-
-v0.21.0 is a unified entrypoint baseline. It does not add new runtime authority.
-
-The CLI improves usability, not autonomy.
+The CLI improves coherence, not autonomy. The delegated tool remains the source
+of truth for approval, path, filesystem, model, Git and network boundaries.

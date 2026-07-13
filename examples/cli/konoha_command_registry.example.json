@@ -1,0 +1,330 @@
+{
+  "active": {
+    "doctor": {
+      "approval_token": null,
+      "description": "Run product runtime diagnostics.",
+      "fixed_args": [
+        "doctor"
+      ],
+      "mode": "read_only",
+      "network": "blocked",
+      "script": "tools/product_runtime/konoha_product.py",
+      "status": "active"
+    },
+    "init": {
+      "approval_token": null,
+      "description": "Initialize a local Konoha workspace.",
+      "fixed_args": [
+        "init"
+      ],
+      "mode": "workspace_write",
+      "network": "blocked",
+      "script": "tools/product_runtime/konoha_product.py",
+      "status": "active"
+    },
+    "mission close": {
+      "approval_token": "CLOSE_MISSION_WITH_TEACHBACK",
+      "description": "Close after execution, review and Teachback.",
+      "fixed_args": [],
+      "mode": "mission_and_memory_write",
+      "network": "blocked",
+      "script": "tools/mission_closure/close_mission.py",
+      "status": "active"
+    },
+    "mission plan": {
+      "approval_token": "PLAN_BETA_MISSION",
+      "description": "Record a mission plan and proposals.",
+      "fixed_args": [
+        "plan"
+      ],
+      "mode": "mission_write",
+      "network": "blocked",
+      "script": "tools/beta_runtime/run_konoha_beta.py",
+      "status": "active"
+    },
+    "mission resume": {
+      "approval_token": null,
+      "description": "Build a read-only mission continuity report.",
+      "fixed_args": [
+        "resume"
+      ],
+      "mode": "read_only",
+      "network": "blocked",
+      "script": "tools/hokage_shell/run_hokage_shell.py",
+      "status": "active"
+    },
+    "mission review": {
+      "approval_token": "RECORD_BETA_REVIEW",
+      "description": "Record a human review decision.",
+      "fixed_args": [
+        "review"
+      ],
+      "mode": "human_evidence_write",
+      "network": "blocked",
+      "script": "tools/beta_runtime/run_konoha_beta.py",
+      "status": "active"
+    },
+    "mission run": {
+      "approval_token": "START_UNIFIED_MISSION_RUNTIME",
+      "description": "Prepare a unified mission runtime.",
+      "fixed_args": [
+        "run"
+      ],
+      "mode": "mission_write",
+      "network": "blocked",
+      "script": "tools/mission_runtime/run_unified_mission.py",
+      "status": "active"
+    },
+    "mission start": {
+      "approval_token": "START_BETA_MISSION",
+      "description": "Start a supervised mission.",
+      "fixed_args": [
+        "start"
+      ],
+      "mode": "mission_write",
+      "network": "blocked",
+      "script": "tools/beta_runtime/run_konoha_beta.py",
+      "status": "active"
+    },
+    "mission status": {
+      "approval_token": null,
+      "description": "Inspect mission status.",
+      "fixed_args": [
+        "status"
+      ],
+      "mode": "read_only",
+      "network": "blocked",
+      "script": "tools/beta_runtime/run_konoha_beta.py",
+      "status": "active"
+    },
+    "mission teachback": {
+      "approval_token": "RECORD_TEACHBACK_EVIDENCE",
+      "description": "Record structured human Teachback evidence.",
+      "fixed_args": [
+        "record"
+      ],
+      "mode": "human_evidence_write",
+      "network": "blocked",
+      "script": "tools/teachback/manage_teachback.py",
+      "status": "active"
+    },
+    "mission teachback-prepare": {
+      "approval_token": null,
+      "description": "Inspect mission Teachback requirements.",
+      "fixed_args": [
+        "prepare"
+      ],
+      "mode": "read_only",
+      "network": "blocked",
+      "script": "tools/teachback/manage_teachback.py",
+      "status": "active"
+    },
+    "mission teachback-status": {
+      "approval_token": null,
+      "description": "Inspect structured Teachback evidence.",
+      "fixed_args": [
+        "status"
+      ],
+      "mode": "read_only",
+      "network": "blocked",
+      "script": "tools/teachback/manage_teachback.py",
+      "status": "active"
+    },
+    "package install": {
+      "approval_token": "APPLY_SUPERVISED_PACKAGE_INSTALLATION",
+      "description": "Apply a bounded package helper.",
+      "fixed_args": [
+        "--apply"
+      ],
+      "mode": "bounded_package_write",
+      "network": "blocked",
+      "script": "tools/package_installation/run_supervised_package_installation.py",
+      "status": "active"
+    },
+    "package status": {
+      "approval_token": null,
+      "description": "Preview supervised package installation.",
+      "fixed_args": [],
+      "mode": "read_only",
+      "network": "blocked",
+      "script": "tools/package_installation/run_supervised_package_installation.py",
+      "status": "active"
+    },
+    "release status": {
+      "approval_token": null,
+      "description": "Inspect release recovery and closure state.",
+      "fixed_args": [
+        "--status"
+      ],
+      "mode": "read_only",
+      "network": "optional_read_only",
+      "script": "tools/release_workflow/run_supervised_release.py",
+      "status": "active"
+    },
+    "shell": {
+      "approval_token": null,
+      "description": "Open the Hokage terminal shell.",
+      "fixed_args": [
+        "interactive"
+      ],
+      "mode": "interactive_supervised",
+      "network": "delegated_explicit_only",
+      "script": "tools/hokage_shell/run_hokage_shell.py",
+      "status": "active"
+    },
+    "status": {
+      "approval_token": null,
+      "description": "Show terminal operator status.",
+      "fixed_args": [
+        "status"
+      ],
+      "mode": "read_only",
+      "network": "blocked",
+      "script": "tools/hokage_shell/run_hokage_shell.py",
+      "status": "active"
+    }
+  },
+  "authority": {
+    "cli_does_not_enable_network": true,
+    "cli_does_not_inject_approval_tokens": true,
+    "delegated_tool_retains_authority": true,
+    "registry_is_not_permission": true
+  },
+  "deprecated": {
+    "apply confirm": {
+      "approval_token": "delegated_tool_specific",
+      "description": "Legacy controlled apply.",
+      "fixed_args": [
+        "--confirm-apply"
+      ],
+      "mode": "repository_write",
+      "network": "blocked",
+      "replacement": null,
+      "script": "tools/apply_plan/apply_sandbox_plan.py",
+      "status": "deprecated"
+    },
+    "apply preview": {
+      "approval_token": null,
+      "description": "Legacy apply preview.",
+      "fixed_args": [],
+      "mode": "read_only",
+      "network": "blocked",
+      "replacement": null,
+      "script": "tools/apply_plan/apply_sandbox_plan.py",
+      "status": "deprecated"
+    },
+    "artifact write": {
+      "approval_token": null,
+      "description": "Legacy artifact writer.",
+      "fixed_args": [],
+      "mode": "sandbox_write",
+      "network": "blocked",
+      "replacement": "mission run",
+      "script": "tools/artifact_writer/write_sandbox_artifact.py",
+      "status": "deprecated"
+    },
+    "config validate": {
+      "approval_token": null,
+      "description": "Legacy config validator.",
+      "fixed_args": [],
+      "mode": "read_only",
+      "network": "blocked",
+      "replacement": "doctor",
+      "script": "tools/config_validator/validate_konoha_config.py",
+      "status": "deprecated"
+    },
+    "git readiness": {
+      "approval_token": null,
+      "description": "Legacy Git readiness inspector.",
+      "fixed_args": [],
+      "mode": "read_only",
+      "network": "blocked",
+      "replacement": "release status",
+      "script": "tools/git_readiness/inspect_git_readiness.py",
+      "status": "deprecated"
+    },
+    "git stage": {
+      "approval_token": "delegated_tool_specific",
+      "description": "Legacy Git staging gate.",
+      "fixed_args": [],
+      "mode": "git_write",
+      "network": "blocked",
+      "replacement": "beta git-stage",
+      "script": "tools/git_staging/stage_allowlisted_files.py",
+      "status": "deprecated"
+    },
+    "mission dry-run": {
+      "approval_token": null,
+      "description": "Legacy dry-run mission workflow.",
+      "fixed_args": [],
+      "mode": "sandbox_write",
+      "network": "blocked",
+      "replacement": "mission run",
+      "script": "tools/mission_workflow/run_dry_run_mission.py",
+      "status": "deprecated"
+    },
+    "package inspect": {
+      "approval_token": null,
+      "description": "Legacy runtime package inspector.",
+      "fixed_args": [],
+      "mode": "read_only",
+      "network": "blocked",
+      "replacement": "package status",
+      "script": "tools/runtime_inspector/inspect_runtime_package.py",
+      "status": "deprecated"
+    },
+    "package validate": {
+      "approval_token": null,
+      "description": "Legacy runtime package validator.",
+      "fixed_args": [],
+      "mode": "read_only",
+      "network": "blocked",
+      "replacement": "package status",
+      "script": "tools/runtime_validator/validate_runtime_package.py",
+      "status": "deprecated"
+    },
+    "repo inspect": {
+      "approval_token": null,
+      "description": "Legacy public repo inspector.",
+      "fixed_args": [],
+      "mode": "read_only",
+      "network": "blocked",
+      "replacement": "shell",
+      "script": "tools/repo_inspector/inspect_public_repo.py",
+      "status": "deprecated"
+    },
+    "runs list": {
+      "approval_token": null,
+      "description": "Legacy runtime run registry.",
+      "fixed_args": [],
+      "mode": "read_only",
+      "network": "blocked",
+      "replacement": "mission status",
+      "script": "tools/runtime_registry/list_runtime_runs.py",
+      "status": "deprecated"
+    },
+    "runtime dry-run": {
+      "approval_token": null,
+      "description": "Legacy dry-run runtime.",
+      "fixed_args": [],
+      "mode": "sandbox_write",
+      "network": "blocked",
+      "replacement": "mission run",
+      "script": "tools/runtime_runner/run_dry_run_runtime.py",
+      "status": "deprecated"
+    },
+    "sandbox prepare": {
+      "approval_token": null,
+      "description": "Legacy sandbox preparation.",
+      "fixed_args": [],
+      "mode": "sandbox_write",
+      "network": "blocked",
+      "replacement": "mission run",
+      "script": "tools/sandbox_boundary/prepare_sandbox_run.py",
+      "status": "deprecated"
+    }
+  },
+  "report_type": "konoha_command_registry",
+  "schema_version": "1.0.0",
+  "version": "3.2.6"
+}

@@ -680,3 +680,7 @@ A Scroll is ready for active use only when:
 ## Package Installation Scope Guard review
 
 - `package_installation_scope_guard_review_scroll.md`: reviews exact package scope, helper boundaries, idempotence and release handoff.
+
+## Repository consolidation, Teachback and CLI review
+
+- `repository_consolidation_teachback_cli_review_scroll.md`: reviews the final v3.2.x consolidation, evidence-bound closure, command registry and release boundaries.
