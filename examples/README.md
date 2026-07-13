@@ -241,3 +241,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 
 - `task_evidence/supervised_task_evidence_bundle.example.json`: complete contract-linked evidence bundle.
 - `task_evidence/supervised_task_evidence_sources.example.json`: illustrative source report referenced by the bundle.
+
+## Supervised action proposal example
+
+- `action_proposal/supervised_action_proposal.example.json`: read-only proposal linked to the v3.2 contract and evidence examples.

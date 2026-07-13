@@ -1,0 +1,170 @@
+{
+  "acceptance_criteria_links": [
+    0,
+    1,
+    2
+  ],
+  "affected_paths": [
+    "README.md",
+    "CHANGELOG.md",
+    "docs/roadmap.md"
+  ],
+  "approval_requirements": [],
+  "authority": {
+    "approvals_are_not_consumed": true,
+    "commands_are_data_only": true,
+    "evidence_does_not_authorize_action": true,
+    "human_review_required": true,
+    "mission_state_does_not_authorize_execution": true,
+    "proposal_is_not_permission": true
+  },
+  "bundle_id": "docs-alignment-evidence",
+  "contract_id": "docs-alignment-contract",
+  "contract_reference": {
+    "path": "examples/task_contract/supervised_task_contract.example.json",
+    "sha256": "61294797864a92d933b9b7559abe6ee8dc558293ff58df5554a890d68ad2f64f"
+  },
+  "evidence_bundle_reference": {
+    "path": "examples/task_evidence/supervised_task_evidence_bundle.example.json",
+    "sha256": "83dddae4f600468bcdfbeb37339039ee388d0d5e13963f89acc7812db7f22fcc"
+  },
+  "mission_id": "docs-alignment-mission",
+  "proposal_id": "docs-alignment-action-proposal",
+  "proposed_actions": [
+    {
+      "acceptance_criteria": [
+        0,
+        1,
+        2
+      ],
+      "action_id": "inspect-public-markers",
+      "affected_paths": [
+        "README.md",
+        "CHANGELOG.md",
+        "docs/roadmap.md"
+      ],
+      "destructive": false,
+      "evidence_ids": [
+        "evidence-inspected-paths",
+        "evidence-findings-actions"
+      ],
+      "execution_status": "proposed_only",
+      "expected_effect": "Produce no mutation and identify relevant public markers.",
+      "irreversible": false,
+      "operation": "inspect_repository",
+      "purpose": "Inspect the declared public documentation markers.",
+      "requires_approval": false,
+      "risk_level": "low",
+      "working_directory": "."
+    },
+    {
+      "acceptance_criteria": [
+        0,
+        1,
+        2
+      ],
+      "action_id": "propose-deterministic-marker-check",
+      "affected_paths": [
+        "README.md",
+        "CHANGELOG.md",
+        "docs/roadmap.md"
+      ],
+      "command_argv": [
+        "grep",
+        "-n",
+        "v3.2",
+        "README.md",
+        "CHANGELOG.md",
+        "docs/roadmap.md"
+      ],
+      "destructive": false,
+      "evidence_ids": [
+        "evidence-deterministic-checks",
+        "evidence-findings-actions"
+      ],
+      "execution_status": "proposed_only",
+      "expected_effect": "Return matching public documentation lines without mutation.",
+      "irreversible": false,
+      "operation": "run_deterministic_checks",
+      "purpose": "Propose a deterministic read-only marker search.",
+      "requires_approval": false,
+      "risk_level": "low",
+      "working_directory": "."
+    },
+    {
+      "acceptance_criteria": [
+        0,
+        1,
+        2
+      ],
+      "action_id": "record-review-result",
+      "affected_paths": [
+        "README.md",
+        "CHANGELOG.md",
+        "docs/roadmap.md"
+      ],
+      "destructive": false,
+      "evidence_ids": [
+        "evidence-inspected-paths",
+        "evidence-deterministic-checks",
+        "evidence-findings-actions"
+      ],
+      "execution_status": "proposed_only",
+      "expected_effect": "Preserve the review conclusion without granting execution authority.",
+      "irreversible": false,
+      "operation": "record_external_result",
+      "purpose": "Record the human-reviewed result as external evidence.",
+      "requires_approval": false,
+      "risk_level": "low",
+      "working_directory": "."
+    }
+  ],
+  "rationale": "The complete evidence bundle supports a bounded read-only review of README, CHANGELOG and roadmap markers without repository mutation.",
+  "report_type": "supervised_action_proposal",
+  "review": {
+    "level": "standard",
+    "required": true,
+    "reviewers": [
+      "human",
+      "jounin"
+    ]
+  },
+  "risk_level": "medium",
+  "rollback_plan": {
+    "affected_state": [
+      "Public documentation is read only; no state change is proposed."
+    ],
+    "approval_owner": "human",
+    "authority": {
+      "rollback_commands_are_data_only": true,
+      "rollback_is_not_authorized": true
+    },
+    "failure_signals": [
+      "A blocked path is required.",
+      "A command would mutate state.",
+      "Evidence contradicts the contract objective."
+    ],
+    "irreversible_actions": [],
+    "mode": "not_required",
+    "pre_action_evidence": [
+      "Contract and evidence bundle hashes are verified before review."
+    ],
+    "recovery_steps": [
+      "Stop the proposal review and leave repository state unchanged."
+    ],
+    "residual_risk": "A human reviewer may still misinterpret evidence; no automated acceptance is permitted.",
+    "rollback_commands": [],
+    "success_checks": [
+      "Only declared public paths are inspected.",
+      "No tracked or untracked repository change appears."
+    ]
+  },
+  "schema_version": "1.0.0",
+  "stop_trigger_links": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "title": "Propose a read-only public documentation alignment review"
+}

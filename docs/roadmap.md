@@ -653,3 +653,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.2.1 Supervised Task Evidence Bundle
 
 - Compose contract requirements and local evidence into a deterministic bundle before any action proposal.
+
+### v3.2.2 Supervised Action Proposal
+
+- Compose validated contract and evidence into explicit actions ready only for human approval review.

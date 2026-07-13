@@ -373,3 +373,7 @@ Do not hide doctrine changes inside guides.
 ## Supervised Task Evidence Bundle
 
 - `supervised_task_evidence_bundle.md`: documents deterministic evidence coverage, hashes, states and human-review boundaries.
+
+## Supervised Action Proposal
+
+- `supervised_action_proposal.md`: documents proposal composition, evidence gates, argv boundaries, approvals, rollback and non-authority.

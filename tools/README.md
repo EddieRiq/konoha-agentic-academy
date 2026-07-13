@@ -507,3 +507,7 @@ Before a tool becomes active:
 ## Supervised task evidence validator
 
 - `task_evidence/validate_supervised_task_evidence.py`: validates contract-linked evidence coverage, source hashes, claims, findings and unresolved items without collection or execution.
+
+## Supervised action proposal validator
+
+- `action_proposal/validate_supervised_action_proposal.py`: validates contract/evidence references, scope, argv, approvals, risk and rollback without execution.

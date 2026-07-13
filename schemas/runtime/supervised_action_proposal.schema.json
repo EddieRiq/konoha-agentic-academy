@@ -1,0 +1,447 @@
+{
+  "$defs": {
+    "action": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_criteria": {
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "action_id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+          "type": "string"
+        },
+        "affected_paths": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "command_argv": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "destructive": {
+          "type": "boolean"
+        },
+        "evidence_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "execution_status": {
+          "const": "proposed_only"
+        },
+        "expected_effect": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "irreversible": {
+          "type": "boolean"
+        },
+        "operation": {
+          "enum": [
+            "inspect_repository",
+            "read_public_files",
+            "run_deterministic_checks",
+            "propose_command",
+            "record_external_result",
+            "invoke_local_model",
+            "execute_command",
+            "apply_patch",
+            "git_stage",
+            "git_commit",
+            "git_push",
+            "write_private_memory",
+            "close_mission"
+          ]
+        },
+        "purpose": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "requires_approval": {
+          "type": "boolean"
+        },
+        "risk_level": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "working_directory": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_id",
+        "operation",
+        "purpose",
+        "expected_effect",
+        "risk_level",
+        "affected_paths",
+        "evidence_ids",
+        "acceptance_criteria",
+        "working_directory",
+        "requires_approval",
+        "destructive",
+        "irreversible",
+        "execution_status"
+      ],
+      "type": "object"
+    },
+    "approval": {
+      "additionalProperties": false,
+      "properties": {
+        "approval_token": {
+          "pattern": "^[A-Z][A-Z0-9_]{2,127}$",
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "inspect_repository",
+            "read_public_files",
+            "run_deterministic_checks",
+            "propose_command",
+            "record_external_result",
+            "invoke_local_model",
+            "execute_command",
+            "apply_patch",
+            "git_stage",
+            "git_commit",
+            "git_push",
+            "write_private_memory",
+            "close_mission"
+          ]
+        },
+        "reason": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation",
+        "approval_token",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "reference": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "rollback": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_state": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "approval_owner": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "authority": {
+          "additionalProperties": false,
+          "properties": {
+            "rollback_commands_are_data_only": {
+              "const": true
+            },
+            "rollback_is_not_authorized": {
+              "const": true
+            }
+          },
+          "required": [
+            "rollback_is_not_authorized",
+            "rollback_commands_are_data_only"
+          ],
+          "type": "object"
+        },
+        "failure_signals": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "irreversible_actions": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "mode": {
+          "enum": [
+            "not_required",
+            "manual",
+            "command_proposal",
+            "irreversible"
+          ]
+        },
+        "pre_action_evidence": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "recovery_steps": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "residual_risk": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "rollback_commands": {
+          "items": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "success_checks": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "mode",
+        "affected_state",
+        "pre_action_evidence",
+        "success_checks",
+        "failure_signals",
+        "recovery_steps",
+        "rollback_commands",
+        "irreversible_actions",
+        "residual_risk",
+        "approval_owner",
+        "authority"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://example.invalid/konoha/supervised_action_proposal.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_criteria_links": {
+      "items": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "affected_paths": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "approval_requirements": {
+      "items": {
+        "$ref": "#/$defs/approval"
+      },
+      "type": "array"
+    },
+    "authority": {
+      "additionalProperties": false,
+      "properties": {
+        "approvals_are_not_consumed": {
+          "const": true
+        },
+        "commands_are_data_only": {
+          "const": true
+        },
+        "evidence_does_not_authorize_action": {
+          "const": true
+        },
+        "human_review_required": {
+          "const": true
+        },
+        "mission_state_does_not_authorize_execution": {
+          "const": true
+        },
+        "proposal_is_not_permission": {
+          "const": true
+        }
+      },
+      "required": [
+        "proposal_is_not_permission",
+        "commands_are_data_only",
+        "approvals_are_not_consumed",
+        "evidence_does_not_authorize_action",
+        "human_review_required",
+        "mission_state_does_not_authorize_execution"
+      ],
+      "type": "object"
+    },
+    "bundle_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "contract_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "contract_reference": {
+      "$ref": "#/$defs/reference"
+    },
+    "evidence_bundle_reference": {
+      "$ref": "#/$defs/reference"
+    },
+    "mission_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "proposal_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "proposed_actions": {
+      "items": {
+        "$ref": "#/$defs/action"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "rationale": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "report_type": {
+      "const": "supervised_action_proposal"
+    },
+    "review": {
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "enum": [
+            "standard",
+            "strict",
+            "critical"
+          ]
+        },
+        "required": {
+          "const": true
+        },
+        "reviewers": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "required",
+        "level",
+        "reviewers"
+      ],
+      "type": "object"
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "rollback_plan": {
+      "$ref": "#/$defs/rollback"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "stop_trigger_links": {
+      "items": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "title": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "proposal_id",
+    "contract_reference",
+    "evidence_bundle_reference",
+    "contract_id",
+    "bundle_id",
+    "mission_id",
+    "title",
+    "rationale",
+    "risk_level",
+    "affected_paths",
+    "proposed_actions",
+    "approval_requirements",
+    "rollback_plan",
+    "acceptance_criteria_links",
+    "stop_trigger_links",
+    "review",
+    "authority"
+  ],
+  "title": "Konoha Supervised Action Proposal",
+  "type": "object"
+}

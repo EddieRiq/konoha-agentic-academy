@@ -664,3 +664,7 @@ A Scroll is ready for active use only when:
 ## Supervised Task Evidence Bundle review
 
 - `supervised_task_evidence_bundle_review_scroll.md`: reviews coverage, hashes, private paths, claims, incomplete evidence and non-authorization boundaries.
+
+## Supervised Action Proposal review
+
+- `supervised_action_proposal_review_scroll.md`: reviews references, evidence, scope, argv, approvals, rollback and non-execution guarantees.

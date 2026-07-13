@@ -761,3 +761,8 @@ The guard never creates commits, tags or releases.
 
 - `tools/task_evidence/validate_supervised_task_evidence.py` maps every contract evidence requirement to hashed local sources.
 - `complete` means ready for human review, not approved, accepted, executable or closed.
+
+## v3.2.2 Supervised Action Proposal
+
+- `tools/action_proposal/validate_supervised_action_proposal.py` composes contract, evidence and explicit proposed actions.
+- `proposed` means ready for human approval review, not approved, authorized or executable.
