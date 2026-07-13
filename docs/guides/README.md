@@ -369,3 +369,7 @@ Do not hide doctrine changes inside guides.
 ## Supervised Task Contract Validator
 
 - `supervised_task_contract_validator.md`: documents the normalized pre-execution policy contract, readiness blockers and non-authorization boundaries.
+
+## Supervised Task Evidence Bundle
+
+- `supervised_task_evidence_bundle.md`: documents deterministic evidence coverage, hashes, states and human-review boundaries.

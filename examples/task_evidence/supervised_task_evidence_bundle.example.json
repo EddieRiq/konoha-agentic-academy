@@ -1,0 +1,116 @@
+{
+  "authority": {
+    "bundle_is_evidence_only": true,
+    "evidence_does_not_authorize_execution": true,
+    "hashes_do_not_prove_truth": true,
+    "human_review_required": true
+  },
+  "bundle_id": "docs-alignment-evidence",
+  "claims": [
+    {
+      "claim_id": "claim-public-paths-recorded",
+      "evidence_ids": [
+        "evidence-inspected-paths"
+      ],
+      "statement": "The example records the public paths inspected.",
+      "status": "supported"
+    },
+    {
+      "claim_id": "claim-check-results-recorded",
+      "evidence_ids": [
+        "evidence-deterministic-checks"
+      ],
+      "statement": "The example records deterministic commands and exit codes.",
+      "status": "supported"
+    }
+  ],
+  "contract_id": "docs-alignment-contract",
+  "contract_reference": {
+    "path": "examples/task_contract/supervised_task_contract.example.json",
+    "sha256": "61294797864a92d933b9b7559abe6ee8dc558293ff58df5554a890d68ad2f64f"
+  },
+  "evidence_items": [
+    {
+      "evidence_id": "evidence-inspected-paths",
+      "related_acceptance_criteria": [
+        0,
+        1
+      ],
+      "related_operations": [
+        "inspect_repository",
+        "read_public_files"
+      ],
+      "requirement_index": 0,
+      "requirement_text": "Record the exact public files inspected.",
+      "source_refs": [
+        {
+          "path": "examples/task_evidence/supervised_task_evidence_sources.example.json",
+          "sha256": "716f9a3f8765396ef2067cf677edaee5512c2fa28fc88355a97957d3f8fc6645",
+          "source_id": "source-inspected-paths",
+          "source_type": "report"
+        }
+      ],
+      "status": "satisfied",
+      "summary": "The source report records the exact public paths inspected."
+    },
+    {
+      "evidence_id": "evidence-deterministic-checks",
+      "related_acceptance_criteria": [
+        1,
+        2
+      ],
+      "related_operations": [
+        "run_deterministic_checks",
+        "record_external_result"
+      ],
+      "requirement_index": 1,
+      "requirement_text": "Record deterministic command results and exit codes.",
+      "source_refs": [
+        {
+          "path": "examples/task_evidence/supervised_task_evidence_sources.example.json",
+          "sha256": "716f9a3f8765396ef2067cf677edaee5512c2fa28fc88355a97957d3f8fc6645",
+          "source_id": "source-deterministic-checks",
+          "source_type": "command_result"
+        }
+      ],
+      "status": "satisfied",
+      "summary": "The source report records deterministic commands, exit codes and expected outcomes."
+    },
+    {
+      "evidence_id": "evidence-findings-actions",
+      "related_acceptance_criteria": [
+        1
+      ],
+      "related_operations": [
+        "record_external_result"
+      ],
+      "requirement_index": 2,
+      "requirement_text": "Separate findings from suggested next actions.",
+      "source_refs": [
+        {
+          "path": "examples/task_evidence/supervised_task_evidence_sources.example.json",
+          "sha256": "716f9a3f8765396ef2067cf677edaee5512c2fa28fc88355a97957d3f8fc6645",
+          "source_id": "source-findings-actions",
+          "source_type": "report"
+        }
+      ],
+      "status": "satisfied",
+      "summary": "The source separates observed findings from suggested next actions."
+    }
+  ],
+  "findings": [
+    {
+      "evidence_ids": [
+        "evidence-inspected-paths",
+        "evidence-findings-actions"
+      ],
+      "finding_id": "finding-no-authorization",
+      "level": "info",
+      "statement": "The bundle provides review evidence but grants no execution authority."
+    }
+  ],
+  "mission_id": "docs-alignment-mission",
+  "report_type": "supervised_task_evidence_bundle",
+  "schema_version": "1.0.0",
+  "unresolved": []
+}

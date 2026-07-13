@@ -1,0 +1,317 @@
+{
+  "$defs": {
+    "claim": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "statement": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "supported",
+            "unsupported",
+            "contradicted"
+          ]
+        }
+      },
+      "required": [
+        "claim_id",
+        "statement",
+        "status",
+        "evidence_ids"
+      ],
+      "type": "object"
+    },
+    "evidence_item": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+          "type": "string"
+        },
+        "related_acceptance_criteria": {
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "related_operations": {
+          "items": {
+            "enum": [
+              "inspect_repository",
+              "read_public_files",
+              "run_deterministic_checks",
+              "propose_command",
+              "record_external_result",
+              "invoke_local_model",
+              "execute_command",
+              "apply_patch",
+              "git_stage",
+              "git_commit",
+              "git_push",
+              "write_private_memory",
+              "close_mission"
+            ]
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "requirement_index": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "requirement_text": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "$ref": "#/$defs/source_ref"
+          },
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "satisfied",
+            "missing",
+            "contradicted",
+            "unresolved"
+          ]
+        },
+        "summary": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "requirement_index",
+        "requirement_text",
+        "status",
+        "source_refs",
+        "related_acceptance_criteria",
+        "related_operations",
+        "summary"
+      ],
+      "type": "object"
+    },
+    "finding": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "finding_id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ]
+        },
+        "statement": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "level",
+        "statement",
+        "evidence_ids"
+      ],
+      "type": "object"
+    },
+    "source_ref": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "file",
+            "report",
+            "command_result",
+            "observation"
+          ]
+        }
+      },
+      "required": [
+        "source_id",
+        "source_type",
+        "path",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "unresolved_item": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "requirement_indices": {
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "statement": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "unresolved_id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "unresolved_id",
+        "statement",
+        "reason",
+        "requirement_indices"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://example.invalid/konoha/supervised_task_evidence_bundle.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority": {
+      "additionalProperties": false,
+      "properties": {
+        "bundle_is_evidence_only": {
+          "const": true
+        },
+        "evidence_does_not_authorize_execution": {
+          "const": true
+        },
+        "hashes_do_not_prove_truth": {
+          "const": true
+        },
+        "human_review_required": {
+          "const": true
+        }
+      },
+      "required": [
+        "bundle_is_evidence_only",
+        "evidence_does_not_authorize_execution",
+        "hashes_do_not_prove_truth",
+        "human_review_required"
+      ],
+      "type": "object"
+    },
+    "bundle_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/claim"
+      },
+      "type": "array"
+    },
+    "contract_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "contract_reference": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "evidence_items": {
+      "items": {
+        "$ref": "#/$defs/evidence_item"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "type": "array"
+    },
+    "mission_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "report_type": {
+      "const": "supervised_task_evidence_bundle"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "unresolved": {
+      "items": {
+        "$ref": "#/$defs/unresolved_item"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "bundle_id",
+    "contract_reference",
+    "contract_id",
+    "mission_id",
+    "evidence_items",
+    "claims",
+    "findings",
+    "unresolved",
+    "authority"
+  ],
+  "title": "Konoha Supervised Task Evidence Bundle",
+  "type": "object"
+}

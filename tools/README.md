@@ -503,3 +503,7 @@ Before a tool becomes active:
 ## Supervised task contract validator
 
 - `task_contract/validate_supervised_task_contract.py`: validates declarative task scope, operations, approvals, evidence, review, completion and Teachback without execution.
+
+## Supervised task evidence validator
+
+- `task_evidence/validate_supervised_task_evidence.py`: validates contract-linked evidence coverage, source hashes, claims, findings and unresolved items without collection or execution.

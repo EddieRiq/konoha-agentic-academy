@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "issue": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "blocker",
+            "warning"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "field",
+        "message",
+        "severity"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://example.invalid/konoha/supervised_task_evidence_validation_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "blockers": {
+      "items": {
+        "$ref": "#/$defs/issue"
+      },
+      "type": "array"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "bundle_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bundle_path": {
+      "type": "string"
+    },
+    "contract_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_reference": {
+      "type": "object"
+    },
+    "error": {
+      "type": "string"
+    },
+    "evidence_state": {
+      "enum": [
+        "complete",
+        "incomplete",
+        "contradicted",
+        "unavailable"
+      ]
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "next_recommended_action": {
+      "type": "string"
+    },
+    "readiness": {
+      "enum": [
+        "ready_for_human_review",
+        "blocked"
+      ]
+    },
+    "report_type": {
+      "const": "supervised_task_evidence_validation_report"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "warnings": {
+      "items": {
+        "$ref": "#/$defs/issue"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "readiness",
+    "evidence_state",
+    "authority",
+    "boundaries"
+  ],
+  "title": "Konoha Supervised Task Evidence Validation Report",
+  "type": "object"
+}

@@ -1,0 +1,48 @@
+{
+  "authority": {
+    "evidence_does_not_authorize_execution": true,
+    "example_is_not_runtime_evidence": true,
+    "recorded_results_are_evidence_only": true
+  },
+  "deterministic_checks": [
+    {
+      "check_id": "task-contract-focused-tests",
+      "command": "python -m unittest discover -s tests/task_contract -p test_*.py",
+      "exit_code": 0,
+      "status": "passed"
+    },
+    {
+      "check_id": "ready-contract-smoke",
+      "command": "python tools/task_contract/validate_supervised_task_contract.py --contract examples/task_contract/supervised_task_contract.example.json --json",
+      "exit_code": 0,
+      "status": "passed"
+    },
+    {
+      "check_id": "blocked-contract-smoke",
+      "command": "python tools/task_contract/validate_supervised_task_contract.py --contract sandbox/blocked-contract.json --json",
+      "exit_code": 1,
+      "status": "expected_blocked"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "finding-contract-policy-complete",
+      "source_paths": [
+        "examples/task_contract/supervised_task_contract.example.json"
+      ],
+      "statement": "The contract example declares scope, operations, evidence requirements, review and Teachback."
+    }
+  ],
+  "inspected_paths": [
+    "README.md",
+    "CHANGELOG.md",
+    "docs/roadmap.md",
+    "schemas/runtime/supervised_task_contract.schema.json"
+  ],
+  "report_type": "supervised_task_evidence_sources_example",
+  "schema_version": "1.0.0",
+  "suggested_next_actions": [
+    "Review evidence meaning before proposing any operation.",
+    "Keep execution, Git, models, network and private context behind separate gates."
+  ]
+}

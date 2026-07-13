@@ -756,3 +756,8 @@ The guard never creates commits, tags or releases.
 
 - `tools/task_contract/validate_supervised_task_contract.py` validates a normalized declarative policy before any execution proposal.
 - A `ready` contract is evidence only. It does not authorize commands, models, patches, Git, network, private context or mission closure.
+
+## v3.2.1 Supervised Task Evidence Bundle
+
+- `tools/task_evidence/validate_supervised_task_evidence.py` maps every contract evidence requirement to hashed local sources.
+- `complete` means ready for human review, not approved, accepted, executable or closed.

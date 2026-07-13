@@ -660,3 +660,7 @@ A Scroll is ready for active use only when:
 ## Supervised Task Contract Validator review
 
 - `supervised_task_contract_validator_review_scroll.md`: reviews scope safety, sensitive-operation approvals, Teachback, report output boundaries and non-execution guarantees.
+
+## Supervised Task Evidence Bundle review
+
+- `supervised_task_evidence_bundle_review_scroll.md`: reviews coverage, hashes, private paths, claims, incomplete evidence and non-authorization boundaries.

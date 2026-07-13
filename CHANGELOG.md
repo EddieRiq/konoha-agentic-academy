@@ -92,6 +92,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v3.2.1 Supervised Task Evidence Bundle with deterministic contract/source hashing, requirement coverage, claims, findings and unresolved evidence validation.
 - Added v3.2.0 Supervised Task Contract Validator with normalized scope, operation, approval, evidence, review, completion, Teachback and stop-trigger policy validation.
 - Added v3.1.6 Terminal Operator Baseline with a read-only `status` command for repository, mission, evidence and terminal context.
 - Added v3.1.5 Hokage Shell Mission Continuity with deterministic mission inventory, validated latest selection, read-only resume snapshots, invalid-session reporting, schema, example, tests, guide, roadmap scope and review Scroll.

@@ -236,3 +236,8 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Supervised task contract example
 
 - `task_contract/supervised_task_contract.example.json`: example of a complete read-only task contract that validates as ready.
+
+## Supervised task evidence examples
+
+- `task_evidence/supervised_task_evidence_bundle.example.json`: complete contract-linked evidence bundle.
+- `task_evidence/supervised_task_evidence_sources.example.json`: illustrative source report referenced by the bundle.
