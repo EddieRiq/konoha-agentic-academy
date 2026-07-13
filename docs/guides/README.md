@@ -377,3 +377,7 @@ Do not hide doctrine changes inside guides.
 ## Supervised Action Proposal
 
 - `supervised_action_proposal.md`: documents proposal composition, evidence gates, argv boundaries, approvals, rollback and non-authority.
+
+## Unified Supervised Release Gate
+
+- `unified_supervised_release_gate.md`: documents the one-command release state machine, evidence reuse, explicit mutation tokens and minimal output.

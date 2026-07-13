@@ -668,3 +668,7 @@ A Scroll is ready for active use only when:
 ## Supervised Action Proposal review
 
 - `supervised_action_proposal_review_scroll.md`: reviews references, evidence, scope, argv, approvals, rollback and non-execution guarantees.
+
+## Unified Supervised Release Gate review
+
+- `unified_supervised_release_gate_review_scroll.md`: reviews state transitions, tokens, scope, tests, tag/release alignment and final closure evidence.

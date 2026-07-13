@@ -657,3 +657,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.2.2 Supervised Action Proposal
 
 - Compose validated contract and evidence into explicit actions ready only for human approval review.
+
+### v3.2.3 Unified Supervised Release Gate
+
+- Version the Acceptance→Git→Release orchestration and stop on any unexpected RC, state, scope, tag or release condition.

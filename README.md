@@ -766,3 +766,8 @@ The guard never creates commits, tags or releases.
 
 - `tools/action_proposal/validate_supervised_action_proposal.py` composes contract, evidence and explicit proposed actions.
 - `proposed` means ready for human approval review, not approved, authorized or executable.
+
+## v3.2.3 Unified Supervised Release Gate
+
+- `tools/release_workflow/run_supervised_release.py` executes the supervised Acceptance→Git→Release state machine.
+- Expected nonzero guards advance only when their canonical `status_code` matches the allowed transition.

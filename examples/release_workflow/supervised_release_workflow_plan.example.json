@@ -1,0 +1,47 @@
+{
+  "authority": {
+    "guard_reports_are_evidence_only": true,
+    "operation_tokens_required": true,
+    "plan_is_not_permission": true,
+    "release_mutations_are_explicit": true,
+    "test_results_are_evidence_only": true
+  },
+  "commit_message": "Add unified supervised release gate",
+  "expected_base_commit": "1fd1b2f1e8b93310ed78ad959754c3bfd998f46f",
+  "expected_branch": "main",
+  "expected_test_gate": {
+    "focused_suite": "release_workflow",
+    "focused_tests": 14,
+    "suite_count": 49,
+    "test_count": 361
+  },
+  "github_repo": "EddieRiq/konoha-agentic-academy",
+  "max_transitions": 8,
+  "previous_version": "v3.2.2",
+  "public_paths": [
+    "CHANGELOG.md",
+    "README.md",
+    "docs/guides/README.md",
+    "docs/guides/unified_supervised_release_gate.md",
+    "docs/roadmap.md",
+    "docs/roadmap/v3_2_3_unified_supervised_release_gate_scope.md",
+    "examples/README.md",
+    "examples/release_workflow/supervised_release_workflow_plan.example.json",
+    "schemas/runtime/supervised_release_workflow_plan.schema.json",
+    "schemas/runtime/supervised_release_workflow_report.schema.json",
+    "scrolls/README.md",
+    "scrolls/unified_supervised_release_gate_review_scroll.md",
+    "tests/release_workflow/test_run_supervised_release.py",
+    "tools/README.md",
+    "tools/release_workflow/__init__.py",
+    "tools/release_workflow/run_supervised_release.py"
+  ],
+  "release_notes_path": "sandbox/tmp/v3-2-3-package/RELEASE_NOTES.md",
+  "release_notes_sha256": "53d0fa61d01c2297622686b07ae794816f90be006d4c22a788eadb4672178268",
+  "release_title": "Konoha Agentic Academy v3.2.3 - Unified Supervised Release Gate",
+  "remote": "origin",
+  "report_type": "supervised_release_workflow_plan",
+  "schema_version": "1.0.0",
+  "target_version": "v3.2.3",
+  "workflow_id": "v3-2-3-unified-supervised-release"
+}

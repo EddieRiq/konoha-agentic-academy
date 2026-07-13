@@ -245,3 +245,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Supervised action proposal example
 
 - `action_proposal/supervised_action_proposal.example.json`: read-only proposal linked to the v3.2 contract and evidence examples.
+
+## Unified supervised release example
+
+- `release_workflow/supervised_release_workflow_plan.example.json`: exact v3.2.3 public scope, test counts, release metadata and authority declarations.

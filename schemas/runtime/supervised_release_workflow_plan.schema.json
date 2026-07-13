@@ -1,0 +1,148 @@
+{
+  "$id": "https://example.invalid/konoha/supervised_release_workflow_plan.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority": {
+      "additionalProperties": false,
+      "properties": {
+        "guard_reports_are_evidence_only": {
+          "const": true
+        },
+        "operation_tokens_required": {
+          "const": true
+        },
+        "plan_is_not_permission": {
+          "const": true
+        },
+        "release_mutations_are_explicit": {
+          "const": true
+        },
+        "test_results_are_evidence_only": {
+          "const": true
+        }
+      },
+      "required": [
+        "plan_is_not_permission",
+        "operation_tokens_required",
+        "test_results_are_evidence_only",
+        "guard_reports_are_evidence_only",
+        "release_mutations_are_explicit"
+      ],
+      "type": "object"
+    },
+    "commit_message": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "expected_base_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "expected_branch": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "expected_test_gate": {
+      "additionalProperties": false,
+      "properties": {
+        "focused_suite": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "focused_tests": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "suite_count": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "test_count": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "suite_count",
+        "test_count",
+        "focused_suite",
+        "focused_tests"
+      ],
+      "type": "object"
+    },
+    "github_repo": {
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+      "type": "string"
+    },
+    "max_transitions": {
+      "default": 8,
+      "maximum": 32,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "previous_version": {
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$",
+      "type": "string"
+    },
+    "public_paths": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "release_notes_path": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "release_notes_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "release_title": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "remote": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "report_type": {
+      "const": "supervised_release_workflow_plan"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "target_version": {
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$",
+      "type": "string"
+    },
+    "workflow_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,95}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "workflow_id",
+    "expected_base_commit",
+    "expected_branch",
+    "remote",
+    "github_repo",
+    "target_version",
+    "previous_version",
+    "commit_message",
+    "release_title",
+    "release_notes_path",
+    "release_notes_sha256",
+    "public_paths",
+    "expected_test_gate",
+    "authority"
+  ],
+  "title": "Konoha Supervised Release Workflow Plan",
+  "type": "object"
+}

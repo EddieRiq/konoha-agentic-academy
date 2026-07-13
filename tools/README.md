@@ -511,3 +511,7 @@ Before a tool becomes active:
 ## Supervised action proposal validator
 
 - `action_proposal/validate_supervised_action_proposal.py`: validates contract/evidence references, scope, argv, approvals, risk and rollback without execution.
+
+## Unified supervised release workflow
+
+- `release_workflow/run_supervised_release.py`: composes beta Git gates, canonical tests and release closure into one token-gated workflow.

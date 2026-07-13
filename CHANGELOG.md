@@ -94,6 +94,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v3.2.3 Unified Supervised Release Gate with explicit RC/status transitions, single-run Git delivery and release closure.
 - Added v3.2.2 Supervised Action Proposal with contract/evidence composition, bounded argv proposals, approval requirements and rollback validation.
 - Added v3.2.1 Supervised Task Evidence Bundle with deterministic contract/source hashing, requirement coverage, claims, findings and unresolved evidence validation.
 - Added v3.2.0 Supervised Task Contract Validator with normalized scope, operation, approval, evidence, review, completion, Teachback and stop-trigger policy validation.
