@@ -499,3 +499,7 @@ Before a tool becomes active:
 ## Hokage terminal operator status
 
 - `hokage_shell/operator_status.py`: builds a local, read-only operator snapshot without creating workspace or memory directories.
+
+## Supervised task contract validator
+
+- `task_contract/validate_supervised_task_contract.py`: validates declarative task scope, operations, approvals, evidence, review, completion and Teachback without execution.

@@ -232,3 +232,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Hokage operator status example
 
 - `hokage_shell/hokage_operator_status_report.example.json`: example of a compact read-only terminal operator snapshot.
+
+## Supervised task contract example
+
+- `task_contract/supervised_task_contract.example.json`: example of a complete read-only task contract that validates as ready.

@@ -1,0 +1,86 @@
+{
+  "acceptance_criteria": [
+    "README, CHANGELOG and roadmap markers are inspected.",
+    "Every finding cites a public path and deterministic evidence.",
+    "No repository or private-context mutation occurs."
+  ],
+  "approval_requirements": [],
+  "authority": {
+    "approvals_are_operation_specific": true,
+    "contract_is_not_permission": true,
+    "mission_state_does_not_authorize_execution": true,
+    "validator_output_is_evidence_only": true
+  },
+  "completion_conditions": [
+    "A human reviewer confirms the acceptance criteria.",
+    "All blockers are resolved or explicitly deferred.",
+    "Teachback explains what was inspected and what remains uncertain."
+  ],
+  "contract_id": "docs-alignment-contract",
+  "evidence_requirements": [
+    "Record the exact public files inspected.",
+    "Record deterministic command results and exit codes.",
+    "Separate findings from suggested next actions."
+  ],
+  "mission_id": "docs-alignment-mission",
+  "network_policy": "blocked",
+  "non_goals": [
+    "Do not invoke local or remote models.",
+    "Do not apply patches or perform Git operations.",
+    "Do not read private memory or company context."
+  ],
+  "objective": "Inspect public documentation and produce deterministic evidence without modifying the repository.",
+  "operations": {
+    "allowed": [
+      "inspect_repository",
+      "read_public_files",
+      "run_deterministic_checks",
+      "record_external_result"
+    ],
+    "blocked": [
+      "propose_command",
+      "invoke_local_model",
+      "execute_command",
+      "apply_patch",
+      "git_stage",
+      "git_commit",
+      "git_push",
+      "write_private_memory",
+      "close_mission"
+    ]
+  },
+  "private_context_policy": "blocked",
+  "report_type": "supervised_task_contract",
+  "review": {
+    "level": "standard",
+    "required": true,
+    "reviewers": [
+      "human",
+      "jounin"
+    ]
+  },
+  "risk_level": "medium",
+  "schema_version": "1.0.0",
+  "scope": {
+    "allowed_paths": [
+      "README.md",
+      "CHANGELOG.md",
+      "docs/**"
+    ],
+    "blocked_paths": [
+      ".env",
+      "alliance/kirigakure/**",
+      "sandbox/**",
+      "memory/local/**",
+      "vault/**"
+    ]
+  },
+  "stop_triggers": [
+    "Private, client or company data appears.",
+    "The requested scope conflicts with blocked paths.",
+    "A blocked operation becomes necessary.",
+    "Evidence contradicts the mission objective."
+  ],
+  "teachback_required": true,
+  "title": "Validate public documentation alignment"
+}

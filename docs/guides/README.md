@@ -365,3 +365,7 @@ Do not hide doctrine changes inside guides.
 ## Hokage Terminal Operator Baseline
 
 - `hokage_terminal_operator_baseline.md`: documents the read-only `status` command, operator states, terminal fallback and authority boundaries.
+
+## Supervised Task Contract Validator
+
+- `supervised_task_contract_validator.md`: documents the normalized pre-execution policy contract, readiness blockers and non-authorization boundaries.

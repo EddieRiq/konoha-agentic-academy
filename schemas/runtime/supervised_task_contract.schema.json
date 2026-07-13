@@ -1,0 +1,290 @@
+{
+  "$id": "https://example.invalid/konoha/supervised_task_contract.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_criteria": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "approval_requirements": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "approval_token": {
+            "pattern": "^[A-Z][A-Z0-9_]{2,127}$",
+            "type": "string"
+          },
+          "operation": {
+            "enum": [
+              "inspect_repository",
+              "read_public_files",
+              "run_deterministic_checks",
+              "propose_command",
+              "record_external_result",
+              "invoke_local_model",
+              "execute_command",
+              "apply_patch",
+              "git_stage",
+              "git_commit",
+              "git_push",
+              "write_private_memory",
+              "close_mission"
+            ]
+          },
+          "reason": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation",
+          "approval_token",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "authority": {
+      "additionalProperties": false,
+      "properties": {
+        "approvals_are_operation_specific": {
+          "const": true
+        },
+        "contract_is_not_permission": {
+          "const": true
+        },
+        "mission_state_does_not_authorize_execution": {
+          "const": true
+        },
+        "validator_output_is_evidence_only": {
+          "const": true
+        }
+      },
+      "required": [
+        "contract_is_not_permission",
+        "validator_output_is_evidence_only",
+        "mission_state_does_not_authorize_execution",
+        "approvals_are_operation_specific"
+      ],
+      "type": "object"
+    },
+    "completion_conditions": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "contract_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "evidence_requirements": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "mission_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "network_policy": {
+      "enum": [
+        "blocked",
+        "explicit_approval_required"
+      ]
+    },
+    "non_goals": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "objective": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "operations": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed": {
+          "items": {
+            "enum": [
+              "inspect_repository",
+              "read_public_files",
+              "run_deterministic_checks",
+              "propose_command",
+              "record_external_result",
+              "invoke_local_model",
+              "execute_command",
+              "apply_patch",
+              "git_stage",
+              "git_commit",
+              "git_push",
+              "write_private_memory",
+              "close_mission"
+            ]
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "blocked": {
+          "items": {
+            "enum": [
+              "inspect_repository",
+              "read_public_files",
+              "run_deterministic_checks",
+              "propose_command",
+              "record_external_result",
+              "invoke_local_model",
+              "execute_command",
+              "apply_patch",
+              "git_stage",
+              "git_commit",
+              "git_push",
+              "write_private_memory",
+              "close_mission"
+            ]
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "allowed",
+        "blocked"
+      ],
+      "type": "object"
+    },
+    "private_context_policy": {
+      "enum": [
+        "blocked",
+        "explicit_approval_required"
+      ]
+    },
+    "report_type": {
+      "const": "supervised_task_contract"
+    },
+    "review": {
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "enum": [
+            "standard",
+            "strict",
+            "critical"
+          ]
+        },
+        "required": {
+          "const": true
+        },
+        "reviewers": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "required",
+        "level",
+        "reviewers"
+      ],
+      "type": "object"
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "scope": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_paths": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "blocked_paths": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "allowed_paths",
+        "blocked_paths"
+      ],
+      "type": "object"
+    },
+    "stop_triggers": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "teachback_required": {
+      "const": true
+    },
+    "title": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "contract_id",
+    "mission_id",
+    "title",
+    "objective",
+    "non_goals",
+    "risk_level",
+    "scope",
+    "operations",
+    "network_policy",
+    "private_context_policy",
+    "acceptance_criteria",
+    "evidence_requirements",
+    "approval_requirements",
+    "completion_conditions",
+    "review",
+    "teachback_required",
+    "stop_triggers",
+    "authority"
+  ],
+  "title": "Konoha Supervised Task Contract",
+  "type": "object"
+}

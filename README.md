@@ -751,3 +751,8 @@ The guard never creates commits, tags or releases.
 
 - `tools/hokage_shell/run_hokage_shell.py status` provides a compact read-only snapshot of repository, mission, evidence and terminal context.
 - Status is evidence only and does not authorize execution, Git writes, model invocation, network access or private-memory reads.
+
+## v3.2.0 Supervised Task Contract Validator
+
+- `tools/task_contract/validate_supervised_task_contract.py` validates a normalized declarative policy before any execution proposal.
+- A `ready` contract is evidence only. It does not authorize commands, models, patches, Git, network, private context or mission closure.

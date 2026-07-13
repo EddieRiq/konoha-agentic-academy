@@ -656,3 +656,7 @@ A Scroll is ready for active use only when:
 ## Hokage Terminal Operator Baseline review
 
 - `hokage_terminal_operator_baseline_review_scroll.md`: reviews status determinism, no-workspace-creation, terminal fallback and non-authorization boundaries.
+
+## Supervised Task Contract Validator review
+
+- `supervised_task_contract_validator_review_scroll.md`: reviews scope safety, sensitive-operation approvals, Teachback, report output boundaries and non-execution guarantees.

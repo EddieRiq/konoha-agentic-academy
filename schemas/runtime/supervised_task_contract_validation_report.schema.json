@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "issue": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "blocker",
+            "warning"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "field",
+        "message",
+        "severity"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://example.invalid/konoha/supervised_task_contract_validation_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "blocker_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "blockers": {
+      "items": {
+        "$ref": "#/$defs/issue"
+      },
+      "type": "array"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "contract_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contract_path": {
+      "type": "string"
+    },
+    "contract_report_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "next_recommended_action": {
+      "type": "string"
+    },
+    "normalized_contract_summary": {
+      "type": "object"
+    },
+    "readiness": {
+      "enum": [
+        "ready",
+        "blocked"
+      ]
+    },
+    "report_type": {
+      "const": "supervised_task_contract_validation_report"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "warning_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "warnings": {
+      "items": {
+        "$ref": "#/$defs/issue"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "readiness",
+    "authority",
+    "boundaries"
+  ],
+  "title": "Konoha Supervised Task Contract Validation Report",
+  "type": "object"
+}

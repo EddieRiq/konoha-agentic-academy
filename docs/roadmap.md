@@ -645,3 +645,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.1.6 Terminal Operator Baseline
 
 - Add a compact read-only terminal status surface for repository, mission, evidence and terminal capability context.
+
+### v3.2.0 Supervised Task Contract Validator
+
+- Add a normalized declarative policy validator for supervised tasks before integrating execution flows.
