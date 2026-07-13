@@ -1,0 +1,58 @@
+{
+  "$id": "https://example.invalid/konoha/managed_konoha_install_status.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "actual": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "checks": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "healthy": {
+      "type": "boolean"
+    },
+    "report_type": {
+      "const": "managed_konoha_install_status"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "state": {
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "healthy",
+        "degraded",
+        "blocked"
+      ]
+    },
+    "status_code": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "status_code",
+    "healthy",
+    "state",
+    "checks",
+    "actual",
+    "boundaries"
+  ],
+  "title": "Managed Konoha Install Status",
+  "type": "object"
+}

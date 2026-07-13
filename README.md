@@ -817,3 +817,27 @@ The guard never creates commits, tags or releases.
   Teachback requirements in their mission manifests.
 - The canonical CLI delegates through one command registry while preserving all
   underlying approval, network and filesystem boundaries.
+
+## v3.3.0 Installable Terminal Distribution
+
+Install the exact release with one explicit terminal command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/EddieRiq/konoha-agentic-academy/v3.3.0/scripts/install.sh | bash -s -- --version v3.3.0 --confirm-install --approval-token INSTALL_KONOHA_CLI
+```
+
+Then:
+
+```bash
+konoha --version
+konoha doctor
+konoha status
+konoha shell
+```
+
+Managed upgrade and uninstall remain separately approved:
+
+```bash
+konoha upgrade --target-version v3.4.0 --allow-network --confirm-upgrade --approval-token UPGRADE_KONOHA_INSTALL
+konoha uninstall --confirm-uninstall --approval-token UNINSTALL_KONOHA_CLI
+```

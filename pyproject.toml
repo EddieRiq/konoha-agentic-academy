@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "konoha-agentic-academy"
+version = "3.3.0"
+description = "Local-first supervised agentic mission framework"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Konoha Agentic Academy"}]
+dependencies = []
+
+[project.scripts]
+konoha = "tools.konoha_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tools*"]
+namespaces = true

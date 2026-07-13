@@ -24,8 +24,7 @@ from tools.command_registry import (  # noqa: E402
     CommandKey,
     command_label,
 )
-
-VERSION = "3.2.6"
+from tools.version import VERSION  # noqa: E402
 
 ALIASES = {
     "--target-repo-root": "--repo-root",
@@ -175,6 +174,15 @@ Examples:
   python tools/konoha_cli.py mission close --help
   python tools/konoha_cli.py package status --help
   python tools/konoha_cli.py release status --help
+  python tools/konoha_cli.py release deliver --help
+  python tools/konoha_cli.py install-status
+  python tools/konoha_cli.py upgrade --help
+  python tools/konoha_cli.py uninstall --help
+
+Install:
+  curl -fsSL https://raw.githubusercontent.com/EddieRiq/konoha-agentic-academy/v3.3.0/scripts/install.sh | \
+    bash -s -- --version v3.3.0 --confirm-install \
+    --approval-token INSTALL_KONOHA_CLI
 
 Safety:
   The CLI dispatches only to registered internal tools.

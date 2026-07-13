@@ -1,0 +1,87 @@
+{
+  "$id": "https://example.invalid/konoha/supervised_package_release_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "alignment": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "blocker": {
+      "type": "string"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "clean_install_smoke": {
+      "type": "object"
+    },
+    "command_logs": {
+      "type": "array"
+    },
+    "delivery_id": {
+      "type": "string"
+    },
+    "final_status": {
+      "type": "object"
+    },
+    "focused_acceptance": {
+      "type": "array"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "head": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "installation": {
+      "type": "object"
+    },
+    "release": {
+      "type": "object"
+    },
+    "release_closed": {
+      "type": "boolean"
+    },
+    "report_type": {
+      "const": "supervised_package_release_report"
+    },
+    "resume_mode": {
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "blocked"
+      ]
+    },
+    "status_code": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array"
+    },
+    "target_version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "status_code",
+    "release_closed",
+    "boundaries"
+  ],
+  "title": "Supervised Package Release Report",
+  "type": "object"
+}

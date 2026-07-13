@@ -16,6 +16,10 @@
 | Package status | `package status` | Package Installation | read-only | blocked | none |
 | Package install | `package install` | Package Installation | exact manifest scope | blocked | `APPLY_SUPERVISED_PACKAGE_INSTALLATION` |
 | Release status | `release status` | Release Workflow | read-only | optional read-only | none |
+| Managed install status | `install-status` | Distribution Manager | read-only | blocked | none |
+| Managed upgrade | `upgrade` | Distribution Manager | managed source checkout | explicit | `UPGRADE_KONOHA_INSTALL` |
+| Recoverable uninstall | `uninstall` | Distribution Manager | managed source move | blocked | `UNINSTALL_KONOHA_CLI` |
+| Package-to-release | `release deliver` | Release Delivery | delegated package/Git/release | explicit | full delivery token set |
 
 ## Component roles
 
@@ -46,6 +50,15 @@ tools/package_installation/run_supervised_package_installation.py
 
 tools/release_workflow/run_supervised_release.py
   Acceptance → Git → tag → GitHub Release closure
+
+tools/distribution/manage_konoha_distribution.py
+  verified install status, explicit-tag upgrade and recoverable uninstall
+
+tools/distribution/run_clean_install_smoke.py
+  isolated global-command and registry smoke
+
+tools/release_delivery/run_supervised_package_release.py
+  package → focused tests → clean install → release → final status
 ```
 
 ## Deprecated compatibility

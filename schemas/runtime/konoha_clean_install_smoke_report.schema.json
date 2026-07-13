@@ -1,0 +1,64 @@
+{
+  "$id": "https://example.invalid/konoha/konoha_clean_install_smoke_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "checks": {
+      "type": "object"
+    },
+    "commands": {
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "expected_version": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "observed_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "konoha_clean_install_smoke_report"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "blocked"
+      ]
+    },
+    "status_code": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "status_code",
+    "expected_version",
+    "observed_version",
+    "checks",
+    "commands",
+    "boundaries",
+    "authority"
+  ],
+  "title": "Konoha Clean Install Smoke Report",
+  "type": "object"
+}

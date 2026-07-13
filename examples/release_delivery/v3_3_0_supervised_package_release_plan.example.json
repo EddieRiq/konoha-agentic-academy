@@ -1,0 +1,52 @@
+{
+  "authority": {
+    "installation_token_required": true,
+    "network_is_explicit": true,
+    "plan_is_not_permission": true,
+    "release_tokens_required": true,
+    "tests_are_evidence_only": true
+  },
+  "clean_install_smoke": {
+    "expected_version": "3.3.0",
+    "tool_path": "tools/distribution/run_clean_install_smoke.py"
+  },
+  "delivery_id": "v3-3-0-installable-terminal-distribution",
+  "expected_base_commit": "32adef8b5a99d85a914e97eec775552464ff078f",
+  "focused_suites": [
+    {
+      "expected_tests": 10,
+      "name": "konoha_cli",
+      "path": "tests/konoha_cli",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 17,
+      "name": "distribution",
+      "path": "tests/distribution",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 18,
+      "name": "release_delivery",
+      "path": "tests/release_delivery",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 12,
+      "name": "package_installation",
+      "path": "tests/package_installation",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 24,
+      "name": "release_workflow",
+      "path": "tests/release_workflow",
+      "pattern": "test_*.py"
+    }
+  ],
+  "installation_manifest_path": "examples/package_installation/v3_3_0_installable_terminal_distribution_manifest.example.json",
+  "release_plan_path": "examples/release_workflow/v3_3_0_installable_terminal_distribution_release_plan.example.json",
+  "report_type": "supervised_package_release_plan",
+  "schema_version": "1.0.0",
+  "target_version": "v3.3.0"
+}

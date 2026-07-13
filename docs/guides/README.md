@@ -396,3 +396,10 @@ Do not hide doctrine changes inside guides.
 - `../reference/capability_matrix.md`: maps canonical commands to delegated components, mutation levels, network boundaries and approval requirements.
 - `../reference/release_safety_boundaries.md`: separates product and maintainer surfaces and records package, release and public/private stop conditions.
 - `../roadmap/v3_2_6_repository_consolidation_scope.md`: freezes the final `v3.2.x` consolidation scope and the `v3.3.0`/`v3.4.0` path.
+
+## Installable Terminal Distribution
+
+- `installable_terminal_distribution.md`: one-line managed installation and global `konoha`.
+- `managed_install_upgrade_and_uninstall.md`: verified status, explicit-tag upgrade and recoverable uninstall.
+- `supervised_package_to_release_wrapper.md`: package → tests → clean install → release → final status.
+- `../roadmap/v3_3_0_installable_terminal_distribution_scope.md`: frozen v3.3.0 scope.

@@ -1,0 +1,15 @@
+{
+  "bin_path": "/home/user/.local/bin/konoha",
+  "commit": "0000000000000000000000000000000000000000",
+  "install_root": "/home/user/.local/share/konoha-agentic-academy",
+  "installed_at": "2026-07-13T00:00:00+00:00",
+  "managed": true,
+  "marker_id": "00000000000000000000000000000000",
+  "report_type": "managed_konoha_install_state",
+  "repository": "EddieRiq/konoha-agentic-academy",
+  "schema_version": "1.0.0",
+  "state_file": "/home/user/.local/state/konoha/install.json",
+  "venv_root": "/home/user/.local/share/konoha-agentic-academy/.venv",
+  "version": "v3.3.0",
+  "wrapper_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

@@ -16,6 +16,7 @@ Maintainer operations:
 ```text
 package status/install
 release status
+release deliver
 supervised release workflow
 Git plan/stage/commit/push
 ```
@@ -86,3 +87,53 @@ Stop release work when:
 ## Non-authority
 
 Test, package, status and release reports are evidence only.
+## Managed terminal distribution
+
+The one-line installer may write only to explicit paths under the current
+user's home. It creates a managed marker and state record.
+
+Upgrade requires:
+
+```text
+healthy managed state
+clean checkout
+canonical origin
+newer explicit tag
+--allow-network
+--confirm-upgrade
+UPGRADE_KONOHA_INSTALL
+```
+
+Uninstall requires:
+
+```text
+healthy managed state
+--confirm-uninstall
+UNINSTALL_KONOHA_CLI
+```
+
+Uninstall moves the source to recoverable trash. It does not recursively purge
+the installation.
+
+## Package-to-release wrapper
+
+The wrapper composes existing guards. It does not collapse their authority.
+
+Required explicit approvals remain:
+
+```text
+package installation
+delivery wrapper
+Git plan
+Git stage
+Git commit
+Git push
+tag creation
+tag publication
+GitHub Release publication
+Latest promotion
+network
+```
+
+A resumed delivery must be on the exact planned release commit and must be
+classified safe-to-resume by the existing read-only release status tool.

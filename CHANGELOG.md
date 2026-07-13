@@ -8,6 +8,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 ### Added
 
+
+- Added v3.3.0 Installable Terminal Distribution with one-line managed installation, global `konoha`, explicit upgrade/uninstall and the supervised package-to-release wrapper.
 - Added v3.2.6 Repository Consolidation, Teachback Closure and CLI Coherence with structured human Teachback evidence, execution/review-bound mission closure, idempotent conflict guards, a canonical command registry, aligned runtime manifests and terminal documentation.
 
 

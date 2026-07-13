@@ -708,11 +708,13 @@ Exit criteria:
 - release closes through the existing supervised workflow.
 ```
 
-### v3.3.0 Installable Terminal Distribution
+### v3.3.0 Installable Terminal Distribution — completed
 
-- Add packaging, a one-line installer, the global `konoha` command, doctor,
-  init, upgrade/uninstall guidance and a supervised package-to-release wrapper.
-- Compose existing package and release tools; do not duplicate their authority.
+- One-line Linux/WSL managed installation.
+- Global `konoha` command.
+- Managed install status, explicit-tag upgrade and recoverable uninstall.
+- Clean-install smoke.
+- Supervised package-to-release wrapper that reuses existing gates.
 
 ### v3.4.0 Finished Product
 

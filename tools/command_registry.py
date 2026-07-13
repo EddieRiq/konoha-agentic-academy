@@ -164,6 +164,42 @@ COMMAND_REGISTRY: Dict[CommandKey, Dict[str, Any]] = {
         "status": "active",
         "description": "Inspect release recovery and closure state.",
     },
+    ("release", "deliver"): {
+        "script": "tools/release_delivery/run_supervised_package_release.py",
+        "fixed_args": [],
+        "mode": "package_test_git_release_write",
+        "network": "explicit_only",
+        "approval_token": "RUN_SUPERVISED_PACKAGE_RELEASE",
+        "status": "active",
+        "description": "Run the supervised package-to-release wrapper.",
+    },
+    ("install-status",): {
+        "script": "tools/distribution/manage_konoha_distribution.py",
+        "fixed_args": ["status"],
+        "mode": "read_only",
+        "network": "blocked",
+        "approval_token": None,
+        "status": "active",
+        "description": "Inspect the managed terminal installation.",
+    },
+    ("upgrade",): {
+        "script": "tools/distribution/manage_konoha_distribution.py",
+        "fixed_args": ["upgrade"],
+        "mode": "managed_install_write",
+        "network": "explicit_only",
+        "approval_token": "UPGRADE_KONOHA_INSTALL",
+        "status": "active",
+        "description": "Upgrade a verified managed installation.",
+    },
+    ("uninstall",): {
+        "script": "tools/distribution/manage_konoha_distribution.py",
+        "fixed_args": ["uninstall"],
+        "mode": "recoverable_install_remove",
+        "network": "blocked",
+        "approval_token": "UNINSTALL_KONOHA_CLI",
+        "status": "active",
+        "description": "Move a verified installation to recoverable trash.",
+    },
 }
 
 LEGACY_COMMANDS: Dict[CommandKey, Dict[str, Any]] = {

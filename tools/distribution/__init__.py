@@ -1,0 +1,1 @@
+"""Managed Konoha terminal distribution."""

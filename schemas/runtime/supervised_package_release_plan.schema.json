@@ -1,0 +1,94 @@
+{
+  "$id": "https://example.invalid/konoha/supervised_package_release_plan.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "clean_install_smoke": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_version": {
+          "type": "string"
+        },
+        "tool_path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool_path",
+        "expected_version"
+      ],
+      "type": "object"
+    },
+    "delivery_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,95}$",
+      "type": "string"
+    },
+    "expected_base_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "focused_suites": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_tests": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "pattern": "^tests/",
+            "type": "string"
+          },
+          "pattern": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "path",
+          "pattern",
+          "expected_tests"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "installation_manifest_path": {
+      "type": "string"
+    },
+    "release_plan_path": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "supervised_package_release_plan"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "target_version": {
+      "pattern": "^v\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "delivery_id",
+    "expected_base_commit",
+    "target_version",
+    "installation_manifest_path",
+    "release_plan_path",
+    "focused_suites",
+    "clean_install_smoke",
+    "authority"
+  ],
+  "title": "Supervised Package Release Plan",
+  "type": "object"
+}

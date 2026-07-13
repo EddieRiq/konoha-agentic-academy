@@ -1,0 +1,81 @@
+{
+  "$id": "https://example.invalid/konoha/managed_konoha_install_state.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "bin_path": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "install_root": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "installed_at": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "managed": {
+      "const": true
+    },
+    "marker_id": {
+      "pattern": "^[0-9a-f]{32}$",
+      "type": "string"
+    },
+    "previous_commit": {
+      "type": "string"
+    },
+    "previous_version": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "managed_konoha_install_state"
+    },
+    "repository": {
+      "const": "EddieRiq/konoha-agentic-academy"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "state_file": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "venv_root": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^v\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "wrapper_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "managed",
+    "repository",
+    "version",
+    "commit",
+    "install_root",
+    "venv_root",
+    "bin_path",
+    "state_file",
+    "marker_id",
+    "wrapper_sha256",
+    "installed_at"
+  ],
+  "title": "Managed Konoha Install State",
+  "type": "object"
+}
