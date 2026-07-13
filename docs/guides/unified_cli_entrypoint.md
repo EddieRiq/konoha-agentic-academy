@@ -3,7 +3,7 @@
 Status: v3.2.6 canonical repository entrypoint.
 
 ```bash
-python tools/konoha_cli.py --help
+konoha --help
 ```
 
 The future `v3.3.0` distribution will expose the same registry through the
@@ -36,25 +36,25 @@ Registry metadata is evidence only.
 ## Active surface
 
 ```bash
-python tools/konoha_cli.py doctor
-python tools/konoha_cli.py init
-python tools/konoha_cli.py status
-python tools/konoha_cli.py shell
+konoha doctor
+konoha init
+konoha status
+konoha shell
 
-python tools/konoha_cli.py mission start
-python tools/konoha_cli.py mission run
-python tools/konoha_cli.py mission plan
-python tools/konoha_cli.py mission review
-python tools/konoha_cli.py mission teachback-prepare
-python tools/konoha_cli.py mission teachback
-python tools/konoha_cli.py mission teachback-status
-python tools/konoha_cli.py mission close
-python tools/konoha_cli.py mission status
-python tools/konoha_cli.py mission resume
+konoha mission start
+konoha mission run
+konoha mission plan
+konoha mission review
+konoha mission teachback-prepare
+konoha mission teachback
+konoha mission teachback-status
+konoha mission close
+konoha mission status
+konoha mission resume
 
-python tools/konoha_cli.py package status
-python tools/konoha_cli.py package install
-python tools/konoha_cli.py release status
+konoha package status
+konoha package install
+konoha release status
 ```
 
 ## Delegation rules
@@ -80,8 +80,8 @@ when the user explicitly supplies `--allow-network`.
 ## Registry inspection
 
 ```bash
-python tools/konoha_cli.py --registry-json
-python tools/konoha_cli.py --validate-registry
+konoha --registry-json
+konoha --validate-registry
 ```
 
 The validator checks active script paths and registry shape. Deprecated commands
@@ -92,7 +92,7 @@ remain compatibility routes and name their replacement.
 The repository CLI reports:
 
 ```bash
-python tools/konoha_cli.py --version
+konoha --version
 ```
 
 Expected for this release:

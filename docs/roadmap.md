@@ -722,3 +722,11 @@ Exit criteria:
   stable product acceptance.
 - Do not add another infrastructure program unless it blocks the primary user
   journey or a mandatory safety boundary.
+
+## v3.4.0 — Finished Local-First Terminal Product
+
+- Product welcome and guided quickstart.
+- Evidence-based `konoha next`.
+- Installed-command help and mission journey.
+- Quiet annotated-tag install and upgrade.
+- Repository rationalization and new integrations are post-v3.4 work.

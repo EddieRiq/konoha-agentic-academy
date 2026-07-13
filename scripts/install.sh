@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="v3.3.0"
+VERSION="v3.4.0"
 REPOSITORY="https://github.com/EddieRiq/konoha-agentic-academy.git"
 INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/konoha-agentic-academy"
 BIN_DIR="${XDG_BIN_HOME:-$HOME/.local/bin}"
@@ -16,7 +16,7 @@ Konoha Agentic Academy managed terminal installer
 
 Usage:
   install.sh \
-    --version v3.3.0 \
+    --version v3.4.0 \
     --confirm-install \
     --approval-token INSTALL_KONOHA_CLI
 
@@ -190,19 +190,22 @@ cleanup() {
 }
 trap cleanup EXIT
 
-git clone \
+git init --quiet "$INSTALL_ROOT"
+git -C "$INSTALL_ROOT" remote add origin "$REPOSITORY"
+git -C "$INSTALL_ROOT" fetch \
   --quiet \
   --depth 1 \
-  --branch "$VERSION" \
-  "$REPOSITORY" \
-  "$INSTALL_ROOT"
+  origin \
+  "refs/tags/$VERSION:refs/tags/$VERSION"
 
-TAG_TARGET="$(git -C "$INSTALL_ROOT" rev-parse "${VERSION}^{}" 2>/dev/null || true)"
-if [ -z "$TAG_TARGET" ]; then
-  TAG_TARGET="$(git -C "$INSTALL_ROOT" rev-parse HEAD)"
-fi
+TAG_TYPE="$(git -C "$INSTALL_ROOT" cat-file -t "refs/tags/$VERSION")"
+TAG_TARGET="$(git -C "$INSTALL_ROOT" rev-parse "refs/tags/$VERSION^{}")"
+
+git -C "$INSTALL_ROOT" \
+  -c advice.detachedHead=false \
+  checkout --quiet --detach "$TAG_TARGET"
+
 HEAD_COMMIT="$(git -C "$INSTALL_ROOT" rev-parse HEAD)"
-TAG_TYPE="$(git -C "$INSTALL_ROOT" cat-file -t "$VERSION")"
 
 if [ "$TAG_TYPE" != "tag" ]; then
   printf 'BLOCKED: requested version is not an annotated tag\n' >&2
@@ -348,6 +351,7 @@ printf 'version: %s\n' "$VERSION"
 printf 'commit: %s\n' "$HEAD_COMMIT"
 printf 'command: %s\n' "$WRAPPER"
 printf 'state: %s\n' "$STATE_FILE"
+printf 'next: konoha quickstart --confirm-quickstart --approval-token START_KONOHA_QUICKSTART\n'
 
 case ":$PATH:" in
   *":$BIN_DIR:"*) ;;

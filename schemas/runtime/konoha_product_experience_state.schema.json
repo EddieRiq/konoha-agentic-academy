@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "commands": {
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "created_by": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "persona": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "konoha_product_experience_state"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "const": "ready"
+    },
+    "status_code": {
+      "const": "READY_FOR_FIRST_MISSION"
+    },
+    "version": {
+      "type": "string"
+    },
+    "workspace_root": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "version",
+    "created_by",
+    "persona",
+    "workspace_root",
+    "status",
+    "status_code",
+    "commands",
+    "boundaries",
+    "authority"
+  ],
+  "title": "Konoha Product Experience State",
+  "type": "object"
+}

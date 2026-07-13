@@ -1,7 +1,9 @@
 import importlib.util
+import io
 import tempfile
 import unittest
 from pathlib import Path
+from contextlib import redirect_stderr, redirect_stdout
 from unittest.mock import patch
 
 
@@ -25,7 +27,7 @@ class KonohaCliTests(unittest.TestCase):
         self.module = load_module()
 
     def test_version_is_release_aligned(self):
-        self.assertEqual(self.module.VERSION, "3.3.0")
+        self.assertEqual(self.module.VERSION, "3.4.0")
         self.assertEqual(
             self.module.main(["--version"]),
             0,
@@ -161,6 +163,81 @@ class KonohaCliTests(unittest.TestCase):
             "mission run",
         )
 
+
+
+    def test_product_experience_commands_are_registered(self):
+        self.assertIn(("welcome",), self.module.COMMAND_REGISTRY)
+        self.assertIn(("quickstart",), self.module.COMMAND_REGISTRY)
+        self.assertIn(("next",), self.module.COMMAND_REGISTRY)
+
+    def test_quickstart_registry_retains_explicit_token_metadata(self):
+        entry = self.module.COMMAND_REGISTRY[("quickstart",)]
+        self.assertEqual(
+            entry["approval_token"],
+            "START_KONOHA_QUICKSTART",
+        )
+        self.assertNotIn(
+            "--approval-token",
+            entry["fixed_args"],
+        )
+
+    def test_default_help_uses_installed_command(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.module.print_help()
+        value = output.getvalue()
+        self.assertIn("konoha quickstart", value)
+        self.assertNotIn("python tools/konoha_cli.py", value)
+
+    def test_all_help_includes_deprecated_commands(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.module.print_help(show_all=True)
+        value = output.getvalue()
+        self.assertIn("Deprecated compatibility commands", value)
+        self.assertIn("konoha mission dry-run", value)
+
+    def test_mission_help_explains_complete_flow(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            code = self.module.print_help_topic(["mission"])
+        value = output.getvalue()
+        self.assertEqual(code, 0)
+        self.assertIn("konoha mission review", value)
+        self.assertIn("konoha mission teachback", value)
+        self.assertIn("konoha mission close", value)
+
+    def test_maintainer_commands_are_hidden_from_default_help(self):
+        default = io.StringIO()
+        with redirect_stdout(default):
+            self.module.print_help()
+        self.assertNotIn("konoha release deliver", default.getvalue())
+
+        maintainer = io.StringIO()
+        with redirect_stdout(maintainer):
+            self.module.print_maintainer_help()
+        self.assertIn(
+            "konoha release deliver",
+            maintainer.getvalue(),
+        )
+
+    def test_unknown_command_offers_close_match(self):
+        error = io.StringIO()
+        with redirect_stderr(error):
+            self.module.print_unknown(["quikstart"])
+        value = error.getvalue()
+        self.assertIn("konoha quickstart", value)
+        self.assertIn("konoha help", value)
+
+    def test_empty_invocation_delegates_to_welcome(self):
+        with patch.object(
+            self.module,
+            "dispatch_key",
+            return_value=0,
+        ) as dispatch_mock:
+            code = self.module.main([])
+        self.assertEqual(code, 0)
+        dispatch_mock.assert_called_once_with(("welcome",), [])
 
 if __name__ == "__main__":
     unittest.main()

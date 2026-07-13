@@ -74,3 +74,21 @@ python tools/konoha_cli.py --registry-json
 
 No row grants permission. The delegated tool validates all tokens, paths,
 network flags and evidence.
+
+
+## Finished terminal product experience
+
+| Capability | Public command | Component | Mutation | Network | Explicit approval |
+|---|---|---|---|---|---|
+| Product welcome | `welcome` / empty invocation | Product Experience | read-only | blocked | none |
+| Guided workspace setup | `quickstart` | Product Experience | workspace only | blocked | `START_KONOHA_QUICKSTART` |
+| Evidence-based next action | `next` | Product Experience | read-only | blocked | none |
+
+```text
+tools/product_experience/run_product_experience.py
+  first-run guidance, quickstart state, mission-stage inspection and one next command
+```
+
+The product experience never injects the approval token printed in guidance.
+It does not start missions, execute commands, invoke models, access private
+memory, mutate Git, or enable network.

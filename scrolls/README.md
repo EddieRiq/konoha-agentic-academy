@@ -684,3 +684,7 @@ A Scroll is ready for active use only when:
 ## Repository consolidation, Teachback and CLI review
 
 - `repository_consolidation_teachback_cli_review_scroll.md`: reviews the final v3.2.x consolidation, evidence-bound closure, command registry and release boundaries.
+
+## Finished Local-First Terminal Product review
+
+- `v3_4_0_finished_terminal_product_review_scroll.md`: reviews quickstart, next-action evidence, help separation, distribution polish and product safety.

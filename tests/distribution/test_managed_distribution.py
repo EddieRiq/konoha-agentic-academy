@@ -47,7 +47,7 @@ class ManagedDistributionTests(unittest.TestCase):
             encoding="utf-8",
         )
         (self.root / "tools/version.py").write_text(
-            'VERSION = "3.3.0"\n',
+            'VERSION = "3.4.0"\n',
             encoding="utf-8",
         )
         (self.venv / "bin").mkdir(parents=True)
@@ -282,9 +282,72 @@ class ManagedDistributionTests(unittest.TestCase):
         version = (ROOT / "tools/version.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn('version = "3.3.0"', pyproject)
-        self.assertIn('VERSION = "3.3.0"', version)
+        self.assertIn('version = "3.4.0"', pyproject)
+        self.assertIn('VERSION = "3.4.0"', version)
 
+
+
+    def test_installer_fetches_annotated_tag_without_clone_warning_path(self):
+        source = INSTALLER.read_text(encoding="utf-8")
+        self.assertIn("git init --quiet", source)
+        self.assertIn("refs/tags/$VERSION:refs/tags/$VERSION", source)
+        self.assertIn("checkout --quiet --detach", source)
+        self.assertNotIn("git clone", source)
+
+    def test_installer_prints_quickstart_next_action(self):
+        source = INSTALLER.read_text(encoding="utf-8")
+        self.assertIn(
+            "konoha quickstart --confirm-quickstart",
+            source,
+        )
+        self.assertIn(
+            "START_KONOHA_QUICKSTART",
+            source,
+        )
+
+    def test_upgrade_checks_out_resolved_commit_quietly(self):
+        source = MANAGER.read_text(encoding="utf-8")
+        self.assertIn('"advice.detachedHead=false"', source)
+        self.assertIn('"--quiet"', source)
+        self.assertIn("target_commit", source)
+        self.assertNotIn(
+            '["git", "checkout", "--detach", target_version]',
+            source,
+        )
+
+    def test_healthy_status_has_product_next_action(self):
+        responses = {
+            ("rev-parse", "HEAD"): "a" * 40,
+            (
+                "describe",
+                "--tags",
+                "--exact-match",
+                "HEAD",
+            ): "v3.3.0",
+            (
+                "remote",
+                "get-url",
+                "origin",
+            ): self.module.REPO_HTTPS,
+            (
+                "status",
+                "--porcelain=v1",
+            ): "",
+        }
+        with patch.object(
+            self.module,
+            "git_stdout",
+            side_effect=lambda _root, *args: responses[args],
+        ):
+            report = self.module.inspect_state(self.state)
+        self.assertEqual(report["next_action"], "Run `konoha next`.")
+
+    def test_upgrade_report_declares_product_reentry(self):
+        source = MANAGER.read_text(encoding="utf-8")
+        self.assertIn(
+            "Run `konoha welcome` and `konoha next`.",
+            source,
+        )
 
 class CleanInstallSmokeTests(unittest.TestCase):
     def test_clean_install_smoke_passes(self):
@@ -294,13 +357,13 @@ class CleanInstallSmokeTests(unittest.TestCase):
         )
         report = module.execute_smoke(
             ROOT,
-            expected_version="3.3.0",
+            expected_version="3.4.0",
         )
         self.assertEqual(
             report["status_code"],
             "CLEAN_INSTALL_SMOKE_PASSED",
         )
-        self.assertEqual(report["observed_version"], "3.3.0")
+        self.assertEqual(report["observed_version"], "3.4.0")
 
 
 if __name__ == "__main__":

@@ -137,3 +137,20 @@ network
 
 A resumed delivery must be on the exact planned release commit and must be
 classified safe-to-resume by the existing read-only release status tool.
+
+
+## Finished product guidance boundary
+
+`konoha welcome`, `konoha next` and the default help are guidance surfaces.
+
+```text
+recommended command != permission
+status != authorization
+quickstart != mission start
+quickstart != execution
+```
+
+`konoha quickstart` may create only the configured workspace below `sandbox/`
+and requires both `--confirm-quickstart` and
+`START_KONOHA_QUICKSTART`. It cannot enable network, invoke a model, stage Git,
+start a mission, or access private memory.

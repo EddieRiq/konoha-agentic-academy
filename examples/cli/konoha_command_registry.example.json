@@ -22,6 +22,17 @@
       "script": "tools/product_runtime/konoha_product.py",
       "status": "active"
     },
+    "install-status": {
+      "approval_token": null,
+      "description": "Inspect the managed terminal installation.",
+      "fixed_args": [
+        "status"
+      ],
+      "mode": "read_only",
+      "network": "blocked",
+      "script": "tools/distribution/manage_konoha_distribution.py",
+      "status": "active"
+    },
     "mission close": {
       "approval_token": "CLOSE_MISSION_WITH_TEACHBACK",
       "description": "Close after execution, review and Teachback.",
@@ -150,6 +161,15 @@
       "script": "tools/package_installation/run_supervised_package_installation.py",
       "status": "active"
     },
+    "release deliver": {
+      "approval_token": "RUN_SUPERVISED_PACKAGE_RELEASE",
+      "description": "Run the supervised package-to-release wrapper.",
+      "fixed_args": [],
+      "mode": "package_test_git_release_write",
+      "network": "explicit_only",
+      "script": "tools/release_delivery/run_supervised_package_release.py",
+      "status": "active"
+    },
     "release status": {
       "approval_token": null,
       "description": "Inspect release recovery and closure state.",
@@ -181,6 +201,28 @@
       "mode": "read_only",
       "network": "blocked",
       "script": "tools/hokage_shell/run_hokage_shell.py",
+      "status": "active"
+    },
+    "uninstall": {
+      "approval_token": "UNINSTALL_KONOHA_CLI",
+      "description": "Move a verified installation to recoverable trash.",
+      "fixed_args": [
+        "uninstall"
+      ],
+      "mode": "recoverable_install_remove",
+      "network": "blocked",
+      "script": "tools/distribution/manage_konoha_distribution.py",
+      "status": "active"
+    },
+    "upgrade": {
+      "approval_token": "UPGRADE_KONOHA_INSTALL",
+      "description": "Upgrade a verified managed installation.",
+      "fixed_args": [
+        "upgrade"
+      ],
+      "mode": "managed_install_write",
+      "network": "explicit_only",
+      "script": "tools/distribution/manage_konoha_distribution.py",
       "status": "active"
     }
   },
@@ -326,5 +368,5 @@
   },
   "report_type": "konoha_command_registry",
   "schema_version": "1.0.0",
-  "version": "3.2.6"
+  "version": "3.3.0"
 }

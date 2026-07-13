@@ -11,6 +11,33 @@ from typing import Any, Dict, Tuple
 CommandKey = Tuple[str, ...]
 
 COMMAND_REGISTRY: Dict[CommandKey, Dict[str, Any]] = {
+    ("welcome",): {
+        "script": "tools/product_experience/run_product_experience.py",
+        "fixed_args": ["welcome"],
+        "mode": "read_only",
+        "network": "blocked",
+        "approval_token": None,
+        "status": "active",
+        "description": "Show product readiness and one next action.",
+    },
+    ("quickstart",): {
+        "script": "tools/product_experience/run_product_experience.py",
+        "fixed_args": ["quickstart"],
+        "mode": "workspace_write",
+        "network": "blocked",
+        "approval_token": "START_KONOHA_QUICKSTART",
+        "status": "active",
+        "description": "Initialize the finished local workspace experience.",
+    },
+    ("next",): {
+        "script": "tools/product_experience/run_product_experience.py",
+        "fixed_args": ["next"],
+        "mode": "read_only",
+        "network": "blocked",
+        "approval_token": None,
+        "status": "active",
+        "description": "Inspect evidence and show one next command.",
+    },
     ("doctor",): {
         "script": "tools/product_runtime/konoha_product.py",
         "fixed_args": ["doctor"],

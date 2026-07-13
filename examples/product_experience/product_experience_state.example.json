@@ -1,0 +1,32 @@
+{
+  "authority": {
+    "quickstart_does_not_authorize_execution": true,
+    "quickstart_does_not_enable_network": true,
+    "quickstart_does_not_start_a_mission": true
+  },
+  "boundaries": {
+    "arbitrary_shell": "blocked",
+    "autonomous_background_agents": "blocked",
+    "git_operations": "blocked",
+    "model_invocation": "blocked",
+    "network_access": "blocked",
+    "private_context_access": "blocked",
+    "quickstart_write": "explicit_token_workspace_only",
+    "repository_apply": "blocked"
+  },
+  "commands": {
+    "doctor": "konoha doctor",
+    "next": "konoha next",
+    "open_shell": "konoha shell",
+    "start_mission": "konoha mission start --help"
+  },
+  "created_at": "2026-07-13T00:00:00+00:00",
+  "created_by": "human",
+  "persona": "calm_mentor",
+  "report_type": "konoha_product_experience_state",
+  "schema_version": "1.0.0",
+  "status": "ready",
+  "status_code": "READY_FOR_FIRST_MISSION",
+  "version": "3.4.0",
+  "workspace_root": "sandbox/workspace"
+}

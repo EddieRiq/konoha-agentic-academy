@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "blocker": {
+      "type": "string"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "idempotent": {
+      "type": "boolean"
+    },
+    "latest_mission": {
+      "type": "object"
+    },
+    "quickstart_state": {
+      "type": "string"
+    },
+    "repo_root": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "konoha_product_experience_report"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "blocked"
+      ]
+    },
+    "status_code": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "object"
+    },
+    "workspace_root": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "version",
+    "status",
+    "status_code",
+    "boundaries"
+  ],
+  "title": "Konoha Product Experience Report",
+  "type": "object"
+}

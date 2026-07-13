@@ -124,6 +124,15 @@ def execute_smoke(
                 [str(wrapper), "--validate-registry"],
             ),
             ("help", [str(wrapper), "--help"]),
+            ("welcome", [str(wrapper)]),
+            (
+                "quickstart_help",
+                [str(wrapper), "quickstart", "--help"],
+            ),
+            (
+                "next_help",
+                [str(wrapper), "next", "--help"],
+            ),
             (
                 "doctor_help",
                 [str(wrapper), "doctor", "--help"],
@@ -158,10 +167,18 @@ def execute_smoke(
             outputs["registry"]["stdout"]
         ):
             raise SmokeError("registry smoke marker missing")
-        if "Konoha Agentic Academy CLI" not in (
+        if "Konoha Agentic Academy" not in (
             outputs["help"]["stdout"]
         ):
             raise SmokeError("CLI help marker missing")
+        if "KONOHA LOCAL-FIRST TERMINAL PRODUCT" not in (
+            outputs["welcome"]["stdout"]
+        ):
+            raise SmokeError("product welcome marker missing")
+        if "START_KONOHA_QUICKSTART" not in (
+            outputs["quickstart_help"]["stdout"]
+        ):
+            raise SmokeError("quickstart help marker missing")
 
         return {
             "schema_version": SCHEMA_VERSION,

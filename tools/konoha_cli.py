@@ -7,6 +7,7 @@ approval tokens, enable network, infer consent, or bypass delegated gates.
 
 from __future__ import annotations
 
+import difflib
 import json
 import subprocess
 import sys
@@ -30,7 +31,21 @@ ALIASES = {
     "--target-repo-root": "--repo-root",
 }
 
-# Compatibility view for existing callers/tests. New code should use registry.
+MAINTAINER_PREFIXES = {"package", "release"}
+START_COMMANDS = {
+    ("welcome",),
+    ("quickstart",),
+    ("next",),
+    ("doctor",),
+    ("status",),
+    ("shell",),
+    ("mission", "start"),
+    ("mission", "review"),
+    ("mission", "teachback"),
+    ("mission", "close"),
+}
+
+# Compatibility view for historical callers/tests.
 TOOL_SCRIPTS = {
     key: entry["script"]
     for key, entry in ALL_COMMANDS.items()
@@ -52,11 +67,7 @@ def validate_registry(
     include_deprecated: bool = False,
 ) -> List[str]:
     base = (root or repo_root()).resolve()
-    registry = (
-        ALL_COMMANDS
-        if include_deprecated
-        else COMMAND_REGISTRY
-    )
+    registry = ALL_COMMANDS if include_deprecated else COMMAND_REGISTRY
     errors: List[str] = []
 
     for key, entry in registry.items():
@@ -69,9 +80,7 @@ def validate_registry(
 
         script = entry.get("script")
         if not isinstance(script, str) or not script:
-            errors.append(
-                f"{command_label(key)} has no script"
-            )
+            errors.append(f"{command_label(key)} has no script")
             continue
 
         candidate = (base / script).resolve()
@@ -105,6 +114,15 @@ def validate_registry(
                 f"{command_label(key)} status invalid"
             )
 
+        if "--allow-network" in (fixed_args or []):
+            errors.append(
+                f"{command_label(key)} injects --allow-network"
+            )
+        if "--approval-token" in (fixed_args or []):
+            errors.append(
+                f"{command_label(key)} injects approval token"
+            )
+
     return errors
 
 
@@ -130,67 +148,147 @@ def registry_payload() -> dict:
     }
 
 
-def print_help() -> None:
-    active_lines = []
-    for key, entry in sorted(COMMAND_REGISTRY.items()):
-        active_lines.append(
-            f"  {command_label(key):30} "
+def is_maintainer_command(key: CommandKey) -> bool:
+    return bool(key) and key[0] in MAINTAINER_PREFIXES
+
+
+def format_command_lines(
+    registry,
+    *,
+    include_maintainer: bool,
+) -> List[str]:
+    lines: List[str] = []
+    for key, entry in sorted(registry.items()):
+        if not include_maintainer and is_maintainer_command(key):
+            continue
+        lines.append(
+            f"  konoha {command_label(key):27} "
             f"{entry['description']}"
         )
+    return lines
 
-    deprecated_lines = []
-    for key, entry in sorted(LEGACY_COMMANDS.items()):
-        replacement = entry.get("replacement")
-        suffix = (
-            f" → {replacement}"
-            if replacement
-            else ""
-        )
-        deprecated_lines.append(
-            f"  {command_label(key):30} deprecated{suffix}"
+
+def print_help(*, show_all: bool = False) -> None:
+    user_lines = format_command_lines(
+        COMMAND_REGISTRY,
+        include_maintainer=show_all,
+    )
+
+    sections = [
+        f"Konoha Agentic Academy {VERSION}",
+        "",
+        "Local-first supervised missions from one terminal command.",
+        "",
+        "Start here:",
+        "  konoha quickstart --confirm-quickstart \\",
+        "    --approval-token START_KONOHA_QUICKSTART",
+        "  konoha next",
+        "  konoha mission start --help",
+        "  konoha shell",
+        "",
+        "Core commands:",
+        *user_lines,
+        "",
+        "Help:",
+        "  konoha help",
+        "  konoha help mission",
+        "  konoha help maintainer",
+        "  konoha help --all",
+        "  konoha <command> --help",
+    ]
+
+    if show_all:
+        sections.extend(
+            [
+                "",
+                "Deprecated compatibility commands:",
+                *[
+                    "  konoha "
+                    + f"{command_label(key):27} "
+                    + "deprecated"
+                    + (
+                        f" → {entry['replacement']}"
+                        if entry.get("replacement")
+                        else ""
+                    )
+                    for key, entry in sorted(LEGACY_COMMANDS.items())
+                ],
+            ]
         )
 
+    sections.extend(
+        [
+            "",
+            "Safety:",
+            "  Commands never receive approval tokens automatically.",
+            "  Network access remains blocked unless explicitly enabled.",
+            "  Status, model output, memory and suggestions are evidence only.",
+        ]
+    )
+    print("\n".join(sections))
+
+
+def print_mission_help() -> None:
     print(
-        f"""Konoha Agentic Academy CLI {VERSION}
+        """Konoha supervised mission flow
 
-Usage:
-  python tools/konoha_cli.py <command> [arguments]
-  python tools/konoha_cli.py <group> <command> [arguments]
-  python tools/konoha_cli.py --version
-  python tools/konoha_cli.py --registry-json
+  1. konoha mission start --help
+  2. konoha mission plan --help
+  3. execute only through an explicitly approved gate
+  4. konoha mission review --help
+  5. konoha mission teachback-prepare --help
+  6. konoha mission teachback --help
+  7. konoha mission close --help
 
-Active commands:
-{chr(10).join(active_lines)}
-
-Deprecated compatibility commands:
-{chr(10).join(deprecated_lines)}
-
-Examples:
-  python tools/konoha_cli.py doctor --repo-root .
-  python tools/konoha_cli.py status --repo-root .
-  python tools/konoha_cli.py shell --repo-root .
-  python tools/konoha_cli.py mission start --help
-  python tools/konoha_cli.py mission teachback --help
-  python tools/konoha_cli.py mission close --help
-  python tools/konoha_cli.py package status --help
-  python tools/konoha_cli.py release status --help
-  python tools/konoha_cli.py release deliver --help
-  python tools/konoha_cli.py install-status
-  python tools/konoha_cli.py upgrade --help
-  python tools/konoha_cli.py uninstall --help
-
-Install:
-  curl -fsSL https://raw.githubusercontent.com/EddieRiq/konoha-agentic-academy/v3.3.0/scripts/install.sh | \
-    bash -s -- --version v3.3.0 --confirm-install \
-    --approval-token INSTALL_KONOHA_CLI
-
-Safety:
-  The CLI dispatches only to registered internal tools.
-  It never supplies approval tokens or --allow-network.
-  Registry metadata is evidence only.
-  Delegated tools retain every safety and approval gate.
+Use `konoha next` to inspect the local workspace and receive one
+evidence-based next command. The recommendation is not permission.
 """
     )
+
+
+def print_maintainer_help() -> None:
+    lines = format_command_lines(
+        {
+            key: value
+            for key, value in COMMAND_REGISTRY.items()
+            if is_maintainer_command(key)
+        },
+        include_maintainer=True,
+    )
+    print(
+        "\n".join(
+            [
+                "Konoha maintainer commands",
+                "",
+                *lines,
+                "",
+                "These commands retain explicit package, Git, network,",
+                "tag and release approval gates.",
+            ]
+        )
+    )
+
+
+def print_help_topic(args: Sequence[str]) -> int:
+    if not args:
+        print_help()
+        return 0
+    topic = args[0]
+    if topic == "--all":
+        print_help(show_all=True)
+        return 0
+    if topic == "mission":
+        print_mission_help()
+        return 0
+    if topic == "maintainer":
+        print_maintainer_help()
+        return 0
+
+    key, delegated = resolve_command(args)
+    if key is None:
+        print_unknown(args)
+        return 2
+    return dispatch_key(key, [*delegated, "--help"])
 
 
 def resolve_command(
@@ -211,16 +309,41 @@ def resolve_command(
     return None, list(args)
 
 
+def command_suggestions(args: Sequence[str]) -> List[str]:
+    attempted = " ".join(args[:2]).strip()
+    labels = [command_label(key) for key in ALL_COMMANDS]
+    return difflib.get_close_matches(
+        attempted,
+        labels,
+        n=3,
+        cutoff=0.45,
+    )
+
+
+def print_unknown(args: Sequence[str]) -> None:
+    attempted = " ".join(args[:2]).strip() or "(empty)"
+    print(
+        f"Unknown Konoha command: {attempted}",
+        file=sys.stderr,
+    )
+    suggestions = command_suggestions(args)
+    if suggestions:
+        print("Closest commands:", file=sys.stderr)
+        for suggestion in suggestions:
+            print(f"  konoha {suggestion}", file=sys.stderr)
+    print(
+        "Run `konoha help` for the product workflow.",
+        file=sys.stderr,
+    )
+
+
 def dispatch_key(
     key: CommandKey,
     args: Sequence[str],
 ) -> int:
     entry = ALL_COMMANDS.get(key)
     if entry is None:
-        print(
-            f"Unknown Konoha command: {command_label(key)}",
-            file=sys.stderr,
-        )
+        print_unknown(list(key))
         return 2
 
     root = repo_root().resolve()
@@ -262,32 +385,26 @@ def dispatch(
     """Compatibility dispatch for historical two-part callers."""
     key = (group, command)
     if key not in ALL_COMMANDS:
-        print(
-            f"Unknown Konoha command: {group} {command}",
-            file=sys.stderr,
-        )
-        print(
-            "Run `python tools/konoha_cli.py --help` "
-            "for available commands.",
-            file=sys.stderr,
-        )
+        print_unknown([group, command])
         return 2
     return dispatch_key(key, args)
 
 
 def main(argv: Iterable[str] | None = None) -> int:
-    args = list(
-        sys.argv[1:]
-        if argv is None
-        else argv
-    )
+    args = list(sys.argv[1:] if argv is None else argv)
 
-    if not args or args[0] in {
-        "-h",
-        "--help",
-        "help",
-    }:
+    if not args:
+        return dispatch_key(("welcome",), [])
+
+    if args[0] in {"-h", "--help"}:
         print_help()
+        return 0
+
+    if args[0] == "help":
+        return print_help_topic(args[1:])
+
+    if args[0] == "mission" and len(args) == 1:
+        print_mission_help()
         return 0
 
     if args[0] == "--version":
@@ -315,15 +432,7 @@ def main(argv: Iterable[str] | None = None) -> int:
 
     key, delegated = resolve_command(args)
     if key is None:
-        print(
-            f"Unknown Konoha command: {' '.join(args[:2])}",
-            file=sys.stderr,
-        )
-        print(
-            "Run `python tools/konoha_cli.py --help` "
-            "for available commands.",
-            file=sys.stderr,
-        )
+        print_unknown(args)
         return 2
 
     return dispatch_key(key, delegated)

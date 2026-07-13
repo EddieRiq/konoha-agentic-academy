@@ -1,0 +1,58 @@
+{
+  "authority": {
+    "installation_token_required": true,
+    "network_is_explicit": true,
+    "plan_is_not_permission": true,
+    "release_tokens_required": true,
+    "tests_are_evidence_only": true
+  },
+  "clean_install_smoke": {
+    "expected_version": "3.4.0",
+    "tool_path": "tools/distribution/run_clean_install_smoke.py"
+  },
+  "delivery_id": "v3-4-0-finished-local-first-terminal-product",
+  "expected_base_commit": "4b635a58d2cbe8328a2dd58be7329de024410a74",
+  "focused_suites": [
+    {
+      "expected_tests": 18,
+      "name": "product_experience",
+      "path": "tests/product_experience",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 18,
+      "name": "konoha_cli",
+      "path": "tests/konoha_cli",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 22,
+      "name": "distribution",
+      "path": "tests/distribution",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 18,
+      "name": "release_delivery",
+      "path": "tests/release_delivery",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 12,
+      "name": "package_installation",
+      "path": "tests/package_installation",
+      "pattern": "test_*.py"
+    },
+    {
+      "expected_tests": 24,
+      "name": "release_workflow",
+      "path": "tests/release_workflow",
+      "pattern": "test_*.py"
+    }
+  ],
+  "installation_manifest_path": "examples/package_installation/v3_4_0_finished_terminal_product_manifest.example.json",
+  "release_plan_path": "examples/release_workflow/v3_4_0_finished_terminal_product_release_plan.example.json",
+  "report_type": "supervised_package_release_plan",
+  "schema_version": "1.0.0",
+  "target_version": "v3.4.0"
+}

@@ -530,3 +530,8 @@ Before a tool becomes active:
 - `command_registry.py` defines active/deprecated routes and non-authority metadata.
 - `teachback/manage_teachback.py` records structured human Teachback evidence.
 - `mission_closure/close_mission.py` composes execution, approved review, Teachback and explicit closure approval.
+
+## Finished terminal product experience
+
+- `product_experience/run_product_experience.py`: welcome, explicit-token quickstart and evidence-based next-action guidance.
+- `konoha_cli.py`: installed user help by default, with separate mission and maintainer views.

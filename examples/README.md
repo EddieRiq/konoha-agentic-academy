@@ -265,3 +265,10 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 - `cli/konoha_command_registry.example.json`: active and deprecated canonical CLI registry.
 - `package_installation/v3_2_6_repository_consolidation_manifest.example.json`: exact package installation scope.
 - `release_workflow/v3_2_6_repository_consolidation_release_plan.example.json`: supervised release plan.
+
+## Finished terminal product example
+
+- `product_experience/product_experience_state.example.json`: sanitized quickstart state for a ready local workspace.
+- `package_installation/v3_4_0_finished_terminal_product_manifest.example.json`: exact v3.4.0 package scope.
+- `release_workflow/v3_4_0_finished_terminal_product_release_plan.example.json`: exact v3.4.0 release plan.
+- `release_delivery/v3_4_0_finished_terminal_product_delivery_plan.example.json`: package-to-release delivery plan.

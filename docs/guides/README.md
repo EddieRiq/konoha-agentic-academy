@@ -403,3 +403,8 @@ Do not hide doctrine changes inside guides.
 - `managed_install_upgrade_and_uninstall.md`: verified status, explicit-tag upgrade and recoverable uninstall.
 - `supervised_package_to_release_wrapper.md`: package → tests → clean install → release → final status.
 - `../roadmap/v3_3_0_installable_terminal_distribution_scope.md`: frozen v3.3.0 scope.
+
+## Finished terminal product
+
+- `finished_local_first_terminal_product.md`: installed product surface and safety boundaries.
+- `quickstart_and_mission_journey.md`: first-run setup and supervised mission flow.

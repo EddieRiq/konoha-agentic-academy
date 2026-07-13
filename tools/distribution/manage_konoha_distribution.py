@@ -384,6 +384,11 @@ def inspect_state(state: Mapping[str, Any]) -> Dict[str, Any]:
         "state": dict(state),
         "checks": checks,
         "actual": actual,
+        "next_action": (
+            "Run `konoha next`."
+            if healthy
+            else "Repair or reinstall before upgrade or uninstall."
+        ),
         "boundaries": BOUNDARIES,
         "authority": {
             "status_is_evidence_only": True,
@@ -459,7 +464,15 @@ def perform_upgrade(
     checkout_completed = False
     try:
         run(
-            ["git", "checkout", "--detach", target_version],
+            [
+                "git",
+                "-c",
+                "advice.detachedHead=false",
+                "checkout",
+                "--quiet",
+                "--detach",
+                target_commit,
+            ],
             root,
             timeout=180,
         )
@@ -523,6 +536,7 @@ def perform_upgrade(
             "before": before,
             "after": after,
             "boundaries": BOUNDARIES,
+            "next_action": "Run `konoha welcome` and `konoha next`.",
             "authority": {
                 "explicit_upgrade_token_was_required": True,
                 "network_was_explicitly_enabled": True,
@@ -534,7 +548,15 @@ def perform_upgrade(
         if checkout_completed:
             try:
                 run(
-                    ["git", "checkout", "--detach", previous_commit],
+                    [
+                        "git",
+                        "-c",
+                        "advice.detachedHead=false",
+                        "checkout",
+                        "--quiet",
+                        "--detach",
+                        previous_commit,
+                    ],
                     root,
                     timeout=180,
                 )
@@ -622,6 +644,10 @@ def perform_uninstall(
         "archived_state": str(archived_state),
         "before": before,
         "boundaries": BOUNDARIES,
+        "next_action": (
+            "Reinstall from an explicit release tag when ready; "
+            "the previous source remains in recoverable trash."
+        ),
         "authority": {
             "explicit_uninstall_token_was_required": True,
             "source_was_moved_not_deleted": True,
@@ -644,6 +670,8 @@ def print_minimal(report: Mapping[str, Any]) -> None:
         print(
             f"recoverable_root: {report.get('recoverable_root')}"
         )
+    if report.get("next_action"):
+        print(f"next: {report.get('next_action')}")
 
 
 def build_parser() -> argparse.ArgumentParser:

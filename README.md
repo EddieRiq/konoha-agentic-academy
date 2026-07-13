@@ -1,5 +1,27 @@
 # Konoha Agentic Academy
 
+## v3.4.0 — Finished Local-First Terminal Product
+
+Konoha is installed and operated through one command:
+
+```bash
+konoha
+```
+
+Start a supervised local workspace:
+
+```bash
+konoha quickstart \
+  --confirm-quickstart \
+  --approval-token START_KONOHA_QUICKSTART
+
+konoha next
+```
+
+The product remains local-first, terminal-first and approval-gated. Suggested
+commands, status, model output and memory are evidence only.
+
+
 Konoha Agentic Academy is a local-first framework for coordinating agentic work through missions, bounded workers, reviewers, doctrine, memory, and human approval.
 
 It uses a Naruto-inspired operating model:
@@ -37,22 +59,16 @@ The current public repository includes:
 - local/private Obsidian-compatible memory;
 - canonical release tests, supervised release workflow and recovery status;
 - supervised package installation scope guard;
-- one canonical Python CLI entrypoint backed by a command registry.
+- managed one-line installation and one canonical `konoha` entrypoint.
 ```
 
 The canonical repository entrypoint is:
 
 ```bash
-python tools/konoha_cli.py --help
+konoha help
 ```
 
-`v3.2.6` closes repository consolidation, Teachback integration and CLI
-coherence. The remaining product milestones are intentionally bounded:
-
-```text
-v3.3.0  one-line terminal installation + package-to-release wrapper
-v3.4.0  finished product experience and release closure
-```
+`v3.4.0` completes the planned local-first terminal product. Repository rationalization and new integrations are post-v3.4 work.
 
 Historical documentation below records how the repository evolved. Statements
 describing runtime, CLI or UI as “future” apply to their original release
