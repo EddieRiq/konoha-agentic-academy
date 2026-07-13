@@ -249,3 +249,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## Unified supervised release example
 
 - `release_workflow/supervised_release_workflow_plan.example.json`: exact v3.2.3 public scope, test counts, release metadata and authority declarations.
+
+## v3.2.4 release workflow plan
+
+- `release_workflow/supervised_release_workflow_plan.example.json`: exact v3.2.4 recovery/status scope, counts and release metadata.

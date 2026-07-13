@@ -1,0 +1,125 @@
+{
+  "$id": "https://example.invalid/konoha/supervised_release_status_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "type": "object"
+    },
+    "blocked": {
+      "type": "boolean"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "release_closed": {
+      "type": "boolean"
+    },
+    "remote_inspection": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "read_only": {
+          "const": true
+        },
+        "requested": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "requested",
+        "error",
+        "read_only"
+      ],
+      "type": "object"
+    },
+    "report_type": {
+      "const": "supervised_release_status_report"
+    },
+    "safe_to_resume": {
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "snapshot": {
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "incomplete",
+        "closed",
+        "blocked"
+      ]
+    },
+    "status_code": {
+      "type": "string"
+    },
+    "target_version": {
+      "type": "string"
+    },
+    "test_evidence": {
+      "additionalProperties": true,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "reusable": {
+          "type": "boolean"
+        },
+        "state": {
+          "enum": [
+            "absent",
+            "valid",
+            "stale",
+            "corrupt"
+          ]
+        }
+      },
+      "required": [
+        "path",
+        "state",
+        "reusable",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "workflow_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "workflow_id",
+    "target_version",
+    "status",
+    "status_code",
+    "next_action",
+    "safe_to_resume",
+    "release_closed",
+    "blocked",
+    "snapshot",
+    "test_evidence",
+    "remote_inspection",
+    "boundaries",
+    "authority"
+  ],
+  "title": "Konoha Supervised Release Status Report",
+  "type": "object"
+}

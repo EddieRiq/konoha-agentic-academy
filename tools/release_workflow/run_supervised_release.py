@@ -30,6 +30,7 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Seque
 SCHEMA_VERSION = "1.0.0"
 PLAN_REPORT_TYPE = "supervised_release_workflow_plan"
 REPORT_TYPE = "supervised_release_workflow_report"
+STATUS_REPORT_TYPE = "supervised_release_status_report"
 CLOSURE_REPORT_TYPE = "release_readiness_closure_guard_report"
 
 RUN_TOKEN = "RUN_SUPERVISED_RELEASE_WORKFLOW"
@@ -542,6 +543,578 @@ def validate_closure_rc_status(
         raise WorkflowError(
             f"{status} requires RC=1 and release_closed=false"
         )
+
+
+def inspect_cached_test_evidence(
+    repo_root: Path,
+    plan: Mapping[str, Any],
+    head: str,
+) -> Dict[str, Any]:
+    path = (
+        repo_root
+        / "sandbox"
+        / "reports"
+        / f"{plan['workflow_id']}-closure-tests.json"
+    ).resolve()
+
+    result: Dict[str, Any] = {
+        "path": str(path),
+        "state": "absent",
+        "reusable": False,
+        "reason": "No cached closure test evidence exists.",
+    }
+
+    if not path.is_file():
+        return result
+
+    try:
+        report = load_closure_report(path)
+        summary = validate_test_summary(
+            report,
+            plan["expected_test_gate"],
+        )
+    except (WorkflowError, json.JSONDecodeError, OSError) as exc:
+        result.update(
+            {
+                "state": "corrupt",
+                "reason": str(exc),
+            }
+        )
+        return result
+
+    report_head = (report.get("git") or {}).get("head")
+    test_head = (report.get("test_gate") or {}).get("head_after")
+    if report_head != head or test_head != head:
+        result.update(
+            {
+                "state": "stale",
+                "reason": (
+                    "Cached evidence references a different HEAD."
+                ),
+                "report_head": report_head,
+                "test_head": test_head,
+                "summary": summary,
+            }
+        )
+        return result
+
+    result.update(
+        {
+            "state": "valid",
+            "reusable": True,
+            "reason": "Cached canonical test evidence matches current HEAD.",
+            "report_head": report_head,
+            "test_head": test_head,
+            "summary": summary,
+        }
+    )
+    return result
+
+
+def derive_recovery_state(snapshot: Mapping[str, Any]) -> Dict[str, Any]:
+    branch = snapshot.get("branch")
+    expected_branch = snapshot.get("expected_branch")
+    head = snapshot.get("head")
+    base = snapshot.get("expected_base_commit")
+    clean = snapshot.get("working_tree_clean") is True
+    scope_matches = snapshot.get("scope_matches") is True
+    aligned_commit = snapshot.get("release_commit_aligned") is True
+    tracking = snapshot.get("tracking") or {}
+    behind = tracking.get("behind")
+    ahead = tracking.get("ahead")
+    network = snapshot.get("network_requested") is True
+    remote_branch_head = snapshot.get("remote_branch_head")
+    local_tag = snapshot.get("local_tag") or {}
+    remote_tag = snapshot.get("remote_tag") or {}
+    release = snapshot.get("release") or {}
+
+    def state(
+        code: str,
+        action: str,
+        *,
+        resumable: bool,
+        closed: bool = False,
+        blocked: bool = False,
+    ) -> Dict[str, Any]:
+        return {
+            "status_code": code,
+            "next_action": action,
+            "safe_to_resume": resumable,
+            "release_closed": closed,
+            "blocked": blocked,
+        }
+
+    if branch != expected_branch:
+        return state(
+            "BLOCKED_BRANCH_MISMATCH",
+            f"Checkout {expected_branch} and re-run status.",
+            resumable=False,
+            blocked=True,
+        )
+
+    if head == base:
+        if clean:
+            return state(
+                "NEEDS_PACKAGE_APPLY",
+                "Extract and apply the reviewed release package.",
+                resumable=False,
+            )
+        if not scope_matches:
+            return state(
+                "BLOCKED_SCOPE_MISMATCH",
+                "Restore the exact reviewed public scope before delivery.",
+                resumable=False,
+                blocked=True,
+            )
+        return state(
+            "NEEDS_GIT_DELIVERY",
+            "Run the unified supervised release workflow.",
+            resumable=True,
+        )
+
+    if not aligned_commit:
+        return state(
+            "BLOCKED_COMMIT_DIVERGENCE",
+            "HEAD is not the exact planned release commit.",
+            resumable=False,
+            blocked=True,
+        )
+
+    if not clean:
+        return state(
+            "BLOCKED_WORKING_TREE",
+            "Clean or review unexpected repository changes.",
+            resumable=False,
+            blocked=True,
+        )
+
+    if not isinstance(behind, int) or not isinstance(ahead, int):
+        return state(
+            "BLOCKED_TRACKING_UNKNOWN",
+            "Repair or configure the local tracking reference.",
+            resumable=False,
+            blocked=True,
+        )
+
+    if not network:
+        if behind > 0 or ahead > 1:
+            return state(
+                "BLOCKED_BRANCH_DIVERGENCE",
+                "Resolve branch divergence without force operations.",
+                resumable=False,
+                blocked=True,
+            )
+
+        if ahead == 1:
+            return state(
+                "NEEDS_BRANCH_PUSH",
+                "Resume the workflow to publish the exact release commit.",
+                resumable=True,
+            )
+
+        return state(
+            "NEEDS_REMOTE_INSPECTION",
+            "Re-run --status with --allow-network for remote release state.",
+            resumable=True,
+        )
+
+    if remote_branch_head == base:
+        return state(
+            "NEEDS_BRANCH_PUSH",
+            "Resume the workflow to publish the exact release commit.",
+            resumable=True,
+        )
+
+    if remote_branch_head != head:
+        return state(
+            "BLOCKED_REMOTE_BRANCH_DIVERGENCE",
+            "Remote main differs from both base and release commit.",
+            resumable=False,
+            blocked=True,
+        )
+
+    if local_tag.get("exists") is not True:
+        return state(
+            "NEEDS_TAG_CREATION",
+            "Resume the workflow to create the annotated release tag.",
+            resumable=True,
+        )
+
+    if (
+        local_tag.get("annotated") is not True
+        or local_tag.get("target_matches_head") is not True
+    ):
+        return state(
+            "BLOCKED_LOCAL_TAG_DIVERGENCE",
+            "Existing local tag is lightweight or targets another commit.",
+            resumable=False,
+            blocked=True,
+        )
+
+    if remote_tag.get("exists") is not True:
+        return state(
+            "NEEDS_TAG_PUBLICATION",
+            "Resume the workflow to publish the aligned annotated tag.",
+            resumable=True,
+        )
+
+    if (
+        remote_tag.get("target_matches_head") is not True
+        or remote_tag.get("object_matches_local") is not True
+    ):
+        return state(
+            "BLOCKED_REMOTE_TAG_DIVERGENCE",
+            "Remote tag object or target differs from the local tag.",
+            resumable=False,
+            blocked=True,
+        )
+
+    if release.get("exists") is not True:
+        return state(
+            "NEEDS_RELEASE_PUBLICATION",
+            "Resume the workflow to publish the GitHub Release.",
+            resumable=True,
+        )
+
+    if (
+        release.get("tag_matches") is not True
+        or release.get("title_matches") is not True
+        or release.get("draft") is not False
+        or release.get("prerelease") is not False
+    ):
+        return state(
+            "BLOCKED_RELEASE_DIVERGENCE",
+            "Existing GitHub Release metadata differs from the plan.",
+            resumable=False,
+            blocked=True,
+        )
+
+    if release.get("latest") is not True:
+        return state(
+            "NEEDS_LATEST_PROMOTION",
+            "Resume the workflow to promote the release to Latest.",
+            resumable=True,
+        )
+
+    return state(
+        "RELEASE_CLOSED",
+        "No release action is required.",
+        resumable=True,
+        closed=True,
+    )
+
+
+def inspect_release_status(
+    repo_root: Path,
+    plan: Mapping[str, Any],
+    *,
+    allow_network: bool,
+    runner: Callable[[Sequence[str], Path, int], CommandResult] = default_command_runner,
+) -> Dict[str, Any]:
+    branch = git_stdout(runner, repo_root, "branch", "--show-current")
+    head = git_stdout(runner, repo_root, "rev-parse", "HEAD")
+    base = plan["expected_base_commit"]
+    status_text = git_stdout(
+        runner,
+        repo_root,
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=normal",
+    )
+    clean = status_text == ""
+
+    tracking_ref = f"{plan['remote']}/{plan['expected_branch']}"
+    try:
+        tracking = parse_count_pair(
+            git_stdout(
+                runner,
+                repo_root,
+                "rev-list",
+                "--left-right",
+                "--count",
+                f"{tracking_ref}...HEAD",
+            )
+        )
+    except WorkflowError:
+        tracking = (None, None)
+
+    actual_scope = collect_scope(runner, repo_root)
+    scope_matches = actual_scope == plan["public_paths"]
+
+    release_commit_aligned = False
+    if head != base:
+        try:
+            parent = git_stdout(runner, repo_root, "rev-parse", f"{head}^")
+            subject = git_stdout(
+                runner,
+                repo_root,
+                "log",
+                "-1",
+                "--format=%s",
+            )
+            paths = collect_commit_paths(runner, repo_root, head)
+            release_commit_aligned = (
+                parent == base
+                and subject == plan["commit_message"]
+                and paths == plan["public_paths"]
+            )
+        except WorkflowError:
+            release_commit_aligned = False
+
+    tag = plan["target_version"]
+    local_tag: Dict[str, Any] = {
+        "exists": False,
+        "annotated": False,
+        "target_matches_head": False,
+    }
+    local_tag_object: Optional[str] = None
+    tag_probe = runner(
+        ["git", "show-ref", "--verify", "--quiet", f"refs/tags/{tag}"],
+        repo_root,
+        60,
+    )
+    if tag_probe.returncode == 0:
+        local_tag_object = git_stdout(runner, repo_root, "rev-parse", tag)
+        local_target = git_stdout(
+            runner,
+            repo_root,
+            "rev-parse",
+            f"{tag}^{{}}",
+        )
+        tag_type = git_stdout(runner, repo_root, "cat-file", "-t", tag)
+        local_tag = {
+            "exists": True,
+            "object": local_tag_object,
+            "target": local_target,
+            "annotated": tag_type == "tag",
+            "target_matches_head": local_target == head,
+        }
+    elif tag_probe.returncode not in (0, 1):
+        raise WorkflowError("unable to inspect local target tag")
+
+    remote_branch_head: Optional[str] = None
+    remote_tag: Dict[str, Any] = {
+        "exists": False,
+        "target_matches_head": False,
+        "object_matches_local": False,
+    }
+    release: Dict[str, Any] = {
+        "exists": False,
+        "tag_matches": False,
+        "title_matches": False,
+        "draft": None,
+        "prerelease": None,
+        "latest": None,
+    }
+    remote_error: Optional[str] = None
+
+    if allow_network:
+        try:
+            require_command(
+                runner(
+                    [
+                        "gh",
+                        "auth",
+                        "status",
+                        "--hostname",
+                        "github.com",
+                    ],
+                    repo_root,
+                    120,
+                ),
+                "GitHub authentication status",
+            )
+
+            branch_result = require_command(
+                runner(
+                    [
+                        "git",
+                        "ls-remote",
+                        plan["remote"],
+                        f"refs/heads/{plan['expected_branch']}",
+                    ],
+                    repo_root,
+                    120,
+                ),
+                "remote branch status",
+            )
+            if branch_result:
+                remote_branch_head = branch_result.split()[0]
+
+            tag_result = require_command(
+                runner(
+                    [
+                        "git",
+                        "ls-remote",
+                        plan["remote"],
+                        f"refs/tags/{tag}",
+                        f"refs/tags/{tag}^{{}}",
+                    ],
+                    repo_root,
+                    120,
+                ),
+                "remote tag status",
+            )
+            refs: Dict[str, str] = {}
+            for line in tag_result.splitlines():
+                parts = line.split()
+                if len(parts) == 2:
+                    refs[parts[1]] = parts[0]
+            remote_object = refs.get(f"refs/tags/{tag}")
+            remote_target = refs.get(f"refs/tags/{tag}^{{}}")
+            remote_tag = {
+                "exists": remote_object is not None,
+                "object": remote_object,
+                "target": remote_target,
+                "target_matches_head": remote_target == head,
+                "object_matches_local": (
+                    local_tag_object is not None
+                    and remote_object == local_tag_object
+                ),
+            }
+
+            view_result = runner(
+                [
+                    "gh",
+                    "release",
+                    "view",
+                    tag,
+                    "--repo",
+                    plan["github_repo"],
+                    "--json",
+                    "tagName,name,isDraft,isPrerelease,publishedAt,url",
+                ],
+                repo_root,
+                120,
+            )
+            if view_result.returncode == 0:
+                view = json.loads(view_result.stdout)
+                list_result = require_command(
+                    runner(
+                        [
+                            "gh",
+                            "release",
+                            "list",
+                            "--repo",
+                            plan["github_repo"],
+                            "--limit",
+                            "100",
+                            "--json",
+                            (
+                                "tagName,name,isLatest,isDraft,"
+                                "isPrerelease,publishedAt"
+                            ),
+                        ],
+                        repo_root,
+                        120,
+                    ),
+                    "GitHub Release list status",
+                )
+                listing = json.loads(list_result)
+                matches = [
+                    item
+                    for item in listing
+                    if item.get("tagName") == tag
+                ]
+                release = {
+                    "exists": True,
+                    "tag": view.get("tagName"),
+                    "name": view.get("name"),
+                    "url": view.get("url"),
+                    "published_at": view.get("publishedAt"),
+                    "tag_matches": view.get("tagName") == tag,
+                    "title_matches": (
+                        view.get("name") == plan["release_title"]
+                    ),
+                    "draft": view.get("isDraft"),
+                    "prerelease": view.get("isPrerelease"),
+                    "latest": (
+                        len(matches) == 1
+                        and matches[0].get("isLatest") is True
+                    ),
+                }
+            elif view_result.returncode != 1:
+                raise WorkflowError(
+                    "GitHub Release inspection failed with "
+                    f"RC={view_result.returncode}"
+                )
+        except (
+            WorkflowError,
+            json.JSONDecodeError,
+            IndexError,
+        ) as exc:
+            remote_error = str(exc)
+
+    evidence = inspect_cached_test_evidence(repo_root, plan, head)
+
+    snapshot = {
+        "branch": branch,
+        "expected_branch": plan["expected_branch"],
+        "head": head,
+        "expected_base_commit": base,
+        "working_tree_clean": clean,
+        "scope_matches": scope_matches,
+        "actual_scope": actual_scope,
+        "release_commit_aligned": release_commit_aligned,
+        "tracking": {
+            "behind": tracking[0],
+            "ahead": tracking[1],
+        },
+        "network_requested": allow_network,
+        "remote_branch_head": remote_branch_head,
+        "local_tag": local_tag,
+        "remote_tag": remote_tag,
+        "release": release,
+    }
+
+    if allow_network and remote_error:
+        derived = {
+            "status_code": "BLOCKED_REMOTE_INSPECTION",
+            "next_action": "Resolve read-only remote inspection failure.",
+            "safe_to_resume": False,
+            "release_closed": False,
+            "blocked": True,
+        }
+    else:
+        derived = derive_recovery_state(snapshot)
+
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "report_type": STATUS_REPORT_TYPE,
+        "generated_at": utc_now(),
+        "workflow_id": plan["workflow_id"],
+        "target_version": plan["target_version"],
+        "status": (
+            "blocked"
+            if derived["blocked"]
+            else "closed"
+            if derived["release_closed"]
+            else "incomplete"
+        ),
+        **derived,
+        "snapshot": snapshot,
+        "test_evidence": evidence,
+        "remote_inspection": {
+            "requested": allow_network,
+            "error": remote_error,
+            "read_only": True,
+        },
+        "boundaries": {
+            **BOUNDARIES,
+            "git_mutations": "blocked_in_status_mode",
+            "network_access": (
+                "read_only_queries_only"
+                if allow_network
+                else "blocked"
+            ),
+        },
+        "authority": {
+            "status_is_evidence_only": True,
+            "status_does_not_authorize_resume": True,
+            "resume_requires_full_explicit_tokens": True,
+            "no_mutation_was_performed": True,
+        },
+    }
 
 
 class SupervisedReleaseWorkflow:
@@ -1360,6 +1933,35 @@ class SupervisedReleaseWorkflow:
         }
 
 
+def print_status_minimal(report: Mapping[str, Any], output: Path) -> None:
+    snapshot = report.get("snapshot") or {}
+    tracking = snapshot.get("tracking") or {}
+    evidence = report.get("test_evidence") or {}
+    remote = report.get("remote_inspection") or {}
+
+    print("KONOHA SUPERVISED RELEASE STATUS")
+    print(f"version: {report.get('target_version')}")
+    print(f"status_code: {report.get('status_code')}")
+    print(f"head: {snapshot.get('head')}")
+    print(
+        "tracking: "
+        f"{tracking.get('behind')} behind / "
+        f"{tracking.get('ahead')} ahead"
+    )
+    print(f"test_evidence: {evidence.get('state')}")
+    print(
+        "remote_inspection: "
+        + (
+            "read-only"
+            if remote.get("requested")
+            else "not requested"
+        )
+    )
+    print(f"safe_to_resume: {report.get('safe_to_resume')}")
+    print(f"next_action: {report.get('next_action')}")
+    print(f"report: {output}")
+
+
 def print_minimal(report: Mapping[str, Any], output: Path) -> None:
     final = report.get("final_verification") or {}
     release = final.get("release") or {}
@@ -1403,6 +2005,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", required=True)
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "--status",
+        action="store_true",
+        help="Inspect recovery state without release mutations.",
+    )
     parser.add_argument("--test-timeout", type=int, default=1200)
 
     parser.add_argument("--confirm-run", action="store_true")
@@ -1440,6 +2047,28 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
         output = resolve_output(repo_root, args.output)
         plan = validate_plan(read_json(plan_path, "workflow plan"))
+
+        if args.status:
+            if shutil.which("git") is None:
+                raise WorkflowError("git is required")
+            if args.allow_network and shutil.which("gh") is None:
+                raise WorkflowError(
+                    "GitHub CLI is required for network status"
+                )
+
+            report = inspect_release_status(
+                repo_root,
+                plan,
+                allow_network=args.allow_network,
+            )
+            write_json(output, report, args.force)
+
+            if args.json:
+                print(json.dumps(report, indent=2, sort_keys=True))
+            else:
+                print_status_minimal(report, output)
+
+            return 1 if report.get("blocked") is True else 0
 
         workflow = SupervisedReleaseWorkflow(
             repo_root=repo_root,

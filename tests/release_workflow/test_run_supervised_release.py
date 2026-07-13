@@ -42,17 +42,17 @@ class UnifiedSupervisedReleaseTests(unittest.TestCase):
         self.plan = {
             "schema_version": "1.0.0",
             "report_type": "supervised_release_workflow_plan",
-            "workflow_id": "release-v3-2-3",
+            "workflow_id": "release-v3-2-4",
             "expected_base_commit": "a" * 40,
             "expected_branch": "main",
             "remote": "origin",
             "github_repo": "owner/repo",
-            "target_version": "v3.2.3",
-            "previous_version": "v3.2.2",
-            "commit_message": "Add unified supervised release gate",
+            "target_version": "v3.2.4",
+            "previous_version": "v3.2.3",
+            "commit_message": "Add supervised release recovery status",
             "release_title": (
-                "Konoha Agentic Academy v3.2.3 - "
-                "Unified Supervised Release Gate"
+                "Konoha Agentic Academy v3.2.4 - "
+                "Supervised Release Recovery and Status"
             ),
             "release_notes_path": "sandbox/tmp/release-notes.md",
             "release_notes_sha256": self.module.sha256_file(self.notes),
@@ -62,9 +62,9 @@ class UnifiedSupervisedReleaseTests(unittest.TestCase):
             ],
             "expected_test_gate": {
                 "suite_count": 49,
-                "test_count": 361,
+                "test_count": 371,
                 "focused_suite": "release_workflow",
-                "focused_tests": 14,
+                "focused_tests": 24,
             },
             "max_transitions": 8,
             "authority": {
@@ -147,7 +147,7 @@ class UnifiedSupervisedReleaseTests(unittest.TestCase):
             capture_output=True,
         ).stdout.strip()
         subprocess.run(
-            ["git", "tag", "-a", "v3.2.2", "-m", "v3.2.2"],
+            ["git", "tag", "-a", "v3.2.3", "-m", "v3.2.3"],
             cwd=self.repo,
             check=True,
         )
@@ -204,7 +204,7 @@ class UnifiedSupervisedReleaseTests(unittest.TestCase):
                     "selected_suite_count": 49,
                     "passed_suite_count": 49,
                     "failed_suite_count": 0,
-                    "test_count": 361,
+                    "test_count": 371,
                     "failure_count": 0,
                     "error_count": 0,
                     "timeout_count": 0,
@@ -215,7 +215,7 @@ class UnifiedSupervisedReleaseTests(unittest.TestCase):
     def test_validate_plan_accepts_complete_plan(self):
         validated = self.module.validate_plan(self.plan)
 
-        self.assertEqual(validated["workflow_id"], "release-v3-2-3")
+        self.assertEqual(validated["workflow_id"], "release-v3-2-4")
         self.assertEqual(
             validated["public_paths"],
             sorted(self.plan["public_paths"]),
@@ -314,11 +314,11 @@ class UnifiedSupervisedReleaseTests(unittest.TestCase):
             self.plan["expected_test_gate"],
         )
 
-        self.assertEqual(summary["test_count"], 361)
+        self.assertEqual(summary["test_count"], 371)
 
     def test_validate_test_summary_rejects_count_mismatch(self):
         report = self.closure_report("BLOCKED_BRANCH_NOT_SYNCED")
-        report["test_gate"]["summary"]["test_count"] = 360
+        report["test_gate"]["summary"]["test_count"] = 370
 
         with self.assertRaisesRegex(
             self.module.WorkflowError,
@@ -429,7 +429,7 @@ class UnifiedSupervisedReleaseTests(unittest.TestCase):
                         "selected_suite_count": 49,
                         "passed_suite_count": 49,
                         "failed_suite_count": 0,
-                        "test_count": 361,
+                        "test_count": 371,
                         "failure_count": 0,
                         "error_count": 0,
                         "timeout_count": 0,
@@ -491,6 +491,255 @@ class UnifiedSupervisedReleaseTests(unittest.TestCase):
         self.assertTrue(report["release_closed"])
         self.assertEqual(len(report["transitions"]), 6)
 
+
+    def status_snapshot(self):
+        head = "b" * 40
+        return {
+            "branch": "main",
+            "expected_branch": "main",
+            "head": head,
+            "expected_base_commit": "a" * 40,
+            "working_tree_clean": True,
+            "scope_matches": False,
+            "actual_scope": [],
+            "release_commit_aligned": True,
+            "tracking": {
+                "behind": 0,
+                "ahead": 0,
+            },
+            "network_requested": True,
+            "remote_branch_head": head,
+            "local_tag": {
+                "exists": True,
+                "annotated": True,
+                "target_matches_head": True,
+            },
+            "remote_tag": {
+                "exists": True,
+                "target_matches_head": True,
+                "object_matches_local": True,
+            },
+            "release": {
+                "exists": True,
+                "tag_matches": True,
+                "title_matches": True,
+                "draft": False,
+                "prerelease": False,
+                "latest": True,
+            },
+        }
+
+    def test_status_dirty_exact_scope_needs_git_delivery(self):
+        snapshot = self.status_snapshot()
+        snapshot["head"] = snapshot["expected_base_commit"]
+        snapshot["working_tree_clean"] = False
+        snapshot["scope_matches"] = True
+        snapshot["release_commit_aligned"] = False
+        snapshot["tracking"] = {"behind": 0, "ahead": 0}
+
+        result = self.module.derive_recovery_state(snapshot)
+
+        self.assertEqual(result["status_code"], "NEEDS_GIT_DELIVERY")
+        self.assertTrue(result["safe_to_resume"])
+
+    def test_status_local_ahead_needs_branch_push(self):
+        snapshot = self.status_snapshot()
+        snapshot["tracking"] = {"behind": 0, "ahead": 1}
+        snapshot["remote_branch_head"] = snapshot["expected_base_commit"]
+
+        result = self.module.derive_recovery_state(snapshot)
+
+        self.assertEqual(result["status_code"], "NEEDS_BRANCH_PUSH")
+        self.assertTrue(result["safe_to_resume"])
+
+    def test_status_local_tag_without_remote_needs_tag_publication(self):
+        snapshot = self.status_snapshot()
+        snapshot["remote_tag"] = {
+            "exists": False,
+            "target_matches_head": False,
+            "object_matches_local": False,
+        }
+        snapshot["release"] = {
+            "exists": False,
+            "tag_matches": False,
+            "title_matches": False,
+            "draft": None,
+            "prerelease": None,
+            "latest": None,
+        }
+
+        result = self.module.derive_recovery_state(snapshot)
+
+        self.assertEqual(
+            result["status_code"],
+            "NEEDS_TAG_PUBLICATION",
+        )
+
+    def test_status_remote_tag_without_release_needs_publication(self):
+        snapshot = self.status_snapshot()
+        snapshot["release"] = {
+            "exists": False,
+            "tag_matches": False,
+            "title_matches": False,
+            "draft": None,
+            "prerelease": None,
+            "latest": None,
+        }
+
+        result = self.module.derive_recovery_state(snapshot)
+
+        self.assertEqual(
+            result["status_code"],
+            "NEEDS_RELEASE_PUBLICATION",
+        )
+
+    def test_status_release_not_latest_needs_promotion(self):
+        snapshot = self.status_snapshot()
+        snapshot["release"]["latest"] = False
+
+        result = self.module.derive_recovery_state(snapshot)
+
+        self.assertEqual(
+            result["status_code"],
+            "NEEDS_LATEST_PROMOTION",
+        )
+
+    def test_status_aligned_release_is_closed(self):
+        result = self.module.derive_recovery_state(
+            self.status_snapshot()
+        )
+
+        self.assertEqual(result["status_code"], "RELEASE_CLOSED")
+        self.assertTrue(result["release_closed"])
+        self.assertTrue(result["safe_to_resume"])
+
+    def test_status_scope_mismatch_blocks(self):
+        snapshot = self.status_snapshot()
+        snapshot["head"] = snapshot["expected_base_commit"]
+        snapshot["working_tree_clean"] = False
+        snapshot["scope_matches"] = False
+        snapshot["release_commit_aligned"] = False
+
+        result = self.module.derive_recovery_state(snapshot)
+
+        self.assertEqual(
+            result["status_code"],
+            "BLOCKED_SCOPE_MISMATCH",
+        )
+        self.assertTrue(result["blocked"])
+
+    def test_cached_evidence_corrupt_is_not_reusable(self):
+        evidence = (
+            self.repo
+            / "sandbox"
+            / "reports"
+            / "release-v3-2-4-closure-tests.json"
+        )
+        evidence.parent.mkdir(parents=True, exist_ok=True)
+        evidence.write_text("{", encoding="utf-8")
+
+        result = self.module.inspect_cached_test_evidence(
+            self.repo,
+            self.plan,
+            "b" * 40,
+        )
+
+        self.assertEqual(result["state"], "corrupt")
+        self.assertFalse(result["reusable"])
+
+    def test_cached_evidence_stale_is_not_reusable(self):
+        evidence = (
+            self.repo
+            / "sandbox"
+            / "reports"
+            / "release-v3-2-4-closure-tests.json"
+        )
+        evidence.parent.mkdir(parents=True, exist_ok=True)
+        report = self.closure_report("NEEDS_TAG_CREATION")
+        report["git"]["head"] = "c" * 40
+        report["test_gate"]["head_after"] = "c" * 40
+        evidence.write_text(
+            json.dumps(report, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+        result = self.module.inspect_cached_test_evidence(
+            self.repo,
+            self.plan,
+            "b" * 40,
+        )
+
+        self.assertEqual(result["state"], "stale")
+        self.assertFalse(result["reusable"])
+
+    def test_status_cli_is_read_only_and_needs_no_tokens(self):
+        base = self.init_git_repo()
+        self.write_public_changes()
+        self.plan["expected_base_commit"] = base
+        self.plan["release_notes_sha256"] = self.module.sha256_file(
+            self.notes
+        )
+
+        plan_path = self.repo / "status-plan.json"
+        plan_path.write_text(
+            json.dumps(self.plan, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        output = self.repo / "sandbox/reports/status.json"
+        before_head = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=self.repo,
+            check=True,
+            text=True,
+            capture_output=True,
+        ).stdout.strip()
+
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(MODULE_PATH),
+                "--repo-root",
+                str(self.repo),
+                "--plan",
+                str(plan_path),
+                "--output",
+                str(output),
+                "--status",
+                "--json",
+                "--force",
+            ],
+            text=True,
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        report = json.loads(completed.stdout)
+        self.assertEqual(
+            report["status_code"],
+            "BLOCKED_SCOPE_MISMATCH",
+        )
+        self.assertTrue(report["authority"]["no_mutation_was_performed"])
+
+        after_head = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=self.repo,
+            check=True,
+            text=True,
+            capture_output=True,
+        ).stdout.strip()
+        self.assertEqual(before_head, after_head)
+        self.assertEqual(
+            subprocess.run(
+                ["git", "diff", "--cached", "--name-only"],
+                cwd=self.repo,
+                check=True,
+                text=True,
+                capture_output=True,
+            ).stdout,
+            "",
+        )
 
 if __name__ == "__main__":
     unittest.main()

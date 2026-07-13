@@ -515,3 +515,7 @@ Before a tool becomes active:
 ## Unified supervised release workflow
 
 - `release_workflow/run_supervised_release.py`: composes beta Git gates, canonical tests and release closure into one token-gated workflow.
+
+## Supervised release recovery status
+
+- `release_workflow/run_supervised_release.py --status`: reports exact recovery state, cached evidence validity and next action without consuming mutation approvals.

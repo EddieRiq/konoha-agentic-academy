@@ -661,3 +661,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.2.3 Unified Supervised Release Gate
 
 - Version the Acceptance→Git→Release orchestration and stop on any unexpected RC, state, scope, tag or release condition.
+
+### v3.2.4 Supervised Release Recovery and Status
+
+- Add read-only release reentry inspection before extending the unified workflow with any further mutation capability.

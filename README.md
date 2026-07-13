@@ -771,3 +771,8 @@ The guard never creates commits, tags or releases.
 
 - `tools/release_workflow/run_supervised_release.py` executes the supervised Acceptance→Git→Release state machine.
 - Expected nonzero guards advance only when their canonical `status_code` matches the allowed transition.
+
+## v3.2.4 Supervised Release Recovery and Status
+
+- `tools/release_workflow/run_supervised_release.py --status` inspects local release recovery state without mutation.
+- `--status --allow-network` adds read-only remote tag and GitHub Release inspection.

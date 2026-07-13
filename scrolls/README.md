@@ -672,3 +672,7 @@ A Scroll is ready for active use only when:
 ## Unified Supervised Release Gate review
 
 - `unified_supervised_release_gate_review_scroll.md`: reviews state transitions, tokens, scope, tests, tag/release alignment and final closure evidence.
+
+## Supervised Release Recovery and Status review
+
+- `supervised_release_recovery_status_review_scroll.md`: reviews status-mode non-mutation, recovery classification and evidence freshness.

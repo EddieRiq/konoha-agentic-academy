@@ -381,3 +381,7 @@ Do not hide doctrine changes inside guides.
 ## Unified Supervised Release Gate
 
 - `unified_supervised_release_gate.md`: documents the one-command release state machine, evidence reuse, explicit mutation tokens and minimal output.
+
+## Supervised Release Recovery and Status
+
+- `supervised_release_recovery_status.md`: documents local/remote read-only status, recovery states, stale evidence and reentry after closure.
