@@ -1,0 +1,81 @@
+{
+  "$id": "https://example.invalid/konoha/supervised_package_installation_report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "apply_requested": {
+      "type": "boolean"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "blocker": {
+      "type": "string"
+    },
+    "boundaries": {
+      "type": "object"
+    },
+    "branch": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "head": {
+      "type": "string"
+    },
+    "helper": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "installation_id": {
+      "type": "string"
+    },
+    "installed": {
+      "type": "boolean"
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "report_type": {
+      "const": "supervised_package_installation_report"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "scope": {
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "blocked",
+        "failed"
+      ]
+    },
+    "status_code": {
+      "enum": [
+        "READY_FOR_HELPER_APPLY",
+        "INSTALLED",
+        "BLOCKED_INSTALLATION",
+        "BLOCKED_CONFIGURATION"
+      ]
+    },
+    "tracking_ref": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "generated_at",
+    "status",
+    "status_code",
+    "installed",
+    "boundaries"
+  ],
+  "title": "Konoha Supervised Package Installation Report",
+  "type": "object"
+}

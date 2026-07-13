@@ -253,3 +253,7 @@ Examples are documentation-first. They do not execute commands, mutate files, ac
 ## v3.2.4 release workflow plan
 
 - `release_workflow/supervised_release_workflow_plan.example.json`: exact v3.2.4 recovery/status scope, counts and release metadata.
+
+## Supervised package installation example
+
+- `package_installation/supervised_package_installation_manifest.example.json`: separates direct ZIP paths, helper paths and their exact public union.

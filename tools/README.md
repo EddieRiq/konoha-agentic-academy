@@ -519,3 +519,7 @@ Before a tool becomes active:
 ## Supervised release recovery status
 
 - `release_workflow/run_supervised_release.py --status`: reports exact recovery state, cached evidence validity and next action without consuming mutation approvals.
+
+## Supervised package installation
+
+- `package_installation/run_supervised_package_installation.py`: previews or applies a bounded package helper while enforcing exact direct/helper/public scopes.

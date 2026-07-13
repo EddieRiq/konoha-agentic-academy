@@ -1,0 +1,48 @@
+{
+  "authority": {
+    "guard_reports_are_evidence_only": true,
+    "operation_tokens_required": true,
+    "plan_is_not_permission": true,
+    "release_mutations_are_explicit": true,
+    "test_results_are_evidence_only": true
+  },
+  "commit_message": "Add package installation scope guard",
+  "expected_base_commit": "4f665e3a6d29ea9d480a5aa2ebe0b35cce1f608f",
+  "expected_branch": "main",
+  "expected_test_gate": {
+    "focused_suite": "package_installation",
+    "focused_tests": 12,
+    "suite_count": 50,
+    "test_count": 383
+  },
+  "github_repo": "EddieRiq/konoha-agentic-academy",
+  "max_transitions": 8,
+  "previous_version": "v3.2.4",
+  "public_paths": [
+    "CHANGELOG.md",
+    "README.md",
+    "docs/guides/README.md",
+    "docs/guides/package_installation_scope_guard.md",
+    "docs/roadmap.md",
+    "docs/roadmap/v3_2_5_package_installation_scope_guard_scope.md",
+    "examples/README.md",
+    "examples/package_installation/supervised_package_installation_manifest.example.json",
+    "examples/release_workflow/v3_2_5_package_installation_release_plan.example.json",
+    "schemas/runtime/supervised_package_installation_manifest.schema.json",
+    "schemas/runtime/supervised_package_installation_report.schema.json",
+    "scrolls/README.md",
+    "scrolls/package_installation_scope_guard_review_scroll.md",
+    "tests/package_installation/test_run_supervised_package_installation.py",
+    "tools/README.md",
+    "tools/package_installation/__init__.py",
+    "tools/package_installation/run_supervised_package_installation.py"
+  ],
+  "release_notes_path": "sandbox/tmp/v3-2-5-package/RELEASE_NOTES.md",
+  "release_notes_sha256": "02aefe82640d4182cd723c9a70903db1278394748161ca50bebb188427664185",
+  "release_title": "Konoha Agentic Academy v3.2.5 - Package Installation Scope Guard",
+  "remote": "origin",
+  "report_type": "supervised_release_workflow_plan",
+  "schema_version": "1.0.0",
+  "target_version": "v3.2.5",
+  "workflow_id": "v3-2-5-package-installation-scope-guard"
+}

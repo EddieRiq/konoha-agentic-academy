@@ -676,3 +676,7 @@ A Scroll is ready for active use only when:
 ## Supervised Release Recovery and Status review
 
 - `supervised_release_recovery_status_review_scroll.md`: reviews status-mode non-mutation, recovery classification and evidence freshness.
+
+## Package Installation Scope Guard review
+
+- `package_installation_scope_guard_review_scroll.md`: reviews exact package scope, helper boundaries, idempotence and release handoff.

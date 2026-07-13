@@ -96,6 +96,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 
 
+
+- Added v3.2.5 Package Installation Scope Guard with explicit direct paths, helper paths, exact union validation and idempotent reentry.
 - Added v3.2.4 Supervised Release Recovery and Status with read-only reentry states, stale evidence detection and closed-release inspection.
 - Added v3.2.3 Unified Supervised Release Gate with explicit RC/status transitions, single-run Git delivery and release closure.
 - Added v3.2.2 Supervised Action Proposal with contract/evidence composition, bounded argv proposals, approval requirements and rollback validation.

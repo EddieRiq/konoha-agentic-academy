@@ -1,0 +1,112 @@
+{
+  "$id": "https://example.invalid/konoha/supervised_package_installation_manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority": {
+      "additionalProperties": false,
+      "properties": {
+        "git_operations_blocked": {
+          "const": true
+        },
+        "helper_is_bounded": {
+          "const": true
+        },
+        "install_token_required": {
+          "const": true
+        },
+        "manifest_is_not_permission": {
+          "const": true
+        },
+        "network_access_blocked": {
+          "const": true
+        },
+        "private_context_blocked": {
+          "const": true
+        }
+      },
+      "required": [
+        "manifest_is_not_permission",
+        "install_token_required",
+        "helper_is_bounded",
+        "git_operations_blocked",
+        "network_access_blocked",
+        "private_context_blocked"
+      ],
+      "type": "object"
+    },
+    "direct_repo_paths": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "expected_base_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "expected_branch": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "expected_public_paths": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "helper_approval_token": {
+      "pattern": "^[A-Z][A-Z0-9_]{2,127}$",
+      "type": "string"
+    },
+    "helper_modified_paths": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "helper_path": {
+      "pattern": "^sandbox/",
+      "type": "string"
+    },
+    "installation_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,95}$",
+      "type": "string"
+    },
+    "report_type": {
+      "const": "supervised_package_installation_manifest"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "tracking_ref": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "report_type",
+    "installation_id",
+    "expected_base_commit",
+    "expected_branch",
+    "tracking_ref",
+    "direct_repo_paths",
+    "helper_modified_paths",
+    "expected_public_paths",
+    "helper_path",
+    "helper_approval_token",
+    "authority"
+  ],
+  "title": "Konoha Supervised Package Installation Manifest",
+  "type": "object"
+}

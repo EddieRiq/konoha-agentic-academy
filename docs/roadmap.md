@@ -665,3 +665,7 @@ v2.9 is the final large pre-beta block before v3.0.0 Konoha Beta: Real Supervise
 ### v3.2.4 Supervised Release Recovery and Status
 
 - Add read-only release reentry inspection before extending the unified workflow with any further mutation capability.
+
+### v3.2.5 Package Installation Scope Guard
+
+- Replace package-specific recovery Bash with a reusable supervised installation scope guard.

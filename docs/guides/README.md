@@ -385,3 +385,7 @@ Do not hide doctrine changes inside guides.
 ## Supervised Release Recovery and Status
 
 - `supervised_release_recovery_status.md`: documents local/remote read-only status, recovery states, stale evidence and reentry after closure.
+
+## Package Installation Scope Guard
+
+- `package_installation_scope_guard.md`: documents direct extraction scope, bounded helper scope, union validation and idempotent reentry.

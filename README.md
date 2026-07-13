@@ -776,3 +776,8 @@ The guard never creates commits, tags or releases.
 
 - `tools/release_workflow/run_supervised_release.py --status` inspects local release recovery state without mutation.
 - `--status --allow-network` adds read-only remote tag and GitHub Release inspection.
+
+## v3.2.5 Package Installation Scope Guard
+
+- `tools/package_installation/run_supervised_package_installation.py` validates extracted package paths separately from bounded helper changes.
+- Package installation completes only when their exact public union matches the manifest.
