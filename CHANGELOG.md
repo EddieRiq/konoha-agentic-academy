@@ -1,3 +1,21 @@
+<!-- v3.5.0-rc1 -->
+## [3.5.0-RC1] — Conversational Hokage Useful Product
+
+### Added
+
+- Real conversational repository-audit mission using local Ollama.
+- Deterministic pre-model and post-patch validation.
+- One-use model grants bound to mission action hashes.
+- Suggested, validated and suppressed issue separation.
+- Exact patch preview, changed paths, SHA-256 and approval gate.
+- Controlled patch application without Git authorization.
+- Private model-usage and audit memory at closure.
+
+### Safety
+
+- External network, model download, arbitrary shell and automatic Git remain
+  blocked.
+
 <!-- v3.5.0-slice3 -->
 ### Slice 3 — Review, Teachback and closure
 

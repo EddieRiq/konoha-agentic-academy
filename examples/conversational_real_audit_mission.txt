@@ -1,0 +1,12 @@
+Revisá este repositorio.
+
+Ejecutá primero controles determinísticos y después usá Ollama con
+qwen2.5-coder:7b.
+
+Separá los hallazgos sugeridos por el modelo de los validados y los suprimidos
+como posibles falsos positivos.
+
+No modifiques nada hasta mostrarme el patch exacto.
+
+Después de mi aprobación, aplicá el patch controladamente, ejecutá los tests,
+mostrame el consumo de tokens y guardá el cierre en la memoria privada.

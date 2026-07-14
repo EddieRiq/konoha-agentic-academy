@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Validated Patch Proposal",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "patch_id",
+    "mission_id",
+    "status",
+    "operation_count",
+    "changed_paths",
+    "patch_plan",
+    "patch_preview",
+    "patch_sha256",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "conversational_patch_proposal"
+    },
+    "patch_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "applied",
+        "rejected",
+        "not_required"
+      ]
+    },
+    "operation_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "changed_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "patch_plan": {
+      "type": "string"
+    },
+    "patch_preview": {
+      "type": "string"
+    },
+    "patch_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "approval_phrase": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rejection_phrase": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

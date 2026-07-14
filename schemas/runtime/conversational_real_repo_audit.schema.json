@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Real Repository Audit",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "mission_id",
+    "status",
+    "status_code",
+    "provider",
+    "model",
+    "usage",
+    "model_suggested_issues",
+    "validated_issues",
+    "suppressed_issues",
+    "operation_count",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "conversational_real_repo_audit"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "status": {
+      "const": "passed"
+    },
+    "status_code": {
+      "const": "REAL_LOCAL_MODEL_AUDIT_COMPLETED"
+    },
+    "provider": {
+      "const": "ollama"
+    },
+    "model": {
+      "type": "string"
+    },
+    "usage": {
+      "type": "object"
+    },
+    "model_suggested_issues": {
+      "type": "array"
+    },
+    "validated_issues": {
+      "type": "array"
+    },
+    "suppressed_issues": {
+      "type": "array"
+    },
+    "operation_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

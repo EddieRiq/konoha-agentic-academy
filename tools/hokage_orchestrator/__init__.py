@@ -1,3 +1,4 @@
+from .audit_flow import RealSupervisedAuditFlow
 from .lifecycle import LifecycleStore
 from .skill_runtime import ActionQueue, RuntimeBridge, SKILLS
 """Conversational Hokage orchestration foundation."""

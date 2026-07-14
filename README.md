@@ -897,3 +897,25 @@ writes private Obsidian mission, decision and context-pack notes.
 
 See
 [`docs/guides/conversational_hokage_lifecycle.md`](docs/guides/conversational_hokage_lifecycle.md).
+
+<!-- v3.5.0-rc1-real-audit -->
+
+### Real supervised local-model mission
+
+The v3.5.0 release-candidate implementation connects `Mission>` to
+deterministic checks, a one-use local Ollama grant, validated finding
+classification, exact patch approval, controlled apply, post-patch tests,
+review, Teachback, closure and private memory.
+
+The canonical acceptance mission itself must add the final public RC marker
+only after displaying and receiving approval for the exact patch.
+
+## Conversational Hokage Release Candidate
+
+Konoha v3.5.0 introduces a conversational Hokage product flow for supervised
+missions: natural-language intake, Mission Charter approval, bounded skills,
+local-model evidence, deterministic validation, exact patch approval,
+controlled apply, tests, human review, Teachback, closure and private memory.
+
+Model output is evidence only. Memory does not authorize action. Git stage,
+commit and push remain separate human approval gates.

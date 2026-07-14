@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Konoha Conversational Hokage — v3.5.0 Slice 2."""
+"""Konoha Conversational Hokage — v3.5.0-RC1."""
 
 from __future__ import annotations
 
@@ -18,6 +18,10 @@ REPO_IMPORT_ROOT = SCRIPT_DIR.parents[1]
 if str(REPO_IMPORT_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_IMPORT_ROOT))
 
+from tools.hokage_orchestrator.audit_flow import (  # noqa: E402
+    AuditFlowError,
+    RealSupervisedAuditFlow,
+)
 from tools.hokage_orchestrator.charter import (  # noqa: E402
     build_charter,
     charter_markdown,
@@ -42,7 +46,7 @@ from tools.hokage_orchestrator.skill_runtime import (  # noqa: E402
     verify_action_approval,
 )
 
-DEV_VERSION = "3.5.0-dev-slice3"
+DEV_VERSION = "3.5.0rc1"
 
 
 def discover_repo_root(start: Path) -> Path:
@@ -233,6 +237,98 @@ def render_closure(closure: Dict[str, Any]) -> str:
     )
 
 
+
+def render_model_grant(grant: Dict[str, Any]) -> str:
+    return "\n".join(
+        [
+            "",
+            "Hokage solicita un grant local de modelo:",
+            "",
+            f"Grant: {grant['grant_id']}",
+            f"Proveedor: {grant['provider']}",
+            f"Modelo: {grant['model']}",
+            f"Scope: {grant['scope']}",
+            f"Acción: {grant['action_id']}",
+            f"Arguments hash: {grant['arguments_hash'][:16]}",
+            "",
+            "El grant es de un solo uso.",
+            "No autoriza descargas ni red externa.",
+            "El output del modelo será evidencia solamente.",
+            f"Para aprobar: {grant['approval_phrase']}",
+            "",
+        ]
+    )
+
+
+def render_patch_proposal(proposal: Dict[str, Any]) -> str:
+    preview = proposal.get("patch_preview") or "(sin cambios)"
+    lines = [
+        "",
+        "Hokage propone un patch validado:",
+        "",
+        f"Patch: {proposal['patch_id']}",
+        f"Operaciones: {proposal['operation_count']}",
+        (
+            "Paths: "
+            + ", ".join(proposal.get("changed_paths", []))
+        ),
+        f"SHA-256: {proposal['patch_sha256']}",
+        "",
+        "Patch exacto:",
+        "",
+        preview.rstrip(),
+        "",
+        "La propuesta no es permiso.",
+        "El approval queda ligado al SHA-256 mostrado.",
+    ]
+    if proposal.get("approval_phrase"):
+        lines.extend(
+            [
+                f"Para aplicar: {proposal['approval_phrase']}",
+                f"Para rechazar: {proposal['rejection_phrase']}",
+            ]
+        )
+    else:
+        lines.append("No hay un patch validado para aplicar.")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_audit_summary(result: Dict[str, Any]) -> str:
+    audit = result["audit"]
+    proposal = result["patch_proposal"]
+    usage = audit.get("usage", {})
+    return "\n".join(
+        [
+            "",
+            "Hokage completó el audit local:",
+            "",
+            f"Modelo: {audit.get('model')}",
+            (
+                "Tokens: input="
+                f"{usage.get('input_tokens')} "
+                "output="
+                f"{usage.get('output_tokens')}"
+            ),
+            (
+                "Hallazgos sugeridos por modelo: "
+                f"{len(audit.get('model_suggested_issues', []))}"
+            ),
+            (
+                "Hallazgos validados: "
+                f"{len(audit.get('validated_issues', []))}"
+            ),
+            (
+                "Hallazgos suprimidos: "
+                f"{len(audit.get('suppressed_issues', []))}"
+            ),
+            f"Operaciones de patch: {proposal['operation_count']}",
+            "",
+            "El modelo no autorizó ninguna modificación.",
+            "",
+        ]
+    )
+
 class ConversationalHokage:
     def __init__(
         self,
@@ -259,6 +355,7 @@ class ConversationalHokage:
         self.actor = actor
         self.local_model = local_model
         self.json_mode = json_mode
+
         self.continuity = ContinuityStore(
             state_root=state_root,
             obsidian_root=self.memory_root,
@@ -269,10 +366,25 @@ class ConversationalHokage:
         self.active_mission: Optional[Dict[str, Any]] = None
         self.action_queue: Optional[ActionQueue] = None
         self.lifecycle: Optional[LifecycleStore] = None
+        self.audit_flow: Optional[RealSupervisedAuditFlow] = None
         self.restore()
 
     def mission_dir(self, mission_id: str) -> Path:
         return self.workspace_root / "missions" / mission_id
+
+    def _make_audit_flow(
+        self,
+        mission_id: str,
+    ) -> RealSupervisedAuditFlow:
+        return RealSupervisedAuditFlow(
+            repo_root=self.repo_root,
+            workspace_root=self.workspace_root,
+            mission_dir=self.mission_dir(mission_id),
+            memory_root=self.memory_root,
+            mission_id=mission_id,
+            actor=self.actor,
+            model=self.local_model,
+        )
 
     def restore(self) -> None:
         user_state = self.continuity.load_user_state()
@@ -293,6 +405,7 @@ class ConversationalHokage:
         mission_dir = self.mission_dir(mission_id)
         self.action_queue = ActionQueue(mission_dir)
         self.lifecycle = LifecycleStore(mission_dir)
+        self.audit_flow = self._make_audit_flow(mission_id)
 
         charter_path = Path(active.get("charter_path", ""))
         if charter_path.exists():
@@ -335,6 +448,7 @@ class ConversationalHokage:
         )
         self.action_queue = ActionQueue(mission_dir)
         self.lifecycle = LifecycleStore(mission_dir)
+        self.audit_flow = self._make_audit_flow(mission_id)
 
         return {
             "status": "passed",
@@ -410,6 +524,7 @@ class ConversationalHokage:
         self.lifecycle = LifecycleStore(
             self.mission_dir(mission_id)
         )
+        self.audit_flow = self._make_audit_flow(mission_id)
 
         self.pending_charter = None
         self.active_mission = self.continuity.update_active_state(
@@ -469,6 +584,37 @@ class ConversationalHokage:
             return closure
         return None
 
+    def current_model_grant(
+        self,
+        action: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Dict[str, Any]]:
+        action = action or self.next_action()
+        if (
+            action is None
+            or action.get("skill_id")
+            != "invoke_local_model_audit"
+            or self.audit_flow is None
+        ):
+            return None
+        return self.audit_flow.build_model_grant(action)
+
+    def current_patch_proposal(
+        self,
+        action: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Dict[str, Any]]:
+        action = action or self.next_action()
+        if (
+            action is None
+            or action.get("skill_id")
+            != "apply_validated_patch"
+            or self.audit_flow is None
+        ):
+            return None
+        proposal = self.audit_flow.load_patch_proposal()
+        if proposal and proposal.get("status") == "proposed":
+            return proposal
+        return None
+
     def _prepare_review(self) -> Dict[str, Any]:
         if self.action_queue is None or self.lifecycle is None:
             raise ValueError(
@@ -483,6 +629,62 @@ class ConversationalHokage:
         )
         return review
 
+    def _complete_action(
+        self,
+        *,
+        action: Dict[str, Any],
+        runtime_result: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        if self.action_queue is None:
+            raise ValueError("Action queue is missing.")
+
+        completed = self.action_queue.update(
+            action["action_id"],
+            status="completed",
+            evidence={
+                "completed_at": utc_now(),
+                "runtime_result": runtime_result,
+                "result_is_evidence_only": True,
+            },
+        )
+        next_action = self.next_action()
+        review = None
+
+        if next_action:
+            self.active_mission = self.continuity.update_active_state(
+                "awaiting_action_approval"
+            )
+        else:
+            review = self._prepare_review()
+
+        return {
+            "status": "passed",
+            "status_code": "ACTION_COMPLETED",
+            "action": completed,
+            "next_action": next_action,
+            "review_proposal": review,
+            "authority": {
+                "result_is_evidence_only": True,
+                "result_does_not_authorize_next_action": True,
+            },
+        }
+
+    def _append_post_patch_tests(
+        self,
+        action: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        if self.action_queue is None:
+            raise ValueError("Action queue is missing.")
+        return self.action_queue.append_action(
+            mission_id=action["mission_id"],
+            plan_id=action["plan_id"],
+            skill_id="run_post_patch_tests",
+            arguments={
+                "suite_profile": "v3.5.0_rc1_post_patch",
+                "external_network": "blocked",
+            },
+        )
+
     def approve_action(
         self,
         action: Dict[str, Any],
@@ -492,6 +694,15 @@ class ConversationalHokage:
             return {
                 "status": "failed",
                 "status_code": "NO_ACTION_QUEUE",
+            }
+
+        if action["skill_id"] in {
+            "invoke_local_model_audit",
+            "apply_validated_patch",
+        }:
+            return {
+                "status": "failed",
+                "status_code": "SPECIALIZED_APPROVAL_REQUIRED",
             }
 
         if not verify_action_approval(action, phrase):
@@ -512,12 +723,46 @@ class ConversationalHokage:
         )
 
         try:
-            if self.runtime is None:
-                self.runtime = RuntimeBridge(self.repo_root)
-            runtime_result = self.runtime.execute(
-                workspace_root=self.workspace_root,
-                action=action,
-            )
+            skill_id = action["skill_id"]
+            if skill_id == "run_deterministic_audit_checks":
+                if self.audit_flow is None:
+                    raise AuditFlowError("Audit flow is missing.")
+                payload = self.audit_flow.run_deterministic_checks()
+                runtime_result = {
+                    "status": "passed",
+                    "summary": (
+                        "Deterministic checks passed before model use."
+                    ),
+                    "output_paths": [
+                        str(
+                            self.audit_flow
+                            .deterministic_report_path
+                        )
+                    ],
+                    "report": payload,
+                }
+            elif skill_id == "run_post_patch_tests":
+                if self.audit_flow is None:
+                    raise AuditFlowError("Audit flow is missing.")
+                payload = self.audit_flow.run_post_patch_tests()
+                runtime_result = {
+                    "status": "passed",
+                    "summary": "Post-patch tests passed.",
+                    "output_paths": [
+                        str(
+                            self.audit_flow
+                            .post_patch_tests_path
+                        )
+                    ],
+                    "report": payload,
+                }
+            else:
+                if self.runtime is None:
+                    self.runtime = RuntimeBridge(self.repo_root)
+                runtime_result = self.runtime.execute(
+                    workspace_root=self.workspace_root,
+                    action=action,
+                )
         except Exception as exc:
             failed = self.action_queue.update(
                 action["action_id"],
@@ -537,34 +782,229 @@ class ConversationalHokage:
                 "blockers": [str(exc)],
             }
 
-        completed = self.action_queue.update(
+        return self._complete_action(
+            action=action,
+            runtime_result=runtime_result,
+        )
+
+    def approve_model_action(
+        self,
+        action: Dict[str, Any],
+        phrase: str,
+    ) -> Dict[str, Any]:
+        if (
+            self.action_queue is None
+            or self.audit_flow is None
+        ):
+            return {
+                "status": "failed",
+                "status_code": "AUDIT_FLOW_MISSING",
+            }
+
+        try:
+            grant = self.audit_flow.approve_model_grant(
+                action=action,
+                phrase=phrase,
+            )
+        except Exception as exc:
+            return {
+                "status": "failed",
+                "status_code": "MODEL_GRANT_APPROVAL_FAILED",
+                "blockers": [str(exc)],
+            }
+
+        self.action_queue.update(
             action["action_id"],
-            status="completed",
+            status="running",
             evidence={
-                "completed_at": utc_now(),
-                "runtime_result": runtime_result,
-                "result_is_evidence_only": True,
+                "approved_by": self.actor,
+                "approved_at": utc_now(),
+                "grant_id": grant["grant_id"],
+                "arguments_hash": action["arguments_hash"],
             },
         )
-        next_action = self.next_action()
-        review = None
-        if next_action:
-            self.active_mission = self.continuity.update_active_state(
-                "awaiting_action_approval"
-            )
-        else:
-            review = self._prepare_review()
 
+        try:
+            audit_result = self.audit_flow.run_model_audit(
+                action=action
+            )
+            proposal = audit_result["patch_proposal"]
+
+            if proposal.get("operation_count", 0) > 0:
+                self.action_queue.append_action(
+                    mission_id=action["mission_id"],
+                    plan_id=action["plan_id"],
+                    skill_id="apply_validated_patch",
+                    arguments={
+                        "patch_id": proposal["patch_id"],
+                        "patch_sha256": proposal["patch_sha256"],
+                        "patch_plan": proposal["patch_plan"],
+                        "changed_paths": proposal["changed_paths"],
+                    },
+                )
+            else:
+                self._append_post_patch_tests(action)
+
+            runtime_result = {
+                "status": "passed",
+                "summary": (
+                    "Real Ollama audit completed and findings were "
+                    "deterministically classified."
+                ),
+                "output_paths": audit_result["output_paths"],
+                "audit": audit_result["audit"],
+                "patch_proposal": proposal,
+            }
+            completed = self._complete_action(
+                action=action,
+                runtime_result=runtime_result,
+            )
+            completed["audit_result"] = audit_result
+            return completed
+        except Exception as exc:
+            failed = self.action_queue.update(
+                action["action_id"],
+                status="failed",
+                evidence={
+                    "failed_at": utc_now(),
+                    "error": str(exc),
+                },
+            )
+            self.active_mission = self.continuity.update_active_state(
+                "action_failed"
+            )
+            return {
+                "status": "failed",
+                "status_code": "LOCAL_MODEL_AUDIT_FAILED",
+                "action": failed,
+                "blockers": [str(exc)],
+            }
+
+    def approve_patch(
+        self,
+        action: Dict[str, Any],
+        phrase: str,
+    ) -> Dict[str, Any]:
+        if (
+            self.action_queue is None
+            or self.audit_flow is None
+        ):
+            return {
+                "status": "failed",
+                "status_code": "AUDIT_FLOW_MISSING",
+            }
+
+        proposal = self.audit_flow.load_patch_proposal()
+        if proposal is None:
+            return {
+                "status": "failed",
+                "status_code": "PATCH_PROPOSAL_MISSING",
+            }
+        if phrase.strip() != proposal.get("approval_phrase"):
+            return {
+                "status": "failed",
+                "status_code": "PATCH_APPROVAL_MISMATCH",
+                "expected": proposal.get("approval_phrase"),
+            }
+        if (
+            action["arguments"].get("patch_sha256")
+            != proposal.get("patch_sha256")
+        ):
+            return {
+                "status": "failed",
+                "status_code": "PATCH_ARGUMENTS_INVALIDATED",
+            }
+
+        self.action_queue.update(
+            action["action_id"],
+            status="running",
+            evidence={
+                "approved_by": self.actor,
+                "approved_at": utc_now(),
+                "patch_sha256": action["arguments"][
+                    "patch_sha256"
+                ],
+            },
+        )
+
+        try:
+            patch_result = self.audit_flow.apply_patch(
+                phrase=phrase
+            )
+            self._append_post_patch_tests(action)
+            runtime_result = {
+                "status": "passed",
+                "summary": "Exact validated patch applied.",
+                "output_paths": patch_result["output_paths"],
+                "changed_paths": patch_result["changed_paths"],
+            }
+            completed = self._complete_action(
+                action=action,
+                runtime_result=runtime_result,
+            )
+            completed["patch_result"] = patch_result
+            return completed
+        except Exception as exc:
+            failed = self.action_queue.update(
+                action["action_id"],
+                status="failed",
+                evidence={
+                    "failed_at": utc_now(),
+                    "error": str(exc),
+                },
+            )
+            self.active_mission = self.continuity.update_active_state(
+                "action_failed"
+            )
+            return {
+                "status": "failed",
+                "status_code": "PATCH_APPLY_FAILED",
+                "action": failed,
+                "blockers": [str(exc)],
+            }
+
+    def reject_patch(
+        self,
+        action: Dict[str, Any],
+        phrase: str,
+    ) -> Dict[str, Any]:
+        if (
+            self.action_queue is None
+            or self.audit_flow is None
+        ):
+            return {
+                "status": "failed",
+                "status_code": "AUDIT_FLOW_MISSING",
+            }
+        try:
+            result = self.audit_flow.reject_patch(
+                phrase=phrase
+            )
+        except Exception as exc:
+            return {
+                "status": "failed",
+                "status_code": "PATCH_REJECTION_FAILED",
+                "blockers": [str(exc)],
+            }
+
+        self.action_queue.update(
+            action["action_id"],
+            status="rejected",
+            evidence={
+                "rejected_by": self.actor,
+                "rejected_at": utc_now(),
+                "patch_result": result,
+            },
+        )
+        self._append_post_patch_tests(action)
+        next_action = self.next_action()
+        self.active_mission = self.continuity.update_active_state(
+            "awaiting_action_approval"
+        )
         return {
             "status": "passed",
-            "status_code": "ACTION_COMPLETED",
-            "action": completed,
+            "status_code": "PATCH_REJECTED",
             "next_action": next_action,
-            "review_proposal": review,
-            "authority": {
-                "result_is_evidence_only": True,
-                "result_does_not_authorize_next_action": True,
-            },
         }
 
     def reject_action(
@@ -762,6 +1202,10 @@ class ConversationalHokage:
             closure_reason=closure["closure_reason"],
         )
         recorded = self.lifecycle.mark_closed(result)
+        audit_memory = None
+        if self.audit_flow is not None:
+            audit_memory = self.audit_flow.write_private_memory_note()
+
         closure_report = str(
             result.get("paths", {}).get(
                 "mission_closure_report",
@@ -777,12 +1221,18 @@ class ConversationalHokage:
         self.pending_charter = None
         self.action_queue = None
         self.lifecycle = None
+        self.audit_flow = None
 
         return {
             "status": "passed",
             "status_code": "MISSION_CLOSED",
             "closure": recorded,
             "runtime_result": result,
+            "audit_memory": (
+                str(audit_memory)
+                if audit_memory is not None
+                else None
+            ),
             "authority": {
                 "closure_does_not_authorize_new_work": True,
                 "memory_is_evidence_only": True,
@@ -803,6 +1253,35 @@ class ConversationalHokage:
                     self.lifecycle.closure_proposal_path
                 ),
             }
+
+        audit = None
+        if self.audit_flow is not None:
+            audit = {
+                "deterministic_checks": (
+                    str(self.audit_flow.deterministic_report_path)
+                    if self.audit_flow.deterministic_report_path.exists()
+                    else None
+                ),
+                "model_grant": (
+                    read_json(self.audit_flow.model_grant_path)
+                    if self.audit_flow.model_grant_path.exists()
+                    else None
+                ),
+                "normalized_audit": (
+                    read_json(self.audit_flow.normalized_audit_path)
+                    if self.audit_flow.normalized_audit_path.exists()
+                    else None
+                ),
+                "patch_proposal": (
+                    self.audit_flow.load_patch_proposal()
+                ),
+                "post_patch_tests": (
+                    read_json(self.audit_flow.post_patch_tests_path)
+                    if self.audit_flow.post_patch_tests_path.exists()
+                    else None
+                ),
+            }
+
         return {
             "schema_version": "1.0.0",
             "report_type": "conversational_hokage_status",
@@ -818,6 +1297,7 @@ class ConversationalHokage:
                 if self.action_queue
                 else None
             ),
+            "audit_flow": audit,
             "lifecycle": lifecycle,
             "authority": {
                 "status_is_evidence_only": True,
@@ -828,7 +1308,12 @@ class ConversationalHokage:
     def next_safe_action_text(self) -> str:
         if self.pending_charter:
             return "Review the pending Mission Charter."
-        if self.next_action():
+        action = self.next_action()
+        if action is not None:
+            if action["skill_id"] == "invoke_local_model_audit":
+                return "Review the scoped local-model session grant."
+            if action["skill_id"] == "apply_validated_patch":
+                return "Review the exact validated patch proposal."
             return "Review the next bounded action."
         if self.current_review():
             return "Review the deterministic execution summary."
@@ -837,6 +1322,31 @@ class ConversationalHokage:
         if self.current_closure():
             return "Review the explicit mission closure proposal."
         return "Describe the next mission."
+
+    def _render_pending(
+        self,
+        action: Optional[Dict[str, Any]],
+    ) -> str:
+        if self.pending_charter:
+            return render_charter(self.pending_charter)
+        if action:
+            if action["skill_id"] == "invoke_local_model_audit":
+                grant = self.current_model_grant(action)
+                return render_model_grant(grant)
+            if action["skill_id"] == "apply_validated_patch":
+                proposal = self.current_patch_proposal(action)
+                return render_patch_proposal(proposal)
+            return render_action(action)
+        review = self.current_review()
+        if review:
+            return render_review(review)
+        teachback = self.current_teachback()
+        if teachback:
+            return render_teachback(teachback)
+        closure = self.current_closure()
+        if closure:
+            return render_closure(closure)
+        return "Hokage: No hay propuesta pendiente."
 
     def interactive(self) -> int:
         session = self.continuity.start_session()
@@ -898,18 +1408,7 @@ class ConversationalHokage:
                 continue
 
             if lowered in {"/pending", "/details"}:
-                if self.pending_charter:
-                    print(render_charter(self.pending_charter))
-                elif action:
-                    print(render_action(action))
-                elif review:
-                    print(render_review(review))
-                elif teachback:
-                    print(render_teachback(teachback))
-                elif closure:
-                    print(render_closure(closure))
-                else:
-                    print("Hokage: No hay propuesta pendiente.")
+                print(self._render_pending(action))
                 continue
 
             if lowered == "/actions":
@@ -952,6 +1451,95 @@ class ConversationalHokage:
                 continue
 
             if action:
+                skill_id = action["skill_id"]
+
+                if skill_id == "invoke_local_model_audit":
+                    grant = self.current_model_grant(action)
+                    if text == grant["approval_phrase"]:
+                        result = self.approve_model_action(
+                            action,
+                            text,
+                        )
+                        if result["status"] == "passed":
+                            audit_result = result["audit_result"]
+                            print(render_audit_summary(audit_result))
+                            if result.get("next_action"):
+                                print(
+                                    self._render_pending(
+                                        result["next_action"]
+                                    )
+                                )
+                            elif result.get("review_proposal"):
+                                print(
+                                    render_review(
+                                        result["review_proposal"]
+                                    )
+                                )
+                        else:
+                            print(
+                                "Hokage: Audit local bloqueado:\n- "
+                                + "\n- ".join(
+                                    result.get("blockers", [])
+                                )
+                            )
+                        continue
+
+                    print(
+                        "Hokage: Hay un grant local pendiente. "
+                        "Usá la frase exacta o /details."
+                    )
+                    continue
+
+                if skill_id == "apply_validated_patch":
+                    proposal = self.current_patch_proposal(action)
+                    if text == proposal["approval_phrase"]:
+                        result = self.approve_patch(
+                            action,
+                            text,
+                        )
+                        if result["status"] == "passed":
+                            print(
+                                "Hokage: Patch exacto aplicado. "
+                                "Git no fue autorizado."
+                            )
+                            if result.get("next_action"):
+                                print(
+                                    render_action(
+                                        result["next_action"]
+                                    )
+                                )
+                        else:
+                            print(
+                                "Hokage: Patch bloqueado:\n- "
+                                + "\n- ".join(
+                                    result.get("blockers", [])
+                                )
+                            )
+                        continue
+
+                    if text == proposal["rejection_phrase"]:
+                        result = self.reject_patch(
+                            action,
+                            text,
+                        )
+                        print(
+                            "Hokage: Patch rechazado. "
+                            "No se modificaron archivos."
+                        )
+                        if result.get("next_action"):
+                            print(
+                                render_action(
+                                    result["next_action"]
+                                )
+                            )
+                        continue
+
+                    print(
+                        "Hokage: Hay un patch pendiente. "
+                        "Aprobalo, rechazalo o usá /details."
+                    )
+                    continue
+
                 if text == action["approval_phrase"]:
                     result = self.approve_action(action, text)
                     if result["status"] == "passed":
@@ -960,7 +1548,11 @@ class ConversationalHokage:
                             "El resultado es evidencia solamente."
                         )
                         if result.get("next_action"):
-                            print(render_action(result["next_action"]))
+                            print(
+                                self._render_pending(
+                                    result["next_action"]
+                                )
+                            )
                         elif result.get("review_proposal"):
                             print(
                                 render_review(
@@ -978,7 +1570,11 @@ class ConversationalHokage:
                     result = self.reject_action(action, text)
                     print("Hokage: Acción rechazada. No se ejecutó.")
                     if result.get("next_action"):
-                        print(render_action(result["next_action"]))
+                        print(
+                            self._render_pending(
+                                result["next_action"]
+                            )
+                        )
                     elif result.get("review_proposal"):
                         print(
                             render_review(
@@ -1051,8 +1647,8 @@ class ConversationalHokage:
                     )
                     print(
                         "Hokage: Misión cerrada con ejecución, "
-                        "review y Teachback validados. "
-                        "Memoria privada actualizada."
+                        "audit, patch, tests, review y Teachback "
+                        "validados. Memoria privada actualizada."
                     )
                     continue
 
@@ -1085,7 +1681,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state-root")
     parser.add_argument("--memory-root")
     parser.add_argument("--actor", default="Eduardo")
-    parser.add_argument("--local-model", default="qwen2.5-coder:7b")
+    parser.add_argument(
+        "--local-model",
+        default=os.environ.get(
+            "KONOHA_LOCAL_MODEL",
+            "qwen2.5-coder:7b",
+        ),
+    )
     parser.add_argument("--request")
     parser.add_argument("--json", action="store_true")
     return parser

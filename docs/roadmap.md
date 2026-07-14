@@ -730,3 +730,14 @@ Exit criteria:
 - Installed-command help and mission journey.
 - Quiet annotated-tag install and upgrade.
 - Repository rationalization and new integrations are post-v3.4 work.
+
+<!-- v3.5.0-rc1-roadmap -->
+
+### v3.5.0-RC1 — Conversational Hokage Useful Product
+
+- Integrate deterministic checks before local-model use.
+- Add a one-use Ollama mission grant.
+- Separate suggested, validated and suppressed findings.
+- Bind patch approval to exact operations and SHA-256.
+- Run post-patch tests before review and closure.
+- Retain private audit usage and decision memory.

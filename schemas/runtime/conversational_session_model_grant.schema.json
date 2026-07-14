@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Session Model Grant",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "grant_id",
+    "mission_id",
+    "provider",
+    "model",
+    "scope",
+    "action_id",
+    "arguments_hash",
+    "status",
+    "approval_phrase",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "conversational_session_model_grant"
+    },
+    "grant_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "provider": {
+      "const": "ollama"
+    },
+    "model": {
+      "type": "string"
+    },
+    "scope": {
+      "const": "one_repo_audit_invocation"
+    },
+    "action_id": {
+      "type": "string"
+    },
+    "arguments_hash": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "approved",
+        "consumed"
+      ]
+    },
+    "approval_phrase": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

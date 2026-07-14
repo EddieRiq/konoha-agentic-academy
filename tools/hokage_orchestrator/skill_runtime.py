@@ -82,18 +82,79 @@ SKILLS: Dict[str, Dict[str, Any]] = {
         "private_context_required": False,
         "internal_token": "INVOKE_LOCAL_MODEL",
     },
+    "run_deterministic_audit_checks": {
+        "title": "Run deterministic audit checks",
+        "description": (
+            "Run repository tests before any local-model invocation."
+        ),
+        "runtime_kind": "orchestrator",
+        "risk_level": "low",
+        "mutates_files": False,
+        "network_required": False,
+        "private_context_required": False,
+        "internal_token": None,
+    },
+    "invoke_local_model_audit": {
+        "title": "Run local-model repository audit",
+        "description": (
+            "Invoke the approved Ollama model after deterministic checks, "
+            "then normalize and validate all findings."
+        ),
+        "runtime_kind": "orchestrator",
+        "risk_level": "medium",
+        "mutates_files": False,
+        "network_required": False,
+        "private_context_required": False,
+        "internal_token": None,
+    },
+    "apply_validated_patch": {
+        "title": "Apply validated documentation patch",
+        "description": (
+            "Apply only the exact approved patch plan and changed paths."
+        ),
+        "runtime_kind": "orchestrator",
+        "risk_level": "medium",
+        "mutates_files": True,
+        "network_required": False,
+        "private_context_required": False,
+        "internal_token": None,
+    },
+    "run_post_patch_tests": {
+        "title": "Run post-patch tests",
+        "description": (
+            "Run the full focused regression suite after patch application."
+        ),
+        "runtime_kind": "orchestrator",
+        "risk_level": "low",
+        "mutates_files": False,
+        "network_required": False,
+        "private_context_required": False,
+        "internal_token": None,
+    },
+
 }
 
 
 def validate_skills() -> List[str]:
     errors: List[str] = []
+    allowed_kinds = {"execute-command", "agent", "orchestrator"}
+    mutating_allowed = {"apply_validated_patch"}
+
     for skill_id, skill in SKILLS.items():
-        if skill["runtime_kind"] not in {"execute-command", "agent"}:
+        if skill["runtime_kind"] not in allowed_kinds:
             errors.append(f"{skill_id}: unsupported runtime kind")
-        if skill["mutates_files"] is not False:
-            errors.append(f"{skill_id}: Slice 2 skills must not mutate")
+        if (
+            skill["mutates_files"] is True
+            and skill_id not in mutating_allowed
+        ):
+            errors.append(
+                f"{skill_id}: unexpected mutating skill"
+            )
         if skill["network_required"] is not False:
-            errors.append(f"{skill_id}: Slice 2 skills must not use network")
+            errors.append(
+                f"{skill_id}: external network must remain blocked"
+            )
+
     return errors
 
 
@@ -192,52 +253,60 @@ class ActionQueue:
         if current.get("actions"):
             return current
 
-        by_command = {
-            item.get("command_id"): item
-            for item in runtime_proposals
-        }
+        requested = set(charter.get("proposed_skills", []))
         actions: List[Dict[str, Any]] = []
 
-        mappings = [
-            ("inspect_python_runtime", "inspect-python"),
-            ("inspect_git_status", "inspect-git-status"),
-        ]
-
-        for skill_id, command_id in mappings:
-            proposal = by_command.get(command_id)
-            if proposal is None:
-                continue
-            actions.append(
-                make_action(
-                    mission_id=mission_id,
-                    plan_id=plan_id,
-                    skill_id=skill_id,
-                    arguments={
-                        "command_id": command_id,
-                        "command": proposal["command"],
-                        "reason": proposal.get("reason", ""),
-                    },
-                )
+        if "invoke_local_model" in requested:
+            actions.extend(
+                [
+                    make_action(
+                        mission_id=mission_id,
+                        plan_id=plan_id,
+                        skill_id="run_deterministic_audit_checks",
+                        arguments={
+                            "suite_profile": "repo_audit_pre_model",
+                            "external_network": "blocked",
+                        },
+                    ),
+                    make_action(
+                        mission_id=mission_id,
+                        plan_id=plan_id,
+                        skill_id="invoke_local_model_audit",
+                        arguments={
+                            "provider": "ollama",
+                            "model": local_model,
+                            "host": "http://localhost:11434",
+                            "scope": "one_repo_audit_invocation",
+                            "timeout_seconds": 600,
+                        },
+                    ),
+                ]
             )
-
-        if (
-            "invoke_local_model"
-            in set(charter.get("proposed_skills", []))
-            and shutil.which("ollama")
-        ):
-            actions.append(
-                make_action(
-                    mission_id=mission_id,
-                    plan_id=plan_id,
-                    skill_id="invoke_local_model",
-                    arguments={
-                        "provider": "ollama",
-                        "model": local_model,
-                        "prompt_source": "runtime_plan",
-                        "timeout_seconds": 180,
-                    },
+        else:
+            by_command = {
+                item.get("command_id"): item
+                for item in runtime_proposals
+            }
+            mappings = [
+                ("inspect_python_runtime", "inspect-python"),
+                ("inspect_git_status", "inspect-git-status"),
+            ]
+            for skill_id, command_id in mappings:
+                proposal = by_command.get(command_id)
+                if proposal is None:
+                    continue
+                actions.append(
+                    make_action(
+                        mission_id=mission_id,
+                        plan_id=plan_id,
+                        skill_id=skill_id,
+                        arguments={
+                            "command_id": command_id,
+                            "command": proposal["command"],
+                            "reason": proposal.get("reason", ""),
+                        },
+                    )
                 )
-            )
 
         payload = {
             "schema_version": "1.0.0",
@@ -252,6 +321,30 @@ class ActionQueue:
         }
         self.save(payload)
         return payload
+
+    def append_action(
+        self,
+        *,
+        mission_id: str,
+        plan_id: str,
+        skill_id: str,
+        arguments: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        payload = self.load()
+        action = make_action(
+            mission_id=mission_id,
+            plan_id=plan_id,
+            skill_id=skill_id,
+            arguments=arguments,
+        )
+
+        for existing in payload.get("actions", []):
+            if existing.get("action_id") == action["action_id"]:
+                return existing
+
+        payload.setdefault("actions", []).append(action)
+        self.save(payload)
+        return action
 
     def next_pending(self) -> Optional[Dict[str, Any]]:
         for action in self.load().get("actions", []):
