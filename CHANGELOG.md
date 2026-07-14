@@ -1,5 +1,5 @@
-<!-- v3.5.0-rc1 -->
-## [3.5.0-RC1] — Conversational Hokage Useful Product
+<!-- v3.5.0 -->
+## [3.5.0] — Conversational Hokage Useful Product
 
 ### Added
 

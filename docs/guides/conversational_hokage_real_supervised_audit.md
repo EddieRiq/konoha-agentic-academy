@@ -1,8 +1,8 @@
 # Conversational Hokage Real Supervised Audit
 
-## Release candidate
+## Final release
 
-v3.5.0-RC1 connects the conversational Hokage to the existing deterministic
+v3.5.0 connects the conversational Hokage to the existing deterministic
 local-model audit and controlled documentation patch tools.
 
 The user remains in:

@@ -46,7 +46,7 @@ from tools.hokage_orchestrator.skill_runtime import (  # noqa: E402
     verify_action_approval,
 )
 
-DEV_VERSION = "3.5.0rc1"
+DEV_VERSION = "3.5.0"
 
 
 def discover_repo_root(start: Path) -> Path:

@@ -733,7 +733,7 @@ Exit criteria:
 
 <!-- v3.5.0-rc1-roadmap -->
 
-### v3.5.0-RC1 — Conversational Hokage Useful Product
+### v3.5.0 — Conversational Hokage Useful Product
 
 - Integrate deterministic checks before local-model use.
 - Add a one-use Ollama mission grant.

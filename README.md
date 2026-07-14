@@ -902,7 +902,7 @@ See
 
 ### Real supervised local-model mission
 
-The v3.5.0 release-candidate implementation connects `Mission>` to
+The v3.5.0 release implementation connects `Mission>` to
 deterministic checks, a one-use local Ollama grant, validated finding
 classification, exact patch approval, controlled apply, post-patch tests,
 review, Teachback, closure and private memory.
@@ -910,7 +910,7 @@ review, Teachback, closure and private memory.
 The canonical acceptance mission itself must add the final public RC marker
 only after displaying and receiving approval for the exact patch.
 
-## Conversational Hokage Release Candidate
+## v3.5.0 — Conversational Hokage Product
 
 Konoha v3.5.0 introduces a conversational Hokage product flow for supervised
 missions: natural-language intake, Mission Charter approval, bounded skills,
