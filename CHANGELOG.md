@@ -1,3 +1,39 @@
+<!-- v3.5.0-slice3 -->
+### Slice 3 — Review, Teachback and closure
+
+- Added deterministic action-evidence validation.
+- Added exact conversational human review approval.
+- Added user-authored structured Teachback recording.
+- Added separate exact mission closure approval.
+- Added private Obsidian mission, decision and context-pack outputs.
+- Added closed-mission continuity and returning-session behavior.
+- Added canonical full-lifecycle CLI semantic smoke coverage.
+
+<!-- v3.5.0-slice2 -->
+### Slice 2 — Conversational action orchestration
+
+- Added bounded conversational skills.
+- Added exact action approvals bound to argument hashes.
+- Connected approved actions to the supervised beta runtime.
+- Added successful read-only execution and reentry coverage.
+- Removed editable-install metadata from the working tree.
+
+<!-- v3.5.0-slice1 -->
+## Unreleased — v3.5.0
+
+### Added
+
+- Conversational `Mission>` entry for natural-language mission intake.
+- Deterministic intent contracts and Mission Charter proposals.
+- Exact Charter approval and rejection phrases.
+- Compact private continuity state and Obsidian dashboard/handoff.
+- Legacy menu recovery command: `konoha shell legacy`.
+
+### Safety
+
+- Charter approval does not authorize tools, models, patches, Git or network.
+- Slice 1 performs no tool or model execution.
+
 # Changelog
 
 All notable changes to Konoha Agentic Academy are tracked in this file.

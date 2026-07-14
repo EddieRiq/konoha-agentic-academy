@@ -66,13 +66,25 @@ COMMAND_REGISTRY: Dict[CommandKey, Dict[str, Any]] = {
         "description": "Show terminal operator status.",
     },
     ("shell",): {
+        "script": (
+            "tools/hokage_orchestrator/"
+            "run_conversational_hokage.py"
+        ),
+        "fixed_args": [],
+        "mode": "interactive_supervised",
+        "network": "blocked",
+        "approval_token": None,
+        "status": "active",
+        "description": "Open the conversational Hokage product shell.",
+    },
+    ("shell", "legacy"): {
         "script": "tools/hokage_shell/run_hokage_shell.py",
         "fixed_args": ["interactive"],
         "mode": "interactive_supervised",
         "network": "delegated_explicit_only",
         "approval_token": None,
         "status": "active",
-        "description": "Open the Hokage terminal shell.",
+        "description": "Open the legacy menu-driven Hokage shell.",
     },
     ("mission", "start"): {
         "script": "tools/beta_runtime/run_konoha_beta.py",

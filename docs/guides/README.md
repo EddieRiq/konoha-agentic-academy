@@ -408,3 +408,6 @@ Do not hide doctrine changes inside guides.
 
 - `finished_local_first_terminal_product.md`: installed product surface and safety boundaries.
 - `quickstart_and_mission_journey.md`: first-run setup and supervised mission flow.
+- [Conversational Hokage foundation](conversational_hokage_foundation.md)
+- [Conversational Hokage actions](conversational_hokage_actions.md)
+- [Conversational Hokage lifecycle](conversational_hokage_lifecycle.md)

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Intent",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "intent_type",
+    "objective",
+    "targets",
+    "constraints",
+    "requested_outputs",
+    "missing_context",
+    "risk_level",
+    "requires_charter",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "conversational_intent"
+    },
+    "intent_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requested_outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "missing_context": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "requires_charter": {
+      "const": true
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "intent_is_not_permission"
+      ],
+      "properties": {
+        "intent_is_not_permission": {
+          "const": true
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

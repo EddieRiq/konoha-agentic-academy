@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Teachback Request",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "mission_id",
+    "required",
+    "required_level",
+    "prompt",
+    "response_prefix",
+    "status",
+    "execution_evidence",
+    "review_evidence",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "conversational_teachback_request"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "required": {
+      "type": "boolean"
+    },
+    "required_level": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4
+    },
+    "prompt": {
+      "type": "string"
+    },
+    "response_prefix": {
+      "const": "TEACHBACK:"
+    },
+    "status": {
+      "enum": [
+        "awaiting_user_explanation",
+        "recorded"
+      ]
+    },
+    "execution_evidence": {
+      "type": "string"
+    },
+    "review_evidence": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Review Proposal",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "review_id",
+    "mission_id",
+    "review_summary",
+    "execution_evidence",
+    "status",
+    "approval_phrase",
+    "changes_phrase",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "conversational_review_proposal"
+    },
+    "review_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "review_summary": {
+      "type": "string",
+      "minLength": 20
+    },
+    "execution_evidence": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "recorded",
+        "changes_requested"
+      ]
+    },
+    "approval_phrase": {
+      "type": "string"
+    },
+    "changes_phrase": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

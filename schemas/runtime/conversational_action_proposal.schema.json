@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Action Proposal",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "action_id",
+    "mission_id",
+    "plan_id",
+    "skill_id",
+    "arguments",
+    "arguments_hash",
+    "risk_level",
+    "mutates_files",
+    "network_required",
+    "approval_phrase",
+    "rejection_phrase",
+    "status",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "conversational_action_proposal"
+    },
+    "action_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "skill_id": {
+      "type": "string"
+    },
+    "arguments": {
+      "type": "object"
+    },
+    "arguments_hash": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "mutates_files": {
+      "const": false
+    },
+    "network_required": {
+      "const": false
+    },
+    "approval_phrase": {
+      "type": "string"
+    },
+    "rejection_phrase": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "running",
+        "completed",
+        "rejected",
+        "failed"
+      ]
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

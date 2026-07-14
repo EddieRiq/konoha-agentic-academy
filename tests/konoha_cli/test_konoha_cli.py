@@ -165,6 +165,33 @@ class KonohaCliTests(unittest.TestCase):
 
 
 
+    def test_conversational_shell_is_primary_product_entry(self):
+        entry = self.module.COMMAND_REGISTRY[("shell",)]
+        self.assertEqual(
+            entry["script"],
+            (
+                "tools/hokage_orchestrator/"
+                "run_conversational_hokage.py"
+            ),
+        )
+        self.assertEqual(entry["fixed_args"], [])
+        self.assertEqual(entry["network"], "blocked")
+
+    def test_legacy_shell_remains_available_for_recovery(self):
+        entry = self.module.COMMAND_REGISTRY[("shell", "legacy")]
+        self.assertEqual(
+            entry["script"],
+            "tools/hokage_shell/run_hokage_shell.py",
+        )
+        self.assertEqual(entry["fixed_args"], ["interactive"])
+
+    def test_mission_dash_help_uses_group_help(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            code = self.module.main(["mission", "--help"])
+        self.assertEqual(code, 0)
+        self.assertIn("Konoha supervised mission flow", output.getvalue())
+
     def test_product_experience_commands_are_registered(self):
         self.assertIn(("welcome",), self.module.COMMAND_REGISTRY)
         self.assertIn(("quickstart",), self.module.COMMAND_REGISTRY)
@@ -229,7 +256,7 @@ class KonohaCliTests(unittest.TestCase):
         self.assertIn("konoha quickstart", value)
         self.assertIn("konoha help", value)
 
-    def test_empty_invocation_delegates_to_welcome(self):
+    def test_empty_invocation_delegates_to_conversational_shell(self):
         with patch.object(
             self.module,
             "dispatch_key",
@@ -237,7 +264,7 @@ class KonohaCliTests(unittest.TestCase):
         ) as dispatch_mock:
             code = self.module.main([])
         self.assertEqual(code, 0)
-        dispatch_mock.assert_called_once_with(("welcome",), [])
+        dispatch_mock.assert_called_once_with(("shell",), [])
 
 if __name__ == "__main__":
     unittest.main()

@@ -857,3 +857,43 @@ Managed upgrade and uninstall remain separately approved:
 konoha upgrade --target-version v3.4.0 --allow-network --confirm-upgrade --approval-token UPGRADE_KONOHA_INSTALL
 konoha uninstall --confirm-uninstall --approval-token UNINSTALL_KONOHA_CLI
 ```
+
+<!-- v3.5.0-conversational-foundation -->
+
+## Conversational Hokage development
+
+The v3.5.0 development branch makes the primary product entry conversational:
+
+```bash
+konoha
+```
+
+The `Mission>` prompt interprets a natural-language mission, writes a bounded
+intent contract, proposes a Mission Charter and requires an exact approval
+phrase. Charter approval does not authorize tools. The menu-driven shell
+remains available as `konoha shell legacy` during migration.
+
+See
+[`docs/guides/conversational_hokage_foundation.md`](docs/guides/conversational_hokage_foundation.md).
+
+<!-- v3.5.0-conversational-actions -->
+
+### Conversational action orchestration
+
+After exact Charter approval, Hokage creates the supervised runtime
+mission and plan, proposes immutable actions and waits for an exact
+`APROBAR ACCION-...` phrase bound to the argument hash.
+
+See `docs/guides/conversational_hokage_actions.md`.
+
+<!-- v3.5.0-conversational-lifecycle -->
+
+### Conversational mission lifecycle
+
+After bounded actions, Hokage validates persisted evidence,
+proposes human review, requests user-authored Teachback and
+requires a separate exact closure approval. Successful closure
+writes private Obsidian mission, decision and context-pack notes.
+
+See
+[`docs/guides/conversational_hokage_lifecycle.md`](docs/guides/conversational_hokage_lifecycle.md).

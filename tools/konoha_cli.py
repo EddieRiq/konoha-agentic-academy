@@ -394,7 +394,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
 
     if not args:
-        return dispatch_key(("welcome",), [])
+        return dispatch_key(("shell",), [])
 
     if args[0] in {"-h", "--help"}:
         print_help()
@@ -403,7 +403,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     if args[0] == "help":
         return print_help_topic(args[1:])
 
-    if args[0] == "mission" and len(args) == 1:
+    if args[0] == "mission" and (len(args) == 1 or args[1] in {"-h", "--help"}):
         print_mission_help()
         return 0
 

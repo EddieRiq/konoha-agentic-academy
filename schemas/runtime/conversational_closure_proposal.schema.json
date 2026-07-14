@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Closure Proposal",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "closure_id",
+    "mission_id",
+    "closure_reason",
+    "execution_evidence",
+    "review_evidence",
+    "teachback_record",
+    "status",
+    "approval_phrase",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "conversational_closure_proposal"
+    },
+    "closure_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "closure_reason": {
+      "type": "string",
+      "minLength": 10
+    },
+    "execution_evidence": {
+      "type": "string"
+    },
+    "review_evidence": {
+      "type": "string"
+    },
+    "teachback_record": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "closed"
+      ]
+    },
+    "approval_phrase": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}
