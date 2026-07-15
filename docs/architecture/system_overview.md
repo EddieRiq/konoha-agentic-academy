@@ -262,3 +262,16 @@ done_by_agent != completed_by_user
 Konoha should start as a documented, testable workflow before becoming a fully automated multi-agent runtime.
 
 The first implementation should simulate the complete mission lifecycle with clear files, examples, and manual approvals before adding real orchestration, local models, UI, voice, or external integrations.
+
+## Constitutional authority and role boundaries
+
+Konoha separates authority, policy, execution, review and memory.
+
+The Constitution limits every role, including the Hokage. Role policies and an
+approved Mission Charter may narrow authority, but may not expand it. Providers
+and adapters execute bounded capabilities and never decide strategy or approve
+their own work.
+
+See
+[`authority_and_role_boundaries.md`](authority_and_role_boundaries.md)
+for the normative authority graph and role matrix.

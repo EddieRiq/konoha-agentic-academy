@@ -59,29 +59,20 @@ For local or private project conventions, read the approved local Village instru
 
 ## Authority model
 
-Agents are bounded operators.
+Repository authority is ordered as follows:
 
-They do not own the repository, the mission, the doctrine, or the user decision.
+1. External law, safety obligations and explicit human authority.
+2. `core/laws/KONOHA_LAWS.md` as the supreme repository doctrine.
+3. `core/conduct/AGENT_CONDUCT.md`.
+4. Cross-cutting protocols.
+5. Role-specific policies.
+6. The approved Mission Charter.
+7. Scrolls, workflows and approved local configuration.
+8. Memory, summaries and model output as evidence only.
 
-Authority flows through:
-
-```text
-Human user
-  -> approved Mission Charter
-  -> Hokage orchestration
-  -> assigned agent role
-  -> allowed actions
-  -> review
-  -> teachback
-```
-
-No model inference is permission.
-
-No previous mission grants future permission.
-
-No local memory grants permission.
-
-No external tool grants permission.
+Lower layers may restrict but never expand authority. When a conflict affects
+scope, safety, permission or correctness, stop, preserve evidence and escalate.
+No role may approve its own work or redefine its own authority.
 
 ## Mission modes
 
