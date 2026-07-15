@@ -919,3 +919,8 @@ controlled apply, tests, human review, Teachback, closure and private memory.
 
 Model output is evidence only. Memory does not authorize action. Git stage,
 commit and push remain separate human approval gates.
+
+## v3.5.1 — Canonical Version Alignment
+
+This patch aligns package metadata, runtime output and the managed installer
+default. It does not change mission behavior.

@@ -340,3 +340,8 @@ This project is early stage. Version numbers may be adjusted once the first publ
 - Local Allied Village content is intentionally excluded from the public repository.
 - External items remain untrusted by default.
 - Execution remains bounded by Mission Charter, Safety Policy, Context Policy, Approval Policy, Review Policy, and Teachback Policy.
+
+## [3.5.1]
+
+- Aligned package, runtime and managed-installer versions.
+- Added a release-blocking canonical version contract.

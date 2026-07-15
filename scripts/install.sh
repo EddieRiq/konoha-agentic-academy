@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="v3.4.0"
+VERSION="v3.5.1"
 REPOSITORY="https://github.com/EddieRiq/konoha-agentic-academy.git"
 INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/konoha-agentic-academy"
 BIN_DIR="${XDG_BIN_HOME:-$HOME/.local/bin}"
@@ -16,7 +16,7 @@ Konoha Agentic Academy managed terminal installer
 
 Usage:
   install.sh \
-    --version v3.4.0 \
+    --version v3.5.1 \
     --confirm-install \
     --approval-token INSTALL_KONOHA_CLI
 

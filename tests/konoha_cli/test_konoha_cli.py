@@ -27,7 +27,7 @@ class KonohaCliTests(unittest.TestCase):
         self.module = load_module()
 
     def test_version_is_release_aligned(self):
-        self.assertEqual(self.module.VERSION, "3.4.0")
+        self.assertEqual(self.module.VERSION, "3.5.1")
         self.assertEqual(
             self.module.main(["--version"]),
             0,

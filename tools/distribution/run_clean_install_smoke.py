@@ -56,6 +56,7 @@ def run(
             list(command),
             cwd=cwd,
             text=True,
+            stdin=subprocess.DEVNULL,
             capture_output=True,
             shell=False,
             check=False,
@@ -124,7 +125,7 @@ def execute_smoke(
                 [str(wrapper), "--validate-registry"],
             ),
             ("help", [str(wrapper), "--help"]),
-            ("welcome", [str(wrapper)]),
+            ("welcome", [str(wrapper), "welcome"]),
             (
                 "quickstart_help",
                 [str(wrapper), "quickstart", "--help"],

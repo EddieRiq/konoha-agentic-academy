@@ -412,3 +412,4 @@ Do not hide doctrine changes inside guides.
 - [Conversational Hokage actions](conversational_hokage_actions.md)
 - [Conversational Hokage lifecycle](conversational_hokage_lifecycle.md)
 - [Conversational Hokage real supervised audit](conversational_hokage_real_supervised_audit.md)
+- [Canonical version and installation alignment](canonical_version_and_installation_alignment.md)
