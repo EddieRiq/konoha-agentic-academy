@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Hokage Mission Decision",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "decision_id",
+    "mission_id",
+    "classification",
+    "selection",
+    "economy",
+    "supervision",
+    "review_checkpoints",
+    "telemetry_contract",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "hokage_mission_decision"
+    },
+    "decision_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "classification": {
+      "type": "object"
+    },
+    "selection": {
+      "type": "object",
+      "required": [
+        "provider",
+        "model",
+        "strategy",
+        "rationale"
+      ]
+    },
+    "economy": {
+      "type": "object",
+      "required": [
+        "minimum_savings_percent",
+        "minimum_savings_met",
+        "estimate_is_not_billing_truth"
+      ]
+    },
+    "supervision": {
+      "type": "object",
+      "required": [
+        "maximum_worker_attempts",
+        "retry_requires_new_root_cause_evidence",
+        "independent_jounin_review",
+        "teachback_required"
+      ]
+    },
+    "review_checkpoints": {
+      "type": "array"
+    },
+    "telemetry_contract": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "hokage_decision_is_proposal_only",
+        "decision_does_not_authorize_execution",
+        "provider_output_is_evidence_only",
+        "no_self_approval"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -48,6 +48,7 @@ from tools.hokage_orchestrator.skill_runtime import (  # noqa: E402
     validate_skills,
     verify_action_approval,
 )
+from tools.hokage_orchestrator.mission_decision import MissionDecisionEngine
 
 DEV_VERSION = "3.5.0"
 
@@ -375,6 +376,12 @@ class ConversationalHokage:
             actor=actor,
         )
         self.bootstrap_evidence = self.bootstrap_runtime.collect()
+        self.decision_engine = MissionDecisionEngine(
+            state_root=state_root,
+            bootstrap_snapshot=self.bootstrap_evidence,
+            local_model=local_model,
+        )
+        self.latest_decision: Optional[Dict[str, Any]] = None
         self.restore()
 
     def mission_dir(self, mission_id: str) -> Path:
@@ -433,6 +440,12 @@ class ConversationalHokage:
 
         charter = build_charter(intent, self.actor)
         mission_id = mission_id_for(charter)
+        decision = self.decision_engine.decide(
+            mission_id=mission_id,
+            intent=intent,
+        )
+        charter["decision"] = decision
+        self.latest_decision = decision
         mission_dir = self.mission_dir(mission_id)
         mission_dir.mkdir(parents=True, exist_ok=True)
 
@@ -441,6 +454,7 @@ class ConversationalHokage:
         charter_md = mission_dir / "charter.md"
 
         write_json(intent_path, intent)
+        write_json(mission_dir / "mission_decision.json", decision)
         write_json(charter_path, charter)
         charter_md.write_text(
             charter_markdown(charter),
@@ -1308,6 +1322,7 @@ class ConversationalHokage:
             "audit_flow": audit,
             "lifecycle": lifecycle,
             "bootstrap": self.bootstrap_evidence,
+            "mission_decision": self.latest_decision,
             "authority": {
                 "status_is_evidence_only": True,
                 "status_is_not_permission": True,
