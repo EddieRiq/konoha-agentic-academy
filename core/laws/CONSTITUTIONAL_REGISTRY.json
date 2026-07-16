@@ -1,0 +1,227 @@
+{
+  "schema_version": "1.0.0",
+  "registry_type": "konoha_constitutional_registry",
+  "supreme_authority": "core/laws/KONOHA_LAWS.md",
+  "documents": [
+    {
+      "path": "core/laws/KONOHA_LAWS.md",
+      "authority_level": 1,
+      "document_type": "constitution",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "core/conduct/AGENT_CONDUCT.md",
+      "authority_level": 2,
+      "document_type": "conduct",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "protocols/safety/safety_policy.md",
+      "authority_level": 3,
+      "document_type": "protocol",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "protocols/context/context_policy.md",
+      "authority_level": 3,
+      "document_type": "protocol",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "protocols/approval/approval_policy.md",
+      "authority_level": 3,
+      "document_type": "protocol",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "protocols/mission-charter/mission_charter.md",
+      "authority_level": 3,
+      "document_type": "protocol",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "protocols/review/review_policy.md",
+      "authority_level": 3,
+      "document_type": "protocol",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "protocols/learning/learning_policy.md",
+      "authority_level": 3,
+      "document_type": "protocol",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "protocols/teachback/teachback_policy.md",
+      "authority_level": 3,
+      "document_type": "protocol",
+      "role": null,
+      "normative": true
+    },
+    {
+      "path": "hokage/orchestration_policy.md",
+      "authority_level": 4,
+      "document_type": "role_policy",
+      "role": "hokage",
+      "normative": true
+    },
+    {
+      "path": "kagebunshin/worker_policy.md",
+      "authority_level": 4,
+      "document_type": "role_policy",
+      "role": "worker",
+      "normative": true
+    },
+    {
+      "path": "jounin/reviewer_policy.md",
+      "authority_level": 4,
+      "document_type": "role_policy",
+      "role": "jounin",
+      "normative": true
+    },
+    {
+      "path": "shikamaru/scribe_policy.md",
+      "authority_level": 4,
+      "document_type": "role_policy",
+      "role": "shikamaru",
+      "normative": true
+    },
+    {
+      "path": "council/kage_summit_policy.md",
+      "authority_level": 4,
+      "document_type": "role_policy",
+      "role": "council",
+      "normative": true
+    },
+    {
+      "path": "memory/yamanaka/yamanaka_memory_policy.md",
+      "authority_level": 4,
+      "document_type": "role_policy",
+      "role": "yamanaka",
+      "normative": true
+    },
+    {
+      "path": "docs/architecture/authority_and_role_boundaries.md",
+      "authority_level": 5,
+      "document_type": "architecture",
+      "role": null,
+      "normative": true
+    }
+  ],
+  "roles": [
+    {
+      "role": "human_user",
+      "policy_path": null,
+      "may_decide_strategy": true,
+      "may_execute": true,
+      "may_review_own_work": true,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": true,
+      "notes": "Final human authority remains bounded by law and safety obligations."
+    },
+    {
+      "role": "hokage",
+      "policy_path": "hokage/orchestration_policy.md",
+      "may_decide_strategy": true,
+      "may_execute": false,
+      "may_review_own_work": false,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": false,
+      "notes": "Coordinates within approved Mission Charter and constitutional limits."
+    },
+    {
+      "role": "worker",
+      "policy_path": "kagebunshin/worker_policy.md",
+      "may_decide_strategy": false,
+      "may_execute": true,
+      "may_review_own_work": false,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": false,
+      "notes": "Executes one bounded assignment and escalates on boundary conflict."
+    },
+    {
+      "role": "jounin",
+      "policy_path": "jounin/reviewer_policy.md",
+      "may_decide_strategy": false,
+      "may_execute": false,
+      "may_review_own_work": false,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": false,
+      "notes": "Independent reviewer; produces evidence and blockers."
+    },
+    {
+      "role": "shikamaru",
+      "policy_path": "shikamaru/scribe_policy.md",
+      "may_decide_strategy": false,
+      "may_execute": false,
+      "may_review_own_work": false,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": false,
+      "notes": "Drafts instruction deltas and doctrine proposals only."
+    },
+    {
+      "role": "council",
+      "policy_path": "council/kage_summit_policy.md",
+      "may_decide_strategy": false,
+      "may_execute": false,
+      "may_review_own_work": false,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": false,
+      "notes": "Provides deliberation and recommendations; Hokage decides within bounds."
+    },
+    {
+      "role": "yamanaka",
+      "policy_path": "memory/yamanaka/yamanaka_memory_policy.md",
+      "may_decide_strategy": false,
+      "may_execute": false,
+      "may_review_own_work": false,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": false,
+      "notes": "Records and retrieves evidence; memory never authorizes action."
+    },
+    {
+      "role": "provider_adapter",
+      "policy_path": null,
+      "may_decide_strategy": false,
+      "may_execute": true,
+      "may_review_own_work": false,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": false,
+      "notes": "Translates bounded requests to provider-specific interfaces."
+    },
+    {
+      "role": "provider_model",
+      "policy_path": null,
+      "may_decide_strategy": false,
+      "may_execute": true,
+      "may_review_own_work": false,
+      "may_self_approve": false,
+      "may_modify_own_policy": false,
+      "may_approve_doctrine": false,
+      "notes": "Produces model output as evidence only."
+    }
+  ],
+  "invariants": {
+    "memory_is_evidence_only": true,
+    "model_output_is_evidence_only": true,
+    "mission_charter_cannot_expand_authority": true,
+    "providers_do_not_decide_strategy": true,
+    "git_gates_are_separate": true
+  }
+}

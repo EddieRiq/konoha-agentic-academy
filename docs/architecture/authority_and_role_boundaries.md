@@ -81,3 +81,13 @@ decide routing, strategy, acceptance or authorization.
 
 Memory supports continuity and context. It never grants permission and never
 replaces current evidence.
+
+## Machine-readable constitutional contract
+
+The deterministic registry is
+[`core/laws/CONSTITUTIONAL_REGISTRY.json`](../../core/laws/CONSTITUTIONAL_REGISTRY.json).
+
+Its schema is
+[`schemas/doctrine/constitutional_metadata.schema.json`](../../schemas/doctrine/constitutional_metadata.schema.json).
+
+Architecture decisions are recorded under [`adr/`](adr/).
