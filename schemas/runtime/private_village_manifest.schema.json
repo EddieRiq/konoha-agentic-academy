@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Private Village Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "village_name",
+    "village_root",
+    "created_at",
+    "directories",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "private_village_manifest"
+    },
+    "village_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "village_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "directories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "private_only",
+        "manifest_is_evidence_only",
+        "manifest_does_not_authorize_execution"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

@@ -49,8 +49,9 @@ from tools.hokage_orchestrator.skill_runtime import (  # noqa: E402
     verify_action_approval,
 )
 from tools.hokage_orchestrator.mission_decision import MissionDecisionEngine
+from tools.hokage_orchestrator.village_runtime import VillageInitializer
 
-DEV_VERSION = "3.5.0"
+DEV_VERSION = "3.6.0"
 
 
 def discover_repo_root(start: Path) -> Path:
@@ -357,6 +358,10 @@ class ConversationalHokage:
         self.workspace_root.mkdir(parents=True, exist_ok=True)
         self.memory_root = memory_root.resolve()
         self.actor = actor
+        self.village = VillageInitializer(
+            repo_root=self.repo_root,
+        )
+        self.village_status = self.village.inspect()
         self.local_model = local_model
         self.json_mode = json_mode
 
@@ -1323,6 +1328,7 @@ class ConversationalHokage:
             "lifecycle": lifecycle,
             "bootstrap": self.bootstrap_evidence,
             "mission_decision": self.latest_decision,
+            "private_village": self.village_status,
             "authority": {
                 "status_is_evidence_only": True,
                 "status_is_not_permission": True,
@@ -1389,6 +1395,14 @@ class ConversationalHokage:
         print("Hokage: Providers listos: " + (", ".join(ready) if ready else "ninguno"))
         print("Hokage: Perfil local recomendado: " + snapshot["local_model_recommendation"]["profile"])
         print("Hokage: Presupuesto pendiente de límites manuales; ahorro mínimo objetivo 30%.")
+        if not self.village_status["ready"]:
+            print(
+                "Hokage: No hay una aldea privada lista. "
+                "La creación requiere aprobación humana exacta."
+            )
+            print(
+                "Hokage: " + self.village_status["approval_phrase"]
+            )
         print("Escribí /help para controles de recuperación.")
         print("")
 
@@ -1408,6 +1422,17 @@ class ConversationalHokage:
                 continue
 
             lowered = text.lower()
+
+            if (
+                not self.village_status["ready"]
+                and text == self.village_status["approval_phrase"]
+            ):
+                self.village_status = self.village.initialize(text)
+                print(
+                    "Hokage: Aldea privada inicializada en "
+                    + self.village_status["village_root"]
+                )
+                continue
 
             if lowered in {"/exit", "/quit"}:
                 self.continuity.record_handoff(

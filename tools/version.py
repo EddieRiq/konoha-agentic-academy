@@ -1,4 +1,4 @@
 """Canonical Konoha product version."""
 
-VERSION = "3.5.1"
-TAG = "v3.5.1"
+VERSION = "3.6.0"
+TAG = "v3.6.0"

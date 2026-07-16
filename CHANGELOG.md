@@ -345,3 +345,12 @@ This project is early stage. Version numbers may be adjusted once the first publ
 
 - Aligned package, runtime and managed-installer versions.
 - Added a release-blocking canonical version contract.
+
+## [3.6.0]
+
+- Added constitutional authority and deterministic contracts.
+- Added supervised environment bootstrap, provider discovery and hardware analysis.
+- Added mission classification, provider/model proposals and economy estimates.
+- Added anti-loop, Jōnin review, telemetry and Teachback contracts.
+- Added supervised private village initialization.
+- Rebuilt the README and release documentation.

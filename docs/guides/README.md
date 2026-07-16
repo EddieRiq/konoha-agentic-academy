@@ -413,3 +413,5 @@ Do not hide doctrine changes inside guides.
 - [Conversational Hokage lifecycle](conversational_hokage_lifecycle.md)
 - [Conversational Hokage real supervised audit](conversational_hokage_real_supervised_audit.md)
 - [Canonical version and installation alignment](canonical_version_and_installation_alignment.md)
+- [v3.6.0 first run and private village](v3_6_0_first_run_and_private_village.md)
+- [v3.6.0 supervised mission runtime](v3_6_0_supervised_mission_runtime.md)

@@ -47,7 +47,7 @@ class ManagedDistributionTests(unittest.TestCase):
             encoding="utf-8",
         )
         (self.root / "tools/version.py").write_text(
-            'VERSION = "3.5.1"\n',
+            'VERSION = "3.6.0"\n',
             encoding="utf-8",
         )
         (self.venv / "bin").mkdir(parents=True)
@@ -196,7 +196,7 @@ class ManagedDistributionTests(unittest.TestCase):
             self.module.perform_upgrade(
                 self.state_file,
                 self.state,
-                target_version="v3.5.1",
+                target_version="v3.6.0",
                 allow_network=False,
                 confirm_upgrade=True,
                 approval_token=self.module.UPGRADE_TOKEN,
@@ -210,7 +210,7 @@ class ManagedDistributionTests(unittest.TestCase):
             self.module.perform_upgrade(
                 self.state_file,
                 self.state,
-                target_version="v3.5.1",
+                target_version="v3.6.0",
                 allow_network=True,
                 confirm_upgrade=True,
                 approval_token="WRONG",
@@ -282,8 +282,8 @@ class ManagedDistributionTests(unittest.TestCase):
         version = (ROOT / "tools/version.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn('version = "3.5.1"', pyproject)
-        self.assertIn('VERSION = "3.5.1"', version)
+        self.assertIn('version = "3.6.0"', pyproject)
+        self.assertIn('VERSION = "3.6.0"', version)
 
 
 
@@ -357,13 +357,13 @@ class CleanInstallSmokeTests(unittest.TestCase):
         )
         report = module.execute_smoke(
             ROOT,
-            expected_version="3.5.1",
+            expected_version="3.6.0",
         )
         self.assertEqual(
             report["status_code"],
             "CLEAN_INSTALL_SMOKE_PASSED",
         )
-        self.assertEqual(report["observed_version"], "3.5.1")
+        self.assertEqual(report["observed_version"], "3.6.0")
 
 
 if __name__ == "__main__":
