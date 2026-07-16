@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Provider Capacity Snapshot",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "captured_at",
+    "providers",
+    "hardware",
+    "local_model_recommendation",
+    "budget",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "provider_capacity_snapshot"
+    },
+    "captured_at": {
+      "type": "string"
+    },
+    "providers": {
+      "type": "array",
+      "minItems": 3
+    },
+    "hardware": {
+      "type": "object"
+    },
+    "local_model_recommendation": {
+      "type": "object"
+    },
+    "budget": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

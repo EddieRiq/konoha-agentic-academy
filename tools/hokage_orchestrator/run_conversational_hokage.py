@@ -39,6 +39,9 @@ from tools.hokage_orchestrator.intent import (  # noqa: E402
 from tools.hokage_orchestrator.lifecycle import (  # noqa: E402
     LifecycleStore,
 )
+from tools.hokage_orchestrator.bootstrap_runtime import (  # noqa: E402
+    HokageBootstrapRuntime,
+)
 from tools.hokage_orchestrator.skill_runtime import (  # noqa: E402
     ActionQueue,
     RuntimeBridge,
@@ -367,6 +370,11 @@ class ConversationalHokage:
         self.action_queue: Optional[ActionQueue] = None
         self.lifecycle: Optional[LifecycleStore] = None
         self.audit_flow: Optional[RealSupervisedAuditFlow] = None
+        self.bootstrap_runtime = HokageBootstrapRuntime(
+            state_root=state_root,
+            actor=actor,
+        )
+        self.bootstrap_evidence = self.bootstrap_runtime.collect()
         self.restore()
 
     def mission_dir(self, mission_id: str) -> Path:
@@ -1299,6 +1307,7 @@ class ConversationalHokage:
             ),
             "audit_flow": audit,
             "lifecycle": lifecycle,
+            "bootstrap": self.bootstrap_evidence,
             "authority": {
                 "status_is_evidence_only": True,
                 "status_is_not_permission": True,
@@ -1355,6 +1364,16 @@ class ConversationalHokage:
         print("Evidence before action. Safety overrides autonomy.")
         print("")
         print(f"Hokage: {session['greeting']}")
+        bootstrap_state = self.bootstrap_evidence["state"]
+        snapshot = self.bootstrap_evidence["snapshot"]
+        if bootstrap_state["first_use"]:
+            print("Hokage: Primera ejecución detectada; bootstrap privado completo.")
+        else:
+            print(f"Hokage: Reentrada detectada; sesión {bootstrap_state['session_count']}.")
+        ready = [p["provider"] for p in snapshot["providers"] if p["status"] == "ready"]
+        print("Hokage: Providers listos: " + (", ".join(ready) if ready else "ninguno"))
+        print("Hokage: Perfil local recomendado: " + snapshot["local_model_recommendation"]["profile"])
+        print("Hokage: Presupuesto pendiente de límites manuales; ahorro mínimo objetivo 30%.")
         print("Escribí /help para controles de recuperación.")
         print("")
 
