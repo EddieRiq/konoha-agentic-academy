@@ -381,6 +381,16 @@ class ConversationalHokage:
             actor=actor,
         )
         self.bootstrap_evidence = self.bootstrap_runtime.collect()
+        self.local_model_configuration = (
+            self.bootstrap_runtime.local_model_configuration(
+                self.bootstrap_evidence["snapshot"]
+            )
+        )
+        if self.local_model_configuration["selected_model"]:
+            self.local_model = self.local_model_configuration[
+                "selected_model"
+            ]
+            local_model = self.local_model
         self.decision_engine = MissionDecisionEngine(
             state_root=state_root,
             bootstrap_snapshot=self.bootstrap_evidence,
@@ -1393,7 +1403,20 @@ class ConversationalHokage:
             print(f"Hokage: Reentrada detectada; sesión {bootstrap_state['session_count']}.")
         ready = [p["provider"] for p in snapshot["providers"] if p["status"] == "ready"]
         print("Hokage: Providers listos: " + (", ".join(ready) if ready else "ninguno"))
-        print("Hokage: Perfil local recomendado: " + snapshot["local_model_recommendation"]["profile"])
+        local_model_config = self.bootstrap_runtime.local_model_configuration(snapshot)
+        print(
+            "Hokage: Perfil local recomendado: "
+            + local_model_config["recommended_profile"]
+            + " (recomendación, no selección)."
+        )
+        print(
+            "Hokage: Modelo local activo: "
+            + (local_model_config["selected_model"] or "ninguno")
+        )
+        print(
+            "Hokage: Usá /local-model para revisar o cambiar "
+            "la selección privada."
+        )
         print("Hokage: Presupuesto pendiente de límites manuales; ahorro mínimo objetivo 30%.")
         if not self.village_status["ready"]:
             print(
@@ -1434,6 +1457,50 @@ class ConversationalHokage:
                 )
                 continue
 
+
+            if lowered.startswith("/local-model"):
+                parts = text.split(maxsplit=1)
+                requested = parts[1] if len(parts) == 2 else "show"
+                try:
+                    configuration = (
+                        self.bootstrap_runtime.select_local_model(
+                            requested,
+                            self.bootstrap_evidence["snapshot"],
+                        )
+                    )
+                except ValueError as exc:
+                    print(f"Hokage: {exc}")
+                    continue
+
+                self.local_model_configuration = configuration
+                selected = configuration["selected_model"]
+                if selected:
+                    self.local_model = selected
+                    if hasattr(self, "decision_engine"):
+                        self.decision_engine.local_model = selected
+
+                print(
+                    "Hokage: Perfil recomendado: "
+                    + configuration["recommended_profile"]
+                )
+                print(
+                    "Hokage: Modelo local activo: "
+                    + (selected or "ninguno")
+                )
+                print(
+                    "Hokage: Modelos instalados: "
+                    + (
+                        ", ".join(configuration["installed_models"])
+                        if configuration["installed_models"]
+                        else "ninguno"
+                    )
+                )
+                print(
+                    "Hokage: Estado: "
+                    + configuration["selection_status"]
+                )
+                continue
+
             if lowered in {"/exit", "/quit"}:
                 self.continuity.record_handoff(
                     active_mission=self.active_mission,
@@ -1452,6 +1519,7 @@ class ConversationalHokage:
                     "/pending propuesta pendiente\n"
                     "/actions cola de acciones\n"
                     "/details detalle pendiente\n"
+                    "/local-model [modelo|clear] selección local\n"
                     "/exit    cerrar y escribir handoff"
                 )
                 continue

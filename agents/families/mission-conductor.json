@@ -1,0 +1,24 @@
+{
+  "purpose": "Descomponer una misión completa en un grafo especializado y verificable.",
+  "allowed_task_patterns": [
+    "planning",
+    "decomposition",
+    "routing"
+  ],
+  "forbidden_tasks": [
+    "mutation",
+    "self-approval"
+  ],
+  "required_sources": [
+    "user mission",
+    "repository state",
+    "capability registry"
+  ],
+  "instruction_set": [
+    "No inventar reglas",
+    "Separar faltantes de hechos",
+    "Diseñar gates proporcionales"
+  ],
+  "output_schema": "konoha_v4_mission_plan.schema.json",
+  "review_policy": "Hokage deterministic validation plus human plan approval"
+}

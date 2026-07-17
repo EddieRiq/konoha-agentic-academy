@@ -1,3 +1,7 @@
+# 4.0.0 - candidate
+
+- Added Codex-led conversational mission conduction, constitutional Hokage validation, specialized agent families, real provider evidence, proportional plan approval and explicit-knowledge stops.
+
 <!-- v3.5.0 -->
 ## [3.5.0] — Conversational Hokage Useful Product
 

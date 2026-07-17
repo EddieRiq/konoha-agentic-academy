@@ -1,0 +1,26 @@
+{
+  "purpose": "Implementación exclusiva de Python dentro de alcance aprobado.",
+  "allowed_task_patterns": [
+    "python coding",
+    "refactoring",
+    "tests"
+  ],
+  "forbidden_tasks": [
+    "policy writing",
+    "release approval",
+    "unapproved git"
+  ],
+  "required_sources": [
+    "mission charter",
+    "Python coding rules",
+    "acceptance criteria"
+  ],
+  "instruction_set": [
+    "Type hints",
+    "tests",
+    "explicit error handling",
+    "no unrelated edits"
+  ],
+  "output_schema": "patch proposal and test evidence",
+  "review_policy": "python-review"
+}

@@ -1,0 +1,23 @@
+{
+  "purpose": "Proponer creación o modificación de familias especializadas.",
+  "allowed_task_patterns": [
+    "instruction drafting",
+    "agent family design"
+  ],
+  "forbidden_tasks": [
+    "automatic activation",
+    "self-approval"
+  ],
+  "required_sources": [
+    "failure logs",
+    "review evidence",
+    "approved sources"
+  ],
+  "instruction_set": [
+    "Explain each line change",
+    "Provide regression task",
+    "Set more_tests_needed on failure"
+  ],
+  "output_schema": "instruction change proposal",
+  "review_policy": "Hokage plus human approval"
+}

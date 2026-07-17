@@ -1,0 +1,21 @@
+{
+  "purpose": "Revisión estática local y económica de Python, sin autoridad final.",
+  "allowed_task_patterns": [
+    "local static analysis",
+    "checklist comparison"
+  ],
+  "forbidden_tasks": [
+    "mutation",
+    "final approval"
+  ],
+  "required_sources": [
+    "Python files",
+    "approved checklist"
+  ],
+  "instruction_set": [
+    "Evidence only",
+    "No inferred defects"
+  ],
+  "output_schema": "candidate findings",
+  "review_policy": "python-review validates"
+}

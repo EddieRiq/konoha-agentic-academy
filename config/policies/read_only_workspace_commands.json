@@ -1,0 +1,68 @@
+{
+  "version": "4.0.0-candidate.2",
+  "workspace_default": "Current Git workspace is authorized for read-only inspection.",
+  "excluded_by_default": [
+    ".git/objects",
+    "alliance/kirigakure/",
+    "private-library/",
+    "memory/local/",
+    "vault/",
+    "sandbox/",
+    ".env",
+    "credentials",
+    "secrets"
+  ],
+  "categories": {
+    "filesystem_inspection": [
+      "pwd",
+      "ls",
+      "find",
+      "stat",
+      "wc",
+      "file"
+    ],
+    "text_inspection": [
+      "cat",
+      "sed",
+      "head",
+      "tail",
+      "grep",
+      "rg"
+    ],
+    "git_inspection": [
+      "git status",
+      "git diff",
+      "git show",
+      "git log",
+      "git branch",
+      "git tag",
+      "git ls-files",
+      "git rev-parse"
+    ],
+    "validation": [
+      "python -m unittest",
+      "python -m pytest",
+      "python -m json.tool"
+    ],
+    "provider_readiness": [
+      "codex --version",
+      "claude --version",
+      "ollama --version",
+      "ollama list"
+    ]
+  },
+  "forbidden_without_new_approval": [
+    "write",
+    "delete",
+    "chmod",
+    "package install",
+    "network",
+    "git add",
+    "git commit",
+    "git push",
+    "git tag",
+    "git merge",
+    "git checkout",
+    "git reset"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "purpose": "Revisión independiente de código Python.",
+  "allowed_task_patterns": [
+    "code review",
+    "test review",
+    "contract review"
+  ],
+  "forbidden_tasks": [
+    "editing implementation",
+    "self-approval"
+  ],
+  "required_sources": [
+    "implementation diff",
+    "Python rules",
+    "test evidence"
+  ],
+  "instruction_set": [
+    "Cite file and line",
+    "Separate defect from suggestion",
+    "Recommend instruction improvements"
+  ],
+  "output_schema": "review findings",
+  "review_policy": "human on material findings"
+}

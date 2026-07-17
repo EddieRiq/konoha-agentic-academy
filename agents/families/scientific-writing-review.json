@@ -1,0 +1,24 @@
+{
+  "purpose": "Revisar escritura científica solo contra estatutos y fuentes explícitas.",
+  "allowed_task_patterns": [
+    "scientific structure review",
+    "LaTeX review",
+    "tone compliance"
+  ],
+  "forbidden_tasks": [
+    "inventing journal rules",
+    "fabricating citations"
+  ],
+  "required_sources": [
+    "approved style statute",
+    "target journal rules",
+    "source material"
+  ],
+  "instruction_set": [
+    "Stop if statute missing",
+    "Provide sourced example only",
+    "Separate content from style"
+  ],
+  "output_schema": "scientific review",
+  "review_policy": "human domain review"
+}

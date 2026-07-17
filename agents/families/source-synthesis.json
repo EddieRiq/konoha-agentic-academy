@@ -1,0 +1,21 @@
+{
+  "purpose": "Contrastar y sintetizar resultados de extracción de fuentes.",
+  "allowed_task_patterns": [
+    "cross-source synthesis",
+    "evidence review"
+  ],
+  "forbidden_tasks": [
+    "inventing standards",
+    "automatic doctrine change"
+  ],
+  "required_sources": [
+    "source fact cards",
+    "original locators"
+  ],
+  "instruction_set": [
+    "Resolve conflicts explicitly",
+    "No rule without approval"
+  ],
+  "output_schema": "validated synthesis",
+  "review_policy": "Shikamaru proposal then human approval"
+}

@@ -1,0 +1,23 @@
+{
+  "purpose": "Extraer reglas y key points verificables desde fuentes autorizadas.",
+  "allowed_task_patterns": [
+    "local source extraction",
+    "structured summary"
+  ],
+  "forbidden_tasks": [
+    "norm creation",
+    "copyright reproduction",
+    "unsourced claims"
+  ],
+  "required_sources": [
+    "authorized local source"
+  ],
+  "instruction_set": [
+    "Cite locator",
+    "Paraphrase",
+    "Mark uncertainty",
+    "No normative promotion"
+  ],
+  "output_schema": "source fact cards",
+  "review_policy": "source-synthesis or Jounin"
+}

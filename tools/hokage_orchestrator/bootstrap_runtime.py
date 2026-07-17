@@ -194,6 +194,133 @@ class HokageBootstrapRuntime:
             "decision_authority": "human_user",
         }
 
+
+    @property
+    def local_model_config_path(self) -> Path:
+        return self.bootstrap_dir / "local_model_selection.json"
+
+    @staticmethod
+    def _installed_local_models(
+        snapshot: Dict[str, Any],
+    ) -> List[str]:
+        for provider in snapshot.get("providers", []):
+            if provider.get("provider") != "ollama":
+                continue
+            return [
+                str(model.get("name"))
+                for model in provider.get("models", [])
+                if model.get("name")
+            ]
+        return []
+
+    def local_model_configuration(
+        self,
+        snapshot: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        if snapshot is None:
+            if self.snapshot_path.exists():
+                snapshot = json.loads(
+                    self.snapshot_path.read_text(encoding="utf-8")
+                )
+            else:
+                snapshot = {}
+
+        recommendation = snapshot.get(
+            "local_model_recommendation",
+            {},
+        )
+        installed = self._installed_local_models(snapshot)
+
+        if self.local_model_config_path.exists():
+            payload = json.loads(
+                self.local_model_config_path.read_text(
+                    encoding="utf-8"
+                )
+            )
+        else:
+            payload = {
+                "schema_version": self.SCHEMA_VERSION,
+                "report_type": "local_model_selection",
+                "selection_status": "pending_human_selection",
+                "selected_model": None,
+                "recommended_profile": recommendation.get(
+                    "profile",
+                    "unknown",
+                ),
+                "selection_source": "none",
+                "approved_by_user": False,
+                "updated_at": utc_now(),
+                "authority": {
+                    "selection_requires_human_action": True,
+                    "selection_does_not_authorize_execution": True,
+                    "private_state_only": True,
+                },
+            }
+
+        selected = payload.get("selected_model")
+        if selected and selected not in installed:
+            payload["selection_status"] = "selected_model_unavailable"
+        payload["installed_models"] = installed
+        payload["recommended_profile"] = recommendation.get(
+            "profile",
+            payload.get("recommended_profile", "unknown"),
+        )
+        payload["recommendation"] = recommendation.get(
+            "recommendation",
+            "",
+        )
+        return payload
+
+    def select_local_model(
+        self,
+        value: str,
+        snapshot: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        configuration = self.local_model_configuration(snapshot)
+        installed = configuration["installed_models"]
+        requested = value.strip()
+
+        if requested in {"", "show"}:
+            return configuration
+
+        if requested in {"clear", "none"}:
+            selected = None
+            status = "disabled_by_user"
+            source = "human_clear"
+        elif requested == "recommended":
+            selected = None
+            status = "pending_human_model_selection"
+            source = "hardware_recommendation_only"
+        elif requested in installed:
+            selected = requested
+            status = "selected"
+            source = "human_selected"
+        else:
+            raise ValueError(
+                "Modelo local no instalado. Disponibles: "
+                + (", ".join(installed) if installed else "ninguno")
+            )
+
+        payload = {
+            "schema_version": self.SCHEMA_VERSION,
+            "report_type": "local_model_selection",
+            "selection_status": status,
+            "selected_model": selected,
+            "recommended_profile": configuration[
+                "recommended_profile"
+            ],
+            "selection_source": source,
+            "approved_by_user": True,
+            "updated_at": utc_now(),
+            "authority": {
+                "selection_requires_human_action": True,
+                "selection_does_not_authorize_execution": True,
+                "private_state_only": True,
+            },
+        }
+        write_json(self.local_model_config_path, payload)
+        return self.local_model_configuration(snapshot)
+
     def collect(self) -> Dict[str, Any]:
         now = utc_now()
         previous = {}

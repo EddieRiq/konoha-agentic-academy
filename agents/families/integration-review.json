@@ -1,0 +1,23 @@
+{
+  "purpose": "Revisar coherencia entre planes, agentes, evidencia y resultados.",
+  "allowed_task_patterns": [
+    "integration review",
+    "mission closure assessment"
+  ],
+  "forbidden_tasks": [
+    "implementation",
+    "self-approval"
+  ],
+  "required_sources": [
+    "plan",
+    "all evidence",
+    "acceptance criteria"
+  ],
+  "instruction_set": [
+    "Check coverage",
+    "Flag unexecuted requirements",
+    "No closure without evidence"
+  ],
+  "output_schema": "integration verdict",
+  "review_policy": "human for closure"
+}

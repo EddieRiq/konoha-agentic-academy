@@ -1,0 +1,44 @@
+{
+  "version": "4.0.0-candidate.2",
+  "policy": "Only demonstrated and explicitly approved capabilities may be routed.",
+  "models": [
+    {
+      "provider": "codex",
+      "model": "provider_default",
+      "eligible_families": [
+        "mission-conductor",
+        "python-implementation",
+        "integration-review",
+        "instruction-architect",
+        "jounin-review"
+      ],
+      "cost_class": "high",
+      "local": false,
+      "evidence": "human-approved provider contract required"
+    },
+    {
+      "provider": "claude",
+      "model": "provider_default",
+      "eligible_families": [
+        "python-review",
+        "source-synthesis",
+        "scientific-writing-review",
+        "jounin-review"
+      ],
+      "cost_class": "medium",
+      "local": false,
+      "evidence": "human-approved provider contract required"
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5-coder:7b",
+      "eligible_families": [
+        "source-extraction",
+        "python-static-review"
+      ],
+      "cost_class": "local",
+      "local": true,
+      "evidence": "local qualification required before production responsibility"
+    }
+  ]
+}
