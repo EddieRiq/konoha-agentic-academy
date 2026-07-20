@@ -4,6 +4,11 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from .context_acquisition import acquire_context
+from .continuity import (
+ MissionContinuityStore,
+ default_state_root,
+ plan_payload,
+)
 from .executor import execute_plan
 from .hokage import approval_summary, validate_plan
 from .planner import build_plan
@@ -66,6 +71,17 @@ def _persist_plan(path: Path, plan) -> None:
 
 def _approval_loop(repo: Path, state_dir: Path, mission_text: str, plan,
                    registry: CapabilityRegistry):
+    continuity = MissionContinuityStore.create(
+     state_dir,
+     plan.mission_id,
+     mission_text,
+     _repo_state(repo),
+    )
+    continuity.record_plan(
+     plan,
+     reason="initial_pending_approval",
+    )
+
     while True:
         print("\nCodex:")
         print(approval_summary(plan))
@@ -80,6 +96,7 @@ def _approval_loop(repo: Path, state_dir: Path, mission_text: str, plan,
                 "status": "rejected", "approved_by": None,
                 "approved_at": None, "feedback": None,
             })
+            continuity.record_approval("rejected")
             print("Hokage: Plan rechazado explícitamente. No se ejecutó ninguna herramienta.")
             return None
         if decision == "changes_requested":
@@ -87,6 +104,7 @@ def _approval_loop(repo: Path, state_dir: Path, mission_text: str, plan,
                 "status": "changes_requested", "approved_by": None,
                 "approved_at": None, "feedback": decision_text,
             })
+            continuity.record_requested_change(decision_text, plan)
             old_id = plan.plan_hash
             _persist_plan(
                 state_dir / "missions" / plan.mission_id / f"plan-{old_id}-changes-requested.json",
@@ -94,22 +112,42 @@ def _approval_loop(repo: Path, state_dir: Path, mission_text: str, plan,
             )
             print("Codex: Cambios recibidos. Replanificando; el nuevo plan requerirá aprobación.")
             try:
-                plan = build_plan(repo, mission_text, _repo_state(repo), registry, feedback=decision_text)
+                plan = build_plan(
+                 repo,
+                 mission_text,
+                 _repo_state(repo),
+                 registry,
+                 feedback=decision_text,
+                 continuity=continuity.planner_context(),
+                )
             except Exception as exc:
                 print(f"Konoha: No pude construir el plan revisado: {exc}")
                 return None
-            problems = validate_plan(plan, registry)
+            problems = (
+             continuity.validate_replanned_plan(plan)
+             + validate_plan(plan, registry)
+            )
             if problems:
+                continuity.record_validator_findings(problems, plan=plan)
                 print("Hokage: El plan revisado fue detenido.")
                 for problem in problems:
                     print(f"- {problem}")
                 return None
+            continuity.record_plan(
+             plan,
+             reason="human_requested_replan",
+            )
             continue
         plan.approval.update({
             "status": "approved", "approved_by": "human",
             "approved_at": datetime.now(timezone.utc).isoformat(),
             "feedback": None,
         })
+        continuity.record_approval(
+         "approved",
+         approved_by="human",
+         approved_at=plan.approval["approved_at"],
+        )
         return plan
 
 
@@ -125,6 +163,8 @@ def _build_validated_plan(
     feedback: str | None = None
     plan: MissionPlan | None = None
     problems: list[str] = []
+    finding_history: list[dict] = []
+    continuity_context: dict | None = None
 
     for attempt in range(1, MAX_PLAN_ATTEMPTS + 1):
         plan = build_plan(
@@ -133,6 +173,7 @@ def _build_validated_plan(
             state_summary,
             registry,
             feedback=feedback,
+         continuity=continuity_context,
         )
         problems = validate_plan(plan, registry)
 
@@ -146,6 +187,18 @@ def _build_validated_plan(
         if attempt >= MAX_PLAN_ATTEMPTS:
             return plan, problems, attempt
 
+        finding_history.append({
+         "attempt": attempt,
+         "findings": list(problems),
+        })
+        continuity_context = {
+         "schema_version": "1.0",
+         "original_request": mission_text,
+         "requested_changes_history": [],
+         "validator_findings_history": list(finding_history),
+         "previous_plan": plan_payload(plan),
+         "approval": {"status": "pending"},
+        }
         feedback = (
             "Hokage rechazó el plan por validación determinística. "
             "Conservá la misión y corregí exclusivamente estos problemas:\n"
@@ -158,7 +211,7 @@ def _build_validated_plan(
     return plan, problems, MAX_PLAN_ATTEMPTS
 
 def run(repo: Path) -> int:
-    state_dir = Path(os.environ.get("KONOHA_STATE_ROOT", repo / "alliance/kirigakure/memory/v4"))
+    state_dir = default_state_root()
     state_dir.mkdir(parents=True, exist_ok=True)
     registry = CapabilityRegistry(repo)
     source_result: dict = {}

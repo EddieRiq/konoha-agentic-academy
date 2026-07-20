@@ -54,15 +54,32 @@ Corregí exclusivamente los problemas informados. No inventes contexto, permisos
 familias, modelos ni evidencia. Devolvé siempre el plan completo corregido.
 
 No conviertas inferencias en hechos, reglas ni permisos. No propongas red, mutación o
-contexto privado sin declararlo. Devolvé exclusivamente JSON válido conforme al schema."""
+contexto privado sin declararlo.
 
-def build_plan(repo: Path, mission_text: str, state_summary: dict,
-               registry: CapabilityRegistry, feedback: str | None = None) -> MissionPlan:
+CONTINUIDAD DE MISIÓN:
+- mission_continuity es memoria operativa propiedad de Konoha.
+- Conservá original_request, mission_id, requested_changes_history,
+  validator_findings_history y las restricciones del previous_plan.
+- Los cambios son acumulativos. El feedback más reciente no reemplaza cambios anteriores.
+- Una sesión de provider es contexto auxiliar; nunca autoriza ejecución ni aprobación.
+- No declares mission completion desde memoria, resumen o provider session.
+
+Devolvé exclusivamente JSON válido conforme al schema."""
+
+def build_plan(
+ repo: Path,
+ mission_text: str,
+ state_summary: dict,
+ registry: CapabilityRegistry,
+ feedback: str | None = None,
+ continuity: dict | None = None,
+) -> MissionPlan:
     schema = repo / "schemas" / "runtime" / "konoha_v4_mission_plan.schema.json"
     acquired = acquire_context(repo, registry)
     context = {
         "mission": mission_text,
         "requested_changes": feedback,
+        "mission_continuity": continuity,
         "repository_state": state_summary,
         "acquired_context": acquired.as_dict(),
         "available_agent_families": registry.available_families(),

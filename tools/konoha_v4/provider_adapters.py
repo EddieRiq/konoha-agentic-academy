@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .continuity import default_state_root
+
 
 class ProviderError(RuntimeError):
     """Structured provider failure suitable for logs and user-facing summaries."""
@@ -176,12 +178,7 @@ def _run(
     timeout: int,
     provider: str,
 ) -> subprocess.CompletedProcess[str]:
-    state_root = Path(
-        os.environ.get(
-            "KONOHA_STATE_ROOT",
-            cwd / "alliance/kirigakure/state/konoha_v4",
-        )
-    )
+    state_root = default_state_root()
     temp_root = state_root / "tmp"
     temp_root.mkdir(parents=True, exist_ok=True)
 
