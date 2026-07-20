@@ -50,8 +50,8 @@ class MissionPlan:
         "private_state_root": "alliance/kirigakure/state/konoha_v4",
     })
     budget: dict[str, Any] = field(default_factory=lambda: {
-        "provider_totals": {},
-        "family_totals": {},
+        "provider_totals": [],
+        "family_totals": [],
         "replanning_reserve_tokens": 0,
         "maximum_total_tokens": 0,
     })

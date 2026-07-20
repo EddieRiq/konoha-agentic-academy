@@ -55,7 +55,8 @@
         "medium",
         "high",
         "strategic"
-      ]
+      ],
+      "type": "string"
     },
     "assignments": {
       "type": "array",
@@ -94,7 +95,8 @@
               "codex",
               "claude",
               "ollama"
-            ]
+            ],
+            "type": "string"
           },
           "model": {
             "type": "string"
@@ -144,7 +146,8 @@
               "low",
               "medium",
               "high"
-            ]
+            ],
+            "type": "string"
           },
           "fallback": {
             "type": "string",
@@ -175,7 +178,8 @@
           "git",
           "instruction_change",
           "budget_overage"
-        ]
+        ],
+        "type": "string"
       }
     },
     "estimated_tokens": {
@@ -188,7 +192,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "type": "string"
     },
     "rationale": {
       "type": "string"
@@ -209,7 +214,8 @@
             "approved",
             "rejected",
             "changes_requested"
-          ]
+          ],
+          "type": "string"
         },
         "approved_by": {
           "type": [
@@ -236,7 +242,8 @@
         "disabled",
         "optional",
         "required"
-      ]
+      ],
+      "type": "string"
     },
     "workspace_policy": {
       "type": "object",
@@ -248,6 +255,7 @@
       ],
       "properties": {
         "workspace_mutation_allowed": {
+          "type": "boolean",
           "const": false
         },
         "private_runtime_state_allowed": {
@@ -272,17 +280,49 @@
       ],
       "properties": {
         "provider_totals": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "integer",
-            "minimum": 0
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "provider",
+              "total_tokens"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string",
+                "enum": [
+                  "codex",
+                  "claude",
+                  "ollama"
+                ]
+              },
+              "total_tokens": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
           }
         },
         "family_totals": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "integer",
-            "minimum": 0
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "family",
+              "total_tokens"
+            ],
+            "properties": {
+              "family": {
+                "type": "string",
+                "minLength": 1
+              },
+              "total_tokens": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
           }
         },
         "replanning_reserve_tokens": {
@@ -304,10 +344,12 @@
       ],
       "properties": {
         "conductor": {
-          "const": "codex"
+          "const": "codex",
+          "type": "string"
         },
         "constitutional_authority": {
-          "const": "hokage"
+          "const": "hokage",
+          "type": "string"
         }
       }
     }

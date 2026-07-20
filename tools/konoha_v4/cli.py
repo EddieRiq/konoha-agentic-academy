@@ -13,3 +13,6 @@ def main(argv=None) -> int:
         print(__version__)
         return 0
     return run(Path(args.repo).resolve())
+
+if __name__ == "__main__":
+    raise SystemExit(main())

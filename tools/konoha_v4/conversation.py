@@ -112,6 +112,51 @@ def _approval_loop(repo: Path, state_dir: Path, mission_text: str, plan,
         })
         return plan
 
+
+MAX_PLAN_ATTEMPTS = 3
+
+
+def _build_validated_plan(
+    repo: Path,
+    mission_text: str,
+    state_summary: dict,
+    registry: CapabilityRegistry,
+) -> tuple[MissionPlan, list[str], int]:
+    feedback: str | None = None
+    plan: MissionPlan | None = None
+    problems: list[str] = []
+
+    for attempt in range(1, MAX_PLAN_ATTEMPTS + 1):
+        plan = build_plan(
+            repo,
+            mission_text,
+            state_summary,
+            registry,
+            feedback=feedback,
+        )
+        problems = validate_plan(plan, registry)
+
+        if not problems:
+            return plan, [], attempt
+
+        # No pedirle al modelo que invente una decisión, fuente o permiso humano.
+        if plan.missing_context:
+            return plan, problems, attempt
+
+        if attempt >= MAX_PLAN_ATTEMPTS:
+            return plan, problems, attempt
+
+        feedback = (
+            "Hokage rechazó el plan por validación determinística. "
+            "Conservá la misión y corregí exclusivamente estos problemas:\n"
+            + "\n".join(f"- {problem}" for problem in problems)
+        )
+
+    if plan is None:
+        raise RuntimeError("No se produjo ningún plan.")
+
+    return plan, problems, MAX_PLAN_ATTEMPTS
+
 def run(repo: Path) -> int:
     state_dir = Path(os.environ.get("KONOHA_STATE_ROOT", repo / "alliance/kirigakure/memory/v4"))
     state_dir.mkdir(parents=True, exist_ok=True)
@@ -140,11 +185,22 @@ def run(repo: Path) -> int:
             continue
         try:
             print("Konoha: Adquiriendo doctrina, políticas, familias y readiness dentro del workspace autorizado...")
-            plan = build_plan(repo, text, _repo_state(repo), registry)
+            plan, problems, attempts = _build_validated_plan(
+                repo,
+                text,
+                _repo_state(repo),
+                registry,
+            )
         except Exception as exc:
             print(f"Konoha: No pude construir un plan verificable: {exc}")
             continue
-        problems = validate_plan(plan, registry)
+
+        if attempts > 1:
+            print(
+                "Hokage: Codex corrigió el plan tras una validación "
+                "determinística; no se ejecutó ninguna tarea."
+            )
+
         if problems:
             print("Hokage: El plan fue detenido.")
             for problem in problems:

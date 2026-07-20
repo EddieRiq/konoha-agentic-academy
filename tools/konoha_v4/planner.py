@@ -27,11 +27,31 @@ ORDEN OBLIGATORIO:
 GOVERNANCE FIJA:
 {"conductor":"codex","constitutional_authority":"hokage"}
 
+SEPARACIÓN CONSTITUCIONAL:
+- Ningún assignment representa, ejecuta, simula ni delega a Hokage.
+- No incluyas "Hokage" en task_id ni objective de una tarea mission-conductor.
+- Un mission-conductor puede sintetizar evidencia y preparar un handoff neutral,
+  pero no puede aprobar, autorizar ni emitir una decisión constitucional.
+- La validación y aprobación constitucional ocurren fuera del grafo operativo.
+
+CONSISTENCIA PRESUPUESTARIA OBLIGATORIA:
+- estimated_total_tokens de cada assignment = input + output.
+- provider_totals debe sumar exactamente los assignments por provider.
+- family_totals debe sumar exactamente los assignments por family.
+- maximum_total_tokens = suma de assignments + replanning_reserve_tokens.
+- estimated_tokens = maximum_total_tokens.
+
 WORKSPACE POLICY FIJA:
 workspace_mutation_allowed=false; private_runtime_state_allowed=true.
 
 APPROVAL INICIAL:
 status=pending; approved_by=null; approved_at=null; feedback=null.
+
+REPLANIFICACIÓN:
+Si requested_changes no es null, el plan anterior fue rechazado por validación
+determinística de Hokage. Conservá la misión original, los límites y los gates.
+Corregí exclusivamente los problemas informados. No inventes contexto, permisos,
+familias, modelos ni evidencia. Devolvé siempre el plan completo corregido.
 
 No conviertas inferencias en hechos, reglas ni permisos. No propongas red, mutación o
 contexto privado sin declararlo. Devolvé exclusivamente JSON válido conforme al schema."""

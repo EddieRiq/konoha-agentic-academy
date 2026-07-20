@@ -59,9 +59,19 @@ def validate_plan(plan: MissionPlan, registry: CapabilityRegistry) -> list[str]:
 
     reserve = int(plan.budget.get("replanning_reserve_tokens", 0))
     maximum = int(plan.budget.get("maximum_total_tokens", 0))
-    if plan.budget.get("provider_totals") != provider_totals:
+
+    declared_provider_totals = {
+        item["provider"]: item["total_tokens"]
+        for item in plan.budget.get("provider_totals", [])
+    }
+    declared_family_totals = {
+        item["family"]: item["total_tokens"]
+        for item in plan.budget.get("family_totals", [])
+    }
+
+    if declared_provider_totals != provider_totals:
         problems.append("budget.provider_totals no coincide con las tareas.")
-    if plan.budget.get("family_totals") != family_totals:
+    if declared_family_totals != family_totals:
         problems.append("budget.family_totals no coincide con las tareas.")
     if maximum != task_total + reserve:
         problems.append("budget.maximum_total_tokens debe ser tareas + reserva.")
@@ -94,8 +104,13 @@ def approval_summary(plan: MissionPlan) -> str:
             f"clase {a.cost_class}; fallback: {a.fallback}"
         )
     lines += ["", "Presupuesto por provider:"]
-    for provider, total in sorted(plan.budget.get("provider_totals", {}).items()):
-        lines.append(f"- {provider}: {total} tokens")
+    for item in sorted(
+        plan.budget.get("provider_totals", []),
+        key=lambda value: value["provider"],
+    ):
+        lines.append(
+            f"- {item['provider']}: {item['total_tokens']} tokens"
+        )
     lines += [
         f"- Reserva de replanning: {plan.budget.get('replanning_reserve_tokens', 0)} tokens",
         f"- Máximo: {plan.budget.get('maximum_total_tokens', 0)} tokens",
