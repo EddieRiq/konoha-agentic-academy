@@ -1,5 +1,5 @@
 from __future__ import annotations
-from .models import MissionPlan
+from .models import EXECUTION_GATES, MissionPlan
 from .registry import CapabilityRegistry, RegistryError
 
 class ConstitutionalViolation(RuntimeError):
@@ -47,6 +47,11 @@ def validate_plan(plan: MissionPlan, registry: CapabilityRegistry) -> list[str]:
             problems.append(f"{a.task_id} usa red sin boundary network")
         if a.private_context and "private_context" not in plan.approval_boundaries:
             problems.append(f"{a.task_id} usa contexto privado sin boundary private_context")
+        if a.execution_gate not in EXECUTION_GATES:
+            problems.append(
+                f"{a.task_id}: execution_gate inválido: {a.execution_gate!r}. "
+                f"Valores permitidos: {sorted(EXECUTION_GATES)}."
+            )
         if not family.get("allowed_task_patterns"):
             problems.append(f"Familia sin allowed_task_patterns: {a.family}")
         if a.estimated_total_tokens != a.estimated_input_tokens + a.estimated_output_tokens:
@@ -103,6 +108,8 @@ def approval_summary(plan: MissionPlan) -> str:
             f"{a.estimated_output_tokens} output = {a.estimated_total_tokens}; "
             f"clase {a.cost_class}; fallback: {a.fallback}"
         )
+        gate_label = a.execution_gate if a.execution_gate in EXECUTION_GATES else "⚠ NO DECLARADO"
+        lines.append(f"  Gate de ejecución: {gate_label}")
     lines += ["", "Presupuesto por provider:"]
     for item in sorted(
         plan.budget.get("provider_totals", []),

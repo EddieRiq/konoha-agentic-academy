@@ -1,9 +1,30 @@
 from __future__ import annotations
 import json, subprocess, time
 from pathlib import Path
-from .models import EvidenceRecord, MissionPlan
+from .models import EXECUTION_GATES, EvidenceRecord, MissionPlan
 from .provider_adapters import invoke
 from .registry import CapabilityRegistry
+
+def _gate_satisfied(plan: MissionPlan, task) -> bool:
+    gate = task.execution_gate
+    if gate not in EXECUTION_GATES:
+        return False
+    if gate == "plan_approval":
+        return plan.approval.get("status") == "approved"
+    return False  # separate_human_approval: siempre bloqueado en este Patch A.
+
+def _blocked_evidence(plan: MissionPlan, task) -> EvidenceRecord:
+    now = time.time()
+    return EvidenceRecord.build(
+        mission_id=plan.mission_id, task_id=task.task_id,
+        provider=task.provider, model=task.model, status="blocked",
+        output=(
+            "Assignment execution gate bloqueado. "
+            f"task_id={task.task_id} execution_gate={task.execution_gate!r}."
+        ),
+        token_usage={}, command=[],
+        started_at=now, finished_at=now,
+    )
 
 def _git_status(repo: Path) -> str:
     cp = subprocess.run(
@@ -39,6 +60,15 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
 
 def execute_plan(repo: Path, plan: MissionPlan, registry: CapabilityRegistry,
                  state_dir: Path) -> list[EvidenceRecord]:
+    offenders = [task for task in plan.assignments if not _gate_satisfied(plan, task)]
+    if offenders:
+        evidence: list[EvidenceRecord] = []
+        for task in offenders:
+            record = _blocked_evidence(plan, task)
+            evidence.append(record)
+            _persist(state_dir, record)
+        return evidence
+
     evidence: list[EvidenceRecord] = []
     baseline = _git_status(repo)
     for task in plan.assignments:

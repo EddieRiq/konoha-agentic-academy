@@ -39,6 +39,7 @@ def _plan() -> MissionPlan:
                 estimated_input_tokens=100,
                 estimated_output_tokens=50,
                 estimated_total_tokens=150,
+                execution_gate="plan_approval",
             ),
         ],
         acceptance_criteria=["No hubo mutación."],

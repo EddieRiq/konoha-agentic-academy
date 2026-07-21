@@ -81,7 +81,8 @@
           "estimated_total_tokens",
           "cost_class",
           "fallback",
-          "stop_condition"
+          "stop_condition",
+          "execution_gate"
         ],
         "properties": {
           "task_id": {
@@ -156,6 +157,10 @@
           "stop_condition": {
             "type": "string",
             "minLength": 1
+          },
+          "execution_gate": {
+            "type": "string",
+            "enum": ["plan_approval", "separate_human_approval"]
           }
         }
       }

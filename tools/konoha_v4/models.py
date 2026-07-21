@@ -5,6 +5,7 @@ import hashlib, json, uuid
 
 APPROVAL_STATES = {"pending", "approved", "rejected", "changes_requested"}
 TEACHBACK_POLICIES = {"disabled", "optional", "required"}
+EXECUTION_GATES = {"plan_approval", "separate_human_approval"}
 
 @dataclass(frozen=True)
 class AgentAssignment:
@@ -25,6 +26,7 @@ class AgentAssignment:
     cost_class: str = "low"
     fallback: str = "stop"
     stop_condition: str = "boundary crossing or unavailable required evidence"
+    execution_gate: str = ""
 
 @dataclass
 class MissionPlan:
