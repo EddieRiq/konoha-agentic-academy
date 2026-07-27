@@ -14,7 +14,7 @@ from .models import (
     MissionPlan,
 )
 from .provider_adapters import invoke
-from .registry import CapabilityRegistry
+from .registry import CapabilityRegistry, RegistryError
 
 def _gate_satisfied(plan: MissionPlan, task) -> bool:
     gate = task.execution_gate
@@ -873,14 +873,33 @@ class _MissionLock:
 
 @dataclass(frozen=True)
 class ExecutionAttempt:
-    """The outer, per-call result reserved for the future
-    execute_or_resume_plan integration in E5 - not implemented in this
-    checkpoint.
+    """The outer, per-call result of execute_or_resume_plan.
 
-    Not a per-task record - EvidenceRecord already is that. state is None
-    only for unsafe_mission_id / lock_acquire_error / lock_busy /
-    state_load_error / empty_plan_assignments; every other outcome carries
-    the real ExecutionState. diagnostic is never empty.
+    Not a per-task record - EvidenceRecord already is that. Each call
+    resolves at most one gate or runs at most one assignment; driving a
+    mission to completion means calling execute_or_resume_plan repeatedly.
+
+    state is the last ExecutionState the runtime considers coherent for
+    this call - not a guarantee that it is durably persisted:
+      - it is None only when no state could be established at all
+        (diagnostic in {"unsafe_mission_id", "lock_acquire_error",
+        "lock_busy", "plan_load_error", "state_load_error",
+        "empty_plan_assignments"}, or "lock_release_error" layered on top
+        of one of those).
+      - a diagnostic ending in "_persist_failed" means a write was
+        attempted and failed - the returned state was not (or not yet)
+        made durable by this call.
+      - "plan_approval_not_satisfied" never even attempts a write, by
+        design (see execute_or_resume_plan) - for a brand-new mission this
+        can return a state that has never touched disk at all, not just
+        one whose last write failed.
+      - "lock_release_error" always preserves state/evidence exactly as
+        already computed by this same call, whichever of the above (or
+        none of them) applies.
+    invoke is never called before "executing" is durably persisted, and a
+    persistence failure after invoke never triggers an automatic
+    re-invocation - the next call always finds status=="executing" on disk
+    and routes to recovery_required instead. diagnostic is never empty.
     """
     state: ExecutionState | None
     evidence: tuple[EvidenceRecord, ...]
@@ -919,6 +938,11 @@ def _state_with_timestamp(state: ExecutionState, updated_at: str, **changes) -> 
     return replace(state, updated_at=updated_at, **changes)
 
 
+# Not called by execute_or_resume_plan: a plan_approval-gated task whose
+# plan isn't approved yet stays in_progress unmutated instead (see
+# execute_or_resume_plan's "plan_approval_not_satisfied" path), so that it
+# stays resumable. Kept for a possible future explicit operator-pause
+# capability.
 def _transition_to_blocked(
     state: ExecutionState, task: AgentAssignment, reason: str, updated_at: str,
 ) -> ExecutionState:
@@ -1073,3 +1097,255 @@ def _recovery_result(state: ExecutionState, diagnostic: str, updated_at: str) ->
         status="recovery_required",
         diagnostic=diagnostic,
     )
+
+
+# ---------------------------------------------------------------------------
+# Patch B - Resumable Execution Runtime: execute_or_resume_plan
+#
+# The orchestrator. Every call does at most one gate resolution or one
+# assignment run, persisting each intermediate transition (including
+# "executing", written before invoke ever runs) so a crash between any two
+# disk writes is always safely recoverable by the next call - see the
+# persistence-failure diagnostics below and docs/guides/
+# konoha_v4_resumable_execution_runtime.md.
+# ---------------------------------------------------------------------------
+
+
+def _try_save_execution_state(state_dir: Path, state: ExecutionState) -> bool:
+    """_save_execution_state's real, unwrapped failure surface is OSError
+    (mkdir/open/write/replace) - verified by reading its source, not
+    assumed. Reports success/failure instead of propagating, so the caller
+    can fail closed with a stable diagnostic instead of crashing."""
+    try:
+        _save_execution_state(state_dir, state)
+        return True
+    except OSError:
+        return False
+
+
+def _try_persist_evidence(state_dir: Path, record: EvidenceRecord) -> bool:
+    """_persist's real, unwrapped failure surface is OSError (mkdir/
+    write_text) - verified the same way."""
+    try:
+        _persist(state_dir, record)
+        return True
+    except OSError:
+        return False
+
+
+def _execute_or_resume_plan_locked(
+    repo: Path,
+    state_dir: Path,
+    mission_id: str,
+    registry: CapabilityRegistry,
+    approval: AssignmentApproval | None,
+) -> ExecutionAttempt:
+    """One resumable step. Assumes the mission lock is already held by the
+    caller - never acquires or releases it. See execute_or_resume_plan."""
+    now = utc_now()
+
+    try:
+        plan = load_persisted_plan(state_dir, mission_id)
+    except MissionLookupError:
+        return ExecutionAttempt(state=None, evidence=(), diagnostic="plan_load_error")
+
+    if not plan.assignments:
+        return ExecutionAttempt(state=None, evidence=(), diagnostic="empty_plan_assignments")
+
+    try:
+        existing_state = _load_execution_state(state_dir, mission_id)
+    except ExecutionStateError:
+        return ExecutionAttempt(state=None, evidence=(), diagnostic="state_load_error")
+
+    # _new_execution_state can never itself fail invariants for a non-empty
+    # plan (every field it sets is exactly what a fresh in_progress state
+    # requires) - so an invariant failure below always has a real prior
+    # persisted state behind it, and _recover always has something
+    # meaningful to build a recovery_required state from.
+    state = existing_state if existing_state is not None else _new_execution_state(plan, now)
+
+    def _recover(diagnostic: str) -> ExecutionAttempt:
+        new_state = _recovery_result(state, diagnostic, now)
+        if not _try_save_execution_state(state_dir, new_state):
+            return ExecutionAttempt(state=state, evidence=(), diagnostic="recovery_persist_failed")
+        return ExecutionAttempt(state=new_state, evidence=(), diagnostic=diagnostic)
+
+    invariant_error = _validate_execution_state_invariants(plan, state)
+    if invariant_error is not None:
+        return _recover(invariant_error)
+
+    if state.status in NON_RESUMABLE_EXECUTION_STATUSES:
+        return ExecutionAttempt(
+            state=state, evidence=(), diagnostic=f"non_resumable_status:{state.status}",
+        )
+
+    if state.status == "executing":
+        # The previous call persisted "executing" before invoking the
+        # provider and never reached the next persisted transition - crash,
+        # kill, or a persistence failure after invoke. Never re-invoke
+        # blindly; a human must reconcile.
+        return _recover("interrupted_while_executing")
+
+    evidence_diagnostic, completed_records = _verify_completed_evidence(state_dir, plan, state)
+    if evidence_diagnostic is not None:
+        return _recover(evidence_diagnostic)
+
+    if state.next_assignment_index >= len(plan.assignments):
+        # Passed invariants but has nothing left to do without being
+        # "completed" - only reachable via external tampering, never via our
+        # own transitions. Fail closed instead of an IndexError.
+        return _recover("cursor_exhausted_without_completed_status")
+
+    current_task = plan.assignments[state.next_assignment_index]
+    approval_id_to_consume: str | None = None
+
+    def _fail_before_execution(diagnostic: str, consumed: str | None) -> ExecutionAttempt:
+        new_state = _transition_to_failed_before_execution(
+            state, current_task, diagnostic, consumed, now,
+        )
+        if not _try_save_execution_state(state_dir, new_state):
+            return ExecutionAttempt(
+                state=state, evidence=(), diagnostic="failed_before_execution_persist_failed",
+            )
+        return ExecutionAttempt(state=new_state, evidence=(), diagnostic=diagnostic)
+
+    if current_task.execution_gate == "plan_approval":
+        if plan.approval.get("status") != "approved":
+            # Never mutated, never persisted: plan.json is re-read fresh on
+            # every call, so approving it through the normal approval path
+            # and calling again is enough to make progress.
+            return ExecutionAttempt(
+                state=state, evidence=(), diagnostic="plan_approval_not_satisfied",
+            )
+        new_state = _transition_to_executing(state, current_task, None, now)
+        if not _try_save_execution_state(state_dir, new_state):
+            return ExecutionAttempt(state=state, evidence=(), diagnostic="executing_persist_failed")
+        state = new_state
+
+    elif current_task.execution_gate == "separate_human_approval":
+        if state.status != "waiting_for_approval":
+            nonce = secrets.token_hex(16)
+            new_state = _transition_to_waiting(
+                state, current_task, nonce, "esperando aprobación humana", now,
+            )
+            if not _try_save_execution_state(state_dir, new_state):
+                return ExecutionAttempt(state=state, evidence=(), diagnostic="waiting_persist_failed")
+            return ExecutionAttempt(state=new_state, evidence=(), diagnostic="waiting_for_approval")
+
+        if approval is None:
+            return ExecutionAttempt(state=state, evidence=(), diagnostic="waiting_for_approval")
+
+        valid, approval_id, reason = _validate_assignment_approval(approval, plan, state, current_task)
+        if not valid:
+            # _validate_assignment_approval is pure and never mutates state;
+            # returning it unchanged keeps the mission waiting so the
+            # operator can retry.
+            return ExecutionAttempt(state=state, evidence=(), diagnostic=reason)
+
+        approval_id_to_consume = approval_id
+        new_state = _transition_to_executing(state, current_task, approval_id, now)
+        if not _try_save_execution_state(state_dir, new_state):
+            return ExecutionAttempt(state=state, evidence=(), diagnostic="executing_persist_failed")
+        state = new_state
+
+    else:
+        # Unreachable given AgentAssignment.execution_gate is schema/
+        # validator constrained to EXECUTION_GATES; defensive fail-closed
+        # exit regardless.
+        return _fail_before_execution("unknown_execution_gate", None)
+
+    try:
+        family = registry.agent_family(current_task.family)
+    except RegistryError:
+        return _fail_before_execution("unknown_agent_family", approval_id_to_consume)
+
+    baseline = _git_status(repo)
+    evidence = _run_assignment(repo, plan, current_task, family, completed_records, baseline)
+
+    if not _try_persist_evidence(state_dir, evidence):
+        # invoke already ran and state is still the persisted "executing"
+        # snapshot - the next call will see status=="executing" and route to
+        # interrupted_while_executing, never re-invoking.
+        return ExecutionAttempt(state=state, evidence=(), diagnostic="evidence_persist_failed")
+
+    finished_at = utc_now()
+    if evidence.status == "completed":
+        new_state = _transition_after_completed_assignment(
+            state, plan, current_task, evidence, approval_id_to_consume, finished_at,
+        )
+    else:
+        new_state = _transition_after_failed_assignment(
+            state, plan, current_task, evidence, approval_id_to_consume, finished_at,
+        )
+
+    if not _try_save_execution_state(state_dir, new_state):
+        # Evidence is safely on disk and state is still "executing" - same
+        # recovery path as evidence_persist_failed on the next call, with
+        # the evidence available for manual reconciliation.
+        return ExecutionAttempt(
+            state=state, evidence=(evidence,), diagnostic="final_transition_persist_failed",
+        )
+
+    return ExecutionAttempt(state=new_state, evidence=(evidence,), diagnostic=evidence.status)
+
+
+def execute_or_resume_plan(
+    repo: Path,
+    state_dir: Path,
+    mission_id: str,
+    registry: CapabilityRegistry,
+    approval: AssignmentApproval | None = None,
+) -> ExecutionAttempt:
+    """Resumable, crash-safe execution of one mission, one step per call.
+
+    Call repeatedly (the same way for a brand-new mission or one resumed
+    after a restart) until state.status is a terminal or paused status.
+
+    Acquires the mission lock and always attempts to release it via
+    try/finally-equivalent control flow, regardless of whether
+    _execute_or_resume_plan_locked returns normally or raises anything -
+    including KeyboardInterrupt/SystemExit, since this runtime is driven
+    from an interactive terminal. An unexpected exception from it (or from
+    _git_status/registry/invoke underneath it) is never converted into a
+    fabricated success:
+      - body returns normally, release fails: returns an ExecutionAttempt
+        with diagnostic="lock_release_error", preserving state/evidence
+        exactly as already computed;
+      - body raises, release succeeds: the original exception propagates
+        unchanged;
+      - body raises, release also fails: the original exception still
+        propagates (never replaced by a fabricated result), chained to the
+        release failure via `raise ... from ...` so both are observable
+        (release_exc is raised.__cause__). ExceptionGroup/except* (PEP 654)
+        is not used - this repo supports Python >=3.10 and that syntax
+        requires 3.11+.
+    """
+    try:
+        _validate_mission_id(mission_id)
+    except MissionLookupError:
+        return ExecutionAttempt(state=None, evidence=(), diagnostic="unsafe_mission_id")
+
+    lock = _MissionLock(state_dir, mission_id)
+    try:
+        acquired = lock.acquire()
+    except ExecutionStateError:
+        return ExecutionAttempt(state=None, evidence=(), diagnostic="lock_acquire_error")
+    if not acquired:
+        return ExecutionAttempt(state=None, evidence=(), diagnostic="lock_busy")
+
+    try:
+        attempt = _execute_or_resume_plan_locked(repo, state_dir, mission_id, registry, approval)
+    except BaseException as body_exc:
+        try:
+            lock.release()
+        except ExecutionStateError as release_exc:
+            raise body_exc from release_exc
+        raise
+    else:
+        try:
+            lock.release()
+        except ExecutionStateError:
+            return ExecutionAttempt(
+                state=attempt.state, evidence=attempt.evidence, diagnostic="lock_release_error",
+            )
+        return attempt
