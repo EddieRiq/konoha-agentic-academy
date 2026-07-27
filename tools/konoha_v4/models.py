@@ -7,6 +7,17 @@ APPROVAL_STATES = {"pending", "approved", "rejected", "changes_requested"}
 TEACHBACK_POLICIES = {"disabled", "optional", "required"}
 EXECUTION_GATES = {"plan_approval", "separate_human_approval"}
 
+EXECUTION_STATE_SCHEMA_VERSION = "1.0"
+EXECUTION_STATUSES = {
+    "in_progress",
+    "waiting_for_approval",
+    "executing",
+    "completed",
+    "failed",
+    "blocked",
+    "recovery_required",
+}
+
 @dataclass(frozen=True)
 class AgentAssignment:
     task_id: str
@@ -93,3 +104,47 @@ class EvidenceRecord:
             output_hash=hashlib.sha256(output.encode()).hexdigest(),
             **kwargs,
         )
+
+
+@dataclass
+class ExecutionState:
+    """Persisted, resumable progress of a single mission's execution.
+
+    Progress tracking only: by itself this never satisfies
+    separate_human_approval - see executor.py.
+    """
+    schema_version: str
+    mission_id: str
+    plan_identity: str
+    status: str
+    next_assignment_index: int
+    completed_task_ids: list[str] = field(default_factory=list)
+    pending_task_id: str | None = None
+    pending_execution_gate: str | None = None
+    approval_nonce: str | None = None
+    active_approval_id: str | None = None
+    consumed_approval_ids: list[str] = field(default_factory=list)
+    evidence_ids_by_task: dict[str, str] = field(default_factory=dict)
+    executing_task_id: str | None = None
+    pause_reason: str | None = None
+    diagnostic: str | None = None
+    updated_at: str = ""
+
+
+@dataclass(frozen=True)
+class AssignmentApproval:
+    """A human's explicit, single-use authorization for one gated assignment.
+
+    Carries no authenticated operator identity, only a descriptive
+    approval_source. Validity is decided by
+    executor._validate_assignment_approval against the persisted
+    ExecutionState, never by this object alone.
+    """
+    mission_id: str
+    task_id: str
+    execution_gate: str
+    plan_identity: str
+    approval_nonce: str
+    approval_text: str
+    approval_source: str
+    approved_at: str
