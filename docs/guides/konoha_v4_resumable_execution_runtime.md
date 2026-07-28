@@ -122,7 +122,7 @@ it.
 | `executing` | A task is, or was, actively running. | Never re-invoked automatically. On the next call, the runtime attempts to transition an inherited `executing` state to `recovery_required`. |
 | `completed` | Every assignment finished successfully. | No. |
 | `failed` | The current task's evidence was not `completed` (e.g. `workspace_mutation_detected`, a provider error). | No. |
-| `blocked` | Reserved for a future explicit operator-pause capability; not produced by this runtime today. | No. |
+| `blocked` | The provider's own structured result declared `outcome` `blocked` or `changes_requested`, or the task's `mutation=true` was rejected before invocation. See "Outcome → runtime state mapping" and "Mutation (not yet supported)" below. | No. |
 | `recovery_required` | See below. | No. |
 
 ## `recovery_required`
@@ -213,6 +213,175 @@ the mission as completed. The next *separate* call (a fresh `--resume`)
 re-reads disk from scratch and reacts to whatever was actually durably
 persisted - never to anything held only in the previous process's memory.
 
+## Structured assignment result
+
+Every assignment invocation must return exactly one JSON object with these
+six keys - no more, no fewer - and nothing outside that JSON:
+
+- `outcome`: `"completed"`, `"blocked"`, `"failed"`, or `"changes_requested"`.
+- `objective_satisfied`: `true` only when `outcome == "completed"`, `false`
+  for every other outcome.
+- `summary`: non-empty string.
+- `diagnostic`: string or `null` - the model's own free-text note. This
+  field is evidence, never authority: the runtime never reads it to decide
+  anything, and never substring-scans it (or `summary`) for words like
+  "blocked". Only the structured `outcome`/`review_outcome` fields, checked
+  against the deterministic rules below, decide the runtime's own
+  diagnostic and state.
+- `evidence`: array of `{source, observation}` pairs (both non-empty
+  strings), possibly empty.
+- `review_outcome`: `"approved"`, `"approved_with_notes"`,
+  `"changes_requested"`, `"blocked"`, or `null` - see "Jounin review
+  contract" below.
+
+The schema lives at
+`schemas/runtime/konoha_v4_assignment_result.schema.json` and is
+deliberately portable (`type`/`required`/`enum`/`minLength`/
+`additionalProperties: false` only, no `allOf`/`if`/`then`) - every
+cross-field correlation is enforced in Python, not in the schema. Codex is
+invoked with `--output-schema` pointing at this file (resolved from
+Konoha's own installation, never from the target workspace being audited,
+which may be an external repository with no `schemas/` directory of its
+own). Claude and Ollama have no equivalent CLI-level enforcement, so they
+are subject to the exact same Python validation as Codex - an unstructured
+response from either fails closed identically.
+
+Three distinct parse/validation failures, each with its own stable
+diagnostic:
+
+- **`invalid_result_json`**: the provider's output is not valid JSON.
+- **`invalid_result_schema`**: valid JSON, but it doesn't match the six-key
+  structural contract (missing/extra keys, wrong types, or an `outcome`/
+  `review_outcome` outside its enum). Type is always checked before enum
+  membership, so an unhashable value (a JSON array or object where a
+  string was expected) fails closed as `invalid_result_schema` instead of
+  raising `TypeError`.
+- **`contradictory_result_fields`**: structurally valid, but the
+  cross-field rules below (outcome/family/review_outcome correlation)
+  aren't satisfied.
+
+Each parse/validation failure produces `EvidenceRecord.status="failed"`
+after provider invocation. Post-invoke Git failures and workspace
+mismatches also produce failed evidence. A Git baseline failure occurs
+before provider invocation and transitions the execution state directly to
+`failed`; the legacy `execute_plan` path separately returns one failed
+evidence record for that condition.
+
+## Outcome → runtime state mapping
+
+| `outcome` | `EvidenceRecord.status` | `ExecutionState.status` | `diagnostic` |
+|---|---|---|---|
+| `completed` (with `objective_satisfied=true`) | `completed` | advances normally (`in_progress` or `completed`) | `completed` |
+| `blocked` | `blocked` | `blocked` | `blocked` |
+| `changes_requested` | `blocked` | `blocked` | `changes_requested` |
+| `failed` | `failed` | `failed` | `assignment_failed` |
+
+`blocked` and `changes_requested` both stop the mission exactly like
+`failed` does - `blocked` is a `NON_RESUMABLE_EXECUTION_STATUSES` member,
+so no later assignment in the plan ever runs once one of these is reached.
+The only difference between the two is the `diagnostic` string, which is
+what a human reviewing the mission uses to tell "the provider itself
+declared it can't proceed" (`blocked`) apart from "a review found
+something that needs changes" (`changes_requested`).
+
+`diagnostic` is always one of a fixed, code-owned set of reason codes -
+never the model's own free-text `diagnostic`/`summary` fields. The failure
+and stop reason codes used across this contract are: `invalid_result_json`,
+`invalid_result_schema`, `contradictory_result_fields`, `process_error`
+(the provider process itself failed to run), `assignment_failed`,
+`git_status_timeout`, `git_status_failed`, `workspace_mutation_detected`,
+`blocked`, `changes_requested`, `mutation_runtime_not_supported`.
+
+## Jounin review contract
+
+Assignments whose `family` is `jounin-review` carry an additional,
+mandatory correlation between `review_outcome` and `outcome`/
+`objective_satisfied`:
+
+| `review_outcome` | required `outcome` | required `objective_satisfied` |
+|---|---|---|
+| `approved` or `approved_with_notes` | `completed` | `true` |
+| `blocked` | `blocked` | `false` |
+| `changes_requested` | `changes_requested` | `false` |
+
+A `jounin-review` assignment with `review_outcome=null`, or with any other
+mismatch between `review_outcome` and `outcome`/`objective_satisfied`,
+fails as `contradictory_result_fields`.
+
+For every other family, `review_outcome` must be `null` - a non-`null`
+`review_outcome` on a non-`jounin-review` assignment is itself a
+`contradictory_result_fields` failure.
+
+## Mutation (not yet supported)
+
+`AgentAssignment.mutation=true` is not runnable in this Patch - there is no
+isolated worktree runtime yet, so nothing may write to the audited
+workspace (including the primary checkout). This is enforced twice,
+deterministically:
+
+- **Before plan approval**: `hokage.validate_plan` rejects any
+  `mutation=true` assignment unconditionally - not even declaring
+  `"mutation"` in `approval_boundaries` allows it through. A plan
+  containing one is never offered to a human for approval.
+- **Before invocation, as defense in depth**: `execute_or_resume_plan`
+  checks `current_task.mutation` before any gate/approval logic, before
+  resolving the agent family, before the Git baseline, and before
+  `invoke`. If true, the mission transitions straight to
+  `ExecutionState.status="blocked"`,
+  `diagnostic="mutation_runtime_not_supported"` - the provider is never
+  invoked, `"executing"` is never persisted, and a supplied
+  `separate_human_approval` is neither validated nor consumed (a mutating
+  task never even reaches `waiting_for_approval`). The legacy
+  `execute_plan` path applies the same rejection: it scans for the first
+  `mutation=true` assignment before its normal preflight and, if found,
+  persists exactly one `blocked` evidence record for it and stops - no
+  `invoke` call, no evidence for any other task.
+
+Supporting real mutation in the future requires an isolated worktree
+(never the primary checkout) and a separate, explicit human approval to
+apply the resulting diff back - not a relaxation of this gate.
+
+## Git integrity gate
+
+Git status verification belongs to the runtime, not to the provider - the
+per-assignment prompt no longer asks the model to compare git status
+before/after; it explicitly states that the before/after integrity check
+is the runtime's responsibility. The provider must not reproduce that gate
+with its own `git status` calls or model-selected timeouts. This does not
+prohibit a read-only assignment from inspecting Git metadata when that
+inspection is part of its explicit objective.
+
+`_git_status` (`tools/konoha_v4/executor.py`):
+
+- runs `git -c core.fsmonitor=false status --short --untracked-files=all`
+  (untracked files count, not just tracked changes);
+- with `GIT_OPTIONAL_LOCKS=0` set in the subprocess environment;
+- under a configurable timeout whose runtime default is 120 seconds;
+- fails closed on either a non-zero exit code or a timeout - it raises
+  `GitStatusError` in both cases and can never return a string after
+  either, so an empty result can never be misread as a clean tree.
+
+The runtime captures a Git baseline **before** persisting `"executing"`,
+and checks again after `invoke` returns:
+
+- **Baseline failure** (before `"executing"` is ever persisted): the
+  mission goes straight to `ExecutionState.status="failed"` with
+  `diagnostic` set to `git_status_timeout` or `git_status_failed`. The
+  provider is never invoked, `"executing"` is never persisted, and a
+  supplied `separate_human_approval` is validated but never consumed.
+  This never resolves to `recovery_required` - there is nothing to
+  recover from, since nothing was ever persisted as in-flight.
+- **Post-invoke failure**: `invoke` already ran; the second `_git_status`
+  call raising is caught (not propagated) and produces a normal
+  `EvidenceRecord.status="failed"` with `diagnostic` set to
+  `git_status_timeout` or `git_status_failed`, going through the same
+  evidence/state pipeline as any other post-invoke failure.
+- **Post-invoke mismatch** (both calls succeed, but the output differs):
+  `EvidenceRecord.status="failed"`,
+  `diagnostic="workspace_mutation_detected"` - the workspace changed
+  during what was supposed to be a read-only assignment, and this
+  overrides whatever outcome the structured result itself claimed.
+
 ## Known limitations
 
 - **Evidence missing after `evidence_persist_failed`**: `invoke` ran but
@@ -230,5 +399,16 @@ persisted - never to anything held only in the previous process's memory.
 - **`recovery_required` always requires manual reconciliation** - there is
   no automated repair path, by design: the runtime would rather stop than
   guess.
-- `blocked` is not produced by `execute_or_resume_plan` today - it remains
-  reserved for a possible future explicit pause capability.
+- **No mutation runtime yet**: `mutation=true` assignments are always
+  rejected before invocation (see "Mutation (not yet supported)" below) -
+  there is no isolated worktree, and this Patch does not add one.
+- **Structured results are still model evidence, not authority**: the
+  outcome/review_outcome contract narrows what a provider's own claim can
+  mean, but the claim itself still comes from the model; the runtime
+  never trusts free text, only the structured fields checked against
+  fixed, deterministic rules.
+- **No autonomous execution, daemon, or web server**: this Patch adds no
+  new entry point beyond `execute_or_resume_plan`'s existing one-step-per-
+  call contract, and no way to bypass `plan_approval` or
+  `separate_human_approval` - every gate documented above still applies
+  exactly as before.

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Konoha v4 Assignment Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "outcome",
+    "objective_satisfied",
+    "summary",
+    "diagnostic",
+    "evidence",
+    "review_outcome"
+  ],
+  "properties": {
+    "outcome": {
+      "type": "string",
+      "enum": ["completed", "blocked", "failed", "changes_requested"]
+    },
+    "objective_satisfied": {
+      "type": "boolean"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "diagnostic": {
+      "type": ["string", "null"]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "observation"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observation": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "review_outcome": {
+      "type": ["string", "null"],
+      "enum": ["approved", "approved_with_notes", "changes_requested", "blocked", null]
+    }
+  }
+}

@@ -4,11 +4,14 @@ from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 from .continuity import utc_now
 from .models import (
+    ASSIGNMENT_RESULT_OUTCOMES,
+    ASSIGNMENT_REVIEW_OUTCOMES,
     EXECUTION_GATES,
     EXECUTION_STATE_SCHEMA_VERSION,
     EXECUTION_STATUSES,
     AgentAssignment,
     AssignmentApproval,
+    AssignmentResult,
     EvidenceRecord,
     ExecutionState,
     MissionPlan,
@@ -37,12 +40,147 @@ def _blocked_evidence(plan: MissionPlan, task) -> EvidenceRecord:
         started_at=now, finished_at=now,
     )
 
-def _git_status(repo: Path) -> str:
-    cp = subprocess.run(
-        ["git", "status", "--short"], cwd=repo, text=True,
-        capture_output=True, check=False,
+def _mutation_blocked_evidence(plan: MissionPlan, task) -> EvidenceRecord:
+    now = time.time()
+    return EvidenceRecord.build(
+        mission_id=plan.mission_id, task_id=task.task_id,
+        provider=task.provider, model=task.model, status="blocked",
+        output=(
+            "mutation_runtime_not_supported: el runtime de worktree aislado "
+            f"para mutación todavía no existe. task_id={task.task_id}."
+        ),
+        token_usage={}, command=[],
+        started_at=now, finished_at=now,
     )
+
+class GitStatusError(RuntimeError):
+    """Git status could not be trusted: non-zero exit or timeout.
+
+    Never lets a caller read a stdout string in either case - the function
+    either returns real output or raises, so a timeout can never be
+    misread as an empty (clean) working tree.
+    """
+
+    def __init__(self, diagnostic: str, *, detail: str = "") -> None:
+        super().__init__(diagnostic if not detail else f"{diagnostic}: {detail}")
+        self.diagnostic = diagnostic
+
+
+def _git_status(repo: Path, timeout: int = 120) -> str:
+    env = os.environ.copy()
+    env["GIT_OPTIONAL_LOCKS"] = "0"
+    try:
+        cp = subprocess.run(
+            ["git", "-c", "core.fsmonitor=false", "status", "--short", "--untracked-files=all"],
+            cwd=repo, text=True, capture_output=True, check=False,
+            timeout=timeout, env=env,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise GitStatusError("git_status_timeout") from exc
+    if cp.returncode != 0:
+        raise GitStatusError("git_status_failed", detail=cp.stderr.strip())
     return cp.stdout
+
+KONOHA_ROOT = Path(__file__).resolve().parents[2]
+# The assignment-result schema belongs to Konoha's own installation, not to
+# the target workspace being audited: `repo` is the caller-supplied
+# workspace under inspection (often a public/external repository) and has
+# no reason to carry schemas/runtime/*.schema.json of its own.
+ASSIGNMENT_RESULT_SCHEMA_PATH = (
+    KONOHA_ROOT / "schemas" / "runtime" / "konoha_v4_assignment_result.schema.json"
+)
+
+_ASSIGNMENT_RESULT_REQUIRED_KEYS = {
+    "outcome", "objective_satisfied", "summary", "diagnostic", "evidence", "review_outcome",
+}
+
+_ASSIGNMENT_OUTCOME_MAPPING = {
+    "completed": ("completed", "completed"),
+    "blocked": ("blocked", "blocked"),
+    "changes_requested": ("blocked", "changes_requested"),
+    "failed": ("failed", "assignment_failed"),
+}
+
+
+def _validate_assignment_result_payload(payload: object) -> str | None:
+    """Structural check mirroring konoha_v4_assignment_result.schema.json.
+
+    Returns "invalid_result_schema" on any structural mismatch, else None.
+    Never inspects free text (summary/diagnostic) for content - only field
+    presence, types, and enum membership. isinstance(str) is always checked
+    before any `in <set>` membership test on an enum-constrained field -
+    payload comes from untrusted json.loads() output, so an unhashable
+    value (a list or dict) must never reach `in` on a set, which would
+    raise TypeError instead of failing closed.
+    """
+    if not isinstance(payload, dict) or set(payload) != _ASSIGNMENT_RESULT_REQUIRED_KEYS:
+        return "invalid_result_schema"
+    outcome = payload["outcome"]
+    if not isinstance(outcome, str) or outcome not in ASSIGNMENT_RESULT_OUTCOMES:
+        return "invalid_result_schema"
+    if not isinstance(payload["objective_satisfied"], bool):
+        return "invalid_result_schema"
+    if not isinstance(payload["summary"], str) or not payload["summary"].strip():
+        return "invalid_result_schema"
+    diagnostic = payload["diagnostic"]
+    if diagnostic is not None and not isinstance(diagnostic, str):
+        return "invalid_result_schema"
+    evidence = payload["evidence"]
+    if not isinstance(evidence, list):
+        return "invalid_result_schema"
+    for item in evidence:
+        if not isinstance(item, dict) or set(item) != {"source", "observation"}:
+            return "invalid_result_schema"
+        if not isinstance(item["source"], str) or not item["source"].strip():
+            return "invalid_result_schema"
+        if not isinstance(item["observation"], str) or not item["observation"].strip():
+            return "invalid_result_schema"
+    review_outcome = payload["review_outcome"]
+    if review_outcome is not None and (
+        not isinstance(review_outcome, str)
+        or review_outcome not in ASSIGNMENT_REVIEW_OUTCOMES
+    ):
+        return "invalid_result_schema"
+    return None
+
+
+def _validate_assignment_result_rules(payload: dict, family: str) -> str | None:
+    """Deterministic business rules - never scans free text for content.
+
+    outcome/objective_satisfied must correlate; family=="jounin-review"
+    tasks must carry a review_outcome that itself correlates exactly with
+    outcome/objective_satisfied; every other family must carry
+    review_outcome=None. Returns "contradictory_result_fields" on any
+    violation, else None. Only called after _validate_assignment_result_payload
+    has already confirmed outcome/review_outcome are well-typed.
+    """
+    outcome = payload["outcome"]
+    objective_satisfied = payload["objective_satisfied"]
+    review_outcome = payload["review_outcome"]
+
+    if outcome == "completed":
+        if objective_satisfied is not True:
+            return "contradictory_result_fields"
+    elif objective_satisfied is not False:
+        return "contradictory_result_fields"
+
+    if family == "jounin-review":
+        if review_outcome is None:
+            return "contradictory_result_fields"
+        if review_outcome in {"approved", "approved_with_notes"}:
+            if outcome != "completed" or objective_satisfied is not True:
+                return "contradictory_result_fields"
+        elif review_outcome == "blocked":
+            if outcome != "blocked" or objective_satisfied is not False:
+                return "contradictory_result_fields"
+        elif review_outcome == "changes_requested":
+            if outcome != "changes_requested" or objective_satisfied is not False:
+                return "contradictory_result_fields"
+    elif review_outcome is not None:
+        return "contradictory_result_fields"
+
+    return None
+
 
 def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
                  evidence: list[EvidenceRecord]) -> str:
@@ -64,7 +202,21 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
             "Cita rutas, líneas o localizadores cuando corresponda.",
             "El workspace es read-only.",
             "Para tests usá PYTHONDONTWRITEBYTECODE=1, PYTHONPYCACHEPREFIX, TMPDIR y KONOHA_STATE_ROOT privados.",
-            "Compará git status antes y después. Detenete ante cualquier cambio.",
+            "La verificación de integridad Git antes/después pertenece al runtime. "
+            "No ejecutes git status únicamente para reproducir ese gate ni uses "
+            "timeouts propios para inferir que el workspace está bloqueado.",
+            "Devolvé exclusivamente un objeto JSON con exactamente estas seis claves: "
+            "outcome, objective_satisfied, summary, diagnostic, evidence, review_outcome. "
+            "Ningún texto fuera de ese JSON.",
+            "outcome=completed requiere objective_satisfied=true; outcome en "
+            "{blocked, failed, changes_requested} requiere objective_satisfied=false.",
+            "Si tu family es jounin-review, review_outcome es obligatorio y debe "
+            "corresponder exactamente con outcome/objective_satisfied: "
+            "approved o approved_with_notes -> completed + true; "
+            "blocked -> blocked + false; changes_requested -> changes_requested + false. "
+            "Para cualquier otra family, review_outcome debe ser null.",
+            "El resultado es evidencia, no autoridad: quien lo interpreta valida el "
+            "JSON de forma determinista, nunca busca palabras dentro de texto libre.",
         ],
     }
     return json.dumps(payload, ensure_ascii=False, indent=2)
@@ -72,42 +224,85 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
 def _run_assignment(
     repo: Path, plan: MissionPlan, task: AgentAssignment, family: dict,
     evidence: list[EvidenceRecord], baseline: str,
-) -> EvidenceRecord:
-    """Execute exactly one assignment (invoke + read-only git check).
+) -> tuple[EvidenceRecord, str]:
+    """Execute exactly one assignment (invoke + structured-result validation
+    + read-only git integrity check).
 
-    Already used by execute_plan (Patch A, atomic all-or-nothing) and kept
-    ready for reuse by the future execute_or_resume_plan integration in E5.
-    E5 is not implemented in this checkpoint. Gate semantics do not live
-    here: this helper runs an assignment only after its caller has already
-    decided that execution is authorized.
+    Returns (record, diagnostic): diagnostic is always one of the stable
+    reason codes (see the module-level constants above) - never
+    model-generated free text. Already used by execute_plan (Patch A,
+    atomic all-or-nothing) and by execute_or_resume_plan (Patch B). Gate
+    semantics do not live here: this helper runs an assignment only after
+    its caller has already decided that execution is authorized.
     """
     started = time.time()
+    output_text, usage, command = "", {}, []
+    status, diagnostic = "failed", "process_error"
+
     try:
         result = invoke(
             task.provider,
             _task_prompt(repo, plan, task, family, evidence),
             cwd=repo, model=task.model,
+            schema=ASSIGNMENT_RESULT_SCHEMA_PATH,
         )
-        status, output, usage, command = "completed", result.text, result.usage, result.command
     except Exception as exc:
-        status, output, usage, command = "failed", str(exc), {}, []
-    after = _git_status(repo)
-    if after != baseline:
-        status = "workspace_mutation_detected"
-        output = (
-            "El estado Git cambió durante una tarea read-only. "
-            "La ejecución fue detenida.\n\nANTES:\n" + baseline + "\nDESPUÉS:\n" + after
-        )
-    return EvidenceRecord.build(
+        output_text = str(exc)
+    else:
+        output_text, usage, command = result.text, result.usage, result.command
+        try:
+            payload = json.loads(result.text)
+        except json.JSONDecodeError:
+            diagnostic = "invalid_result_json"
+        else:
+            schema_error = _validate_assignment_result_payload(payload)
+            if schema_error is not None:
+                diagnostic = schema_error
+            else:
+                rule_error = _validate_assignment_result_rules(payload, task.family)
+                if rule_error is not None:
+                    diagnostic = rule_error
+                else:
+                    assignment_result = AssignmentResult(
+                        outcome=payload["outcome"],
+                        objective_satisfied=payload["objective_satisfied"],
+                        summary=payload["summary"],
+                        diagnostic=payload["diagnostic"],
+                        evidence=tuple(payload["evidence"]),
+                        review_outcome=payload["review_outcome"],
+                    )
+                    status, diagnostic = _ASSIGNMENT_OUTCOME_MAPPING[assignment_result.outcome]
+
+    try:
+        after = _git_status(repo)
+    except GitStatusError as exc:
+        status, diagnostic = "failed", exc.diagnostic
+        output_text = f"{exc.diagnostic}: la verificación Git posterior a la ejecución falló."
+    else:
+        if after != baseline:
+            status, diagnostic = "failed", "workspace_mutation_detected"
+            output_text = (
+                "El estado Git cambió durante una tarea read-only. "
+                "La ejecución fue detenida.\n\nANTES:\n" + baseline + "\nDESPUÉS:\n" + after
+            )
+
+    record = EvidenceRecord.build(
         mission_id=plan.mission_id, task_id=task.task_id,
         provider=task.provider, model=task.model, status=status,
-        output=output, token_usage=usage, command=command,
+        output=output_text, token_usage=usage, command=command,
         started_at=started, finished_at=time.time(),
     )
+    return record, diagnostic
 
 
 def execute_plan(repo: Path, plan: MissionPlan, registry: CapabilityRegistry,
                  state_dir: Path) -> list[EvidenceRecord]:
+    mutating_task = next((task for task in plan.assignments if task.mutation), None)
+    if mutating_task is not None:
+        record = _mutation_blocked_evidence(plan, mutating_task)
+        _persist(state_dir, record)
+        return [record]
+
     offenders = [task for task in plan.assignments if not _gate_satisfied(plan, task)]
     if offenders:
         evidence: list[EvidenceRecord] = []
@@ -117,11 +312,24 @@ def execute_plan(repo: Path, plan: MissionPlan, registry: CapabilityRegistry,
             _persist(state_dir, record)
         return evidence
 
+    first_task = plan.assignments[0]
+    try:
+        baseline = _git_status(repo)
+    except GitStatusError as exc:
+        now = time.time()
+        record = EvidenceRecord.build(
+            mission_id=plan.mission_id, task_id=first_task.task_id,
+            provider=first_task.provider, model=first_task.model, status="failed",
+            output=f"{exc.diagnostic}: no se pudo capturar el estado Git base antes de ejecutar.",
+            token_usage={}, command=[], started_at=now, finished_at=now,
+        )
+        _persist(state_dir, record)
+        return [record]
+
     evidence: list[EvidenceRecord] = []
-    baseline = _git_status(repo)
     for task in plan.assignments:
         family = registry.agent_family(task.family)
-        record = _run_assignment(repo, plan, task, family, evidence, baseline)
+        record, _diagnostic = _run_assignment(repo, plan, task, family, evidence, baseline)
         evidence.append(record)
         _persist(state_dir, record)
         if record.status != "completed":
@@ -1040,13 +1248,16 @@ def _transition_after_completed_assignment(
 
 def _transition_after_failed_assignment(
     state: ExecutionState, plan: MissionPlan, task: AgentAssignment,
-    evidence: EvidenceRecord, approval_id_to_consume: str | None, updated_at: str,
+    evidence: EvidenceRecord, approval_id_to_consume: str | None,
+    diagnostic: str, updated_at: str,
 ) -> ExecutionState:
     """Cursor and completed_task_ids stay put - the failed task is never
     marked completed. evidence_ids_by_task is untouched: that map only ever
     tracks completed tasks' evidence, matching _verify_completed_evidence's
-    own use of it. diagnostic carries evidence.status as a non-empty durable
-    detail; pause_reason is cleared - failed carries no pause context."""
+    own use of it. diagnostic is the caller-supplied stable reason code
+    (EvidenceRecord.status is now uniformly "failed" for every failure
+    sub-reason, so the precise reason can no longer be derived from it);
+    pause_reason is cleared - failed carries no pause context."""
     consumed_approval_ids = list(state.consumed_approval_ids)
     if approval_id_to_consume is not None and approval_id_to_consume not in consumed_approval_ids:
         consumed_approval_ids.append(approval_id_to_consume)
@@ -1059,7 +1270,36 @@ def _transition_after_failed_assignment(
         active_approval_id=None,
         approval_nonce=None,
         pause_reason=None,
-        diagnostic=evidence.status,
+        diagnostic=diagnostic,
+        consumed_approval_ids=consumed_approval_ids,
+    )
+
+
+def _transition_after_blocked_assignment(
+    state: ExecutionState, plan: MissionPlan, task: AgentAssignment,
+    evidence: EvidenceRecord, approval_id_to_consume: str | None,
+    diagnostic: str, updated_at: str,
+) -> ExecutionState:
+    """Same shape as _transition_after_failed_assignment but status="blocked".
+    Reached only after invoke actually ran and the provider's own structured
+    result declared outcome/review_outcome blocked or changes_requested -
+    never from provider process failure or malformed output (those go
+    through _transition_after_failed_assignment instead). diagnostic is the
+    caller-supplied stable reason code ("blocked" or "changes_requested"),
+    stored as both pause_reason and diagnostic."""
+    consumed_approval_ids = list(state.consumed_approval_ids)
+    if approval_id_to_consume is not None and approval_id_to_consume not in consumed_approval_ids:
+        consumed_approval_ids.append(approval_id_to_consume)
+    return _state_with_timestamp(
+        state, updated_at,
+        status="blocked",
+        pending_task_id=task.task_id,
+        pending_execution_gate=task.execution_gate,
+        executing_task_id=None,
+        active_approval_id=None,
+        approval_nonce=None,
+        pause_reason=diagnostic,
+        diagnostic=diagnostic,
         consumed_approval_ids=consumed_approval_ids,
     )
 
@@ -1209,6 +1449,23 @@ def _execute_or_resume_plan_locked(
             )
         return ExecutionAttempt(state=new_state, evidence=(), diagnostic=diagnostic)
 
+    def _block_before_execution(diagnostic: str) -> ExecutionAttempt:
+        new_state = _transition_to_blocked(state, current_task, diagnostic, now)
+        if not _try_save_execution_state(state_dir, new_state):
+            return ExecutionAttempt(
+                state=state, evidence=(), diagnostic="blocked_before_execution_persist_failed",
+            )
+        return ExecutionAttempt(state=new_state, evidence=(), diagnostic=diagnostic)
+
+    # Mutation is not supported until an isolated worktree runtime exists.
+    # Checked before any gate/approval logic, before family resolution,
+    # before the Git baseline, and before invoke - so a supplied
+    # separate_human_approval is never even validated, let alone consumed,
+    # and "waiting_for_approval" is never offered for a mutating task.
+    if current_task.mutation:
+        return _block_before_execution("mutation_runtime_not_supported")
+
+    # Gate/approval validated PURELY here - no "executing" is persisted yet.
     if current_task.execution_gate == "plan_approval":
         if plan.approval.get("status") != "approved":
             # Never mutated, never persisted: plan.json is re-read fresh on
@@ -1217,10 +1474,6 @@ def _execute_or_resume_plan_locked(
             return ExecutionAttempt(
                 state=state, evidence=(), diagnostic="plan_approval_not_satisfied",
             )
-        new_state = _transition_to_executing(state, current_task, None, now)
-        if not _try_save_execution_state(state_dir, new_state):
-            return ExecutionAttempt(state=state, evidence=(), diagnostic="executing_persist_failed")
-        state = new_state
 
     elif current_task.execution_gate == "separate_human_approval":
         if state.status != "waiting_for_approval":
@@ -1243,10 +1496,6 @@ def _execute_or_resume_plan_locked(
             return ExecutionAttempt(state=state, evidence=(), diagnostic=reason)
 
         approval_id_to_consume = approval_id
-        new_state = _transition_to_executing(state, current_task, approval_id, now)
-        if not _try_save_execution_state(state_dir, new_state):
-            return ExecutionAttempt(state=state, evidence=(), diagnostic="executing_persist_failed")
-        state = new_state
 
     else:
         # Unreachable given AgentAssignment.execution_gate is schema/
@@ -1259,8 +1508,28 @@ def _execute_or_resume_plan_locked(
     except RegistryError:
         return _fail_before_execution("unknown_agent_family", approval_id_to_consume)
 
-    baseline = _git_status(repo)
-    evidence = _run_assignment(repo, plan, current_task, family, completed_records, baseline)
+    # Git baseline captured before "executing" is ever persisted: a failure
+    # here (timeout or non-zero exit) resolves to a clean, direct "failed"
+    # state via _fail_before_execution - never to "executing" limbo that
+    # would only resolve via recovery_required on the next call. The
+    # approval is deliberately NOT consumed on this path (consumed=None)
+    # even if it was already validated above.
+    try:
+        baseline = _git_status(repo)
+    except GitStatusError as exc:
+        return _fail_before_execution(exc.diagnostic, None)
+
+    # Only now: persist "executing". _transition_to_executing already
+    # discriminates plan_approval vs separate_human_approval internally
+    # (forces approval_nonce/active_approval_id to None for plan_approval
+    # regardless of what's passed), so approval_id_to_consume (None for
+    # plan_approval) can be passed unconditionally.
+    new_state = _transition_to_executing(state, current_task, approval_id_to_consume, now)
+    if not _try_save_execution_state(state_dir, new_state):
+        return ExecutionAttempt(state=state, evidence=(), diagnostic="executing_persist_failed")
+    state = new_state
+
+    evidence, run_diagnostic = _run_assignment(repo, plan, current_task, family, completed_records, baseline)
 
     if not _try_persist_evidence(state_dir, evidence):
         # invoke already ran and state is still the persisted "executing"
@@ -1273,9 +1542,13 @@ def _execute_or_resume_plan_locked(
         new_state = _transition_after_completed_assignment(
             state, plan, current_task, evidence, approval_id_to_consume, finished_at,
         )
+    elif evidence.status == "blocked":
+        new_state = _transition_after_blocked_assignment(
+            state, plan, current_task, evidence, approval_id_to_consume, run_diagnostic, finished_at,
+        )
     else:
         new_state = _transition_after_failed_assignment(
-            state, plan, current_task, evidence, approval_id_to_consume, finished_at,
+            state, plan, current_task, evidence, approval_id_to_consume, run_diagnostic, finished_at,
         )
 
     if not _try_save_execution_state(state_dir, new_state):
@@ -1286,7 +1559,7 @@ def _execute_or_resume_plan_locked(
             state=state, evidence=(evidence,), diagnostic="final_transition_persist_failed",
         )
 
-    return ExecutionAttempt(state=new_state, evidence=(evidence,), diagnostic=evidence.status)
+    return ExecutionAttempt(state=new_state, evidence=(evidence,), diagnostic=run_diagnostic)
 
 
 def execute_or_resume_plan(

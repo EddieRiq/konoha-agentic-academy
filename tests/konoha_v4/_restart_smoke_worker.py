@@ -38,13 +38,25 @@ class _Registry:
         return {"allowed_task_patterns": ["read-only inspection"]}
 
 
+_COMPLETED_RESULT_TEXT = json.dumps({
+    "outcome": "completed",
+    "objective_satisfied": True,
+    "summary": "ok",
+    "diagnostic": None,
+    "evidence": [],
+    "review_outcome": None,
+})
+
+
 def _install_fake_invoke(state_dir: Path) -> None:
     log_path = state_dir / "invoke_calls.log"
 
-    def _fake_invoke(provider, prompt, *, cwd, model="provider_default"):
+    def _fake_invoke(provider, prompt, *, cwd, model="provider_default", schema=None, timeout=600):
         with open(log_path, "a", encoding="utf-8") as fh:
             fh.write(f"{provider}:{model}\n")
-        return SimpleNamespace(text="ok", usage={"input": 1, "output": 1}, command=["echo", "ok"])
+        return SimpleNamespace(
+            text=_COMPLETED_RESULT_TEXT, usage={"input": 1, "output": 1}, command=["echo", "ok"],
+        )
 
     executor_module.invoke = _fake_invoke
 

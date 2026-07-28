@@ -7,6 +7,9 @@ APPROVAL_STATES = {"pending", "approved", "rejected", "changes_requested"}
 TEACHBACK_POLICIES = {"disabled", "optional", "required"}
 EXECUTION_GATES = {"plan_approval", "separate_human_approval"}
 
+ASSIGNMENT_RESULT_OUTCOMES = {"completed", "blocked", "failed", "changes_requested"}
+ASSIGNMENT_REVIEW_OUTCOMES = {"approved", "approved_with_notes", "changes_requested", "blocked"}
+
 EXECUTION_STATE_SCHEMA_VERSION = "1.0"
 EXECUTION_STATUSES = {
     "in_progress",
@@ -129,6 +132,23 @@ class ExecutionState:
     pause_reason: str | None = None
     diagnostic: str | None = None
     updated_at: str = ""
+
+
+@dataclass(frozen=True)
+class AssignmentResult:
+    """A provider's own structured claim about one assignment's outcome.
+
+    Mirrors schemas/runtime/konoha_v4_assignment_result.schema.json exactly.
+    Constructed only after full schema + business-rule validation in
+    executor.py - this dataclass itself performs no validation, it is
+    evidence storage, never authority.
+    """
+    outcome: str
+    objective_satisfied: bool
+    summary: str
+    diagnostic: str | None
+    evidence: tuple[dict[str, str], ...]
+    review_outcome: str | None
 
 
 @dataclass(frozen=True)

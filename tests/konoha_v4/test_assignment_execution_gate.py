@@ -67,6 +67,16 @@ def _plan(assignments: list[AgentAssignment], approval_status: str = "approved")
     ).seal()
 
 
+_COMPLETED_RESULT_TEXT = json.dumps({
+    "outcome": "completed",
+    "objective_satisfied": True,
+    "summary": "ok",
+    "diagnostic": None,
+    "evidence": [],
+    "review_outcome": None,
+})
+
+
 class ExecutorPreflightGateTests(unittest.TestCase):
     def _run(self, assignments: list[AgentAssignment], approval_status: str = "approved"):
         plan = _plan(assignments, approval_status=approval_status)
@@ -75,7 +85,7 @@ class ExecutorPreflightGateTests(unittest.TestCase):
             with mock.patch("tools.konoha_v4.executor.invoke") as invoke_mock, \
                  mock.patch("tools.konoha_v4.executor._git_status", return_value="") as git_status_mock:
                 invoke_mock.return_value = SimpleNamespace(
-                    text="ok", usage={"input": 1, "output": 1}, command=["echo"],
+                    text=_COMPLETED_RESULT_TEXT, usage={"input": 1, "output": 1}, command=["echo"],
                 )
                 evidence = execute_plan(Path("."), plan, _Registry(), state_dir)
             return plan, evidence, invoke_mock, git_status_mock
@@ -134,7 +144,7 @@ class ExecutorPreflightGateTests(unittest.TestCase):
         for record in evidence:
             self.assertEqual(record.status, "blocked")
 
-    def test_gate_is_independent_of_mutation_network_private_context(self) -> None:
+    def test_mutation_is_rejected_before_invoke_even_when_gate_and_plan_are_approved(self) -> None:
         assignments = [
             _assignment(
                 task_id="t1",
@@ -146,8 +156,9 @@ class ExecutorPreflightGateTests(unittest.TestCase):
         ]
         _, evidence, invoke_mock, _ = self._run(assignments, approval_status="approved")
 
-        invoke_mock.assert_called_once()
-        self.assertEqual(evidence[0].status, "completed")
+        invoke_mock.assert_not_called()
+        self.assertEqual(evidence[0].status, "blocked")
+        self.assertIn("mutation_runtime_not_supported", evidence[0].output)
 
     def test_legacy_empty_gate_fails_closed(self) -> None:
         assignments = [_assignment(task_id="t1", execution_gate="")]

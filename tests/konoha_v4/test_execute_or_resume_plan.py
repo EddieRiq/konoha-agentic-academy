@@ -150,10 +150,22 @@ class _RegistryUnknownFamily:
         raise RegistryError(f"No existe la familia especializada: {family}")
 
 
+_COMPLETED_RESULT_TEXT = json.dumps({
+    "outcome": "completed",
+    "objective_satisfied": True,
+    "summary": "ok",
+    "diagnostic": None,
+    "evidence": [],
+    "review_outcome": None,
+})
+
+
 def _patched_invoke():
     return mock.patch(
         "tools.konoha_v4.executor.invoke",
-        return_value=SimpleNamespace(text="ok", usage={"input": 1, "output": 1}, command=["echo"]),
+        return_value=SimpleNamespace(
+            text=_COMPLETED_RESULT_TEXT, usage={"input": 1, "output": 1}, command=["echo"],
+        ),
     )
 
 
@@ -814,11 +826,13 @@ class ExecuteOrResumePlanPersistenceFailureTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             state_dir = Path(tmp)
             _write_plan(state_dir, plan)
-            # First save is the successful "executing" transition (needed
-            # before registry.agent_family is even consulted); only the
-            # second save - the failed_before_execution transition - fails.
+            # registry.agent_family is now consulted BEFORE "executing" is
+            # ever persisted (Git baseline capture and family resolution
+            # both happen ahead of that persist), so the
+            # failed_before_execution transition is the FIRST save attempt
+            # for this scenario, not the second - it must fail immediately.
             with mock.patch.object(
-                executor_module, "_save_execution_state", side_effect=_fail_after(1, real_save),
+                executor_module, "_save_execution_state", side_effect=_fail_after(0, real_save),
             ):
                 with _patched_invoke() as invoke_mock, _patched_git_status():
                     attempt = execute_or_resume_plan(

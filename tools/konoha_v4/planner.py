@@ -22,7 +22,12 @@ ORDEN OBLIGATORIO:
 8. Distinguí cero mutaciones del workspace de persistencia en state privado.
 9. Desglosá presupuesto por assignment, provider y familia. No uses una cifra global
    sin desglose. estimated_total_tokens debe ser input + output.
-10. Para tests read-only exigí aislamiento y comparación de git status antes/después.
+10. Para tests read-only exigí aislamiento de caches, artefactos y state
+    privado. La verificación Git antes/después pertenece al runtime y no
+    debe delegarse a assignments ni ejecutarse con timeouts elegidos por
+    el modelo.
+11. mutation debe declararse siempre false: el runtime de worktree aislado
+    para escritura todavía no existe en este Patch.
 
 GOVERNANCE FIJA:
 {"conductor":"codex","constitutional_authority":"hokage"}

@@ -18,6 +18,7 @@ from tools.konoha_v4.executor import (
     _new_execution_state,
     _recovery_result,
     _state_with_timestamp,
+    _transition_after_blocked_assignment,
     _transition_after_completed_assignment,
     _transition_after_failed_assignment,
     _transition_to_blocked,
@@ -1137,13 +1138,13 @@ class PureTransitionTests(unittest.TestCase):
         )
         evidence = self._evidence(task, plan, status="failed")
         new_state = _transition_after_failed_assignment(
-            state, plan, task, evidence, "1" * 64, "2026-07-22T00:00:00Z",
+            state, plan, task, evidence, "1" * 64, "assignment_failed", "2026-07-22T00:00:00Z",
         )
         self.assertEqual(new_state.next_assignment_index, 0)
         self.assertEqual(new_state.completed_task_ids, [])
         self.assertEqual(new_state.pending_task_id, task.task_id)
 
-    def test_transition_after_failed_assignment_sets_diagnostic_from_evidence(self):
+    def test_transition_after_failed_assignment_sets_diagnostic_from_explicit_param(self):
         plan = self._plan_two()
         task = plan.assignments[0]
         state = self._es(
@@ -1157,10 +1158,12 @@ class PureTransitionTests(unittest.TestCase):
         )
         evidence = self._evidence(task, plan, status="failed")
         new_state = _transition_after_failed_assignment(
-            state, plan, task, evidence, "1" * 64, "2026-07-22T00:00:00Z",
+            state, plan, task, evidence, "1" * 64, "invalid_result_json", "2026-07-22T00:00:00Z",
         )
         self.assertEqual(new_state.status, "failed")
-        self.assertEqual(new_state.diagnostic, evidence.status)
+        self.assertEqual(new_state.diagnostic, "invalid_result_json")
+        self.assertNotEqual(new_state.diagnostic, evidence.status)
+        self.assertIsNone(new_state.pause_reason)
 
     def test_transition_after_failed_assignment_consumes_approval_exactly_once(self):
         plan = self._plan_two()
@@ -1177,7 +1180,7 @@ class PureTransitionTests(unittest.TestCase):
         )
         evidence = self._evidence(task, plan, status="failed")
         new_state = _transition_after_failed_assignment(
-            state, plan, task, evidence, "1" * 64, "2026-07-22T00:00:00Z",
+            state, plan, task, evidence, "1" * 64, "assignment_failed", "2026-07-22T00:00:00Z",
         )
         self.assertEqual(new_state.consumed_approval_ids.count("1" * 64), 1)
 
@@ -1195,9 +1198,71 @@ class PureTransitionTests(unittest.TestCase):
         )
         evidence = self._evidence(task, plan, status="failed")
         new_state = _transition_after_failed_assignment(
-            state, plan, task, evidence, "1" * 64, "2026-07-22T00:00:00Z",
+            state, plan, task, evidence, "1" * 64, "assignment_failed", "2026-07-22T00:00:00Z",
         )
         self.assertEqual(new_state.evidence_ids_by_task, {})
+
+    def test_transition_after_blocked_assignment_sets_status_and_diagnostic(self):
+        plan = self._plan_two()
+        task = plan.assignments[0]
+        state = self._es(
+            plan,
+            status="executing",
+            pending_task_id=task.task_id,
+            pending_execution_gate=task.execution_gate,
+            executing_task_id=task.task_id,
+            approval_nonce="a" * 32,
+            active_approval_id="1" * 64,
+        )
+        evidence = self._evidence(task, plan, status="blocked")
+        new_state = _transition_after_blocked_assignment(
+            state, plan, task, evidence, "1" * 64, "changes_requested", "2026-07-22T00:00:00Z",
+        )
+        self.assertEqual(new_state.status, "blocked")
+        self.assertEqual(new_state.diagnostic, "changes_requested")
+        self.assertEqual(new_state.pause_reason, "changes_requested")
+        self.assertEqual(new_state.pending_task_id, task.task_id)
+        self.assertEqual(new_state.pending_execution_gate, task.execution_gate)
+        self.assertIsNone(new_state.executing_task_id)
+        self.assertIsNone(new_state.active_approval_id)
+        self.assertIsNone(new_state.approval_nonce)
+
+    def test_transition_after_blocked_assignment_keeps_cursor_and_completed(self):
+        plan = self._plan_two()
+        task = plan.assignments[0]
+        state = self._es(
+            plan,
+            status="executing",
+            pending_task_id=task.task_id,
+            pending_execution_gate=task.execution_gate,
+            executing_task_id=task.task_id,
+        )
+        evidence = self._evidence(task, plan, status="blocked")
+        new_state = _transition_after_blocked_assignment(
+            state, plan, task, evidence, None, "blocked", "2026-07-22T00:00:00Z",
+        )
+        self.assertEqual(new_state.next_assignment_index, 0)
+        self.assertEqual(new_state.completed_task_ids, [])
+        self.assertEqual(new_state.evidence_ids_by_task, {})
+
+    def test_transition_after_blocked_assignment_consumes_approval_exactly_once(self):
+        plan = self._plan_two()
+        task = plan.assignments[0]
+        state = self._es(
+            plan,
+            status="executing",
+            pending_task_id=task.task_id,
+            pending_execution_gate=task.execution_gate,
+            executing_task_id=task.task_id,
+            approval_nonce="a" * 32,
+            active_approval_id="1" * 64,
+            consumed_approval_ids=[],
+        )
+        evidence = self._evidence(task, plan, status="blocked")
+        new_state = _transition_after_blocked_assignment(
+            state, plan, task, evidence, "1" * 64, "blocked", "2026-07-22T00:00:00Z",
+        )
+        self.assertEqual(new_state.consumed_approval_ids.count("1" * 64), 1)
 
     def test_transition_to_failed_before_execution_preserves_cursor_and_pending_task(self):
         plan = self._plan_two()
@@ -1322,7 +1387,8 @@ class PureTransitionTests(unittest.TestCase):
         self.assertEqual(blocked.updated_at, "ts-6")
 
         failed = _transition_after_failed_assignment(
-            executing1, plan, t1, self._evidence(t1, plan, status="failed"), "1" * 64, "ts-7",
+            executing1, plan, t1, self._evidence(t1, plan, status="failed"),
+            "1" * 64, "assignment_failed", "ts-7",
         )
         self.assertEqual(failed.updated_at, "ts-7")
 
@@ -1365,9 +1431,16 @@ class PureTransitionTests(unittest.TestCase):
         self.assertEqual(completed_total.status, "completed")
 
         failed_t1 = _transition_after_failed_assignment(
-            executing_t1, plan, t1, self._evidence(t1, plan, status="failed"), "1" * 64, "ts-6",
+            executing_t1, plan, t1, self._evidence(t1, plan, status="failed"),
+            "1" * 64, "assignment_failed", "ts-6",
         )
         self.assertIsNone(_validate_execution_state_invariants(plan, failed_t1))
+
+        blocked_t1 = _transition_after_blocked_assignment(
+            executing_t1, plan, t1, self._evidence(t1, plan, status="blocked"),
+            "1" * 64, "changes_requested", "ts-6b",
+        )
+        self.assertIsNone(_validate_execution_state_invariants(plan, blocked_t1))
 
         recovery_t1 = _recovery_result(executing_t1, "evidencia corrupta", "ts-7")
         self.assertIsNone(_validate_execution_state_invariants(plan, recovery_t1))
@@ -1404,7 +1477,12 @@ class PureTransitionTests(unittest.TestCase):
             state, plan, t1, completed_evidence, "1" * 64, "ts-1",
         )
         _transition_after_failed_assignment(
-            state, plan, t1, failed_evidence, "1" * 64, "ts-2",
+            state, plan, t1, failed_evidence, "1" * 64, "assignment_failed", "ts-2",
+        )
+        blocked_evidence = self._evidence(t1, plan, status="blocked")
+        blocked_evidence_before = copy.deepcopy(blocked_evidence)
+        _transition_after_blocked_assignment(
+            state, plan, t1, blocked_evidence, "1" * 64, "changes_requested", "ts-2b",
         )
         _transition_to_waiting(state, t1, "a" * 32, "motivo", "ts-3")
         _transition_to_executing(state, t1, "1" * 64, "ts-4")
@@ -1418,6 +1496,7 @@ class PureTransitionTests(unittest.TestCase):
         self.assertEqual(state, state_before)
         self.assertEqual(completed_evidence, completed_evidence_before)
         self.assertEqual(failed_evidence, failed_evidence_before)
+        self.assertEqual(blocked_evidence, blocked_evidence_before)
 
 
 if __name__ == "__main__":

@@ -41,8 +41,11 @@ def validate_plan(plan: MissionPlan, registry: CapabilityRegistry) -> list[str]:
             continue
         if not registry.model_allowed(a.provider, a.model, a.family):
             problems.append(f"Modelo no autorizado: {a.provider}/{a.model} para {a.family}")
-        if a.mutation and "mutation" not in plan.approval_boundaries:
-            problems.append(f"{a.task_id} muta sin boundary mutation")
+        if a.mutation:
+            problems.append(
+                f"{a.task_id}: mutation_runtime_not_supported (el runtime de "
+                "worktree aislado para mutación todavía no existe)."
+            )
         if a.network and "network" not in plan.approval_boundaries:
             problems.append(f"{a.task_id} usa red sin boundary network")
         if a.private_context and "private_context" not in plan.approval_boundaries:
