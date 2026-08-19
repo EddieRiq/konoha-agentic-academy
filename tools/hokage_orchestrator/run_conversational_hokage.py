@@ -171,6 +171,18 @@ def human_constraints_from_intent(intent: Dict[str, Any]) -> Dict[str, bool]:
     }
 
 
+class _PendingCharterMissionResolutionError(Exception):
+    """Raised by _pending_charter_mission_id() when the pending Charter's
+    mission_id cannot be resolved unambiguously. code is one of
+    CHARTER_REJECTION_BINDING_MISMATCH (two or more distinct non-null
+    candidates) or CHARTER_REJECTION_MISSION_UNKNOWN (zero candidates) -
+    never a guess, never derived from charter_id."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
 def render_charter(charter: Dict[str, Any]) -> str:
     lines = [
         "",
@@ -429,7 +441,12 @@ class ConversationalHokage:
                 "selected_model"
             ]
             local_model = self.local_model
-        self.latest_decision: Optional[Dict[str, Any]] = None
+        # The authoritative, persisted Decision 1.1 for an APPROVED
+        # Charter only - set once via restore()/approve_charter(), never
+        # recomputed. self.pending_decision (below, set elsewhere) is a
+        # distinct, narrower concept: the Decision belonging to a Charter
+        # that is still only proposed, not yet approved.
+        self.authoritative_decision: Optional[Dict[str, Any]] = None
         self.restore()
 
     def mission_dir(self, mission_id: str) -> Path:
@@ -486,9 +503,13 @@ class ConversationalHokage:
             # Re-derive and re-validate the full authority chain, then
             # restore the queue - never auto-dispatching anything. A
             # failure here is surfaced through status_payload(), not
-            # raised out of the constructor.
+            # raised out of the constructor. The re-derived Decision is
+            # exactly what was persisted and validated - never recomputed
+            # or fabricated - and is kept so /status can show it without
+            # re-deriving it a second time.
             try:
-                authority.load_authoritative_state(mission_dir)
+                _, decision = authority.load_authoritative_state(mission_dir)
+                self.authoritative_decision = decision
                 self.action_queue.restore()
             except authority.AuthorityBindingError as exc:
                 self.resume_diagnostic = f"{exc.code}: {exc.detail}"
@@ -532,7 +553,6 @@ class ConversationalHokage:
             actor=self.actor,
             human_constraints=human_constraints,
         )
-        self.latest_decision = decision
         mission_dir = self.mission_dir(mission_id)
         mission_dir.mkdir(parents=True, exist_ok=True)
 
@@ -631,6 +651,11 @@ class ConversationalHokage:
         self.lifecycle = LifecycleStore(mission_dir)
         self.audit_flow = self._make_audit_flow(mission_id)
 
+        # The Decision that was just bound into the receipt is now the
+        # authoritative one for this mission - captured here, not
+        # recomputed, exactly the object approve_charter_1_1() validated.
+        self.authoritative_decision = self.pending_decision
+
         self.pending_charter = None
         self.pending_decision = None
         self.active_mission = self.continuity.update_active_state(
@@ -648,6 +673,83 @@ class ConversationalHokage:
                 "charter_approval_does_not_authorize_actions": True,
                 "action_proposals_are_not_permission": True,
             },
+        }
+
+    def _pending_charter_mission_id(self) -> str:
+        """Resolve the pending Charter's mission_id from every available
+        source of evidence, never by deriving/guessing it from
+        charter_id. Fails closed (raises _PendingCharterMissionResolution
+        Error) if the available sources disagree or if none exist -
+        either way, the caller must not mutate continuity."""
+
+        candidates = []
+
+        if self.pending_charter is not None:
+            value = self.pending_charter.get("mission_id")
+            if value:
+                candidates.append(value)
+
+        if isinstance(self.active_mission, dict):
+            value = self.active_mission.get("mission_id")
+            if value:
+                candidates.append(value)
+
+        user_state_id = self.continuity.load_user_state().get(
+            "active_mission_id"
+        )
+        if user_state_id:
+            candidates.append(user_state_id)
+
+        distinct = set(candidates)
+        if len(distinct) > 1:
+            raise _PendingCharterMissionResolutionError(
+                "CHARTER_REJECTION_BINDING_MISMATCH"
+            )
+        if not distinct:
+            raise _PendingCharterMissionResolutionError(
+                "CHARTER_REJECTION_MISSION_UNKNOWN"
+            )
+        return next(iter(distinct))
+
+    def reject_charter(self, phrase: str) -> Dict[str, Any]:
+        if self.pending_charter is None:
+            return {
+                "status": "failed",
+                "status_code": "NO_PENDING_CHARTER",
+            }
+
+        if phrase.strip() != self.pending_charter["rejection_phrase"]:
+            return {
+                "status": "failed",
+                "status_code": "CHARTER_REJECTION_MISMATCH",
+                "expected": self.pending_charter["rejection_phrase"],
+            }
+
+        try:
+            mission_id = self._pending_charter_mission_id()
+        except _PendingCharterMissionResolutionError as exc:
+            return {
+                "status": "failed",
+                "status_code": exc.code,
+            }
+
+        # mission_charter.json/mission_decision.json/conversational_
+        # intent.json stay on disk untouched as historical evidence -
+        # authority.py's Charter schema has no "rejected" state at the
+        # Charter level by design (rejection is an action-level state,
+        # never a charter-level one). Only continuity's own active-
+        # mission tracking is cleared here, which is what actually made
+        # a rejected mission reappear as active on restart.
+        self.continuity.mark_mission_rejected(mission_id=mission_id)
+
+        self.pending_charter = None
+        self.pending_decision = None
+        self.active_mission = None
+
+        return {
+            "status": "passed",
+            "status_code": "CHARTER_REJECTED",
+            "mission_id": mission_id,
         }
 
     def next_action(self) -> Optional[Dict[str, Any]]:
@@ -1292,6 +1394,7 @@ class ConversationalHokage:
         self.action_queue = None
         self.lifecycle = None
         self.audit_flow = None
+        self.authoritative_decision = None
 
         return {
             "status": "passed",
@@ -1377,7 +1480,16 @@ class ConversationalHokage:
             "audit_flow": audit,
             "lifecycle": lifecycle,
             "bootstrap": self.bootstrap_evidence,
-            "mission_decision": self.latest_decision,
+            # The approved, persisted Decision takes priority once it
+            # exists; before approval, the still-pending Decision (if
+            # any) is shown instead. Neither is ever recomputed here -
+            # both are exactly what restore()/propose()/approve_charter()
+            # already loaded or built.
+            "mission_decision": (
+                self.authoritative_decision
+                if self.authoritative_decision is not None
+                else self.pending_decision
+            ),
             "private_village": self.village_status,
             "authority": {
                 "status_is_evidence_only": True,
@@ -1602,11 +1714,11 @@ class ConversationalHokage:
                     continue
 
                 if text == self.pending_charter["rejection_phrase"]:
+                    self.reject_charter(text)
                     print(
                         "Hokage: Charter rechazado. "
                         "No se ejecutó ninguna herramienta."
                     )
-                    self.pending_charter = None
                     continue
 
                 print(

@@ -206,6 +206,39 @@ class ContinuityStore:
         self.write_dashboard(state)
         return state
 
+    def mark_mission_rejected(
+        self,
+        *,
+        mission_id: str,
+        rejected_at: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Clear active state after a human Charter rejection, mirroring
+        mark_mission_closed()'s shape. Guarded: active_mission_id and
+        active_mission.json are only touched if they still point at this
+        exact mission_id, so a stale/late rejection call can never
+        clobber a different mission that has since become active.
+        active_mission.json is preserved (never deleted) with its own
+        state flipped to "rejected" - mission_charter.json/mission_
+        decision.json/conversational_intent.json are untouched here and
+        remain on disk as historical evidence of the rejected proposal."""
+
+        timestamp = rejected_at or utc_now()
+        state = self.load_user_state()
+        if state.get("active_mission_id") == mission_id:
+            state["active_mission_id"] = None
+            state["last_mission_id"] = mission_id
+            write_json(self.user_state_path, state)
+
+        if self.active_mission_path.exists():
+            active = read_json(self.active_mission_path)
+            if active.get("mission_id") == mission_id:
+                active["state"] = "rejected"
+                active["rejected_at"] = timestamp
+                write_json(self.active_mission_path, active)
+
+        self.write_dashboard(state)
+        return state
+
     def write_dashboard(self, state: Dict[str, Any]) -> Path:
         path = self.obsidian_root / "00-home" / "dashboard.md"
         path.parent.mkdir(parents=True, exist_ok=True)
