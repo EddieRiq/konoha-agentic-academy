@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Action Proposal 1.1",
+  "description": "Additive 1.1.0 shape, built by tools/hokage_orchestrator/skill_runtime.py (_build_action) and validated at runtime by tools/hokage_orchestrator/authority.py (validate_action_authority). Does not replace conversational_action_proposal.schema.json (1.0.0), which stays the schema for legacy actions. Unlike 1.0.0, there is no mutates_files/network_required const here - capability is resolved per skill/provider via skill_runtime.effective_capabilities(), never carried as a fixed field on the action itself. additionalProperties stays true at the top level: authority.py enforces required fields individually, not a closed key set, and evidence/updated_at/blocked_reason are added over the action's lifecycle.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "action_id",
+    "mission_id",
+    "plan_id",
+    "skill_id",
+    "tier",
+    "arguments",
+    "arguments_hash",
+    "risk_level",
+    "status",
+    "approval_phrase",
+    "rejection_phrase",
+    "created_at",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "report_type": {
+      "const": "conversational_action_proposal"
+    },
+    "action_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plan_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "skill_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tier": {
+      "enum": [
+        "initial",
+        "followup"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "arguments": {
+      "type": "object",
+      "required": [
+        "skill_id",
+        "tier",
+        "plan_id",
+        "charter_id",
+        "charter_digest",
+        "decision_id",
+        "decision_digest"
+      ],
+      "properties": {
+        "skill_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tier": {
+          "enum": [
+            "initial",
+            "followup"
+          ]
+        },
+        "plan_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "charter_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "charter_digest": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_digest": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selection_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "external_network": {
+          "type": "boolean"
+        },
+        "local_transport": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "arguments_hash": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "running",
+        "completed",
+        "failed",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "approval_phrase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rejection_phrase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "blocked_reason": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "approved_by",
+        "approved_at",
+        "arguments_hash"
+      ],
+      "properties": {
+        "approved_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "approved_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "arguments_hash": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      },
+      "additionalProperties": true
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

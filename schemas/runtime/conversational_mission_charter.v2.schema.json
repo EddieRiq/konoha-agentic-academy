@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Mission Charter 1.1",
+  "description": "Additive 1.1.0 shape, validated at runtime by tools/hokage_orchestrator/authority.py (_validate_charter_shape, _validate_charter_skill_registration) and built by tools/hokage_orchestrator/charter.py (build_charter_1_1/approve_charter_1_1). Does not replace conversational_mission_charter.schema.json (1.0.0), which stays the schema for legacy charters. Unlike 1.0.0, state has no 'rejected' value here - rejection is an action-level state in this contract, never a charter-level one.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "charter_id",
+    "mission_id",
+    "state",
+    "human_constraints",
+    "proposed_skills",
+    "forbidden_skills",
+    "allowed_followup_skills",
+    "memory_write_allowed",
+    "decision_id",
+    "decision_digest",
+    "approval_phrase"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "report_type": {
+      "const": "conversational_mission_charter"
+    },
+    "charter_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "proposed",
+        "approved"
+      ]
+    },
+    "human_constraints": {
+      "type": "object",
+      "required": [
+        "mutation_forbidden",
+        "network_blocked",
+        "local_model_only",
+        "private_context_restricted"
+      ],
+      "properties": {
+        "mutation_forbidden": {
+          "type": "boolean"
+        },
+        "network_blocked": {
+          "type": "boolean"
+        },
+        "local_model_only": {
+          "type": "boolean"
+        },
+        "private_context_restricted": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "proposed_skills": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "forbidden_skills": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_followup_skills": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "memory_write_allowed": {
+      "type": "boolean"
+    },
+    "decision_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision_digest": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "approval_phrase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rejection_phrase": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "object"
+    },
+    "out_of_scope": {
+      "type": "array"
+    },
+    "constraints": {
+      "type": "array"
+    },
+    "risk_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "approval_gates": {
+      "type": "array"
+    },
+    "success_criteria": {
+      "type": "array"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "approved_at": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

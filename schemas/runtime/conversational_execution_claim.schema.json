@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conversational Execution Claim 1.1",
+  "description": "Persisted write-once (O_CREAT|O_EXCL via authority.publish_once()) at mission_dir/action_claims/<action_id>.json by tools/hokage_orchestrator/skill_runtime.py's _publish_execution_claim(), and validated at runtime by verify_execution_claim(). New artifact type - there is no 1.0.0 predecessor. The key set is closed (additionalProperties: false) because skill_runtime._CLAIM_REQUIRED_KEYS is checked with an exact set() match, not a subset check - any extra or missing key fails closed with execution_claim_invalid.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "mission_id",
+    "plan_id",
+    "action_id",
+    "arguments_hash",
+    "approved_by",
+    "approved_at",
+    "claimed_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "report_type": {
+      "const": "conversational_execution_claim"
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plan_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "arguments_hash": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "approved_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approved_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claimed_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

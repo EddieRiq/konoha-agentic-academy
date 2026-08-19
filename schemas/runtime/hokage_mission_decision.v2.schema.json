@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Hokage Mission Decision 1.1",
+  "description": "Additive 1.1.0 shape, validated at runtime by tools/hokage_orchestrator/authority.py (_validate_decision_shape). Does not replace hokage_mission_decision.schema.json (1.0.0), which stays the schema for legacy decisions.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_type",
+    "decision_id",
+    "mission_id",
+    "selection"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "report_type": {
+      "const": "hokage_mission_decision"
+    },
+    "decision_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "classification": {
+      "type": "object"
+    },
+    "selection": {
+      "type": "object",
+      "required": [
+        "provider",
+        "model",
+        "strategy",
+        "selection_source"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selection_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "provider_readiness": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "selection_is_proposal_only": {
+          "type": "boolean"
+        },
+        "blocked_diagnostic": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "economy": {
+      "type": "object"
+    },
+    "supervision": {
+      "type": "object"
+    },
+    "review_checkpoints": {
+      "type": "array"
+    },
+    "telemetry_contract": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
