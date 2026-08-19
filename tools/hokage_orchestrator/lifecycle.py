@@ -108,7 +108,8 @@ class LifecycleStore:
 
             runtime = (
                 action.get("evidence", {})
-                .get("runtime_result", {})
+                .get("result")
+                or {}
             )
             paths = runtime.get("output_paths", [])
             if isinstance(paths, list):

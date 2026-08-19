@@ -51,13 +51,25 @@ class ConversationalHokageTests(unittest.TestCase):
             )
 
     def test_charter_uses_exact_approval_phrase(self):
+        # Exercises the real 1.1 path (propose() ->
+        # build_decision_1_1() -> build_charter_1_1()) end to end -
+        # charter.build_charter() (1.0) has no reachable call site left
+        # in run_conversational_hokage.py after the Block 2 migration.
         with tempfile.TemporaryDirectory() as tmp:
-            repo = Path(tmp)
-            intent = self.module.interpret_intent(
-                "Revisá este repositorio sin modificarlo.",
-                repo,
+            root = Path(tmp)
+            repo = root / "repo"
+            repo.mkdir()
+            shell = self.module.ConversationalHokage(
+                repo_root=repo,
+                workspace_root=root / "workspace",
+                state_root=root / "runtime",
+                memory_root=root / "obsidian",
+                actor="Eduardo",
             )
-            charter = self.module.build_charter(intent, "Eduardo")
+            result = shell.propose(
+                "Revisá este repositorio sin modificarlo."
+            )
+            charter = result["charter"]
             self.assertTrue(
                 charter["approval_phrase"].startswith(
                     "APROBAR CHARTER-"

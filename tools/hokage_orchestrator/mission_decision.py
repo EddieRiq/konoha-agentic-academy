@@ -7,7 +7,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Optional
 
 from . import authority
 
@@ -184,7 +184,7 @@ def select_provider_and_model_1_1(
     *,
     human_constraints: Dict[str, bool],
     local_model: str,
-    provider_skill_id: str,
+    provider_skill_id: Optional[str],
 ) -> Dict[str, Any]:
     """1.1 provider selection for one explicit provider skill.
 
@@ -199,6 +199,11 @@ def select_provider_and_model_1_1(
       ready or violates a constraint, this fails closed with
       ProviderSelectionError before any Charter exists - there is no
       fallback to a remote provider for this skill.
+    - None: the mission proposes no provider-backed skill at all. This
+      does not require any provider to be ready, never selects a provider,
+      and never calls effective_capabilities(). provider_readiness may
+      still be recorded on the resulting selection, but purely as
+      diagnostic information - nothing here depends on it.
 
     Under human_constraints["local_model_only"], the provider is always
     ollama and strategy never suggests a remote/hybrid-with-external-
@@ -207,6 +212,19 @@ def select_provider_and_model_1_1(
     local_model_only is False."""
 
     _validate_human_constraints(human_constraints)
+
+    if provider_skill_id is None:
+        providers = _provider_map(snapshot)
+        ready = {name for name, row in providers.items() if row.get("status") == "ready"}
+        return {
+            "provider": "none",
+            "model": "none",
+            "strategy": "deterministic_only",
+            "selection_source": "no_provider_skill_requested",
+            "rationale": "No provider-backed skill is proposed for this mission.",
+            "provider_readiness": sorted(ready),
+            "selection_is_proposal_only": True,
+        }
 
     if provider_skill_id not in {"run_technical_plan", "invoke_local_model_audit"}:
         raise ProviderSelectionError(
@@ -344,7 +362,7 @@ def build_decision_1_1(
     bootstrap_snapshot: Dict[str, Any],
     local_model: str,
     human_constraints: Dict[str, bool],
-    provider_skill_id: str,
+    provider_skill_id: Optional[str],
 ) -> Dict[str, Any]:
     """Build (but do not persist) a schema_version 1.1.0
     hokage_mission_decision. Additive: MissionDecisionEngine.decide() and

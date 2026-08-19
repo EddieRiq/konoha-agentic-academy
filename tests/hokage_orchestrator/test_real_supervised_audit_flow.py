@@ -3,13 +3,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.hokage_orchestrator import charter as charter_module
+from tools.hokage_orchestrator import mission_decision
 from tools.hokage_orchestrator.audit_flow import (
     RC_README_MARKER,
     RealSupervisedAuditFlow,
     normalize_ollama_host,
 )
+from tools.hokage_orchestrator.intent import interpret_intent
 from tools.hokage_orchestrator.skill_runtime import (
     ActionQueue,
+    PROVIDER_SKILL_IDS,
     make_action,
     validate_skills,
 )
@@ -85,33 +89,80 @@ class RealSupervisedAuditFlowTests(unittest.TestCase):
     def test_skill_registry_accepts_bounded_mutating_patch_only(self):
         self.assertEqual(validate_skills(), [])
 
+    def _seed_authority_1_1(self, mission_dir: Path, mission_id: str, intent: dict):
+        """Build and approve a real 1.1 authority chain via the actual
+        production builders - no hand-written Decision/Charter dicts, no
+        direct write_authority_receipt() shortcut. Mirrors
+        tests/hokage_orchestrator/test_mission_authority_chain.py's
+        pattern."""
+
+        human_constraints = {
+            "mutation_forbidden": False,
+            "network_blocked": False,
+            "local_model_only": True,
+            "private_context_restricted": False,
+        }
+        proposed = charter_module.real_proposed_skills(intent)
+        provider_skill_ids = sorted(set(proposed) & PROVIDER_SKILL_IDS)
+        provider_skill_id = provider_skill_ids[0] if provider_skill_ids else None
+
+        decision = mission_decision.build_decision_1_1(
+            mission_id=mission_id,
+            intent=intent,
+            bootstrap_snapshot={
+                "providers": [{"provider": "ollama", "status": "ready"}]
+            },
+            local_model="qwen2.5-coder:7b",
+            human_constraints=human_constraints,
+            provider_skill_id=provider_skill_id,
+        )
+        charter = charter_module.build_charter_1_1(
+            intent,
+            decision,
+            actor="Eduardo",
+            human_constraints=human_constraints,
+        )
+        return charter_module.approve_charter_1_1(
+            mission_dir,
+            charter,
+            decision,
+            approval_phrase=charter["approval_phrase"],
+            approved_by="Eduardo",
+        )
+
     def test_action_queue_uses_real_audit_sequence(self):
+        # ActionQueue.initialize() (1.1) requires a real approved
+        # authority chain on disk - it no longer accepts charter/
+        # runtime_proposals/local_model arguments directly.
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            mission = root / "missions" / "mission-1"
+            mission_id = "mission-1"
+            mission = root / "missions" / mission_id
+            mission.mkdir(parents=True)
+
+            intent = interpret_intent(
+                "Revisá este repositorio con Ollama.", root
+            )
+            approved = self._seed_authority_1_1(mission, mission_id, intent)
+
             queue = ActionQueue(mission)
             payload = queue.initialize(
-                mission_id="mission-1",
+                mission_id=mission_id,
                 plan_id="plan-1",
-                charter={
-                    "proposed_skills": [
-                        "inspect_public_repo",
-                        "invoke_local_model",
-                    ]
-                },
-                runtime_proposals=[],
-                local_model="qwen2.5-coder:7b",
             )
             skills = [
                 item["skill_id"]
                 for item in payload["actions"]
             ]
-            self.assertEqual(
-                skills,
-                [
-                    "run_deterministic_audit_checks",
-                    "invoke_local_model_audit",
-                ],
+            # The real audit sequence: deterministic checks always run
+            # before the model audit, in the exact order the approved
+            # Charter declared.
+            self.assertEqual(skills, approved["proposed_skills"])
+            self.assertIn("run_deterministic_audit_checks", skills)
+            self.assertIn("invoke_local_model_audit", skills)
+            self.assertLess(
+                skills.index("run_deterministic_audit_checks"),
+                skills.index("invoke_local_model_audit"),
             )
 
     def test_model_grant_is_bound_to_action_hash(self):
@@ -128,10 +179,11 @@ class RealSupervisedAuditFlowTests(unittest.TestCase):
                 },
             )
             grant = flow.build_model_grant(action)
-            self.assertTrue(
-                grant["approval_phrase"].startswith(
-                    "APROBAR SESION-MODELO-"
-                )
+            # The single human execution gate is the action's own
+            # approval_phrase - build_model_grant() binds to it rather
+            # than minting an independent challenge.
+            self.assertEqual(
+                grant["approval_phrase"], action["approval_phrase"]
             )
             approved = flow.approve_model_grant(
                 action=action,

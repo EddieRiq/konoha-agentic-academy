@@ -38,6 +38,20 @@ class ConversationalLifecycleTests(unittest.TestCase):
         )
 
     def prepare_actions(self, shell):
+        # The Charter for an inspect_and_review intent always proposes
+        # run_deterministic_audit_checks + invoke_local_model_audit
+        # alongside the two inspections (real_proposed_skills() is not
+        # constraint-conditional). invoke_local_model_audit needs a live
+        # Ollama-backed audit tool this sandbox doesn't have, and
+        # run_deterministic_audit_checks shells out to
+        # `python -m unittest discover -s tests/hokage_orchestrator` -
+        # approving it for real from inside a test that itself lives in
+        # tests/hokage_orchestrator/ would recursively re-run the entire
+        # suite, including this very test, unboundedly. Both are rejected
+        # via the real reject path instead; only the two execute-command
+        # inspections (no such dependency) are approved for real.
+        # Rejected actions don't block review (only pending/failed ones
+        # do).
         proposal = shell.one_shot(
             "Revisá este repositorio con controles determinísticos. "
             "No modifiques archivos."
@@ -45,17 +59,26 @@ class ConversationalLifecycleTests(unittest.TestCase):
         charter = shell.approve_charter(
             proposal["charter"]["approval_phrase"]
         )
-        first = charter["next_action"]
-        first_result = shell.approve_action(
-            first,
-            first["approval_phrase"],
-        )
-        second = first_result["next_action"]
-        second_result = shell.approve_action(
-            second,
-            second["approval_phrase"],
-        )
-        return proposal, second_result
+        action = charter["next_action"]
+        result = None
+        reject_skills = {
+            "run_deterministic_audit_checks",
+            "invoke_local_model_audit",
+        }
+        while action is not None:
+            if action["skill_id"] in reject_skills:
+                result = shell.reject_action(
+                    action,
+                    action["rejection_phrase"],
+                )
+            else:
+                result = shell.approve_action(
+                    action,
+                    action["approval_phrase"],
+                )
+            self.assertEqual(result["status"], "passed", result)
+            action = result.get("next_action")
+        return proposal, result
 
     def test_all_actions_build_deterministic_review_proposal(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -79,6 +102,7 @@ class ConversationalLifecycleTests(unittest.TestCase):
                 summary["counts"]["completed"],
                 2,
             )
+            self.assertEqual(summary["counts"]["rejected"], 2)
             self.assertEqual(summary["counts"]["failed"], 0)
 
     def test_review_teachback_and_closure_complete_mission(self):

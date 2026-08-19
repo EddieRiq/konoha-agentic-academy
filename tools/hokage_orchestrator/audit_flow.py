@@ -344,6 +344,13 @@ class RealSupervisedAuditFlow:
         self,
         action: Dict[str, Any],
     ) -> Dict[str, Any]:
+        """Deterministic record of the model session bound to this exact
+        action. The single human execution gate is ActionQueue.
+        approve_and_dispatch() checking action["approval_phrase"] - this
+        grant is not a second authority, so it binds its own
+        approval_phrase to action["approval_phrase"] rather than minting
+        an independent one the human would otherwise need to type twice."""
+
         existing = (
             read_json(self.model_grant_path)
             if self.model_grant_path.exists()
@@ -376,9 +383,7 @@ class RealSupervisedAuditFlow:
             "arguments_hash": action["arguments_hash"],
             "material_sha256": sha256_text(canonical_json(material)),
             "status": "proposed",
-            "approval_phrase": (
-                f"APROBAR SESION-MODELO-{digest.upper()}"
-            ),
+            "approval_phrase": action["approval_phrase"],
             "authority": {
                 "grant_is_not_permission_until_exact_approval": True,
                 "grant_is_single_use": True,
@@ -790,17 +795,38 @@ class RealSupervisedAuditFlow:
         *,
         phrase: str,
     ) -> Dict[str, Any]:
-        self._require_audit_tool()
+        """Standalone entry point requiring the patch proposal's own
+        challenge phrase. Not used by the conversational shell's dispatch
+        path - see _apply_patch_locked(), which performs every other
+        check this does except the phrase comparison."""
+
         proposal = self.load_patch_proposal()
         if proposal is None:
             raise AuditFlowError("Patch proposal is missing.")
+        if phrase.strip() != proposal.get("approval_phrase"):
+            raise AuditFlowError(
+                "Patch approval phrase mismatch."
+            )
+        return self._apply_patch_locked(proposal)
+
+    def _apply_patch_locked(
+        self,
+        proposal: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Applies the exact validated patch with no phrase check of its
+        own - only the deterministic proposal-status/patch_sha256/
+        changed_paths validations that were already part of apply_patch().
+        Callable only once a real human authorization already exists
+        elsewhere: ActionQueue.approve_and_dispatch() has already checked
+        the human-typed action["approval_phrase"] and published the
+        execution claim for the apply_validated_patch action bound to
+        this exact proposal.patch_sha256. Never call this from anywhere
+        that has not already independently verified that binding."""
+
+        self._require_audit_tool()
         if proposal.get("status") != "proposed":
             raise AuditFlowError(
                 f"Patch proposal status={proposal.get('status')}"
-            )
-        if phrase.strip() != proposal["approval_phrase"]:
-            raise AuditFlowError(
-                "Patch approval phrase mismatch."
             )
 
         plan = read_json(self.patch_plan_path)
@@ -891,6 +917,10 @@ class RealSupervisedAuditFlow:
         *,
         phrase: str,
     ) -> Dict[str, Any]:
+        """Standalone entry point requiring the patch proposal's own
+        challenge phrase. Not used by the conversational shell's dispatch
+        path - see _reject_patch_locked()."""
+
         proposal = self.load_patch_proposal()
         if proposal is None:
             raise AuditFlowError("Patch proposal is missing.")
@@ -898,6 +928,18 @@ class RealSupervisedAuditFlow:
             raise AuditFlowError(
                 "Patch rejection phrase mismatch."
             )
+        return self._reject_patch_locked(proposal)
+
+    def _reject_patch_locked(
+        self,
+        proposal: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """State synchronization only - no phrase check. The human gate
+        for rejecting the apply_validated_patch action is ActionQueue.
+        reject_action_checked() (action["rejection_phrase"]); calling this
+        afterward just keeps the patch proposal record consistent with
+        that already-authorized decision, it is never a second gate."""
+
         proposal["status"] = "rejected"
         proposal["rejected_at"] = utc_now()
         proposal["rejected_by"] = self.actor

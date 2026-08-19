@@ -82,7 +82,7 @@ class ConversationalActionTests(unittest.TestCase):
                 result["action"]["status"],
                 "completed",
             )
-            evidence = result["action"]["evidence"]["runtime_result"]
+            evidence = result["action"]["evidence"]["result"]
             self.assertTrue(evidence["output_paths"])
             self.assertTrue(
                 Path(evidence["output_paths"][0]).exists()

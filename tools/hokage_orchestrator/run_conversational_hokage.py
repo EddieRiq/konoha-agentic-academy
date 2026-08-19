@@ -22,9 +22,13 @@ from tools.hokage_orchestrator.audit_flow import (  # noqa: E402
     AuditFlowError,
     RealSupervisedAuditFlow,
 )
+from tools.hokage_orchestrator import authority  # noqa: E402
 from tools.hokage_orchestrator.charter import (  # noqa: E402
-    build_charter,
+    approve_charter_1_1,
+    build_charter_1_1,
+    charter_id,
     charter_markdown,
+    real_proposed_skills,
 )
 from tools.hokage_orchestrator.continuity import (  # noqa: E402
     ContinuityStore,
@@ -42,13 +46,13 @@ from tools.hokage_orchestrator.lifecycle import (  # noqa: E402
 from tools.hokage_orchestrator.bootstrap_runtime import (  # noqa: E402
     HokageBootstrapRuntime,
 )
+from tools.hokage_orchestrator import skill_runtime  # noqa: E402
 from tools.hokage_orchestrator.skill_runtime import (  # noqa: E402
     ActionQueue,
     RuntimeBridge,
     validate_skills,
-    verify_action_approval,
 )
-from tools.hokage_orchestrator.mission_decision import MissionDecisionEngine
+from tools.hokage_orchestrator.mission_decision import build_decision_1_1  # noqa: E402
 from tools.hokage_orchestrator.village_runtime import VillageInitializer
 
 DEV_VERSION = "3.6.0"
@@ -129,12 +133,42 @@ def safe_slug(value: str) -> str:
     return slug
 
 
-def mission_id_for(charter: Dict[str, Any]) -> str:
-    suffix = charter["charter_id"].split("-", 1)[-1]
+def mission_id_for_intent(intent: Dict[str, Any]) -> str:
+    """mission_id must exist before the Decision/Charter do (Decision 1.1
+    needs it as an input), so this is derived from intent alone via the
+    same charter_id(intent) formula build_charter_1_1() uses internally -
+    identical intent always yields the identical mission_id regardless of
+    which builder ends up constructing the Charter."""
+
+    suffix = charter_id(intent).split("-", 1)[-1]
     return (
         f"mission-{suffix}-"
-        f"{safe_slug(charter['objective'])[:28]}"
+        f"{safe_slug(intent['objective'])[:28]}"
     )
+
+
+_MUTATION_FORBIDDEN_CONSTRAINT = "no filesystem mutation before explicit approval"
+_NETWORK_BLOCKED_CONSTRAINT = "network access blocked"
+_LOCAL_MODEL_ONLY_CONSTRAINT = "local model only"
+_PRIVATE_CONTEXT_RESTRICTED_CONSTRAINT = "private context requires a scoped approval"
+
+
+def human_constraints_from_intent(intent: Dict[str, Any]) -> Dict[str, bool]:
+    """Deterministic mapping from intent.py's existing free-text
+    constraints vocabulary to the closed 4-key human_constraints shape
+    Decision/Charter 1.1 require. intent.py is out of this block's scope
+    to extend, so this reads only tokens interpret_intent() already
+    produces - no new vocabulary is invented."""
+
+    constraints = set(intent.get("constraints", []))
+    return {
+        "mutation_forbidden": _MUTATION_FORBIDDEN_CONSTRAINT in constraints,
+        "network_blocked": _NETWORK_BLOCKED_CONSTRAINT in constraints,
+        "local_model_only": _LOCAL_MODEL_ONLY_CONSTRAINT in constraints,
+        "private_context_restricted": (
+            _PRIVATE_CONTEXT_RESTRICTED_CONSTRAINT in constraints
+        ),
+    }
 
 
 def render_charter(charter: Dict[str, Any]) -> str:
@@ -163,6 +197,8 @@ def render_charter(charter: Dict[str, Any]) -> str:
 
 
 def render_action(action: Dict[str, Any]) -> str:
+    provider = action.get("arguments", {}).get("provider")
+    caps = skill_runtime.effective_capabilities(action["skill_id"], provider)
     return "\n".join(
         [
             "",
@@ -172,9 +208,9 @@ def render_action(action: Dict[str, Any]) -> str:
             f"Skill: {action['skill_id']}",
             f"Descripción: {action['description']}",
             f"Riesgo: {action['risk_level']}",
-            f"Mutación: {action['mutates_files']}",
-            f"Red: {action['network_required']}",
-            f"Contexto privado: {action['private_context_required']}",
+            f"Mutación: {caps['mutates_files']}",
+            f"Red: {caps['external_network']}",
+            f"Contexto privado: {caps['private_context']}",
             f"Argument hash: {action['arguments_hash'][:16]}",
             "",
             "La propuesta no es permiso.",
@@ -372,10 +408,12 @@ class ConversationalHokage:
         )
         self.runtime: Optional[RuntimeBridge] = None
         self.pending_charter: Optional[Dict[str, Any]] = None
+        self.pending_decision: Optional[Dict[str, Any]] = None
         self.active_mission: Optional[Dict[str, Any]] = None
         self.action_queue: Optional[ActionQueue] = None
         self.lifecycle: Optional[LifecycleStore] = None
         self.audit_flow: Optional[RealSupervisedAuditFlow] = None
+        self.resume_diagnostic: Optional[str] = None
         self.bootstrap_runtime = HokageBootstrapRuntime(
             state_root=state_root,
             actor=actor,
@@ -391,11 +429,6 @@ class ConversationalHokage:
                 "selected_model"
             ]
             local_model = self.local_model
-        self.decision_engine = MissionDecisionEngine(
-            state_root=state_root,
-            bootstrap_snapshot=self.bootstrap_evidence,
-            local_model=local_model,
-        )
         self.latest_decision: Optional[Dict[str, Any]] = None
         self.restore()
 
@@ -437,11 +470,28 @@ class ConversationalHokage:
         self.lifecycle = LifecycleStore(mission_dir)
         self.audit_flow = self._make_audit_flow(mission_id)
 
-        charter_path = Path(active.get("charter_path", ""))
-        if charter_path.exists():
-            charter = read_json(charter_path)
-            if charter.get("state") == "proposed":
-                self.pending_charter = charter
+        charter_path = authority.mission_charter_path(mission_dir)
+        if not charter_path.exists():
+            return
+        charter = read_json(charter_path)
+
+        if charter.get("state") == "proposed":
+            self.pending_charter = charter
+            decision_path = authority.mission_decision_path(mission_dir)
+            if decision_path.exists():
+                self.pending_decision = read_json(decision_path)
+            return
+
+        if charter.get("state") == "approved":
+            # Re-derive and re-validate the full authority chain, then
+            # restore the queue - never auto-dispatching anything. A
+            # failure here is surfaced through status_payload(), not
+            # raised out of the constructor.
+            try:
+                authority.load_authoritative_state(mission_dir)
+                self.action_queue.restore()
+            except authority.AuthorityBindingError as exc:
+                self.resume_diagnostic = f"{exc.code}: {exc.detail}"
 
     def propose(self, request: str) -> Dict[str, Any]:
         intent = interpret_intent(request, self.repo_root)
@@ -453,24 +503,48 @@ class ConversationalHokage:
                 "errors": errors,
             }
 
-        charter = build_charter(intent, self.actor)
-        mission_id = mission_id_for(charter)
-        decision = self.decision_engine.decide(
+        mission_id = mission_id_for_intent(intent)
+        human_constraints = human_constraints_from_intent(intent)
+
+        proposed_skills = real_proposed_skills(intent)
+        provider_skill_ids = sorted(
+            set(proposed_skills) & skill_runtime.PROVIDER_SKILL_IDS
+        )
+        if len(provider_skill_ids) > 1:
+            return {
+                "status": "failed",
+                "status_code": "AMBIGUOUS_PROVIDER_SKILL",
+                "provider_skill_ids": provider_skill_ids,
+            }
+        provider_skill_id = provider_skill_ids[0] if provider_skill_ids else None
+
+        decision = build_decision_1_1(
             mission_id=mission_id,
             intent=intent,
+            bootstrap_snapshot=self.bootstrap_evidence,
+            local_model=self.local_model,
+            human_constraints=human_constraints,
+            provider_skill_id=provider_skill_id,
         )
-        charter["decision"] = decision
+        charter = build_charter_1_1(
+            intent,
+            decision,
+            actor=self.actor,
+            human_constraints=human_constraints,
+        )
         self.latest_decision = decision
         mission_dir = self.mission_dir(mission_id)
         mission_dir.mkdir(parents=True, exist_ok=True)
 
         intent_path = mission_dir / "conversational_intent.json"
-        charter_path = mission_dir / "mission_charter.json"
+        charter_path = authority.mission_charter_path(mission_dir)
         charter_md = mission_dir / "charter.md"
 
         write_json(intent_path, intent)
-        write_json(mission_dir / "mission_decision.json", decision)
-        write_json(charter_path, charter)
+        authority.atomic_write_json(
+            authority.mission_decision_path(mission_dir), decision
+        )
+        authority.atomic_write_json(charter_path, charter)
         charter_md.write_text(
             charter_markdown(charter),
             encoding="utf-8",
@@ -478,6 +552,7 @@ class ConversationalHokage:
         )
 
         self.pending_charter = charter
+        self.pending_decision = decision
         self.active_mission = self.continuity.set_active_mission(
             mission_id=mission_id,
             charter_path=charter_path,
@@ -504,33 +579,43 @@ class ConversationalHokage:
         }
 
     def approve_charter(self, phrase: str) -> Dict[str, Any]:
-        if self.pending_charter is None:
+        if self.pending_charter is None or self.pending_decision is None:
             return {
                 "status": "failed",
                 "status_code": "NO_PENDING_CHARTER",
             }
 
-        if phrase.strip() != self.pending_charter["approval_phrase"]:
+        mission_id = self.active_mission["mission_id"]
+        mission_dir = self.mission_dir(mission_id)
+
+        try:
+            charter = approve_charter_1_1(
+                mission_dir,
+                self.pending_charter,
+                self.pending_decision,
+                approval_phrase=phrase,
+                approved_by=self.actor,
+            )
+        except authority.AuthorityBindingError as exc:
             return {
                 "status": "failed",
                 "status_code": "CHARTER_APPROVAL_MISMATCH",
                 "expected": self.pending_charter["approval_phrase"],
+                "detail": f"{exc.code}: {exc.detail}",
             }
 
-        mission_id = self.active_mission["mission_id"]
         plan_id = f"{mission_id}-plan"
-        charter_path = (
-            self.mission_dir(mission_id)
-            / "mission_charter.json"
-        )
-        charter = read_json(charter_path)
-        charter["state"] = "approved"
-        charter["approved_at"] = utc_now()
-        charter["approved_by"] = self.actor
-        write_json(charter_path, charter)
 
-        self.runtime = RuntimeBridge(self.repo_root)
-        runtime_evidence = self.runtime.bootstrap(
+        # RuntimeBridge.execute() shells out to run_konoha_beta.py's
+        # execute-command, which looks the actual command string up from
+        # plans/{plan_id}_command_proposals.json by command_id - that
+        # file, not the action's own arguments, is where the command
+        # comes from. bootstrap() must still run to produce it; its
+        # return value is otherwise unused here - ActionQueue.initialize()
+        # takes no runtime_proposals/local_model arguments in 1.1.
+        if self.runtime is None:
+            self.runtime = RuntimeBridge(self.repo_root)
+        self.runtime.bootstrap(
             workspace_root=self.workspace_root,
             mission_id=mission_id,
             plan_id=plan_id,
@@ -538,32 +623,16 @@ class ConversationalHokage:
             objective=charter["objective"],
         )
 
-        proposals_path = (
-            self.mission_dir(mission_id)
-            / "plans"
-            / f"{plan_id}_command_proposals.json"
-        )
-        proposals = read_json(proposals_path).get(
-            "proposals",
-            [],
-        )
-
-        self.action_queue = ActionQueue(
-            self.mission_dir(mission_id)
-        )
+        self.action_queue = ActionQueue(mission_dir)
         queue = self.action_queue.initialize(
             mission_id=mission_id,
             plan_id=plan_id,
-            charter=charter,
-            runtime_proposals=proposals,
-            local_model=self.local_model,
         )
-        self.lifecycle = LifecycleStore(
-            self.mission_dir(mission_id)
-        )
+        self.lifecycle = LifecycleStore(mission_dir)
         self.audit_flow = self._make_audit_flow(mission_id)
 
         self.pending_charter = None
+        self.pending_decision = None
         self.active_mission = self.continuity.update_active_state(
             "awaiting_action_approval"
         )
@@ -575,7 +644,6 @@ class ConversationalHokage:
             "plan_id": plan_id,
             "action_count": len(queue.get("actions", [])),
             "next_action": self.action_queue.next_pending(),
-            "runtime_evidence": runtime_evidence,
             "authority": {
                 "charter_approval_does_not_authorize_actions": True,
                 "action_proposals_are_not_permission": True,
@@ -666,24 +734,300 @@ class ConversationalHokage:
         )
         return review
 
-    def _complete_action(
+    # proposed+claim ("interrupted_claimed") and a held lease are never a
+    # wrong approval phrase - only human recovery
+    # (ActionQueue.find_recovery_candidates() /
+    # block_interrupted_action_checked()) resolves them, never a plain
+    # approve_and_dispatch() retry.
+    _RECOVERY_SIGNAL_CODES = frozenset(
+        {"execution_already_claimed", "execution_still_active"}
+    )
+    # A missing/invalid/mis-bound execution claim is authority corruption,
+    # not a recoverable state - it must never be routed through
+    # find_recovery_candidates() as though it were an ordinary
+    # interruption.
+    _INTEGRITY_FAILURE_CODES = frozenset(
+        {
+            "execution_claim_missing",
+            "execution_claim_invalid",
+            "execution_claim_binding_mismatch",
+        }
+    )
+
+    def _find_action(self, action_id: str) -> Optional[Dict[str, Any]]:
+        if self.action_queue is None:
+            return None
+        for candidate in self.action_queue.load().get("actions", []):
+            if candidate.get("action_id") == action_id:
+                return candidate
+        return None
+
+    def _recovery_candidates(self) -> Optional[list]:
+        if self.action_queue is None:
+            return None
+        try:
+            return self.action_queue.find_recovery_candidates()
+        except authority.AuthorityBindingError:
+            return None
+
+    def _append_post_patch_tests(
         self,
-        *,
         action: Dict[str, Any],
-        runtime_result: Dict[str, Any],
     ) -> Dict[str, Any]:
         if self.action_queue is None:
             raise ValueError("Action queue is missing.")
-
-        completed = self.action_queue.update(
-            action["action_id"],
-            status="completed",
-            evidence={
-                "completed_at": utc_now(),
-                "runtime_result": runtime_result,
-                "result_is_evidence_only": True,
+        return self.action_queue.append_action_checked(
+            mission_id=action["mission_id"],
+            plan_id=action["plan_id"],
+            skill_id="run_post_patch_tests",
+            extra_arguments={
+                "suite_profile": "v3.6.0_post_patch",
+                "external_network": "blocked",
             },
         )
+
+    def _append_followups_if_needed(
+        self,
+        completed: Dict[str, Any],
+    ) -> None:
+        skill_id = completed["skill_id"]
+        if skill_id == "invoke_local_model_audit":
+            result = completed.get("evidence", {}).get("result") or {}
+            proposal = result.get("patch_proposal") or {}
+            if proposal.get("operation_count", 0) > 0:
+                patch_sha256 = proposal.get("patch_sha256")
+                patch_id = proposal.get("patch_id")
+                if not patch_sha256 or not patch_id:
+                    raise ValueError(
+                        "Patch proposal is missing its binding material "
+                        "(patch_sha256/patch_id); refusing to propose "
+                        "apply_validated_patch without it."
+                    )
+                self.action_queue.append_action_checked(
+                    mission_id=completed["mission_id"],
+                    plan_id=completed["plan_id"],
+                    skill_id="apply_validated_patch",
+                    extra_arguments={
+                        "patch_id": patch_id,
+                        "patch_sha256": patch_sha256,
+                        "patch_plan": proposal["patch_plan"],
+                        "changed_paths": proposal["changed_paths"],
+                    },
+                )
+            else:
+                self._append_post_patch_tests(completed)
+        elif skill_id == "apply_validated_patch":
+            self._append_post_patch_tests(completed)
+
+    @staticmethod
+    def _patch_binding_matches(
+        action: Dict[str, Any],
+        proposal: Dict[str, Any],
+    ) -> bool:
+        expected = action["arguments"]
+        return (
+            expected.get("patch_id") == proposal.get("patch_id")
+            and expected.get("patch_sha256") == proposal.get("patch_sha256")
+            and expected.get("changed_paths") == proposal.get("changed_paths")
+        )
+
+    def _dispatch_for(self, action: Dict[str, Any]) -> Dict[str, Any]:
+        """The single orchestrator dispatcher. execute-command skills go
+        to RuntimeBridge.execute(); every orchestrator-kind skill is
+        routed here explicitly and never reaches RuntimeBridge. Only
+        called by ActionQueue.approve_and_dispatch(), after the queue
+        lock, execution claim and lease are already established - the
+        specialized audit_flow checks below are deterministic validations
+        of that already-authorized dispatch, never a second authority. No
+        specialized helper here re-derives or auto-satisfies a phrase of
+        its own: the only human execution gate is the action["approval_
+        phrase"] ActionQueue.approve_and_dispatch() already verified."""
+
+        skill_id = action["skill_id"]
+        skill = skill_runtime.SKILLS[skill_id]
+
+        if skill["runtime_kind"] == "execute-command":
+            if self.runtime is None:
+                self.runtime = RuntimeBridge(self.repo_root)
+            return self.runtime.execute(
+                workspace_root=self.workspace_root,
+                action=action,
+            )
+
+        if self.audit_flow is None:
+            raise AuditFlowError("Audit flow is missing.")
+
+        if skill_id == "run_deterministic_audit_checks":
+            payload = self.audit_flow.run_deterministic_checks()
+            return {
+                "status": "passed",
+                "summary": "Deterministic checks passed before model use.",
+                "output_paths": [
+                    str(self.audit_flow.deterministic_report_path)
+                ],
+                "report": payload,
+            }
+
+        if skill_id == "run_post_patch_tests":
+            payload = self.audit_flow.run_post_patch_tests()
+            return {
+                "status": "passed",
+                "summary": "Post-patch tests passed.",
+                "output_paths": [
+                    str(self.audit_flow.post_patch_tests_path)
+                ],
+                "report": payload,
+            }
+
+        if skill_id == "invoke_local_model_audit":
+            # Model output is evidence only: run_model_audit() below only
+            # ever produces a proposal for human review, it never applies
+            # anything. build_model_grant() binds grant["approval_phrase"]
+            # to this same action's approval_phrase - reusing the
+            # already-human-verified value below is not a second
+            # authority, it is the same one.
+            grant = self.audit_flow.build_model_grant(action)
+            self.audit_flow.approve_model_grant(
+                action=action,
+                phrase=action["approval_phrase"],
+            )
+            audit_result = self.audit_flow.run_model_audit(action=action)
+            return {
+                "status": "passed",
+                "summary": (
+                    "Real Ollama audit completed and findings were "
+                    "deterministically classified."
+                ),
+                "output_paths": audit_result["output_paths"],
+                "audit": audit_result["audit"],
+                "patch_proposal": audit_result["patch_proposal"],
+            }
+
+        if skill_id == "apply_validated_patch":
+            proposal = self.audit_flow.load_patch_proposal()
+            if proposal is None:
+                raise AuditFlowError("Patch proposal is missing.")
+            # The action's own binding material must still match the
+            # live proposal exactly - this is what keeps the generic
+            # action["approval_phrase"] indirectly bound to this exact
+            # patch (patch_sha256/patch_id/changed_paths -> arguments ->
+            # arguments_hash -> action_id -> approval_phrase).
+            # proposal["approval_phrase"] itself is never used as
+            # evidence of human approval here - _apply_patch_locked()
+            # applies the patch with no phrase check of its own, since
+            # the human already authorized this exact action via
+            # ActionQueue.approve_and_dispatch().
+            if not self._patch_binding_matches(action, proposal):
+                raise AuditFlowError(
+                    "Patch proposal no longer matches the action's bound "
+                    "patch_id/patch_sha256/changed_paths."
+                )
+            patch_result = self.audit_flow._apply_patch_locked(proposal)
+            return {
+                "status": "passed",
+                "summary": "Exact validated patch applied.",
+                "output_paths": patch_result["output_paths"],
+                "changed_paths": patch_result["changed_paths"],
+            }
+
+        if skill_id == "run_technical_plan":
+            # KNOWN_LIMITATION: run_technical_plan is registered and
+            # dispatch-routed, and its Decision 1.1 provider/model/
+            # strategy binding is validated below, but there is no
+            # TechnicalPlanFlow/provider-path producer anywhere in this
+            # repository yet. Never silently sent to RuntimeBridge.
+            # execute(); never inferred/faked here. Not currently
+            # reachable via real_proposed_skills() in this block, so
+            # this only matters for a future, explicitly-scoped block.
+            provider = action["arguments"].get("provider")
+            model = action["arguments"].get("model")
+            strategy = action["arguments"].get("strategy")
+            if not provider or not model or not strategy:
+                raise AuditFlowError(
+                    "run_technical_plan action is missing its Decision "
+                    "1.1 provider/model/strategy binding."
+                )
+            raise AuditFlowError(
+                "run_technical_plan has no orchestrator implementation "
+                "in this repository yet."
+            )
+
+        raise AuditFlowError(
+            f"No orchestrator dispatcher for skill_id={skill_id!r}."
+        )
+
+    def approve_action(
+        self,
+        action: Dict[str, Any],
+        phrase: str,
+    ) -> Dict[str, Any]:
+        if self.action_queue is None:
+            return {
+                "status": "failed",
+                "status_code": "NO_ACTION_QUEUE",
+            }
+
+        action_id = action["action_id"]
+        try:
+            completed = self.action_queue.approve_and_dispatch(
+                action_id,
+                phrase=phrase,
+                approved_by=self.actor,
+                dispatch=self._dispatch_for,
+            )
+        except authority.AuthorityBindingError as exc:
+            detail = f"{exc.code}: {exc.detail}"
+            if exc.code == "approval_binding_mismatch":
+                return {
+                    "status": "failed",
+                    "status_code": "ACTION_APPROVAL_MISMATCH",
+                    "expected": action["approval_phrase"],
+                    "detail": detail,
+                }
+            if exc.code in self._RECOVERY_SIGNAL_CODES:
+                return {
+                    "status": "failed",
+                    "status_code": "RECOVERY_REQUIRED",
+                    "detail": detail,
+                    "recovery": self._recovery_candidates(),
+                }
+            if exc.code in self._INTEGRITY_FAILURE_CODES:
+                current = self._find_action(action_id)
+                self.active_mission = self.continuity.update_active_state(
+                    "action_failed"
+                )
+                return {
+                    "status": "failed",
+                    "status_code": "AUTHORITY_INTEGRITY_FAILURE",
+                    "action": current,
+                    "blockers": [detail],
+                }
+            current = self._find_action(action_id)
+            self.active_mission = self.continuity.update_active_state(
+                "action_failed"
+            )
+            return {
+                "status": "failed",
+                "status_code": "ACTION_BLOCKED",
+                "action": current,
+                "blockers": [detail],
+            }
+        except Exception as exc:
+            # approve_and_dispatch() already persisted running->failed
+            # and re-raised the dispatcher's own exception - this never
+            # mutates status again, it only reloads and reports it.
+            current = self._find_action(action_id)
+            self.active_mission = self.continuity.update_active_state(
+                "action_failed"
+            )
+            return {
+                "status": "failed",
+                "status_code": "ACTION_EXECUTION_FAILED",
+                "action": current,
+                "blockers": [str(exc)],
+            }
+
+        self._append_followups_if_needed(completed)
         next_action = self.next_action()
         review = None
 
@@ -706,344 +1050,6 @@ class ConversationalHokage:
             },
         }
 
-    def _append_post_patch_tests(
-        self,
-        action: Dict[str, Any],
-    ) -> Dict[str, Any]:
-        if self.action_queue is None:
-            raise ValueError("Action queue is missing.")
-        return self.action_queue.append_action(
-            mission_id=action["mission_id"],
-            plan_id=action["plan_id"],
-            skill_id="run_post_patch_tests",
-            arguments={
-                "suite_profile": "v3.5.0_rc1_post_patch",
-                "external_network": "blocked",
-            },
-        )
-
-    def approve_action(
-        self,
-        action: Dict[str, Any],
-        phrase: str,
-    ) -> Dict[str, Any]:
-        if self.action_queue is None:
-            return {
-                "status": "failed",
-                "status_code": "NO_ACTION_QUEUE",
-            }
-
-        if action["skill_id"] in {
-            "invoke_local_model_audit",
-            "apply_validated_patch",
-        }:
-            return {
-                "status": "failed",
-                "status_code": "SPECIALIZED_APPROVAL_REQUIRED",
-            }
-
-        if not verify_action_approval(action, phrase):
-            return {
-                "status": "failed",
-                "status_code": "ACTION_APPROVAL_MISMATCH",
-                "expected": action["approval_phrase"],
-            }
-
-        self.action_queue.update(
-            action["action_id"],
-            status="running",
-            evidence={
-                "approved_by": self.actor,
-                "approved_at": utc_now(),
-                "arguments_hash": action["arguments_hash"],
-            },
-        )
-
-        try:
-            skill_id = action["skill_id"]
-            if skill_id == "run_deterministic_audit_checks":
-                if self.audit_flow is None:
-                    raise AuditFlowError("Audit flow is missing.")
-                payload = self.audit_flow.run_deterministic_checks()
-                runtime_result = {
-                    "status": "passed",
-                    "summary": (
-                        "Deterministic checks passed before model use."
-                    ),
-                    "output_paths": [
-                        str(
-                            self.audit_flow
-                            .deterministic_report_path
-                        )
-                    ],
-                    "report": payload,
-                }
-            elif skill_id == "run_post_patch_tests":
-                if self.audit_flow is None:
-                    raise AuditFlowError("Audit flow is missing.")
-                payload = self.audit_flow.run_post_patch_tests()
-                runtime_result = {
-                    "status": "passed",
-                    "summary": "Post-patch tests passed.",
-                    "output_paths": [
-                        str(
-                            self.audit_flow
-                            .post_patch_tests_path
-                        )
-                    ],
-                    "report": payload,
-                }
-            else:
-                if self.runtime is None:
-                    self.runtime = RuntimeBridge(self.repo_root)
-                runtime_result = self.runtime.execute(
-                    workspace_root=self.workspace_root,
-                    action=action,
-                )
-        except Exception as exc:
-            failed = self.action_queue.update(
-                action["action_id"],
-                status="failed",
-                evidence={
-                    "failed_at": utc_now(),
-                    "error": str(exc),
-                },
-            )
-            self.active_mission = self.continuity.update_active_state(
-                "action_failed"
-            )
-            return {
-                "status": "failed",
-                "status_code": "ACTION_EXECUTION_FAILED",
-                "action": failed,
-                "blockers": [str(exc)],
-            }
-
-        return self._complete_action(
-            action=action,
-            runtime_result=runtime_result,
-        )
-
-    def approve_model_action(
-        self,
-        action: Dict[str, Any],
-        phrase: str,
-    ) -> Dict[str, Any]:
-        if (
-            self.action_queue is None
-            or self.audit_flow is None
-        ):
-            return {
-                "status": "failed",
-                "status_code": "AUDIT_FLOW_MISSING",
-            }
-
-        try:
-            grant = self.audit_flow.approve_model_grant(
-                action=action,
-                phrase=phrase,
-            )
-        except Exception as exc:
-            return {
-                "status": "failed",
-                "status_code": "MODEL_GRANT_APPROVAL_FAILED",
-                "blockers": [str(exc)],
-            }
-
-        self.action_queue.update(
-            action["action_id"],
-            status="running",
-            evidence={
-                "approved_by": self.actor,
-                "approved_at": utc_now(),
-                "grant_id": grant["grant_id"],
-                "arguments_hash": action["arguments_hash"],
-            },
-        )
-
-        try:
-            audit_result = self.audit_flow.run_model_audit(
-                action=action
-            )
-            proposal = audit_result["patch_proposal"]
-
-            if proposal.get("operation_count", 0) > 0:
-                self.action_queue.append_action(
-                    mission_id=action["mission_id"],
-                    plan_id=action["plan_id"],
-                    skill_id="apply_validated_patch",
-                    arguments={
-                        "patch_id": proposal["patch_id"],
-                        "patch_sha256": proposal["patch_sha256"],
-                        "patch_plan": proposal["patch_plan"],
-                        "changed_paths": proposal["changed_paths"],
-                    },
-                )
-            else:
-                self._append_post_patch_tests(action)
-
-            runtime_result = {
-                "status": "passed",
-                "summary": (
-                    "Real Ollama audit completed and findings were "
-                    "deterministically classified."
-                ),
-                "output_paths": audit_result["output_paths"],
-                "audit": audit_result["audit"],
-                "patch_proposal": proposal,
-            }
-            completed = self._complete_action(
-                action=action,
-                runtime_result=runtime_result,
-            )
-            completed["audit_result"] = audit_result
-            return completed
-        except Exception as exc:
-            failed = self.action_queue.update(
-                action["action_id"],
-                status="failed",
-                evidence={
-                    "failed_at": utc_now(),
-                    "error": str(exc),
-                },
-            )
-            self.active_mission = self.continuity.update_active_state(
-                "action_failed"
-            )
-            return {
-                "status": "failed",
-                "status_code": "LOCAL_MODEL_AUDIT_FAILED",
-                "action": failed,
-                "blockers": [str(exc)],
-            }
-
-    def approve_patch(
-        self,
-        action: Dict[str, Any],
-        phrase: str,
-    ) -> Dict[str, Any]:
-        if (
-            self.action_queue is None
-            or self.audit_flow is None
-        ):
-            return {
-                "status": "failed",
-                "status_code": "AUDIT_FLOW_MISSING",
-            }
-
-        proposal = self.audit_flow.load_patch_proposal()
-        if proposal is None:
-            return {
-                "status": "failed",
-                "status_code": "PATCH_PROPOSAL_MISSING",
-            }
-        if phrase.strip() != proposal.get("approval_phrase"):
-            return {
-                "status": "failed",
-                "status_code": "PATCH_APPROVAL_MISMATCH",
-                "expected": proposal.get("approval_phrase"),
-            }
-        if (
-            action["arguments"].get("patch_sha256")
-            != proposal.get("patch_sha256")
-        ):
-            return {
-                "status": "failed",
-                "status_code": "PATCH_ARGUMENTS_INVALIDATED",
-            }
-
-        self.action_queue.update(
-            action["action_id"],
-            status="running",
-            evidence={
-                "approved_by": self.actor,
-                "approved_at": utc_now(),
-                "patch_sha256": action["arguments"][
-                    "patch_sha256"
-                ],
-            },
-        )
-
-        try:
-            patch_result = self.audit_flow.apply_patch(
-                phrase=phrase
-            )
-            self._append_post_patch_tests(action)
-            runtime_result = {
-                "status": "passed",
-                "summary": "Exact validated patch applied.",
-                "output_paths": patch_result["output_paths"],
-                "changed_paths": patch_result["changed_paths"],
-            }
-            completed = self._complete_action(
-                action=action,
-                runtime_result=runtime_result,
-            )
-            completed["patch_result"] = patch_result
-            return completed
-        except Exception as exc:
-            failed = self.action_queue.update(
-                action["action_id"],
-                status="failed",
-                evidence={
-                    "failed_at": utc_now(),
-                    "error": str(exc),
-                },
-            )
-            self.active_mission = self.continuity.update_active_state(
-                "action_failed"
-            )
-            return {
-                "status": "failed",
-                "status_code": "PATCH_APPLY_FAILED",
-                "action": failed,
-                "blockers": [str(exc)],
-            }
-
-    def reject_patch(
-        self,
-        action: Dict[str, Any],
-        phrase: str,
-    ) -> Dict[str, Any]:
-        if (
-            self.action_queue is None
-            or self.audit_flow is None
-        ):
-            return {
-                "status": "failed",
-                "status_code": "AUDIT_FLOW_MISSING",
-            }
-        try:
-            result = self.audit_flow.reject_patch(
-                phrase=phrase
-            )
-        except Exception as exc:
-            return {
-                "status": "failed",
-                "status_code": "PATCH_REJECTION_FAILED",
-                "blockers": [str(exc)],
-            }
-
-        self.action_queue.update(
-            action["action_id"],
-            status="rejected",
-            evidence={
-                "rejected_by": self.actor,
-                "rejected_at": utc_now(),
-                "patch_result": result,
-            },
-        )
-        self._append_post_patch_tests(action)
-        next_action = self.next_action()
-        self.active_mission = self.continuity.update_active_state(
-            "awaiting_action_approval"
-        )
-        return {
-            "status": "passed",
-            "status_code": "PATCH_REJECTED",
-            "next_action": next_action,
-        }
-
     def reject_action(
         self,
         action: Dict[str, Any],
@@ -1055,21 +1061,48 @@ class ConversationalHokage:
                 "status_code": "NO_ACTION_QUEUE",
             }
 
-        if phrase.strip() != action["rejection_phrase"]:
+        try:
+            rejected = self.action_queue.reject_action_checked(
+                action["action_id"],
+                phrase=phrase,
+                expected_arguments_hash=action["arguments_hash"],
+            )
+        except authority.AuthorityBindingError as exc:
+            detail = f"{exc.code}: {exc.detail}"
+            if exc.code in self._RECOVERY_SIGNAL_CODES:
+                return {
+                    "status": "failed",
+                    "status_code": "RECOVERY_REQUIRED",
+                    "detail": detail,
+                    "recovery": self._recovery_candidates(),
+                }
+            if exc.code in self._INTEGRITY_FAILURE_CODES:
+                return {
+                    "status": "failed",
+                    "status_code": "AUTHORITY_INTEGRITY_FAILURE",
+                    "blockers": [detail],
+                }
             return {
                 "status": "failed",
                 "status_code": "ACTION_REJECTION_MISMATCH",
                 "expected": action["rejection_phrase"],
+                "detail": detail,
             }
 
-        rejected = self.action_queue.update(
-            action["action_id"],
-            status="rejected",
-            evidence={
-                "rejected_by": self.actor,
-                "rejected_at": utc_now(),
-            },
-        )
+        if action["skill_id"] == "apply_validated_patch" and self.audit_flow:
+            # State synchronization only, via the non-authorizing locked
+            # helper - reject_action_checked() above was already the one
+            # human rejection gate for this action. If the live proposal
+            # no longer matches this action's bound patch_id/patch_sha256/
+            # changed_paths, it belongs to a different/mutated patch and
+            # is deliberately left untouched rather than synced.
+            proposal = self.audit_flow.load_patch_proposal()
+            if proposal is not None and self._patch_binding_matches(
+                action, proposal
+            ):
+                self.audit_flow._reject_patch_locked(proposal)
+            self._append_post_patch_tests(rejected)
+
         next_action = self.next_action()
         review = None
         if next_action:
@@ -1329,11 +1362,18 @@ class ConversationalHokage:
                 if self.pending_charter
                 else None
             ),
+            # The same persisted truth source restore()/recovery reads -
+            # a raw load() of action_queue.json, never a second in-memory
+            # state that could diverge from mission_authority.json /
+            # mission_decision.json / mission_charter.json / the
+            # execution claims on disk.
             "action_queue": (
                 self.action_queue.load()
                 if self.action_queue
                 else None
             ),
+            "recovery": self._recovery_candidates(),
+            "resume_diagnostic": self.resume_diagnostic,
             "audit_flow": audit,
             "lifecycle": lifecycle,
             "bootstrap": self.bootstrap_evidence,
@@ -1476,8 +1516,6 @@ class ConversationalHokage:
                 selected = configuration["selected_model"]
                 if selected:
                     self.local_model = selected
-                    if hasattr(self, "decision_engine"):
-                        self.decision_engine.local_model = selected
 
                 print(
                     "Hokage: Perfil recomendado: "
@@ -1578,101 +1616,60 @@ class ConversationalHokage:
                 continue
 
             if action:
-                skill_id = action["skill_id"]
-
-                if skill_id == "invoke_local_model_audit":
-                    grant = self.current_model_grant(action)
-                    if text == grant["approval_phrase"]:
-                        result = self.approve_model_action(
-                            action,
-                            text,
-                        )
-                        if result["status"] == "passed":
-                            audit_result = result["audit_result"]
-                            print(render_audit_summary(audit_result))
-                            if result.get("next_action"):
-                                print(
-                                    self._render_pending(
-                                        result["next_action"]
-                                    )
-                                )
-                            elif result.get("review_proposal"):
-                                print(
-                                    render_review(
-                                        result["review_proposal"]
-                                    )
-                                )
-                        else:
+                # A single human execution gate for every skill_id:
+                # action["approval_phrase"]/action["rejection_phrase"].
+                # invoke_local_model_audit and apply_validated_patch no
+                # longer have their own separate phrase - the grant/patch
+                # proposal are deterministic records bound to this same
+                # action, not a second authority to satisfy.
+                if text == action["approval_phrase"]:
+                    result = self.approve_action(action, text)
+                    if result["status"] == "passed":
+                        skill_id = action["skill_id"]
+                        if skill_id == "invoke_local_model_audit":
                             print(
-                                "Hokage: Audit local bloqueado:\n- "
-                                + "\n- ".join(
-                                    result.get("blockers", [])
+                                render_audit_summary(
+                                    result["action"]["evidence"]["result"]
                                 )
                             )
-                        continue
-
-                    print(
-                        "Hokage: Hay un grant local pendiente. "
-                        "Usá la frase exacta o /details."
-                    )
-                    continue
-
-                if skill_id == "apply_validated_patch":
-                    proposal = self.current_patch_proposal(action)
-                    if text == proposal["approval_phrase"]:
-                        result = self.approve_patch(
-                            action,
-                            text,
-                        )
-                        if result["status"] == "passed":
+                        elif skill_id == "apply_validated_patch":
                             print(
                                 "Hokage: Patch exacto aplicado. "
                                 "Git no fue autorizado."
                             )
-                            if result.get("next_action"):
-                                print(
-                                    render_action(
-                                        result["next_action"]
-                                    )
-                                )
                         else:
                             print(
-                                "Hokage: Patch bloqueado:\n- "
-                                + "\n- ".join(
-                                    result.get("blockers", [])
-                                )
+                                "Hokage: Acción completada. "
+                                "El resultado es evidencia solamente."
                             )
-                        continue
-
-                    if text == proposal["rejection_phrase"]:
-                        result = self.reject_patch(
-                            action,
-                            text,
-                        )
-                        print(
-                            "Hokage: Patch rechazado. "
-                            "No se modificaron archivos."
-                        )
                         if result.get("next_action"):
                             print(
-                                render_action(
+                                self._render_pending(
                                     result["next_action"]
                                 )
                             )
-                        continue
-
-                    print(
-                        "Hokage: Hay un patch pendiente. "
-                        "Aprobalo, rechazalo o usá /details."
-                    )
+                        elif result.get("review_proposal"):
+                            print(
+                                render_review(
+                                    result["review_proposal"]
+                                )
+                            )
+                    else:
+                        print(
+                            f"Hokage: La acción no se completó "
+                            f"({result['status_code']}):\n- "
+                            + "\n- ".join(
+                                result.get("blockers")
+                                or [result.get("detail", "")]
+                            )
+                        )
                     continue
 
-                if text == action["approval_phrase"]:
-                    result = self.approve_action(action, text)
+                if text == action["rejection_phrase"]:
+                    result = self.reject_action(action, text)
                     if result["status"] == "passed":
                         print(
-                            "Hokage: Acción completada. "
-                            "El resultado es evidencia solamente."
+                            "Hokage: Acción rechazada. No se ejecutó."
                         )
                         if result.get("next_action"):
                             print(
@@ -1688,25 +1685,9 @@ class ConversationalHokage:
                             )
                     else:
                         print(
-                            "Hokage: La acción falló:\n- "
-                            + "\n- ".join(result["blockers"])
-                        )
-                    continue
-
-                if text == action["rejection_phrase"]:
-                    result = self.reject_action(action, text)
-                    print("Hokage: Acción rechazada. No se ejecutó.")
-                    if result.get("next_action"):
-                        print(
-                            self._render_pending(
-                                result["next_action"]
-                            )
-                        )
-                    elif result.get("review_proposal"):
-                        print(
-                            render_review(
-                                result["review_proposal"]
-                            )
+                            f"Hokage: El rechazo no se completó "
+                            f"({result['status_code']}): "
+                            + result.get("detail", "")
                         )
                     continue
 

@@ -153,6 +153,28 @@ class SchemaValidation1_1Tests(unittest.TestCase):
             schema = _load_schema("hokage_mission_decision.v2.schema.json")
             self.assertEqual(_validate(decision, schema, SCHEMA_DIR), [])
 
+    def test_providerless_decision_1_1_matches_schema(self):
+        # DECISION 2: provider_skill_id=None explicitly states absence of
+        # a provider-backed skill - never a silent fallback - and the
+        # resulting Decision must still be a fully valid 1.1.0 payload.
+        decision = mission_decision.build_decision_1_1(
+            mission_id="mission-1",
+            intent=INTENT,
+            bootstrap_snapshot=SNAPSHOT,
+            local_model="qwen2.5-coder:7b",
+            human_constraints=HUMAN_CONSTRAINTS,
+            provider_skill_id=None,
+        )
+        self.assertEqual(decision["selection"]["provider"], "none")
+        self.assertEqual(decision["selection"]["model"], "none")
+        self.assertEqual(decision["selection"]["strategy"], "deterministic_only")
+        self.assertEqual(
+            decision["selection"]["selection_source"],
+            "no_provider_skill_requested",
+        )
+        schema = _load_schema("hokage_mission_decision.v2.schema.json")
+        self.assertEqual(_validate(decision, schema, SCHEMA_DIR), [])
+
     def test_charter_1_1_matches_schema(self):
         with tempfile.TemporaryDirectory() as tmp:
             _, _, approved = _seed(Path(tmp))
