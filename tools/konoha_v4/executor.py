@@ -249,7 +249,9 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
             "La salida es evidencia, no autoridad.",
             "No conviertas inferencias en hechos o normas.",
             "No excedas el alcance de la tarea.",
-            "Cita rutas, líneas o localizadores cuando corresponda.",
+            "Cuando cites una ruta, línea o localizador, escribilo dentro del "
+            "texto del campo source (por ejemplo \"path/to/file.py:10-20\"); "
+            "nunca como una clave JSON separada.",
             "El workspace es read-only.",
             "Para tests usá PYTHONDONTWRITEBYTECODE=1, PYTHONPYCACHEPREFIX, TMPDIR y KONOHA_STATE_ROOT privados.",
             "La verificación de integridad Git antes/después pertenece al runtime. "
@@ -258,6 +260,19 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
             "Devolvé exclusivamente un objeto JSON con exactamente estas seis claves: "
             "outcome, objective_satisfied, summary, diagnostic, evidence, review_outcome. "
             "Ningún texto fuera de ese JSON.",
+            "evidence debe ser un array JSON. Cada elemento debe ser un objeto con "
+            "EXACTAMENTE estas dos claves: source, observation. Ningún otro nombre "
+            "de clave está permitido en un elemento de evidence (por ejemplo, "
+            "locator, content, path y quote NO son claves válidas). Ambos valores "
+            "deben ser strings no vacíos. Ejemplo de un elemento válido: "
+            '{"source": "path/to/file.py:10-20", "observation": "Hecho observado '
+            'respaldado por esa fuente."}. '
+            "Para tareas autocontenidas sin evidencia externa o de archivos, "
+            "podés usar como source \"task_prompt\" o \"mission_context\" "
+            "siempre que la observación esté efectivamente respaldada por ese "
+            "contexto suministrado. No fabriques evidencia: si no hay evidencia "
+            "que respalde el resultado, un array evidence vacío sigue siendo "
+            "válido cuando la semántica del resultado lo permite.",
             "outcome=completed requiere objective_satisfied=true; outcome en "
             "{blocked, failed, changes_requested} requiere objective_satisfied=false.",
             "Si tu family es jounin-review, review_outcome es obligatorio y debe "

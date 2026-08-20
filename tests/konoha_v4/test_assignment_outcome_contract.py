@@ -825,6 +825,63 @@ class TaskPromptContractTests(unittest.TestCase):
         rules_text = " ".join(payload["rules"])
         self.assertIn("jounin-review", rules_text)
 
+    def test_prompt_states_exact_evidence_item_keys(self):
+        payload = json.loads(self._prompt())
+        rules_text = " ".join(payload["rules"])
+        self.assertIn("EXACTAMENTE estas dos claves: source, observation", rules_text)
+        self.assertIn("Ambos valores deben ser strings no vacíos", rules_text)
+        self.assertIn("Ningún otro nombre de clave está permitido en un elemento de evidence", rules_text)
+
+    def test_prompt_does_not_encourage_alternative_evidence_keys(self):
+        payload = json.loads(self._prompt())
+        rules_text = " ".join(payload["rules"])
+        self.assertIn("locator, content, path y quote NO son claves válidas", rules_text)
+        self.assertIn(
+            "escribilo dentro del texto del campo source", rules_text,
+        )
+
+
+class EvidenceItemShapeContractTests(unittest.TestCase):
+    """BLOCK_4 FINDING #8: the nested evidence-item shape (exactly source +
+    observation, both non-empty strings) is exercised directly against the
+    same pure validator already covered end-to-end by
+    OutcomeMappingTests.test_invalid_schema_fails - this only adds the
+    missing evidence-item-shape regression, not a duplicate end-to-end
+    path."""
+
+    def _base_payload(self, **overrides) -> dict:
+        payload = {
+            "outcome": "completed",
+            "objective_satisfied": True,
+            "summary": "ok",
+            "diagnostic": None,
+            "evidence": [],
+            "review_outcome": None,
+        }
+        payload.update(overrides)
+        return payload
+
+    def test_canonical_source_observation_shape_is_accepted(self):
+        payload = self._base_payload(evidence=[
+            {
+                "source": "task_prompt",
+                "observation": "Qualification constraints were supplied directly.",
+            }
+        ])
+        self.assertIsNone(_validate_assignment_result_payload(payload))
+
+    def test_observed_locator_content_shape_is_rejected(self):
+        payload = self._base_payload(evidence=[
+            {
+                "locator": "Mission context",
+                "content": "...",
+            }
+        ])
+        self.assertEqual(
+            _validate_assignment_result_payload(payload),
+            "invalid_result_schema",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
