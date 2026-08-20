@@ -237,12 +237,12 @@ def _run(
         ) from exc
 
 
-def _validate_schema(schema: Path) -> Path:
+def _validate_schema(schema: Path, *, provider: str) -> Path:
     resolved = schema.resolve()
     if not resolved.is_file():
         raise ProviderError(
             f"El schema de salida no existe: {resolved}",
-            provider="codex",
+            provider=provider,
             failure_type="invalid_schema",
             retryable=False,
         )
@@ -251,14 +251,14 @@ def _validate_schema(schema: Path) -> Path:
     except (OSError, json.JSONDecodeError) as exc:
         raise ProviderError(
             f"El schema de salida no es JSON válido: {resolved}: {exc}",
-            provider="codex",
+            provider=provider,
             failure_type="invalid_schema",
             retryable=False,
         ) from exc
     if not isinstance(payload, dict):
         raise ProviderError(
             f"El schema de salida debe ser un objeto JSON: {resolved}",
-            provider="codex",
+            provider=provider,
             failure_type="invalid_schema",
             retryable=False,
         )
@@ -295,7 +295,7 @@ def invoke_codex(
     if model != "provider_default":
         command += ["--model", model]
     if schema:
-        command += ["--output-schema", str(_validate_schema(schema))]
+        command += ["--output-schema", str(_validate_schema(schema, provider="codex"))]
     command += ["-"]
 
     cp = _run(
@@ -436,6 +436,7 @@ def invoke_ollama(
     *,
     cwd: Path,
     model: str,
+    schema: Path | None = None,
     timeout: int = 600,
 ) -> ProviderResult:
     exe = shutil.which("ollama")
@@ -447,12 +448,22 @@ def invoke_ollama(
             retryable=False,
         )
 
-    # --nowordwrap: without it, the Ollama CLI applies interactive
-    # word-wrap to stdout, splitting a structured JSON payload with ANSI
-    # cursor-movement sequences and literal newlines mid-string. This asks
-    # the CLI itself for machine-readable output at the source instead of
-    # reconstructing/repairing the transport downstream.
-    command = [exe, "run", "--nowordwrap", model]
+    # --nowordwrap: transport integrity - without it, the Ollama CLI applies
+    # interactive word-wrap to stdout, splitting a structured JSON payload
+    # with ANSI cursor-movement sequences and literal newlines mid-string.
+    # This asks the CLI itself for machine-readable output at the source
+    # instead of reconstructing/repairing the transport downstream.
+    command = [exe, "run", "--nowordwrap"]
+    if schema:
+        _validate_schema(schema, provider="ollama")
+        # --format json: native Ollama JSON *syntax* mode - it only nudges
+        # the model to emit syntactically valid JSON, it does not enforce
+        # conformance to the schema file itself (Ollama does not consume
+        # the schema here; only its presence gates this flag). Konoha's own
+        # deterministic AssignmentResult parsing/validation in executor.py
+        # remains the sole authority over shape/semantics after generation.
+        command += ["--format", "json"]
+    command += [model]
     cp = _run(
         command,
         stdin=prompt,
@@ -515,6 +526,7 @@ def invoke(
             prompt,
             cwd=cwd,
             model=model,
+            schema=schema,
             timeout=timeout,
         )
     raise ProviderError(
