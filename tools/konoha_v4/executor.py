@@ -182,6 +182,56 @@ def _validate_assignment_result_rules(payload: dict, family: str) -> str | None:
     return None
 
 
+_FENCE_HEADER_PATTERN = re.compile(r"^```(json)?\r?\n")
+# Language marker is optional-empty or exactly "json" - no other format is
+# inferred (Markdown, YAML fences, etc. are never recognized as JSON).
+
+
+def _extract_single_fenced_block(stripped: str) -> str:
+    """stripped already starts with an opening ``` - validate it is exactly
+    one complete code fence (empty or `json` language marker) spanning the
+    whole (already-whitespace-trimmed) string, and return its inner body
+    verbatim. Raises ValueError on any deviation: unknown language marker or
+    an unterminated fence. Does not itself reject a second fence marker
+    inside the body (that would also reject a JSON string field that
+    legitimately contains a literal "```" substring) - a concatenated
+    second fenced block still fails, because the body returned here is no
+    longer valid JSON and json.loads() in the caller rejects it."""
+    header_match = _FENCE_HEADER_PATTERN.match(stripped)
+    if header_match is None:
+        raise ValueError("malformed_fence_header")
+    rest = stripped[header_match.end():]
+    if not rest.endswith("```"):
+        raise ValueError("incomplete_fence")
+    body_with_newline = rest[:-3]
+    if body_with_newline.endswith("\r\n"):
+        body = body_with_newline[:-2]
+    elif body_with_newline.endswith("\n"):
+        body = body_with_newline[:-1]
+    else:
+        raise ValueError("malformed_fence_closing")
+    return body
+
+
+def _parse_assignment_result_text(text: str) -> object:
+    """Parse a provider's raw AssignmentResult text into a JSON value.
+
+    Accepts either bare JSON (optionally surrounded by whitespace) or
+    exactly one complete Markdown code fence - with an empty or `json`
+    language marker - containing the JSON and nothing else outside it.
+    Anything else (prose before/after, multiple fenced blocks, an
+    unterminated fence, or malformed JSON inside a valid fence) raises
+    ValueError (json.JSONDecodeError included, since it is a ValueError
+    subclass) so the caller maps every case uniformly to the stable
+    invalid_result_json diagnostic. Never scans free text for embedded
+    JSON - a fence is only recognized when it spans the entire trimmed
+    input.
+    """
+    stripped = text.strip()
+    body = _extract_single_fenced_block(stripped) if stripped.startswith("```") else stripped
+    return json.loads(body)
+
+
 def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
                  evidence: list[EvidenceRecord]) -> str:
     deps = [e for e in evidence if e.task_id in task.dependencies]
@@ -251,8 +301,8 @@ def _run_assignment(
     else:
         output_text, usage, command = result.text, result.usage, result.command
         try:
-            payload = json.loads(result.text)
-        except json.JSONDecodeError:
+            payload = _parse_assignment_result_text(result.text)
+        except ValueError:
             diagnostic = "invalid_result_json"
         else:
             schema_error = _validate_assignment_result_payload(payload)

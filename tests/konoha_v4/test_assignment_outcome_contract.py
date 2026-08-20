@@ -229,6 +229,101 @@ class OutcomeMappingTests(unittest.TestCase):
             self.assertEqual(attempt.diagnostic, "invalid_result_json")
             self.assertEqual(_persisted_state(state_dir, plan.mission_id)["diagnostic"], "invalid_result_json")
 
+    def _run_result_text(self, text: str):
+        task = _assignment(task_id="t1", execution_gate="plan_approval")
+        plan = _plan([task], approval_status="approved")
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_invoke(text) as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_called_once()
+            return attempt, _persisted_state(state_dir, plan.mission_id)
+
+    def test_pure_json_still_works(self):
+        attempt, raw = self._run_result_text(_COMPLETED_TEXT)
+        self.assertEqual(attempt.state.status, "completed")
+        self.assertEqual(attempt.diagnostic, "completed")
+        self.assertEqual(raw["status"], "completed")
+
+    def test_single_json_fenced_block_is_accepted(self):
+        text = f"```json\n{_COMPLETED_TEXT}\n```"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "completed")
+        self.assertEqual(attempt.diagnostic, "completed")
+        self.assertEqual(raw["status"], "completed")
+
+    def test_single_bare_fenced_block_is_accepted(self):
+        text = f"```\n{_COMPLETED_TEXT}\n```"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "completed")
+        self.assertEqual(attempt.diagnostic, "completed")
+        self.assertEqual(raw["status"], "completed")
+
+    def test_whitespace_outside_single_fence_is_tolerated(self):
+        text = f"  \n\n```json\n{_COMPLETED_TEXT}\n```\n\n  "
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "completed")
+        self.assertEqual(attempt.diagnostic, "completed")
+
+    def test_prose_before_fence_is_rejected(self):
+        text = f"texto\n```json\n{_COMPLETED_TEXT}\n```"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "failed")
+        self.assertEqual(attempt.diagnostic, "invalid_result_json")
+        self.assertEqual(raw["diagnostic"], "invalid_result_json")
+
+    def test_prose_after_fence_is_rejected(self):
+        text = f"```json\n{_COMPLETED_TEXT}\n```\ntexto"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "failed")
+        self.assertEqual(attempt.diagnostic, "invalid_result_json")
+        self.assertEqual(raw["diagnostic"], "invalid_result_json")
+
+    def test_multiple_fenced_blocks_are_rejected(self):
+        text = f"```json\n{_COMPLETED_TEXT}\n```\n```json\n{_COMPLETED_TEXT}\n```"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "failed")
+        self.assertEqual(attempt.diagnostic, "invalid_result_json")
+        self.assertEqual(raw["diagnostic"], "invalid_result_json")
+
+    def test_malformed_json_inside_fence_is_rejected(self):
+        text = "```json\n{not valid json}\n```"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "failed")
+        self.assertEqual(attempt.diagnostic, "invalid_result_json")
+        self.assertEqual(raw["diagnostic"], "invalid_result_json")
+
+    def test_summary_containing_literal_triple_backticks_is_accepted(self):
+        inner = _result_text(
+            "completed", True,
+            summary="contiene ``` triple backticks literales dentro de un string",
+        )
+        text = f"```json\n{inner}\n```"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "completed")
+        self.assertEqual(attempt.diagnostic, "completed")
+        self.assertEqual(raw["status"], "completed")
+
+    def test_disallowed_language_marker_is_rejected(self):
+        text = f"```python\n{_COMPLETED_TEXT}\n```"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "failed")
+        self.assertEqual(attempt.diagnostic, "invalid_result_json")
+        self.assertEqual(raw["diagnostic"], "invalid_result_json")
+
+    def test_incomplete_fence_is_rejected(self):
+        text = f"```json\n{_COMPLETED_TEXT}\n"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.state.status, "failed")
+        self.assertEqual(attempt.diagnostic, "invalid_result_json")
+        self.assertEqual(raw["diagnostic"], "invalid_result_json")
+
+    def test_fenced_result_preserves_original_text_as_evidence_output(self):
+        text = f"```json\n{_COMPLETED_TEXT}\n```"
+        attempt, raw = self._run_result_text(text)
+        self.assertEqual(attempt.evidence[0].output, text)
+
     def test_invalid_schema_fails(self):
         task = _assignment(task_id="t1")
         plan = _plan([task])
