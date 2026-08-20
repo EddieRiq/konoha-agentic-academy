@@ -447,7 +447,12 @@ def invoke_ollama(
             retryable=False,
         )
 
-    command = [exe, "run", model]
+    # --nowordwrap: without it, the Ollama CLI applies interactive
+    # word-wrap to stdout, splitting a structured JSON payload with ANSI
+    # cursor-movement sequences and literal newlines mid-string. This asks
+    # the CLI itself for machine-readable output at the source instead of
+    # reconstructing/repairing the transport downstream.
+    command = [exe, "run", "--nowordwrap", model]
     cp = _run(
         command,
         stdin=prompt,

@@ -12,6 +12,7 @@ from tools.konoha_v4.provider_adapters import (
     _extract_jsonl_error,
     _normalize_usage,
     invoke_codex,
+    invoke_ollama,
 )
 
 
@@ -135,6 +136,102 @@ class ProviderDiagnosticsTests(unittest.TestCase):
         self.assertEqual(result.usage["input_tokens"], 20)
         self.assertEqual(result.usage["cached_input_tokens"], 5)
         self.assertEqual(result.usage["output_tokens"], 7)
+
+
+class OllamaMachineReadableTransportTests(unittest.TestCase):
+    """BLOCK_4 FINDING #7: invoke_ollama must ask the Ollama CLI itself for
+    machine-readable output (--nowordwrap), not reconstruct/repair stdout
+    downstream. These tests only verify the command Konoha invokes - they
+    never simulate --nowordwrap "cleaning" ANSI/newlines, since that is the
+    real CLI's responsibility, not Konoha's."""
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_command_includes_nowordwrap_and_requested_model(
+        self,
+        run_mock,
+        which_mock,
+    ) -> None:
+        which_mock.return_value = "/usr/local/bin/ollama"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["ollama"],
+            returncode=0,
+            stdout='{"outcome":"completed"}',
+            stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            invoke_ollama("prompt", cwd=Path(tmp), model="qwen2.5-coder:7b")
+        run_mock.assert_called_once()
+        args, kwargs = run_mock.call_args
+        command = args[0] if args else kwargs["command"]
+        self.assertIn("--nowordwrap", command)
+        self.assertIn("qwen2.5-coder:7b", command)
+        self.assertEqual(
+            command,
+            ["/usr/local/bin/ollama", "run", "--nowordwrap", "qwen2.5-coder:7b"],
+        )
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_stdout_is_preserved_without_ansi_or_heuristic_cleanup(
+        self,
+        run_mock,
+        which_mock,
+    ) -> None:
+        which_mock.return_value = "/usr/local/bin/ollama"
+        fenced_stdout = "  \n```json\n{\"outcome\": \"completed\"}\n```\n  \n"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["ollama"],
+            returncode=0,
+            stdout=fenced_stdout,
+            stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            result = invoke_ollama("prompt", cwd=Path(tmp), model="qwen2.5-coder:7b")
+        self.assertEqual(result.text, fenced_stdout.strip())
+        self.assertEqual(result.raw, fenced_stdout)
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_empty_output_still_raises_empty_output_diagnostic(
+        self,
+        run_mock,
+        which_mock,
+    ) -> None:
+        which_mock.return_value = "/usr/local/bin/ollama"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["ollama"],
+            returncode=0,
+            stdout="   \n",
+            stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ProviderError) as caught:
+                invoke_ollama("prompt", cwd=Path(tmp), model="qwen2.5-coder:7b")
+        exc = caught.exception
+        self.assertEqual(exc.provider, "ollama")
+        self.assertEqual(exc.failure_type, "empty_output")
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_nonzero_exit_still_raises_process_failure(
+        self,
+        run_mock,
+        which_mock,
+    ) -> None:
+        which_mock.return_value = "/usr/local/bin/ollama"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["ollama"],
+            returncode=1,
+            stdout="",
+            stderr="model not found",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ProviderError) as caught:
+                invoke_ollama("prompt", cwd=Path(tmp), model="qwen2.5-coder:7b")
+        exc = caught.exception
+        self.assertEqual(exc.provider, "ollama")
+        self.assertEqual(exc.exit_code, 1)
 
 
 if __name__ == "__main__":
