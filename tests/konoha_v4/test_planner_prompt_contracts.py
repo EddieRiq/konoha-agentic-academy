@@ -2,7 +2,16 @@ from __future__ import annotations
 
 import unittest
 
+from tools.konoha_v4.hokage import approval_summary
+from tools.konoha_v4.models import AgentAssignment, MissionPlan
 from tools.konoha_v4.planner import SYSTEM
+
+# planner.SYSTEM is deliberately wrapped/indented for human readability and
+# is never reformatted just to satisfy a test. Semantic-wording assertions
+# below run against this whitespace-collapsed view instead of SYSTEM
+# directly, so they tolerate line wrapping/indentation/adjacent-literal
+# formatting without weakening what they actually verify.
+_NORMALIZED_SYSTEM = " ".join(SYSTEM.split())
 
 
 class PlannerPromptContractTests(unittest.TestCase):
@@ -26,6 +35,135 @@ class PlannerPromptContractTests(unittest.TestCase):
         self.assertIn(
             "estimated_tokens = maximum_total_tokens",
             SYSTEM,
+        )
+
+    def test_explicit_mission_constraints_are_binding(self) -> None:
+        # Test A
+        self.assertIn(
+            "Sus restricciones explícitas son vinculantes.",
+            _NORMALIZED_SYSTEM,
+        )
+        self.assertIn(
+            "no expandas, relajes, optimices, reemplaces ni reinterpretes en silencio",
+            _NORMALIZED_SYSTEM.lower(),
+        )
+
+    def test_fixed_structural_constraints_must_not_be_silently_expanded(self) -> None:
+        # Test B: fixed assignment count/order/provider/gate/budget must not
+        # be silently expanded or replaced.
+        self.assertIn("cantidad de assignments", _NORMALIZED_SYSTEM)
+        self.assertIn("orden/dependencias entre assignments", _NORMALIZED_SYSTEM)
+        self.assertIn("provider; model", _NORMALIZED_SYSTEM)
+        self.assertIn("execution_gate; política de fallback", _NORMALIZED_SYSTEM)
+        self.assertIn(
+            "No agregues assignments adicionales solo porque un grafo más "
+            "elaborado normalmente sería preferible",
+            _NORMALIZED_SYSTEM,
+        )
+
+    def test_no_fallback_and_explicit_budget_ceiling_are_preserved(self) -> None:
+        # Test C
+        self.assertIn(
+            '"Sin fallback" en la misión significa sin fallback de provider '
+            "y sin fallback de family",
+            _NORMALIZED_SYSTEM,
+        )
+        self.assertIn(
+            "Un maximum_total_tokens explícito de la misión es un techo duro, "
+            "nunca un objetivo a superar",
+            _NORMALIZED_SYSTEM,
+        )
+
+    def test_impossible_explicit_constraint_fails_closed(self) -> None:
+        # Test D: impossible explicit constraints must fail closed rather
+        # than cause an invented substitution.
+        self.assertIn(
+            "fallá cerrado agregando missing_context", _NORMALIZED_SYSTEM,
+        )
+        self.assertIn(
+            "nunca inventes un provider, modelo, gate o presupuesto sustituto",
+            _NORMALIZED_SYSTEM,
+        )
+
+    def test_requested_changes_are_binding_during_replanning(self) -> None:
+        # Test E
+        self.assertIn(
+            "requested_changes son correcciones vinculantes al plan previo, "
+            "no sugerencias",
+            _NORMALIZED_SYSTEM,
+        )
+        self.assertIn(
+            "no las descartes ni las diluyas al replanificar", _NORMALIZED_SYSTEM,
+        )
+
+    def test_model_planning_remains_proposal_pending_human_approval(self) -> None:
+        self.assertIn(
+            "La planificación de Codex sigue siendo evidencia/propuesta "
+            "únicamente; la aprobación humana del plan sigue siendo "
+            "obligatoria en todos los casos.",
+            _NORMALIZED_SYSTEM,
+        )
+
+
+def _assignment() -> AgentAssignment:
+    return AgentAssignment(
+        task_id="t1",
+        family="repository-auditor",
+        provider="codex",
+        model="codex",
+        objective="Inspeccionar sin mutar.",
+        inputs=["tools/konoha_v4"],
+        expected_output="Evidencia verificable.",
+        execution_gate="plan_approval",
+    )
+
+
+def _plan() -> MissionPlan:
+    return MissionPlan(
+        mission_id="mission-approval-wording-test",
+        understanding="Validar el wording de alcance de validación.",
+        explicit_facts=[],
+        missing_context=[],
+        assumptions_prohibited=[],
+        complexity="low",
+        assignments=[_assignment()],
+        acceptance_criteria=["done"],
+        approval_boundaries=[],
+        estimated_tokens=0,
+        estimated_cost_class="low",
+        rationale="test",
+    ).seal()
+
+
+class ApprovalSummaryValidationScopeTests(unittest.TestCase):
+    """BLOCK_4 FINDING #9 PART 2: approval_summary() must not claim
+    deterministic proof of semantic mission fidelity - only that
+    deterministic constitutional checks passed and human review of that
+    fidelity, plus human plan approval, are still pending."""
+
+    def test_states_deterministic_constitutional_validation_passed(self) -> None:
+        summary = approval_summary(_plan())
+        self.assertIn(
+            "Hokage: El plan pasó las validaciones constitucionales determinísticas.",
+            summary,
+        )
+
+    def test_states_semantic_mission_fidelity_requires_human_review(self) -> None:
+        summary = approval_summary(_plan())
+        self.assertIn(
+            "La fidelidad semántica a la misión requiere revisión humana.",
+            summary,
+        )
+
+    def test_still_states_human_approval_is_pending(self) -> None:
+        summary = approval_summary(_plan())
+        self.assertIn("El plan está pendiente de aprobación.", summary)
+
+    def test_no_longer_claims_constitutional_validation_alone(self) -> None:
+        summary = approval_summary(_plan())
+        self.assertNotIn(
+            "El plan está constitucionalmente validado y pendiente de aprobación humana.",
+            summary,
         )
 
 
