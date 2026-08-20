@@ -238,6 +238,7 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
     payload = {
         "mission_id": plan.mission_id,
         "mission_understanding": plan.understanding,
+        "mission_context": plan.explicit_facts,
         "task": task.__dict__,
         "agent_contract": family,
         "dependency_evidence": [
@@ -270,9 +271,13 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
             "Para tareas autocontenidas sin evidencia externa o de archivos, "
             "podés usar como source \"task_prompt\" o \"mission_context\" "
             "siempre que la observación esté efectivamente respaldada por ese "
-            "contexto suministrado. No fabriques evidencia: si no hay evidencia "
-            "que respalde el resultado, un array evidence vacío sigue siendo "
-            "válido cuando la semántica del resultado lo permite.",
+            "contexto suministrado. El campo mission_context de este mismo "
+            "JSON es exactamente el array explicit_facts del plan aprobado; "
+            "no es el mensaje original completo del humano, y citarlo como "
+            "source significa citar uno de esos hechos explícitos, no "
+            "inventar contenido adicional. No fabriques evidencia: si no hay "
+            "evidencia que respalde el resultado, un array evidence vacío "
+            "sigue siendo válido cuando la semántica del resultado lo permite.",
             "outcome=completed requiere objective_satisfied=true; outcome en "
             "{blocked, failed, changes_requested} requiere objective_satisfied=false.",
             "Si tu family es jounin-review, review_outcome es obligatorio y debe "

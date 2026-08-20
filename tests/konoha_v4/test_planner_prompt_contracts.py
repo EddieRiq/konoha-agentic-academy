@@ -105,6 +105,60 @@ class PlannerPromptContractTests(unittest.TestCase):
         )
 
 
+class ExplicitFactsContractTests(unittest.TestCase):
+    """BLOCK_4 FINDING #10 PART 2: explicit_facts is what executor's
+    _task_prompt() now exposes to assignments as mission_context, so the
+    planner contract must be explicit about what it may and may not
+    contain."""
+
+    def test_explicit_facts_captures_explicit_human_mission_facts(self) -> None:
+        self.assertIn(
+            "explicit_facts captura los hechos y restricciones que la "
+            "misión humana declaró explícitamente, no tu interpretación "
+            "de ellos.",
+            _NORMALIZED_SYSTEM,
+        )
+        self.assertIn(
+            "Cuando la misión fije explícitamente alguna restricción "
+            "estructural vinculante (cantidad/orden de assignments, "
+            "family, provider, model, network, mutation, private_context, "
+            "execution_gate, fallback o un presupuesto explícito), esa "
+            "restricción debe quedar registrada en explicit_facts.",
+            _NORMALIZED_SYSTEM,
+        )
+
+    def test_explicit_facts_must_not_contain_invented_facts(self) -> None:
+        self.assertIn(
+            "No inventes hechos en explicit_facts que la misión no haya "
+            "declarado.",
+            _NORMALIZED_SYSTEM,
+        )
+
+    def test_explicit_binding_constraints_must_not_be_weakened_or_reinterpreted(self) -> None:
+        self.assertIn(
+            "No debilites ni reinterpretes en silencio una restricción "
+            "explícita al redactar explicit_facts: reflejala tal como la "
+            "fijó la misión.",
+            _NORMALIZED_SYSTEM,
+        )
+
+    def test_explicit_facts_is_distinct_from_understanding_inference(self) -> None:
+        self.assertIn(
+            "explicit_facts es distinto de understanding: understanding "
+            "es tu síntesis/paráfrasis, explicit_facts son los hechos "
+            "explícitos, no tu inferencia.",
+            _NORMALIZED_SYSTEM,
+        )
+
+    def test_explicit_facts_may_become_mission_context_for_authorized_assignments(self) -> None:
+        self.assertIn(
+            "explicit_facts queda persistido como parte del MissionPlan "
+            "aprobado y puede suministrarse como mission_context a los "
+            "assignments autorizados durante la ejecución.",
+            _NORMALIZED_SYSTEM,
+        )
+
+
 def _assignment() -> AgentAssignment:
     return AgentAssignment(
         task_id="t1",

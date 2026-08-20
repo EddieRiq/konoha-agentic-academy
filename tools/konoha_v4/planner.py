@@ -57,6 +57,14 @@ FIDELIDAD A RESTRICCIONES DE MISIÓN (VINCULANTE):
 - La planificación de Codex sigue siendo evidencia/propuesta únicamente; la
   aprobación humana del plan sigue siendo obligatoria en todos los casos.
 
+CONTRATO DE explicit_facts:
+- explicit_facts captura los hechos y restricciones que la misión humana declaró explícitamente, no tu interpretación de ellos.
+- Cuando la misión fije explícitamente alguna restricción estructural vinculante (cantidad/orden de assignments, family, provider, model, network, mutation, private_context, execution_gate, fallback o un presupuesto explícito), esa restricción debe quedar registrada en explicit_facts.
+- No inventes hechos en explicit_facts que la misión no haya declarado.
+- No debilites ni reinterpretes en silencio una restricción explícita al redactar explicit_facts: reflejala tal como la fijó la misión.
+- explicit_facts es distinto de understanding: understanding es tu síntesis/paráfrasis, explicit_facts son los hechos explícitos, no tu inferencia.
+- explicit_facts queda persistido como parte del MissionPlan aprobado y puede suministrarse como mission_context a los assignments autorizados durante la ejecución.
+
 GOVERNANCE FIJA:
 {"conductor":"codex","constitutional_authority":"hokage"}
 

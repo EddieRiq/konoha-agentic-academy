@@ -841,6 +841,78 @@ class TaskPromptContractTests(unittest.TestCase):
         )
 
 
+class MissionContextPropagationTests(unittest.TestCase):
+    """BLOCK_4 FINDING #10: _task_prompt() must expose plan.explicit_facts
+    as a dedicated, narrow mission_context field - never the verbatim
+    original mission, never continuity.json, never merged with
+    understanding or with AgentAssignment.inputs."""
+
+    _DISTINCTIVE_FACTS = [
+        "Exactly three assignments.",
+        "No provider fallback.",
+        "maximum_total_tokens=6300.",
+    ]
+
+    def _prompt_payload(self, *, explicit_facts=None, inputs=None):
+        task_kwargs = {} if inputs is None else {"inputs": inputs}
+        task = _assignment(task_id="t1", **task_kwargs)
+        plan_kwargs = {} if explicit_facts is None else {"explicit_facts": explicit_facts}
+        plan = _plan([task], **plan_kwargs)
+        prompt = _task_prompt(Path("."), plan, task, {"allowed_task_patterns": ["x"]}, [])
+        return json.loads(prompt), plan
+
+    def test_mission_context_equals_explicit_facts_exactly(self):
+        # Test A
+        payload, plan = self._prompt_payload(explicit_facts=list(self._DISTINCTIVE_FACTS))
+        self.assertEqual(payload["mission_context"], self._DISTINCTIVE_FACTS)
+        self.assertEqual(payload["mission_context"], plan.explicit_facts)
+
+    def test_mission_understanding_stays_separate_from_mission_context(self):
+        # Test B
+        payload, plan = self._prompt_payload(explicit_facts=list(self._DISTINCTIVE_FACTS))
+        self.assertEqual(payload["mission_understanding"], plan.understanding)
+        self.assertEqual(payload["mission_context"], plan.explicit_facts)
+        self.assertNotEqual(payload["mission_understanding"], payload["mission_context"])
+        self.assertNotIn(payload["mission_understanding"], payload["mission_context"])
+
+    def test_empty_explicit_facts_produces_empty_mission_context(self):
+        # Test C: no fallback to understanding, original request, objective
+        # or inputs.
+        payload, plan = self._prompt_payload(explicit_facts=[])
+        self.assertEqual(payload["mission_context"], [])
+        self.assertNotIn(plan.understanding, payload["mission_context"])
+        self.assertNotIn(payload["task"]["objective"], payload["mission_context"])
+        for path in payload["task"]["inputs"]:
+            self.assertNotIn(path, payload["mission_context"])
+
+    def test_citation_rule_is_backed_by_the_real_mission_context_field(self):
+        # Test D
+        payload, _ = self._prompt_payload(explicit_facts=list(self._DISTINCTIVE_FACTS))
+        self.assertIn("mission_context", payload)
+        rules_text = " ".join(payload["rules"])
+        self.assertIn(
+            'podés usar como source "task_prompt" o "mission_context"',
+            rules_text,
+        )
+        self.assertIn(
+            "El campo mission_context de este mismo JSON es exactamente el "
+            "array explicit_facts del plan aprobado",
+            rules_text,
+        )
+
+    def test_mission_context_does_not_come_from_assignment_inputs(self):
+        # Test E
+        distinctive_inputs = ["private/only/in/inputs/one.py", "private/only/in/inputs/two.py"]
+        payload, _ = self._prompt_payload(
+            explicit_facts=list(self._DISTINCTIVE_FACTS),
+            inputs=distinctive_inputs,
+        )
+        self.assertEqual(payload["task"]["inputs"], distinctive_inputs)
+        self.assertEqual(payload["mission_context"], self._DISTINCTIVE_FACTS)
+        for path in distinctive_inputs:
+            self.assertNotIn(path, payload["mission_context"])
+
+
 class EvidenceItemShapeContractTests(unittest.TestCase):
     """BLOCK_4 FINDING #8: the nested evidence-item shape (exactly source +
     observation, both non-empty strings) is exercised directly against the
