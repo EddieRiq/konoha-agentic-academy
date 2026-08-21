@@ -494,6 +494,53 @@ class RunWiringTests(unittest.TestCase):
         exit_code = self._run_one_mission("completed")
         self.assertEqual(exit_code, 0)
 
+    def test_wires_acquired_readiness_snapshot_into_both_planning_boundaries(self):
+        # BLOCK_4 FINDING #16 Test H: run() must pass the exact same
+        # acquired.provider_readiness snapshot into both
+        # _build_validated_plan() and _approval_loop() - not a re-probed or
+        # re-derived value. Not a provider-execution test: _run_resumable_
+        # execution stays fully mocked, same as the rest of this class.
+        readiness_sentinel = {"codex": {"available": True}}
+        plan = _plan(approval_status="approved")
+        acquired = SimpleNamespace(
+            provider_readiness=readiness_sentinel,
+            as_dict=lambda: {},
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            with mock.patch("tools.konoha_v4.conversation.default_state_root", return_value=state_dir), \
+                 mock.patch("tools.konoha_v4.conversation.CapabilityRegistry", return_value=mock.Mock()), \
+                 mock.patch("tools.konoha_v4.conversation.acquire_context", return_value=acquired), \
+                 mock.patch(
+                     "tools.konoha_v4.conversation._repo_state",
+                     return_value={"branch": "test", "head": "abc", "status": ""},
+                 ), \
+                 mock.patch(
+                     "tools.konoha_v4.conversation._read_turn", side_effect=["hacer algo", "salir"],
+                 ), \
+                 mock.patch(
+                     "tools.konoha_v4.conversation._build_validated_plan",
+                     return_value=(plan, [], 1),
+                 ) as build_mock, \
+                 mock.patch(
+                     "tools.konoha_v4.conversation._approval_loop", return_value=plan,
+                 ) as approval_mock, \
+                 mock.patch("tools.konoha_v4.conversation._persist_plan"), \
+                 mock.patch(
+                     "tools.konoha_v4.conversation._run_resumable_execution",
+                     return_value="completed",
+                 ):
+                run(Path("."))
+
+        build_mock.assert_called_once()
+        self.assertIs(
+            build_mock.call_args.kwargs["provider_readiness"], readiness_sentinel,
+        )
+        approval_mock.assert_called_once()
+        self.assertIs(
+            approval_mock.call_args.kwargs["provider_readiness"], readiness_sentinel,
+        )
+
     def test_paused_execution_does_not_report_completed(self):
         exit_code = self._run_one_mission("paused")
         self.assertEqual(exit_code, 0)

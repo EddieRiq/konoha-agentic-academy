@@ -5,7 +5,27 @@ from .registry import CapabilityRegistry, RegistryError
 class ConstitutionalViolation(RuntimeError):
     pass
 
-def validate_plan(plan: MissionPlan, registry: CapabilityRegistry) -> list[str]:
+def validate_plan(
+    plan: MissionPlan,
+    registry: CapabilityRegistry,
+    *,
+    provider_readiness: dict[str, dict] | None = None,
+) -> list[str]:
+    """Deterministic constitutional/structural validation of a MissionPlan.
+
+    provider_readiness is optional and keyword-only: when omitted (existing
+    callers validating only the static plan contract), behavior is
+    unchanged from before this parameter existed - no readiness failure is
+    ever invented. When supplied, it must be the already-acquired
+    provider_readiness snapshot from context_acquisition.acquire_context()
+    for the current session (see conversation.run()) - this function never
+    re-probes providers itself, it only reads the given mapping.
+
+    Static eligibility (registry.model_allowed) and runtime readiness
+    (provider_readiness) are deliberately kept as two separate checks:
+    a provider/model/family being statically configured/eligible never
+    implies it is currently available, and vice versa.
+    """
     problems: list[str] = []
     if plan.missing_context:
         problems.append("Falta contexto explícito: " + "; ".join(plan.missing_context))
@@ -41,6 +61,18 @@ def validate_plan(plan: MissionPlan, registry: CapabilityRegistry) -> list[str]:
             continue
         if not registry.model_allowed(a.provider, a.model, a.family):
             problems.append(f"Modelo no autorizado: {a.provider}/{a.model} para {a.family}")
+        if provider_readiness is not None:
+            # Fail closed: only an entry shaped as a mapping with
+            # available is exactly True counts as ready. Absent entries,
+            # non-mapping entries, a missing "available" field, False,
+            # None, and any non-bool-True value (e.g. the string "true")
+            # are all treated as not ready - this is deterministic runtime
+            # readiness evidence, never inferred from executable path,
+            # model registration, version text, or evidence strings.
+            entry = provider_readiness.get(a.provider)
+            ready = isinstance(entry, dict) and entry.get("available") is True
+            if not ready:
+                problems.append(f"{a.task_id}: provider_not_ready: {a.provider}")
         if a.mutation:
             problems.append(
                 f"{a.task_id}: mutation_runtime_not_supported (el runtime de "

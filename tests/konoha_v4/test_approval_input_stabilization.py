@@ -158,6 +158,39 @@ class ApprovalInputStabilizationTests(unittest.TestCase):
         )
         self.assertEqual(show.call_count, 2)
 
+    def test_human_requested_replan_propagates_same_readiness_snapshot(self) -> None:
+        # BLOCK_4 FINDING #16 Test G: the validate_plan() call after
+        # build_plan() in a human-requested replan must receive the exact
+        # same provider_readiness object passed into _approval_loop() -
+        # a human-requested replan must never bypass the readiness gate.
+        readiness_sentinel = object()
+        feedback = "Primera regla.\nSegunda regla."
+        create, state, summary, persist = self.common()
+        with tempfile.TemporaryDirectory() as tmp, create, state, summary, persist, patch(
+                 "tools.konoha_v4.conversation._read_approval_input",
+                 side_effect=[
+                     ("feedback", feedback),
+                     ("decision", "no"),
+                 ],
+             ), patch(
+                 "tools.konoha_v4.conversation._confirm_feedback",
+                 return_value=True,
+             ), patch(
+                 "tools.konoha_v4.conversation.build_plan",
+                 return_value=self.replanned,
+             ), patch(
+                 "tools.konoha_v4.conversation.validate_plan",
+                 return_value=[],
+             ) as validate_plan_mock:
+            _approval_loop(
+                self.repo, Path(tmp), "mission", self.plan, self.registry,
+                provider_readiness=readiness_sentinel,
+            )
+        validate_plan_mock.assert_called_once()
+        self.assertIs(
+            validate_plan_mock.call_args.kwargs["provider_readiness"], readiness_sentinel,
+        )
+
     def test_confirm_feedback_discards_residual(self) -> None:
         with patch(
             "tools.konoha_v4.conversation._read_fresh_decision",

@@ -189,6 +189,8 @@ def _approval_loop(
     mission_text: str,
     plan,
     registry: CapabilityRegistry,
+    *,
+    provider_readiness: dict[str, dict] | None = None,
 ):
     continuity = MissionContinuityStore.create(
         state_dir,
@@ -304,7 +306,7 @@ def _approval_loop(
 
             problems = (
                 continuity.validate_replanned_plan(plan)
-                + validate_plan(plan, registry)
+                + validate_plan(plan, registry, provider_readiness=provider_readiness)
             )
             if problems:
                 continuity.record_validator_findings(problems, plan=plan)
@@ -562,6 +564,8 @@ def _build_validated_plan(
     mission_text: str,
     state_summary: dict,
     registry: CapabilityRegistry,
+    *,
+    provider_readiness: dict[str, dict] | None = None,
 ) -> tuple[MissionPlan, list[str], int]:
     feedback: str | None = None
     plan: MissionPlan | None = None
@@ -578,7 +582,7 @@ def _build_validated_plan(
             feedback=feedback,
          continuity=continuity_context,
         )
-        problems = validate_plan(plan, registry)
+        problems = validate_plan(plan, registry, provider_readiness=provider_readiness)
 
         if not problems:
             return plan, [], attempt
@@ -641,6 +645,7 @@ def run(repo: Path) -> int:
                 text,
                 _repo_state(repo),
                 registry,
+                provider_readiness=acquired.provider_readiness,
             )
         except Exception as exc:
             print(f"Konoha: No pude construir un plan verificable: {exc}")
@@ -659,7 +664,10 @@ def run(repo: Path) -> int:
             print("Hokage: Solo se requiere intervención humana para contexto realmente ausente, contradictorio o no autorizado.")
             continue
 
-        approval_result = _approval_loop(repo, state_dir, text, plan, registry)
+        approval_result = _approval_loop(
+            repo, state_dir, text, plan, registry,
+            provider_readiness=acquired.provider_readiness,
+        )
         if approval_result is _SESSION_EXIT:
             print("Konoha: Sesión suspendida. La evidencia permanece local.")
             return 0

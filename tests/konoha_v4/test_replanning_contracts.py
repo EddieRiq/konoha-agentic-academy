@@ -90,6 +90,44 @@ class ReplanningContractTests(unittest.TestCase):
 
     @patch("tools.konoha_v4.conversation.validate_plan")
     @patch("tools.konoha_v4.conversation.build_plan")
+    def test_propagates_same_readiness_snapshot_across_replanning_attempts(
+        self,
+        build_plan: Mock,
+        validate_plan: Mock,
+    ) -> None:
+        # BLOCK_4 FINDING #16 Test F: a distinctive sentinel object proves
+        # identity (not merely equal contents) is threaded unchanged into
+        # every validate_plan() call across automatic deterministic
+        # replanning attempts - the snapshot is never refreshed mid-loop.
+        readiness_sentinel = object()
+        first = SimpleNamespace(missing_context=[])
+        corrected = SimpleNamespace(missing_context=[])
+
+        build_plan.side_effect = [first, corrected]
+        validate_plan.side_effect = [
+            [
+                "estimated_tokens debe coincidir con "
+                "budget.maximum_total_tokens."
+            ],
+            [],
+        ]
+
+        plan, problems, attempts = _build_validated_plan(
+            self.repo,
+            self.mission,
+            self.state,
+            self.registry,
+            provider_readiness=readiness_sentinel,
+        )
+
+        self.assertIs(plan, corrected)
+        self.assertEqual(attempts, 2)
+        self.assertEqual(validate_plan.call_count, 2)
+        for call in validate_plan.call_args_list:
+            self.assertIs(call.kwargs["provider_readiness"], readiness_sentinel)
+
+    @patch("tools.konoha_v4.conversation.validate_plan")
+    @patch("tools.konoha_v4.conversation.build_plan")
     def test_stops_after_maximum_attempts(
         self,
         build_plan: Mock,
