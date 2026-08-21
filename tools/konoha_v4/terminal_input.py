@@ -85,7 +85,16 @@ class TerminalTurnReader:
         return None if line is None else line.strip()
 
     def read_turn(self, prompt: str = "Vos> ") -> str | None:
-        return self.read_line(prompt)
+        """Read one full terminal turn: block for the first line, then fold
+        in whatever is already buffered or arrives within the existing
+        freshness quiet window (a pasted/burst-written multiline mission),
+        so the whole paste is consumed as a single turn and none of it is
+        left in _buffer to leak into the next read_line()/approval read."""
+        first_line = self.read_line(prompt)
+        if first_line is None:
+            return None
+        rest = self.drain_until_quiet()
+        return "\n".join([first_line, *rest])
 
     def read_block_until(
         self,
