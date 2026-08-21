@@ -366,6 +366,7 @@ def invoke_claude(
     *,
     cwd: Path,
     model: str = "provider_default",
+    schema: Path | None = None,
     timeout: int = 600,
 ) -> ProviderResult:
     exe = shutil.which("claude")
@@ -377,19 +378,35 @@ def invoke_claude(
             retryable=False,
         )
 
+    # --permission-mode dontAsk (never "plan"): a headless assignment must
+    # never enter interactive Plan Mode, which writes a local plan under
+    # ~/.claude/plans/ and returns prose instead of AssignmentResult JSON.
+    # Built-in tool exposure is intentionally restricted to read-only
+    # Read/Grep/Glob - no Bash, no write/edit/network tools - and MCP tools
+    # are explicitly denied via --disallowedTools mcp__*. When schema is
+    # supplied, --json-schema requests Claude's own native structured
+    # output; Konoha's deterministic AssignmentResult parsing/validation in
+    # executor.py remains the sole authority over the result regardless.
     command = [
         exe,
         "--print",
         "--output-format",
         "json",
         "--permission-mode",
-        "plan",
+        "dontAsk",
         "--tools",
-        "Read,Grep,Glob,Bash",
+        "Read,Grep,Glob",
+        "--disallowedTools",
+        "mcp__*",
         "--no-session-persistence",
     ]
     if model != "provider_default":
         command += ["--model", model]
+    schema_payload: dict | None = None
+    if schema:
+        schema_path = _validate_schema(schema, provider="claude")
+        schema_payload = json.loads(schema_path.read_text(encoding="utf-8"))
+        command += ["--json-schema", json.dumps(schema_payload, separators=(",", ":"))]
     command += [prompt]
 
     cp = _run(
@@ -404,9 +421,30 @@ def invoke_claude(
 
     try:
         payload = json.loads(cp.stdout)
+    except json.JSONDecodeError:
+        payload = None
+
+    if schema_payload is not None:
+        structured_output = (
+            payload.get("structured_output") if isinstance(payload, dict) else None
+        )
+        if not isinstance(structured_output, dict):
+            raise ProviderError(
+                "Claude no devolvió structured_output para una invocación con schema",
+                provider="claude",
+                failure_type="invalid_structured_output",
+                exit_code=cp.returncode,
+                stdout_summary=_truncate(cp.stdout),
+                stderr_summary=_truncate(cp.stderr),
+                retryable=True,
+                command=command,
+            )
+        text = json.dumps(structured_output)
+        usage = (payload.get("usage") or {}) if isinstance(payload, dict) else {}
+    elif isinstance(payload, dict):
         text = payload.get("result") or payload.get("content") or cp.stdout.strip()
         usage = payload.get("usage") or {}
-    except json.JSONDecodeError:
+    else:
         text, usage = cp.stdout.strip(), {}
 
     if not text:
@@ -512,6 +550,7 @@ def invoke(
             prompt,
             cwd=cwd,
             model=model,
+            schema=schema,
             timeout=timeout,
         )
     if provider == "ollama":

@@ -12,6 +12,7 @@ from tools.konoha_v4.provider_adapters import (
     _extract_jsonl_error,
     _normalize_usage,
     invoke,
+    invoke_claude,
     invoke_codex,
     invoke_ollama,
 )
@@ -405,6 +406,195 @@ class OllamaJsonModeTransportTests(unittest.TestCase):
             )
         self.assertEqual(result.text, fenced_stdout.strip())
         self.assertEqual(result.raw, fenced_stdout)
+
+
+class ClaudeStructuredOutputTransportTests(unittest.TestCase):
+    """BLOCK_4 FINDING #12: schema-bound Claude assignments must run
+    headless (dontAsk, never plan mode), expose only Read/Grep/Glob (no
+    Bash, no MCP), and use Claude's native --json-schema structured output.
+    Konoha's own deterministic AssignmentResult parsing/validation in
+    executor.py stays authoritative over provider output regardless."""
+
+    _SCHEMA = {"type": "object", "properties": {"outcome": {"type": "string"}}}
+
+    def _write_schema(self, tmp: str) -> Path:
+        schema_path = Path(tmp) / "result.schema.json"
+        schema_path.write_text(json.dumps(self._SCHEMA), encoding="utf-8")
+        return schema_path
+
+    def _envelope_stdout(self, **overrides) -> str:
+        envelope = {
+            "result": "PROSE THAT MUST NOT BE USED",
+            "structured_output": {
+                "outcome": "completed",
+                "objective_satisfied": True,
+                "summary": "ok",
+                "diagnostic": None,
+                "evidence": [],
+                "review_outcome": None,
+            },
+            "usage": {"input_tokens": 5, "output_tokens": 3},
+        }
+        envelope.update(overrides)
+        return json.dumps(envelope)
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_schema_bound_command_shape(self, run_mock, which_mock) -> None:
+        # Test A
+        which_mock.return_value = "/usr/bin/claude"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=0, stdout=self._envelope_stdout(), stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            schema_path = self._write_schema(tmp)
+            invoke_claude("prompt", cwd=Path(tmp), schema=schema_path)
+        args, kwargs = run_mock.call_args
+        command = args[0] if args else kwargs["command"]
+
+        for token in (
+            "--print", "--output-format", "json",
+            "--permission-mode", "dontAsk",
+            "--tools", "Read,Grep,Glob",
+            "--disallowedTools", "mcp__*",
+            "--no-session-persistence",
+            "--json-schema",
+        ):
+            self.assertIn(token, command)
+
+        for forbidden in ("plan", "Bash", "bypassPermissions", "dangerously-skip-permissions"):
+            self.assertNotIn(forbidden, command)
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_json_schema_flag_carries_inline_schema_not_a_path(self, run_mock, which_mock) -> None:
+        # Test B
+        which_mock.return_value = "/usr/bin/claude"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=0, stdout=self._envelope_stdout(), stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            schema_path = self._write_schema(tmp)
+            invoke_claude("prompt", cwd=Path(tmp), schema=schema_path)
+        args, kwargs = run_mock.call_args
+        command = args[0] if args else kwargs["command"]
+
+        idx = command.index("--json-schema")
+        inline_value = command[idx + 1]
+        self.assertEqual(json.loads(inline_value), self._SCHEMA)
+        self.assertNotEqual(inline_value, str(schema_path))
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_structured_output_is_authoritative_over_result_prose(self, run_mock, which_mock) -> None:
+        # Test C
+        which_mock.return_value = "/usr/bin/claude"
+        stdout = self._envelope_stdout()
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=0, stdout=stdout, stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            schema_path = self._write_schema(tmp)
+            result = invoke_claude("prompt", cwd=Path(tmp), schema=schema_path)
+        self.assertEqual(
+            json.loads(result.text),
+            json.loads(stdout)["structured_output"],
+        )
+        self.assertNotIn("PROSE THAT MUST NOT BE USED", result.text)
+        self.assertEqual(result.raw, stdout)
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_missing_structured_output_fails_closed(self, run_mock, which_mock) -> None:
+        # Test D
+        which_mock.return_value = "/usr/bin/claude"
+        envelope = json.loads(self._envelope_stdout())
+        del envelope["structured_output"]
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=0, stdout=json.dumps(envelope), stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            schema_path = self._write_schema(tmp)
+            with self.assertRaises(ProviderError) as caught:
+                invoke_claude("prompt", cwd=Path(tmp), schema=schema_path)
+        exc = caught.exception
+        self.assertEqual(exc.provider, "claude")
+        self.assertEqual(exc.failure_type, "invalid_structured_output")
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_non_object_structured_output_fails_closed(self, run_mock, which_mock) -> None:
+        # Test E
+        which_mock.return_value = "/usr/bin/claude"
+        for bad_value in (None, [], "json text"):
+            with self.subTest(bad_value=bad_value):
+                run_mock.return_value = subprocess.CompletedProcess(
+                    args=["claude"],
+                    returncode=0,
+                    stdout=self._envelope_stdout(structured_output=bad_value),
+                    stderr="",
+                )
+                with tempfile.TemporaryDirectory() as tmp:
+                    schema_path = self._write_schema(tmp)
+                    with self.assertRaises(ProviderError) as caught:
+                        invoke_claude("prompt", cwd=Path(tmp), schema=schema_path)
+                self.assertEqual(caught.exception.provider, "claude")
+                self.assertEqual(caught.exception.failure_type, "invalid_structured_output")
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_invalid_claude_schema_fails_before_run(self, run_mock, which_mock) -> None:
+        # Test F
+        which_mock.return_value = "/usr/bin/claude"
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ProviderError) as caught:
+                invoke_claude(
+                    "prompt", cwd=Path(tmp), schema=Path(tmp) / "missing.schema.json",
+                )
+        exc = caught.exception
+        self.assertEqual(exc.provider, "claude")
+        self.assertEqual(exc.failure_type, "invalid_schema")
+        run_mock.assert_not_called()
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_dispatcher_forwards_schema_to_claude(self, run_mock, which_mock) -> None:
+        # Test G
+        which_mock.return_value = "/usr/bin/claude"
+        stdout = self._envelope_stdout()
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=0, stdout=stdout, stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            schema_path = self._write_schema(tmp)
+            result = invoke(
+                "claude", "prompt", cwd=Path(tmp), model="provider_default", schema=schema_path,
+            )
+        args, kwargs = run_mock.call_args
+        command = args[0] if args else kwargs["command"]
+        self.assertIn("--json-schema", command)
+        self.assertEqual(
+            json.loads(result.text),
+            json.loads(stdout)["structured_output"],
+        )
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_schema_less_invocation_preserves_prior_result_extraction(self, run_mock, which_mock) -> None:
+        # Test H
+        which_mock.return_value = "/usr/bin/claude"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"],
+            returncode=0,
+            stdout=json.dumps({"result": "hello world", "usage": {"input_tokens": 1, "output_tokens": 1}}),
+            stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            result = invoke_claude("prompt", cwd=Path(tmp))
+        args, kwargs = run_mock.call_args
+        command = args[0] if args else kwargs["command"]
+        self.assertNotIn("--json-schema", command)
+        self.assertEqual(result.text, "hello world")
 
 
 if __name__ == "__main__":
