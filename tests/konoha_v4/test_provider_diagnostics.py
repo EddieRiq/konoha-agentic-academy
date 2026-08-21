@@ -597,5 +597,163 @@ class ClaudeStructuredOutputTransportTests(unittest.TestCase):
         self.assertEqual(result.text, "hello world")
 
 
+class ClaudeSchemaDialectTransportTests(unittest.TestCase):
+    """BLOCK_4 FINDING #13: Claude Code 2.1.238 rejects the canonical
+    AssignmentResult schema's top-level draft-2020-12 "$schema" meta-schema
+    URI. Konoha strips only that one known top-level key from a separate
+    in-memory transport copy built for --json-schema - the schema file on
+    disk and any other schema content is never touched, and Konoha's own
+    deterministic AssignmentResult validation downstream stays
+    authoritative regardless of what the transport CLI accepted."""
+
+    _DIALECT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
+
+    _ENVELOPE_STDOUT = json.dumps(
+        {
+            "result": "PROSE THAT MUST NOT BE USED",
+            "structured_output": {
+                "outcome": "completed",
+                "objective_satisfied": True,
+                "summary": "ok",
+                "diagnostic": None,
+                "evidence": [],
+                "review_outcome": None,
+            },
+            "usage": {"input_tokens": 5, "output_tokens": 3},
+        }
+    )
+
+    def _write_schema(self, tmp: str, payload: dict) -> Path:
+        schema_path = Path(tmp) / "result.schema.json"
+        schema_path.write_text(json.dumps(payload), encoding="utf-8")
+        return schema_path
+
+    def _invoke_and_get_inline_schema(self, run_mock, which_mock, tmp: str, payload: dict):
+        which_mock.return_value = "/usr/bin/claude"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=0, stdout=self._ENVELOPE_STDOUT, stderr="",
+        )
+        schema_path = self._write_schema(tmp, payload)
+        before = schema_path.read_bytes()
+        invoke_claude("prompt", cwd=Path(tmp), schema=schema_path)
+        args, kwargs = run_mock.call_args
+        command = args[0] if args else kwargs["command"]
+        idx = command.index("--json-schema")
+        inline_schema = json.loads(command[idx + 1])
+        return inline_schema, schema_path, before
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_known_2020_12_declaration_is_stripped_for_claude_transport(
+        self, run_mock, which_mock,
+    ) -> None:
+        # Test A
+        payload = {
+            "$schema": self._DIALECT_2020_12,
+            "type": "object",
+            "properties": {"outcome": {"type": "string"}},
+            "required": ["outcome"],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            inline_schema, _, _ = self._invoke_and_get_inline_schema(
+                run_mock, which_mock, tmp, payload,
+            )
+        self.assertNotIn("$schema", inline_schema)
+        expected_rest = {k: v for k, v in payload.items() if k != "$schema"}
+        self.assertEqual(inline_schema, expected_rest)
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_canonical_file_content_is_unchanged(self, run_mock, which_mock) -> None:
+        # Test B
+        payload = {
+            "$schema": self._DIALECT_2020_12,
+            "type": "object",
+            "properties": {"outcome": {"type": "string"}},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            _, schema_path, before = self._invoke_and_get_inline_schema(
+                run_mock, which_mock, tmp, payload,
+            )
+            after = schema_path.read_bytes()
+            self.assertEqual(before, after)
+            self.assertEqual(json.loads(after), payload)
+            files_in_tmp = sorted(p.name for p in Path(tmp).iterdir())
+            self.assertEqual(files_in_tmp, ["result.schema.json"])
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_no_other_transformation_occurs_on_nested_content(
+        self, run_mock, which_mock,
+    ) -> None:
+        # Test C
+        payload = {
+            "$schema": self._DIALECT_2020_12,
+            "title": "Konoha v4 Assignment Result",
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["outcome", "evidence"],
+            "properties": {
+                "outcome": {"type": "string", "enum": ["completed", "blocked"]},
+                "evidence": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "source": {"type": "string"},
+                            "observation": {"type": "string"},
+                        },
+                    },
+                },
+            },
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            inline_schema, _, _ = self._invoke_and_get_inline_schema(
+                run_mock, which_mock, tmp, payload,
+            )
+        expected = {k: v for k, v in payload.items() if k != "$schema"}
+        self.assertEqual(inline_schema, expected)
+        self.assertEqual(
+            inline_schema["properties"]["evidence"], payload["properties"]["evidence"],
+        )
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_schema_without_dollar_schema_passes_through_unchanged(
+        self, run_mock, which_mock,
+    ) -> None:
+        # Test D
+        payload = {"type": "object", "properties": {"outcome": {"type": "string"}}}
+        with tempfile.TemporaryDirectory() as tmp:
+            inline_schema, _, _ = self._invoke_and_get_inline_schema(
+                run_mock, which_mock, tmp, payload,
+            )
+        self.assertEqual(inline_schema, payload)
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_unrecognized_dollar_schema_value_is_not_rewritten(
+        self, run_mock, which_mock,
+    ) -> None:
+        # Test E: only the exact known draft-2020-12 URI is stripped - any
+        # other "$schema" value is left exactly as-is, not converted to
+        # another dialect and not treated as a reason to touch anything
+        # else in the object.
+        payload = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {"outcome": {"type": "string"}},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            inline_schema, _, _ = self._invoke_and_get_inline_schema(
+                run_mock, which_mock, tmp, payload,
+            )
+        self.assertEqual(inline_schema, payload)
+        self.assertIn("$schema", inline_schema)
+        self.assertEqual(
+            inline_schema["$schema"], "http://json-schema.org/draft-07/schema#",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

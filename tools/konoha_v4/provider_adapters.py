@@ -406,7 +406,18 @@ def invoke_claude(
     if schema:
         schema_path = _validate_schema(schema, provider="claude")
         schema_payload = json.loads(schema_path.read_text(encoding="utf-8"))
-        command += ["--json-schema", json.dumps(schema_payload, separators=(",", ":"))]
+        # Claude Code 2.1.238 rejects the canonical schema's top-level
+        # "$schema": ".../draft/2020-12/schema" declaration ("no schema
+        # with key or ref ..."). Konoha strips only that one known
+        # top-level key from a separate transport copy built for
+        # --json-schema; the canonical schema_payload above (and the file
+        # on disk) is never mutated, and Konoha's own deterministic
+        # AssignmentResult validation downstream remains authoritative
+        # regardless of what the transport CLI accepted.
+        claude_transport_schema = dict(schema_payload)
+        if claude_transport_schema.get("$schema") == "https://json-schema.org/draft/2020-12/schema":
+            del claude_transport_schema["$schema"]
+        command += ["--json-schema", json.dumps(claude_transport_schema, separators=(",", ":"))]
     command += [prompt]
 
     cp = _run(
