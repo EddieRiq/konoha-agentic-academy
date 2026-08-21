@@ -282,8 +282,8 @@ class ManagedDistributionTests(unittest.TestCase):
         version = (ROOT / "tools/version.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn('version = "3.6.0"', pyproject)
-        self.assertIn('VERSION = "3.6.0"', version)
+        self.assertIn('version = "4.0.0"', pyproject)
+        self.assertIn('VERSION = "4.0.0"', version)
 
 
 
@@ -357,13 +357,13 @@ class CleanInstallSmokeTests(unittest.TestCase):
         )
         report = module.execute_smoke(
             ROOT,
-            expected_version="3.6.0",
+            expected_version="4.0.0",
         )
         self.assertEqual(
             report["status_code"],
             "CLEAN_INSTALL_SMOKE_PASSED",
         )
-        self.assertEqual(report["observed_version"], "3.6.0")
+        self.assertEqual(report["observed_version"], "4.0.0")
 
 
 if __name__ == "__main__":

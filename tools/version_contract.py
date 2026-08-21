@@ -29,14 +29,17 @@ def inspect(root: Path) -> dict:
     if not match:
         raise VersionContractError("scripts/install.sh VERSION is missing")
     installer_tag = match.group(1)
-    expected_tag = f"v{package_version}"
+    # runtime_tag (tools/version.py TAG) and installer_tag
+    # (scripts/install.sh VERSION) both name the same thing: the last
+    # public/installable release tag. They must agree with each other, but
+    # neither is required to equal f"v{package_version}" - package_version/
+    # runtime_version is the candidate product version and may legitimately
+    # be ahead of the last installable release tag (see BLOCK_4 FINDING #20).
     errors = []
     if runtime_version != package_version:
         errors.append(f"runtime_version={runtime_version} != package_version={package_version}")
-    if runtime_tag != expected_tag:
-        errors.append(f"runtime_tag={runtime_tag} != expected_tag={expected_tag}")
-    if installer_tag != expected_tag:
-        errors.append(f"installer_tag={installer_tag} != expected_tag={expected_tag}")
+    if runtime_tag != installer_tag:
+        errors.append(f"runtime_tag={runtime_tag} != installer_tag={installer_tag}")
     return {
         "schema_version":"1.0.0",
         "report_type":"konoha_version_contract",
@@ -46,7 +49,6 @@ def inspect(root: Path) -> dict:
             "runtime_version":runtime_version,
             "runtime_tag":runtime_tag,
             "installer_tag":installer_tag,
-            "expected_tag":expected_tag,
         },
         "errors":errors,
     }
