@@ -468,7 +468,6 @@ class RunWiringTests(unittest.TestCase):
             state_dir = Path(tmp)
             with mock.patch("tools.konoha_v4.conversation.default_state_root", return_value=state_dir), \
                  mock.patch("tools.konoha_v4.conversation.CapabilityRegistry", return_value=mock.Mock()), \
-                 mock.patch("tools.konoha_v4.conversation.start_scan"), \
                  mock.patch("tools.konoha_v4.conversation.acquire_context", return_value=acquired), \
                  mock.patch(
                      "tools.konoha_v4.conversation._repo_state",
@@ -491,7 +490,7 @@ class RunWiringTests(unittest.TestCase):
         run_mock.assert_called_once()
         return exit_code
 
-    def test_completed_execution_offers_new_sources(self):
+    def test_completed_execution_returns_zero(self):
         exit_code = self._run_one_mission("completed")
         self.assertEqual(exit_code, 0)
 
@@ -510,6 +509,58 @@ class RunWiringTests(unittest.TestCase):
         # two lives inside _run_resumable_execution (see
         # RunResumableExecutionTests), already covered there.
         exit_code = self._run_one_mission("failed")
+        self.assertEqual(exit_code, 0)
+
+
+class StartupDoesNotScanSourcesTests(unittest.TestCase):
+    """BLOCK_4 FINDING #14: conversational startup must reach mission input
+    without invoking source_monitor.start_scan on any state_dir/
+    source_policy.json roots. source_monitor itself is untouched and stays
+    available for future explicitly authorized use - only the automatic
+    invocation from run() is removed."""
+
+    def _run_minimal_startup(self):
+        acquired = SimpleNamespace(
+            provider_readiness={"codex": {"available": True}},
+            as_dict=lambda: {},
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            with mock.patch(
+                "tools.konoha_v4.conversation.default_state_root", return_value=state_dir,
+            ), mock.patch(
+                "tools.konoha_v4.conversation.CapabilityRegistry", return_value=mock.Mock(),
+            ), mock.patch(
+                "tools.konoha_v4.conversation.acquire_context", return_value=acquired,
+            ) as acquire_mock, mock.patch(
+                "tools.konoha_v4.source_monitor.start_scan",
+            ) as scan_mock, mock.patch(
+                "tools.konoha_v4.conversation._read_turn", side_effect=["salir"],
+            ) as read_turn_mock:
+                exit_code = run(Path("."))
+        return exit_code, acquire_mock, scan_mock, read_turn_mock
+
+    def test_startup_does_not_invoke_source_scan(self):
+        # Test A: patches the real source_monitor.start_scan entry point
+        # (not a conversation-local alias) so this fails immediately if
+        # startup ever triggers a source scan again, by any route.
+        _, _, scan_mock, _ = self._run_minimal_startup()
+        scan_mock.assert_not_called()
+
+    def test_conversation_module_no_longer_binds_start_scan(self):
+        import tools.konoha_v4.conversation as conversation_module
+        self.assertFalse(hasattr(conversation_module, "start_scan"))
+
+    def test_startup_still_acquires_public_context(self):
+        # Test B
+        _, acquire_mock, _, _ = self._run_minimal_startup()
+        acquire_mock.assert_called_once()
+
+    def test_startup_still_reaches_mission_input(self):
+        # Test C: not a full provider-execution test - just proves the
+        # conversation reaches _read_turn() and exits cleanly on "salir".
+        exit_code, _, _, read_turn_mock = self._run_minimal_startup()
+        read_turn_mock.assert_called_once()
         self.assertEqual(exit_code, 0)
 
 

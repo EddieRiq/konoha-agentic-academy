@@ -15,7 +15,6 @@ from .hokage import approval_summary, validate_plan
 from .models import AssignmentApproval
 from .planner import build_plan
 from .registry import CapabilityRegistry
-from .source_monitor import start_scan
 
 APPROVE_WORDS = {"si", "sí", "s", "ok", "dale", "aprobar", "apruebo", "aprobado", "continuar", "proceed", "yes"}
 REJECT_WORDS = {"no", "rechazar", "rechazo", "cancel", "cancelar", "stop", "detener"}
@@ -618,11 +617,6 @@ def run(repo: Path) -> int:
     state_dir = default_state_root()
     state_dir.mkdir(parents=True, exist_ok=True)
     registry = CapabilityRegistry(repo)
-    source_result: dict = {}
-    start_scan(
-        state_dir / "source_policy.json", state_dir,
-        lambda result: source_result.update(result),
-    )
     acquired = acquire_context(repo, registry)
     (state_dir / "context_acquisition.json").write_text(
         json.dumps(acquired.as_dict(), ensure_ascii=False, indent=2), encoding="utf-8"
@@ -690,8 +684,3 @@ def run(repo: Path) -> int:
                 f"--resume {plan.mission_id}."
             )
             continue
-
-        # execution_result == "completed"
-        if source_result.get("new_sources"):
-            print(f"\nYamanaka: Detecté {len(source_result['new_sources'])} fuente(s) nuevas en rutas autorizadas.")
-            print("Shikamaru puede proponer su procesamiento e incorporación a una familia, pero requiere aprobación.")
