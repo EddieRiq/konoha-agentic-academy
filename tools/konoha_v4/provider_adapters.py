@@ -418,17 +418,26 @@ def invoke_claude(
         if claude_transport_schema.get("$schema") == "https://json-schema.org/draft/2020-12/schema":
             del claude_transport_schema["$schema"]
         command += ["--json-schema", json.dumps(claude_transport_schema, separators=(",", ":"))]
-    command += [prompt]
+
+    # The prompt (which may carry mission_context/dependency evidence) is a
+    # positional argv element for Claude, not a flag value - it can never be
+    # redacted by _sanitize_command()'s flag-following logic. execution_command
+    # is what actually reaches the Claude subprocess; evidence_command is what
+    # Konoha copies into ProviderResult/ProviderError.command for diagnostics
+    # and persisted evidence, with the prompt replaced by a stable marker so
+    # it is never written to disk or serialized.
+    execution_command = command + [prompt]
+    evidence_command = command + ["<prompt-redacted>"]
 
     cp = _run(
-        command,
+        execution_command,
         stdin=None,
         cwd=cwd,
         timeout=timeout,
         provider="claude",
     )
     if cp.returncode != 0:
-        raise _provider_failure(provider="claude", command=command, cp=cp)
+        raise _provider_failure(provider="claude", command=evidence_command, cp=cp)
 
     try:
         payload = json.loads(cp.stdout)
@@ -448,7 +457,7 @@ def invoke_claude(
                 stdout_summary=_truncate(cp.stdout),
                 stderr_summary=_truncate(cp.stderr),
                 retryable=True,
-                command=command,
+                command=evidence_command,
             )
         text = json.dumps(structured_output)
         usage = (payload.get("usage") or {}) if isinstance(payload, dict) else {}
@@ -467,7 +476,7 @@ def invoke_claude(
             stdout_summary=_truncate(cp.stdout),
             stderr_summary=_truncate(cp.stderr),
             retryable=True,
-            command=command,
+            command=evidence_command,
         )
 
     return ProviderResult(
@@ -475,7 +484,7 @@ def invoke_claude(
         model,
         str(text),
         _normalize_usage(usage),
-        command,
+        evidence_command,
         cp.stdout,
     )
 

@@ -755,5 +755,107 @@ class ClaudeSchemaDialectTransportTests(unittest.TestCase):
         )
 
 
+class ClaudePromptRedactionTests(unittest.TestCase):
+    """BLOCK_4 FINDING #15: the Claude assignment prompt (which may carry
+    mission_context/dependency evidence) is a positional argv element, not
+    a flag value _sanitize_command() can redact. invoke_claude() must still
+    hand the real prompt to the actual subprocess, but ProviderResult.command
+    and ProviderError.command - what Konoha copies into evidence/diagnostics
+    - must never contain it."""
+
+    _SENSITIVE_PROMPT = "SENSITIVE_MISSION_CONTEXT_DO_NOT_PERSIST"
+    _REDACTED_MARKER = "<prompt-redacted>"
+
+    _STRUCTURED_ENVELOPE = json.dumps(
+        {
+            "result": "prose",
+            "structured_output": {
+                "outcome": "completed",
+                "objective_satisfied": True,
+                "summary": "ok",
+                "diagnostic": None,
+                "evidence": [],
+                "review_outcome": None,
+            },
+            "usage": {"input_tokens": 1, "output_tokens": 1},
+        }
+    )
+
+    def _write_schema(self, tmp: str) -> Path:
+        schema_path = Path(tmp) / "result.schema.json"
+        schema_path.write_text(json.dumps({"type": "object"}), encoding="utf-8")
+        return schema_path
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_successful_invocation_keeps_prompt_out_of_provider_result_command(
+        self, run_mock, which_mock,
+    ) -> None:
+        # Test A
+        which_mock.return_value = "/usr/bin/claude"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=0, stdout=self._STRUCTURED_ENVELOPE, stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            schema_path = self._write_schema(tmp)
+            result = invoke_claude(
+                self._SENSITIVE_PROMPT, cwd=Path(tmp), schema=schema_path,
+            )
+
+        args, kwargs = run_mock.call_args
+        real_command = args[0] if args else kwargs["command"]
+        self.assertIn(self._SENSITIVE_PROMPT, real_command)
+
+        self.assertNotIn(self._SENSITIVE_PROMPT, result.command)
+        self.assertIn(self._REDACTED_MARKER, result.command)
+        self.assertEqual(
+            json.loads(result.text),
+            json.loads(self._STRUCTURED_ENVELOPE)["structured_output"],
+        )
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_process_failure_error_command_is_prompt_free(
+        self, run_mock, which_mock,
+    ) -> None:
+        # Test B
+        which_mock.return_value = "/usr/bin/claude"
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=1, stdout="", stderr="boom",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ProviderError) as caught:
+                invoke_claude(self._SENSITIVE_PROMPT, cwd=Path(tmp))
+        exc = caught.exception
+        self.assertNotIn(self._SENSITIVE_PROMPT, exc.command)
+        self.assertIn(self._REDACTED_MARKER, exc.command)
+
+        as_dict_command = exc.as_dict()["command"]
+        self.assertNotIn(self._SENSITIVE_PROMPT, as_dict_command)
+
+    @patch("tools.konoha_v4.provider_adapters.shutil.which")
+    @patch("tools.konoha_v4.provider_adapters._run")
+    def test_invalid_structured_output_error_command_is_prompt_free(
+        self, run_mock, which_mock,
+    ) -> None:
+        # Test C
+        which_mock.return_value = "/usr/bin/claude"
+        envelope = json.loads(self._STRUCTURED_ENVELOPE)
+        del envelope["structured_output"]
+        run_mock.return_value = subprocess.CompletedProcess(
+            args=["claude"], returncode=0, stdout=json.dumps(envelope), stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            schema_path = self._write_schema(tmp)
+            with self.assertRaises(ProviderError) as caught:
+                invoke_claude(
+                    self._SENSITIVE_PROMPT, cwd=Path(tmp), schema=schema_path,
+                )
+        exc = caught.exception
+        self.assertEqual(exc.failure_type, "invalid_structured_output")
+        self.assertNotIn(self._SENSITIVE_PROMPT, exc.command)
+        self.assertIn(self._REDACTED_MARKER, exc.command)
+
+
 if __name__ == "__main__":
     unittest.main()
