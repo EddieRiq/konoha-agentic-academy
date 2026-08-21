@@ -16,8 +16,13 @@ from .models import AssignmentApproval
 from .planner import build_plan
 from .registry import CapabilityRegistry
 
-APPROVE_WORDS = {"si", "sí", "s", "ok", "dale", "aprobar", "apruebo", "aprobado", "continuar", "proceed", "yes"}
+APPROVE_WORDS = {"si", "sí", "s", "dale", "aprobar", "apruebo", "aprobado", "continuar", "proceed", "yes"}
 REJECT_WORDS = {"no", "rechazar", "rechazo", "cancel", "cancelar", "stop", "detener"}
+# protocols/approval/approval_policy.md: approval must be explicit and
+# ambiguous responses are not approval - "ok" is explicitly listed as
+# ambiguous there. It must neither approve nor be treated as free-form
+# requested changes; it stays pending so Konoha asks again.
+AMBIGUOUS_APPROVAL_WORDS = {"ok"}
 
 _TERMINAL_INPUT = TerminalTurnReader(sys.stdin, sys.stdout)
 
@@ -62,6 +67,8 @@ def classify_approval(text: str | None) -> str:
     if text is None or not text.strip():
         return "pending"
     normalized = text.strip().lower()
+    if normalized in AMBIGUOUS_APPROVAL_WORDS:
+        return "pending"
     if normalized in APPROVE_WORDS:
         return "approved"
     if normalized in REJECT_WORDS:

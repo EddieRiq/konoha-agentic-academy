@@ -111,6 +111,23 @@ class ApprovalInputStabilizationTests(unittest.TestCase):
         build.assert_not_called()
         self.assertEqual(show.call_count, 1)
 
+    def test_ambiguous_ok_leaves_plan_pending_and_requires_explicit_decision(self) -> None:
+        # BLOCK_4 FINDING #17: a standalone "ok" decision must neither
+        # approve the plan nor be treated as requested changes - it stays
+        # pending and Konoha asks again, exactly like classify_approval("ok").
+        create, state, summary, persist = self.common()
+        with tempfile.TemporaryDirectory() as tmp, create, state, summary as show, persist,              patch(
+                 "tools.konoha_v4.conversation._read_approval_input",
+                 side_effect=[("decision", "ok"), ("decision", "no")],
+             ),              patch("tools.konoha_v4.conversation.build_plan") as build:
+            result = _approval_loop(
+                self.repo, Path(tmp), "mission", self.plan, self.registry
+            )
+        self.assertIsNone(result)
+        build.assert_not_called()
+        self.store.record_requested_change.assert_not_called()
+        self.assertEqual(show.call_count, 1)
+
     def test_cancelled_feedback_does_not_invoke_or_record(self) -> None:
         create, state, summary, persist = self.common()
         with tempfile.TemporaryDirectory() as tmp, create, state, summary, persist,              patch(
