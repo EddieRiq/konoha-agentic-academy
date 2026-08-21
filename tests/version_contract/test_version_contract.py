@@ -18,15 +18,17 @@ class VersionContractTests(unittest.TestCase):
         self.module=load_module()
 
     def test_repository_contract_passes(self):
-        # BLOCK_4 FINDING #20: this is the intentional candidate state - a
-        # product/candidate version (4.0.0) legitimately ahead of the last
-        # public/installable release tag (v3.6.0), and that must pass.
+        # v4.0.0 release closure: product/candidate version and the last
+        # public/installable release tag now intentionally converge on
+        # v4.0.0. See test_candidate_version_ahead_of_installable_tag_is_accepted
+        # below for the still-preserved BLOCK_4 FINDING #20 regression proof
+        # that a candidate version MAY legally be ahead of the release tag.
         report=self.module.inspect(ROOT)
         self.assertEqual(report["status"],"passed")
         self.assertEqual(report["values"]["package_version"],"4.0.0")
         self.assertEqual(report["values"]["runtime_version"],"4.0.0")
-        self.assertEqual(report["values"]["runtime_tag"],"v3.6.0")
-        self.assertEqual(report["values"]["installer_tag"],"v3.6.0")
+        self.assertEqual(report["values"]["runtime_tag"],"v4.0.0")
+        self.assertEqual(report["values"]["installer_tag"],"v4.0.0")
 
     def test_candidate_version_ahead_of_installable_tag_is_accepted(self):
         # Synthetic isolation of the same scenario as

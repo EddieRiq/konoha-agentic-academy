@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v3.6.0 \
+  --version v4.0.0 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
@@ -258,12 +258,13 @@ Start with:
 
 ## Release status
 
-`v3.6.0` introduces:
+`v4.0.0` introduces:
 
-- constitutional authority and machine-readable contracts;
-- private environment bootstrap and provider capacity snapshots;
-- supervised mission classification and decision proposals;
-- private village initialization;
-- updated onboarding and product documentation.
+- Codex-led conversational mission conduction;
+- constitutional Hokage plan validation;
+- specialized agent families;
+- real provider evidence (Codex, Claude, Ollama) persisted with model and usage;
+- proportional plan approval;
+- explicit-knowledge stops.
 
 Konoha remains local-first, terminal-first and explicitly supervised.

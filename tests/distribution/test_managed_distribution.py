@@ -285,6 +285,13 @@ class ManagedDistributionTests(unittest.TestCase):
         self.assertIn('version = "4.0.0"', pyproject)
         self.assertIn('VERSION = "4.0.0"', version)
 
+    def test_installer_default_release_tag_is_v4_0_0(self):
+        # v4.0.0 release closure: the active installer default and its
+        # help/example line must name the current installable release tag.
+        source = INSTALLER.read_text(encoding="utf-8")
+        self.assertIn('VERSION="v4.0.0"', source)
+        self.assertIn("--version v4.0.0", source)
+
 
 
     def test_installer_fetches_annotated_tag_without_clone_warning_path(self):

@@ -1,4 +1,4 @@
-# 4.0.0 - candidate
+## [4.0.0] — Conversational Multi-Agent Operating Core
 
 - Added Codex-led conversational mission conduction, constitutional Hokage validation, specialized agent families, real provider evidence, proportional plan approval and explicit-knowledge stops.
 
