@@ -1,3 +1,24 @@
+## [4.0.1] — Mission Integrity Hardening
+
+- Adds a structured mission constraint manifest (`mission_constraints`) for
+  new provider-generated MissionPlans.
+- Hokage deterministically validates supported structured constraints
+  against the generated MissionPlan before approval/execution.
+- Requires exact `source_text` provenance from authorized human mission or
+  confirmed requested-change text; no fuzzy/paraphrase matching.
+- Makes extracted constraints visible to the human during plan approval.
+- Preserves v4.0.0 persisted-plan compatibility and legacy plan identity:
+  `mission_constraints=None` plans keep producing their original hash.
+
+### Safety
+
+- Model extraction of `mission_constraints` remains proposal/evidence only;
+  it does not claim complete deterministic understanding of arbitrary
+  natural language.
+- Human review remains required for semantic completeness of the extraction.
+- No automatic fallback/failover was added.
+- No new mutation or execution authority was added.
+
 ## [4.0.0] — Conversational Multi-Agent Operating Core
 
 - Added Codex-led conversational mission conduction, constitutional Hokage validation, specialized agent families, real provider evidence, proportional plan approval and explicit-knowledge stops.

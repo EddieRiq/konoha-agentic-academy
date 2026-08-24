@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.0.0 \
+  --version v4.0.1 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
@@ -258,7 +258,11 @@ Start with:
 
 ## Release status
 
-`v4.0.0` introduces:
+`v4.0.1` hardens the v4 conversational runtime with deterministic
+structured mission-constraint validation while preserving v4.0.0 persisted
+mission compatibility.
+
+`v4.0.0` introduced the underlying product foundation:
 
 - Codex-led conversational mission conduction;
 - constitutional Hokage plan validation;
