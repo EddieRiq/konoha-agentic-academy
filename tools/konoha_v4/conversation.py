@@ -205,6 +205,7 @@ def _approval_loop(
     registry: CapabilityRegistry,
     *,
     provider_readiness: dict[str, dict] | None = None,
+    plan_only: bool = False,
 ):
     continuity = MissionContinuityStore.create(
         state_dir,
@@ -343,6 +344,19 @@ def _approval_loop(
             )
             render_current_plan()
             continue
+
+        if plan_only:
+            # v4.1.0 plan-only mode: an explicit affirmative here means
+            # only "I accept this as the reviewed technical planning
+            # artifact" - it must never mean "I approve execution". The
+            # plan's approval object is left exactly as build_plan()
+            # produced it (status=pending, approved_by=None,
+            # approved_at=None) and continuity.record_approval is never
+            # called, so no execution authority is ever granted or
+            # persisted. Caller (run()) is responsible for the
+            # plan-only-specific acceptance message and for never
+            # persisting plan.json or invoking execution in this mode.
+            return plan
 
         plan.approval.update(
             {
@@ -669,7 +683,7 @@ def _build_validated_plan(
 
     return plan, problems, MAX_PLAN_ATTEMPTS
 
-def run(repo: Path) -> int:
+def run(repo: Path, *, plan_only: bool = False) -> int:
     state_dir = default_state_root()
     state_dir.mkdir(parents=True, exist_ok=True)
     registry = CapabilityRegistry(repo)
@@ -682,6 +696,11 @@ def run(repo: Path) -> int:
     print("Konoha: Contexto público del workspace cargado; rutas privadas y externas permanecen excluidas.")
     print("Konoha: Providers verificados localmente: " + (", ".join(ready) if ready else "ninguno"))
     print("Konoha: Podés escribir o pegar la misión completa; el pegado multilínea se agrupa en un solo turno.")
+    if plan_only:
+        print(
+            "Konoha: Modo --plan-only activo: planificación técnica supervisada. "
+            "No se otorga autoridad de ejecución ni se ejecuta ninguna tarea."
+        )
 
     while True:
         text = _read_turn()
@@ -719,12 +738,23 @@ def run(repo: Path) -> int:
         approval_result = _approval_loop(
             repo, state_dir, text, plan, registry,
             provider_readiness=acquired.provider_readiness,
+            plan_only=plan_only,
         )
         if approval_result is _SESSION_EXIT:
             print("Konoha: Sesión suspendida. La evidencia permanece local.")
             return 0
         plan = approval_result
         if plan is None:
+            continue
+        if plan_only:
+            # v4.1.0: review acceptance only - never execution approval.
+            # No executable plan.json is persisted, execute_or_resume_plan/
+            # _run_resumable_execution are never called, and plan.approval
+            # remains exactly as _approval_loop returned it (pending).
+            print(
+                "Konoha: Plan técnico aceptado para revisión únicamente.\n"
+                "No se autorizó ni ejecutó ninguna tarea."
+            )
             continue
         mission_dir = state_dir / "missions" / plan.mission_id
         _persist_plan(mission_dir / "plan.json", plan)

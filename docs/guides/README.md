@@ -415,3 +415,7 @@ Do not hide doctrine changes inside guides.
 - [Canonical version and installation alignment](canonical_version_and_installation_alignment.md)
 - [v3.6.0 first run and private village](v3_6_0_first_run_and_private_village.md)
 - [v3.6.0 supervised mission runtime](v3_6_0_supervised_mission_runtime.md)
+
+## Konoha v4 supervised technical planning
+
+- [Supervised technical planning (`--plan-only`)](konoha_v4_supervised_technical_planning.md): native plan-only mode that produces, validates and reviews a technical MissionPlan without granting execution authority.

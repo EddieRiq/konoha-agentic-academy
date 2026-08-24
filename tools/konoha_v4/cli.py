@@ -8,9 +8,18 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="konoha", add_help=True)
     parser.add_argument("--version", action="store_true")
     parser.add_argument("--repo", default=".")
-    parser.add_argument(
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
         "--resume", metavar="MISSION_ID", default=None,
         help="Reanuda una misión existente por mission_id sin abrir una nueva conversación.",
+    )
+    mode_group.add_argument(
+        "--plan-only", action="store_true",
+        help=(
+            "Planificación técnica supervisada: produce, valida y revisa un "
+            "MissionPlan de forma determinística sin otorgar autoridad de "
+            "ejecución ni ejecutar ninguna tarea."
+        ),
     )
     args = parser.parse_args(argv)
     if args.version:
@@ -19,7 +28,7 @@ def main(argv=None) -> int:
     repo = Path(args.repo).resolve()
     if args.resume:
         return resume_mission(repo, args.resume)
-    return run(repo)
+    return run(repo, plan_only=args.plan_only)
 
 if __name__ == "__main__":
     raise SystemExit(main())
