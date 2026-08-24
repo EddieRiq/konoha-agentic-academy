@@ -37,6 +37,11 @@ class ApprovalInputStabilizationTests(unittest.TestCase):
         self.store = Mock()
         self.store.planner_context.return_value = {"mission_id": "mission-1"}
         self.store.validate_replanned_plan.return_value = []
+        # _approval_loop's human-requested-replan path reads
+        # continuity.state.requested_changes_history to build
+        # mission_authority_texts (v4.0.1) - a bare Mock() attribute isn't
+        # iterable, so it must be a real list here.
+        self.store.state.requested_changes_history = []
 
     def common(self):
         return (

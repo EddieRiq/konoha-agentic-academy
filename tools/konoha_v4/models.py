@@ -75,10 +75,24 @@ class MissionPlan:
         "conductor": "codex", "constitutional_authority": "hokage"
     })
     plan_hash: str = ""
+    # Structural mission-constraint manifest (v4.0.1).
+    #   None  -> legacy v4.0.0 persisted plan: no manifest ever existed;
+    #            seal()/plan_identity() must exclude this field entirely so
+    #            a legacy plan keeps producing its original v4.0.0 hash.
+    #   []    -> new-format plan; Codex explicitly claims no supported
+    #            structural constraint was extracted from the human text.
+    #   [...] -> new-format plan with structured constraints; see
+    #            hokage.validate_plan for the shape/authority/match rules.
+    mission_constraints: list[dict[str, Any]] | None = None
 
     def seal(self) -> "MissionPlan":
         raw = asdict(self)
         raw["plan_hash"] = ""
+        if self.mission_constraints is None:
+            # Preserve the exact pre-v4.0.1 canonical payload/hash for
+            # legacy-equivalent plans - see the mission_constraints
+            # docstring above.
+            raw.pop("mission_constraints", None)
         self.plan_hash = hashlib.sha256(
             json.dumps(raw, sort_keys=True, ensure_ascii=False).encode()
         ).hexdigest()[:16]

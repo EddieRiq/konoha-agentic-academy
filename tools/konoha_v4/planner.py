@@ -105,6 +105,60 @@ CONTINUIDAD DE MISIÓN:
 - Una sesión de provider es contexto auxiliar; nunca autoriza ejecución ni aprobación.
 - No declares mission completion desde memoria, resumen o provider session.
 
+CONTRATO DE mission_constraints (VINCULANTE):
+- mission_constraints es un manifiesto estructurado de propuesta/evidencia:
+  Hokage lo valida determinísticamente contra el plan y el humano lo revisa
+  y aprueba; nunca es autoridad por sí mismo.
+- Extraé ÚNICAMENTE restricciones estructurales explícitamente declaradas
+  por el humano. No infieras, no completes, no generalices.
+- No conviertas una recomendación, preferencia u optimización sugerida en
+  una restricción: solo lo que el humano fijó explícitamente.
+- source_text debe ser una copia VERBATIM, carácter por carácter, de un
+  texto humano autorizado. Nunca la parafrasees, resumas ni traduzcas.
+- Fuentes autorizadas para source_text:
+  - en planificación inicial: únicamente "mission";
+  - en replanificación por pedido humano confirmado: "mission" más cada
+    texto de mission_continuity.requested_changes_history[].text.
+  - "requested_changes" (el feedback recibido en este turno) NO es por sí
+    solo una fuente autorizada: Konoha también usa ese mismo canal para
+    feedback determinístico de validación durante replanificación
+    correctiva automática, que nunca es autoridad humana.
+- Si la misión no fijó explícitamente ninguna restricción estructural
+  representable en este contrato, devolvé mission_constraints=[]. Un
+  manifiesto vacío es una respuesta válida y esperada, no un error.
+- Cada elemento del manifiesto tiene EXACTAMENTE estos campos, sin
+  agregar ni omitir ninguno: constraint_id, source_text, scope,
+  assignment_index, field, operator, value.
+  - constraint_id: string no vacío, único dentro del manifiesto.
+  - scope: "plan" o "assignment".
+  - assignment_index: null cuando scope="plan"; cuando scope="assignment"
+    es la POSICIÓN entera (>=0) del assignment dentro de plan.assignments
+    tal como vos lo generaste - nunca su task_id. Esto permite representar
+    determinísticamente un orden humano explícito como "Codex primero,
+    Claude segundo".
+  - field para scope="plan": assignment_count, maximum_total_tokens,
+    replanning_reserve_tokens.
+  - field para scope="assignment": task_id, family, provider, model,
+    network, mutation, private_context, execution_gate, fallback,
+    dependencies, estimated_input_tokens, estimated_output_tokens,
+    estimated_total_tokens.
+  - operator: "equals" (cualquier field) o "at_most" (solo fields
+    enteros: assignment_count, maximum_total_tokens,
+    replanning_reserve_tokens, estimated_input_tokens,
+    estimated_output_tokens, estimated_total_tokens).
+  - value: string, integer, boolean, o array de integers. Para
+    dependencies, value es un array de POSICIONES de assignment (no
+    task_id): Hokage resuelve esas posiciones a task_id y compara contra
+    AgentAssignment.dependencies.
+- No devuelvas una combinación de field/operator/value que este contrato
+  no soporte explícitamente; si la restricción explícita del humano no es
+  representable así, preservala igual en explicit_facts y en el diseño
+  del plan, pero no inventes un mission_constraints inválido.
+- mission_constraints no reemplaza a explicit_facts: explicit_facts sigue
+  siendo la síntesis textual de hechos/restricciones explícitas; este
+  manifiesto es su forma estructurada y verificable determinísticamente
+  para el subconjunto de restricciones que este contrato soporta.
+
 Devolvé exclusivamente JSON válido conforme al schema."""
 
 def build_plan(
@@ -171,4 +225,5 @@ def build_plan(
         workspace_policy=raw["workspace_policy"],
         budget=raw["budget"],
         governance=raw["governance"],
+        mission_constraints=raw["mission_constraints"],
     ).seal()

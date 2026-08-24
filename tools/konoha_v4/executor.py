@@ -457,6 +457,12 @@ def plan_identity(plan: MissionPlan) -> str:
     raw = asdict(plan)
     raw.pop("approval", None)
     raw.pop("plan_hash", None)
+    if plan.mission_constraints is None:
+        # Legacy v4.0.0 plan: mission_constraints never existed, so it must
+        # be excluded from the canonical payload for plan_identity() to
+        # keep producing the exact same hash v4.0.0 produced - see
+        # MissionPlan.seal() in models.py for the matching plan_hash rule.
+        raw.pop("mission_constraints", None)
     canonical = json.dumps(
         raw,
         sort_keys=True,
@@ -507,11 +513,20 @@ def load_persisted_plan(state_dir: Path, mission_id: str) -> MissionPlan:
         raise MissionLookupError(f"plan.json no es un objeto para {mission_id!r}")
 
     plan_fields = {f.name for f in fields(MissionPlan)}
-    if set(raw) != plan_fields:
+    # Two, and only two, accepted field-set shapes: the current shape, or
+    # the legacy v4.0.0 shape (current fields minus mission_constraints,
+    # which did not exist in v4.0.0). Any other missing/unknown field is
+    # still rejected exactly as before.
+    legacy_plan_fields = plan_fields - {"mission_constraints"}
+    raw_fields = set(raw)
+    if raw_fields == legacy_plan_fields:
+        raw = dict(raw)
+        raw["mission_constraints"] = None
+    elif raw_fields != plan_fields:
         raise MissionLookupError(
             f"plan.json con campos incompatibles con MissionPlan para {mission_id!r}: "
-            f"faltantes={sorted(plan_fields - set(raw))} "
-            f"desconocidos={sorted(set(raw) - plan_fields)}"
+            f"faltantes={sorted(plan_fields - raw_fields)} "
+            f"desconocidos={sorted(raw_fields - plan_fields)}"
         )
 
     items = raw.get("assignments")

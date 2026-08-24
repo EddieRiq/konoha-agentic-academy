@@ -20,7 +20,8 @@
     "teachback_policy",
     "workspace_policy",
     "budget",
-    "governance"
+    "governance",
+    "mission_constraints"
   ],
   "properties": {
     "mission_id": {
@@ -355,6 +356,76 @@
         "constitutional_authority": {
           "const": "hokage",
           "type": "string"
+        }
+      }
+    },
+    "mission_constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "constraint_id",
+          "source_text",
+          "scope",
+          "assignment_index",
+          "field",
+          "operator",
+          "value"
+        ],
+        "properties": {
+          "constraint_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "enum": ["plan", "assignment"],
+            "type": "string"
+          },
+          "assignment_index": {
+            "type": ["integer", "null"],
+            "minimum": 0
+          },
+          "field": {
+            "enum": [
+              "assignment_count",
+              "maximum_total_tokens",
+              "replanning_reserve_tokens",
+              "task_id",
+              "family",
+              "provider",
+              "model",
+              "network",
+              "mutation",
+              "private_context",
+              "execution_gate",
+              "fallback",
+              "dependencies",
+              "estimated_input_tokens",
+              "estimated_output_tokens",
+              "estimated_total_tokens"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "enum": ["equals", "at_most"],
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "integer" },
+              { "type": "boolean" },
+              {
+                "type": "array",
+                "items": { "type": "integer" }
+              }
+            ]
+          }
         }
       }
     }

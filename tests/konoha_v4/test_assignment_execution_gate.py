@@ -395,6 +395,7 @@ class BuildPlanExecutionGatePropagationTests(unittest.TestCase):
                 "maximum_total_tokens": 15,
             },
             "governance": {"conductor": "codex", "constitutional_authority": "hokage"},
+            "mission_constraints": [],
         }
 
         with mock.patch("tools.konoha_v4.planner.invoke_codex") as invoke_codex_mock:

@@ -311,9 +311,17 @@ def _approval_loop(
                 print(f"Konoha: No pude construir el plan revisado: {exc}")
                 return None
 
+            mission_authority_texts = [mission_text] + [
+                item["text"] for item in continuity.state.requested_changes_history
+            ]
             problems = (
                 continuity.validate_replanned_plan(plan)
-                + validate_plan(plan, registry, provider_readiness=provider_readiness)
+                + validate_plan(
+                    plan,
+                    registry,
+                    provider_readiness=provider_readiness,
+                    mission_authority_texts=mission_authority_texts,
+                )
             )
             if problems:
                 continuity.record_validator_findings(problems, plan=plan)
@@ -589,7 +597,12 @@ def _build_validated_plan(
             feedback=feedback,
          continuity=continuity_context,
         )
-        problems = validate_plan(plan, registry, provider_readiness=provider_readiness)
+        problems = validate_plan(
+            plan,
+            registry,
+            provider_readiness=provider_readiness,
+            mission_authority_texts=[mission_text],
+        )
 
         if not problems:
             return plan, [], attempt
