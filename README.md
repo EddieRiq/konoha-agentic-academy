@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.0.1 \
+  --version v4.0.2 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
@@ -258,11 +258,16 @@ Start with:
 
 ## Release status
 
-`v4.0.1` hardens the v4 conversational runtime with deterministic
-structured mission-constraint validation while preserving v4.0.0 persisted
-mission compatibility.
+`v4.0.2` hardens runtime continuity by re-validating the exact pending
+assignment provider immediately before invocation and, for Ollama,
+requiring the exact approved model in the fresh local inventory. Readiness
+failure pauses the mission resumably without invoking the provider,
+consuming approval, performing fallback, or changing the approved plan.
 
-`v4.0.0` introduced the underlying product foundation:
+`v4.0.1` added structured mission-constraint integrity.
+
+`v4.0.0` introduced the underlying conversational multi-agent operating
+core:
 
 - Codex-led conversational mission conduction;
 - constitutional Hokage plan validation;

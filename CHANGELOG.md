@@ -1,3 +1,30 @@
+## [4.0.2] — Runtime Continuity & Provider Integrity
+
+- Re-probes the exact pending assignment provider immediately before every
+  provider invocation instead of trusting approval-time readiness.
+- Requires the exact approved Ollama model to be present in a fresh local
+  model inventory before invocation.
+- Pauses resumably on provider/model readiness failure using stable
+  machine-readable diagnostics.
+- Revalidates readiness independently between assignments executed in the
+  same process/session.
+- Preserves v4.0.0 and v4.0.1 persisted-plan compatibility without changing
+  MissionPlan, ExecutionState, plan_hash or plan_identity.
+
+### Safety
+
+- Provider readiness remains operational evidence only; it never grants or
+  replaces human authority.
+- A readiness failure does not invoke the provider, consume assignment
+  approval, invoke fallback, substitute provider/model, or persist execution
+  progress.
+- Codex/Claude readiness currently proves provider-level executable/version
+  availability only; it does not deterministically prove authentication or
+  exact model availability.
+- No automatic retry, fallback, provider substitution or Ollama model pull
+  was added.
+- Cross-session repository HEAD/worktree drift remains outside this patch.
+
 ## [4.0.1] — Mission Integrity Hardening
 
 - Adds a structured mission constraint manifest (`mission_constraints`) for
