@@ -77,6 +77,65 @@ reached - once a mission has moved on to `completed` (or any other
 terminal status), a replayed approval for an earlier task is rejected by
 that check, not by approval validation itself.
 
+## Provider/model readiness gate (v4.0.2)
+
+Every existing gate above (`plan_approval`, `separate_human_approval`,
+mutation rejection, family resolution) already runs before this one. Once
+they all succeed for the pending assignment, the runtime performs one more
+check, immediately before the Git baseline capture and before `"executing"`
+is ever persisted: a **fresh** deterministic operational readiness probe of
+that exact assignment's `provider` (and, for `ollama` only, its exact
+`model`), using `context_acquisition.probe_provider_readiness` - the same
+local, deterministic probe (`shutil.which` + `<exe> --version`, plus
+`ollama list` for the model inventory) already used at plan-approval time,
+just re-collected fresh right now instead of trusted stale from approval.
+This exists because a mission can be approved in one process and resumed in
+another, arbitrarily later, session - and because a single `--resume` call
+can run several assignments back-to-back automatically. Approval-time
+readiness proves nothing about whether the environment still matches at the
+moment each individual assignment is actually about to run.
+
+For `codex`/`claude`, this probe proves only the existing provider-level
+deterministic check (executable present, `<exe> --version` exits 0) - it
+does **not** prove authentication, and it does **not** prove the exact
+approved model exists, since no such deterministic per-model probe exists
+for either provider today. For `ollama`, the exact approved `model` must
+additionally appear verbatim in the freshly-probed local model inventory;
+there is no normalization, aliasing, substitution, or automatic
+`ollama pull`.
+
+If readiness is insufficient, the runtime returns one of two stable,
+machine-readable diagnostics - `provider_not_ready:<provider>` or
+`model_not_ready:ollama/<model>` - and, like `plan_approval_not_satisfied`,
+does not invoke the provider and does not invoke fallback: no
+`ExecutionState`, `MissionPlan`, assignment evidence, or approval-authority
+state is persisted or changed by the readiness failure. If the pending task
+is `separate_human_approval`-gated, an already-supplied valid approval is
+neither consumed nor invalidated - the exact same approval still authorizes
+execution once a later attempt succeeds. The terminal loop
+(`_run_resumable_execution`) recognizes both diagnostics and returns
+`"paused"` immediately, printing that the approved mission remains
+resumable - it never loops or re-probes automatically, so an unattended
+`--resume` can never busy-poll a provider. Retrying requires an explicit,
+later `--resume` from the operator, after restoring whatever operational
+condition caused the deterministic readiness probe to fail (for example
+restoring the provider executable, or for Ollama making the exact approved
+model available). Authentication problems may still surface only during
+provider invocation, because current Codex/Claude readiness probes do not
+deterministically prove authentication.
+
+The readiness snapshot itself is evidence only, never authority: it is
+never persisted anywhere, and it never changes `provider`, `model`, or any
+other field of the approved, `plan_identity`-bound `MissionPlan` - there is
+no automatic fallback, substitution, or replanning on a readiness failure.
+`AgentAssignment.fallback` remains purely declarative; nothing reads it to
+choose a different provider or model. Provider executable path and CLI
+version are likewise never bound into any persisted authority (`MissionPlan`,
+`plan_identity`, `ExecutionState`, or human approval) - an ordinary CLI
+upgrade between sessions must not by itself invalidate an approved mission.
+Cross-session drift in the repository's Git `HEAD` or working tree remains
+outside this gate's scope (see "Known limitations" below).
+
 ## Pause and resume example
 
 A two-task mission (`t1` gated `separate_human_approval`, `t2` gated
@@ -412,3 +471,15 @@ and checks again after `invoke` returns:
   call contract, and no way to bypass `plan_approval` or
   `separate_human_approval` - every gate documented above still applies
   exactly as before.
+- **Codex/Claude readiness does not prove authentication or exact model
+  availability** (v4.0.2): the pre-invocation readiness gate only proves
+  the provider executable is present and its `--version` probe succeeds -
+  it never proves authentication, and never proves an arbitrary approved
+  model exists for either provider, since no deterministic per-model probe
+  exists for them today. An authentication failure can still surface only
+  once invocation is actually attempted.
+- **Cross-session repository `HEAD`/worktree drift remains unresolved**
+  (v4.0.2): the readiness gate is scoped to provider/model operational
+  state only. Nothing in this runtime detects or blocks resuming a mission
+  whose repository `HEAD` or working tree changed between approval and
+  resume; this is a known, separate gap this Patch does not address.

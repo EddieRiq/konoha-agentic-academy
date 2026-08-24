@@ -119,6 +119,33 @@ def _probe_provider(provider: str, repo: Path) -> ProviderReadiness:
         evidence="deterministic_local_probe",
     )
 
+def probe_provider_readiness(provider: str, repo: Path) -> ProviderReadiness:
+    """Public, single-provider deterministic operational readiness probe.
+
+    Same deterministic local probe acquire_context() uses for the full
+    provider set (executable presence via shutil.which, plus `<exe>
+    --version` exit code 0; for ollama only, also the current local model
+    inventory via `ollama list`) - exposed here so callers that need a
+    fresh reading for exactly one provider (e.g. the executor, right
+    before invoking one pending assignment) never have to duplicate this
+    subprocess logic or pay for a full acquire_context() pass (doctrine,
+    read-only workspace policy, family registry, every provider) just to
+    read one provider's current state.
+
+    Proves operational readiness only: executable presence and a
+    successful version probe. Never proves authentication, and never
+    proves an arbitrary requested model exists for codex/claude - no such
+    deterministic probe exists for those two providers today. For ollama,
+    ProviderReadiness.models is the exact, current local inventory a
+    caller can check an approved model against.
+
+    The result is deliberately never persisted as authority by any
+    caller: it is current operational evidence only, meant to be
+    re-collected fresh at the moment it is needed.
+    """
+    return _probe_provider(provider, repo)
+
+
 def acquire_context(repo: Path, registry: Any) -> AcquiredContext:
     repo = repo.resolve()
     loaded: dict[str, str] = {}

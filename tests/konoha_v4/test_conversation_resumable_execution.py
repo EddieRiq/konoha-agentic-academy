@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -198,6 +200,53 @@ class RunResumableExecutionTests(unittest.TestCase):
                 result = _run_resumable_execution(Path("."), state_dir, "mission-conv-test", mock.Mock())
             call.assert_called_once()
         self.assertEqual(result, "failed")
+
+    # --- v4.0.2: operational readiness diagnostics stop after exactly one
+    # attempt regardless of which pending-task status they interrupt, and
+    # never trigger an unattended retry loop or automatic fallback ---
+
+    def test_provider_not_ready_in_progress_returns_paused_without_looping(self):
+        state = _state(status="in_progress")
+        attempts = [_attempt(state, "provider_not_ready:codex")]
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            with mock.patch(
+                "tools.konoha_v4.conversation.execute_or_resume_plan", side_effect=attempts,
+            ) as call:
+                result = _run_resumable_execution(Path("."), state_dir, "mission-conv-test", mock.Mock())
+            call.assert_called_once()
+        self.assertEqual(result, "paused")
+
+    def test_model_not_ready_waiting_for_approval_returns_paused_without_looping(self):
+        state = _state(
+            status="waiting_for_approval", pending_task_id="t1",
+            pending_execution_gate="separate_human_approval", approval_nonce="a" * 32,
+            pause_reason="esperando",
+        )
+        attempts = [_attempt(state, "model_not_ready:ollama/llama3:latest")]
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            with mock.patch(
+                "tools.konoha_v4.conversation.execute_or_resume_plan", side_effect=attempts,
+            ) as call:
+                result = _run_resumable_execution(Path("."), state_dir, "mission-conv-test", mock.Mock())
+            call.assert_called_once()
+        self.assertEqual(result, "paused")
+
+    def test_readiness_failure_message_confirms_mission_remains_resumable(self):
+        state = _state(status="in_progress")
+        attempts = [_attempt(state, "provider_not_ready:codex")]
+        buffer = io.StringIO()
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            with mock.patch(
+                "tools.konoha_v4.conversation.execute_or_resume_plan", side_effect=attempts,
+            ), contextlib.redirect_stdout(buffer):
+                result = _run_resumable_execution(Path("."), state_dir, "mission-conv-test", mock.Mock())
+        self.assertEqual(result, "paused")
+        output = buffer.getvalue()
+        self.assertIn("resumible", output)
+        self.assertIn("--resume mission-conv-test", output)
 
     # --- waiting_for_approval: exact-match only ---
 

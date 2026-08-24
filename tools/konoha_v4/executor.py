@@ -3,6 +3,7 @@ import hashlib, json, math, os, re, secrets, subprocess, time
 from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 from .continuity import utc_now
+from .context_acquisition import probe_provider_readiness
 from .models import (
     ASSIGNMENT_RESULT_OUTCOMES,
     ASSIGNMENT_REVIEW_OUTCOMES,
@@ -1436,6 +1437,42 @@ def _recovery_result(state: ExecutionState, diagnostic: str, updated_at: str) ->
 # ---------------------------------------------------------------------------
 
 
+def _readiness_diagnostic(task: AgentAssignment, repo: Path) -> str | None:
+    """v4.0.2: fresh, deterministic, evidence-only operational readiness
+    check for the exact provider/model the pending assignment is about to
+    invoke - never a durable authority artifact, never persisted, always
+    re-collected at the moment it's needed (see probe_provider_readiness's
+    own docstring).
+
+    Returns a stable, machine-readable diagnostic when readiness is
+    insufficient, or None when the assignment may proceed to invocation.
+
+    - For every provider: requires probe_provider_readiness(...).available
+      is True (executable present, `<exe> --version` exits 0) - the same
+      deterministic evidence hokage.validate_plan already requires at
+      approval time, just re-collected fresh right now instead of trusted
+      stale from approval.
+    - For codex/claude specifically: provider-level readiness is all this
+      proves. It does NOT prove authentication, and it does NOT prove the
+      exact approved model exists - no deterministic per-model probe
+      exists for either provider today, so none is claimed here.
+    - For ollama specifically: additionally requires task.model to appear
+      verbatim in the freshly-probed local model inventory
+      (ProviderReadiness.models, from `ollama list`) - no normalization,
+      aliasing, substitution, or automatic pull is ever performed.
+
+    provider/model themselves are never touched here: they come from the
+    plan_identity-bound AgentAssignment exactly as approved, unchanged
+    regardless of this function's result.
+    """
+    readiness = probe_provider_readiness(task.provider, repo)
+    if not readiness.available:
+        return f"provider_not_ready:{task.provider}"
+    if task.provider == "ollama" and task.model not in readiness.models:
+        return f"model_not_ready:ollama/{task.model}"
+    return None
+
+
 def _try_save_execution_state(state_dir: Path, state: ExecutionState) -> bool:
     """_save_execution_state's real, unwrapped failure surface is OSError
     (mkdir/open/write/replace) - verified by reading its source, not
@@ -1592,6 +1629,23 @@ def _execute_or_resume_plan_locked(
         family = registry.agent_family(current_task.family)
     except RegistryError:
         return _fail_before_execution("unknown_agent_family", approval_id_to_consume)
+
+    # v4.0.2: fresh operational readiness gate, immediately before any
+    # provider is ever invoked - after every existing gate/approval/family
+    # check above, before the Git baseline capture, before "executing" is
+    # ever persisted, before invoke. Unlike every branch above and below,
+    # an unsatisfied readiness diagnostic returns state UNCHANGED - no
+    # _fail_before_execution, no _recover: mirrors "plan_approval_not_satisfied"
+    # below exactly (nothing is written to disk, no provider is invoked,
+    # no approval is consumed even if one was just validated above). This
+    # is deliberate: a transient environment condition (provider not on
+    # PATH right now, a specific Ollama model not currently pulled) must
+    # stay resumable via a later plain --resume, never become a permanent
+    # "failed"/"recovery_required" dead end the way an actual provider
+    # process failure still does once invocation is attempted.
+    readiness_diagnostic = _readiness_diagnostic(current_task, repo)
+    if readiness_diagnostic is not None:
+        return ExecutionAttempt(state=state, evidence=(), diagnostic=readiness_diagnostic)
 
     # Git baseline captured before "executing" is ever persisted: a failure
     # here (timeout or non-zero exit) resolves to a clean, direct "failed"

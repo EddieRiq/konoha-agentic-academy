@@ -25,6 +25,7 @@ from tools.konoha_v4.models import (
     AgentAssignment,
     AssignmentApproval,
     EvidenceRecord,
+    ExecutionState,
     MissionPlan,
 )
 from tools.konoha_v4.registry import RegistryError
@@ -171,6 +172,49 @@ def _patched_invoke():
 
 def _patched_git_status():
     return mock.patch("tools.konoha_v4.executor._git_status", return_value="")
+
+
+class _AnyModelInventory:
+    """Legacy-test default: membership succeeds for any approved model.
+
+    This is test-only scaffolding so pre-v4.0.2 tests remain isolated
+    from the new environment-readiness gate. Readiness-specific tests
+    must override this with an explicit concrete model list.
+    """
+
+    def __contains__(self, _value):
+        return True
+
+
+def _patched_readiness(*, available=True, models=None):
+    """Deterministic test-only stand-in for the fresh provider probe.
+
+    Default behavior means "operationally ready for whatever legacy
+    assignment this unrelated test already uses", including Ollama.
+
+    Readiness-specific v4.0.2 tests MUST pass an explicit models
+    iterable when they need to prove exact Ollama model presence or
+    absence.
+    """
+    inventory = _AnyModelInventory() if models is None else list(models)
+
+    return mock.patch(
+        "tools.konoha_v4.executor.probe_provider_readiness",
+        return_value=SimpleNamespace(
+            available=available,
+            models=inventory,
+        ),
+    )
+
+
+def setUpModule():
+    global _module_readiness_patch
+    _module_readiness_patch = _patched_readiness()
+    _module_readiness_patch.start()
+
+
+def tearDownModule():
+    _module_readiness_patch.stop()
 
 
 def _fail_after(n, real_fn):
@@ -531,6 +575,240 @@ class ExecuteOrResumePlanGateTests(unittest.TestCase):
                 )
             invoke_mock2.assert_not_called()
             self.assertTrue(attempt.diagnostic.startswith("non_resumable_status:"))
+
+
+class ReadinessGateTests(unittest.TestCase):
+    """v4.0.2: fresh, pre-invocation operational readiness gate. Every test
+    here overrides the module-wide _patched_readiness() default with an
+    explicit, deterministic mock - real Codex/Claude/Ollama installation or
+    network is never a precondition."""
+
+    def test_ready_provider_executes_normally(self):
+        task = _assignment(task_id="t1", execution_gate="plan_approval", provider="codex", model="codex")
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=True), _patched_invoke() as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_called_once()
+            self.assertEqual(attempt.state.status, "completed")
+
+    def test_unavailable_provider_never_invokes(self):
+        task = _assignment(task_id="t1", execution_gate="plan_approval", provider="codex", model="codex")
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=False), _patched_invoke() as invoke_mock, \
+                 _patched_git_status() as git_mock:
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_not_called()
+            git_mock.assert_not_called()
+            self.assertEqual(attempt.diagnostic, "provider_not_ready:codex")
+
+    def test_readiness_failure_leaves_execution_state_untouched(self):
+        task = _assignment(task_id="t1", execution_gate="plan_approval")
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=False), _patched_invoke() as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_not_called()
+            self.assertFalse(_execution_state_path(state_dir, plan.mission_id).exists())
+            self.assertEqual(attempt.state.status, "in_progress")
+
+    def test_readiness_failure_never_invents_evidence(self):
+        task = _assignment(task_id="t1", execution_gate="plan_approval")
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=False), _patched_invoke() as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_not_called()
+            self.assertEqual(attempt.evidence, ())
+            self.assertFalse(_evidence_dir(state_dir, plan.mission_id).exists())
+
+    def test_readiness_failure_never_substitutes_provider_or_model(self):
+        task = _assignment(task_id="t1", execution_gate="plan_approval", provider="codex", model="codex")
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            plan_path = state_dir / "missions" / plan.mission_id / "plan.json"
+            before = plan_path.read_text(encoding="utf-8")
+            with _patched_readiness(available=False), _patched_invoke() as invoke_mock, _patched_git_status():
+                execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_not_called()
+            after = plan_path.read_text(encoding="utf-8")
+            self.assertEqual(before, after)
+            reloaded = load_persisted_plan(state_dir, plan.mission_id)
+            self.assertEqual(reloaded.assignments[0].provider, "codex")
+            self.assertEqual(reloaded.assignments[0].model, "codex")
+
+    def test_provider_unavailable_between_two_assignments_stops_the_second(self):
+        t1 = _assignment(task_id="t1", execution_gate="plan_approval", provider="codex", model="codex")
+        t2 = _assignment(
+            task_id="t2", execution_gate="plan_approval", provider="codex", model="codex",
+            dependencies=["t1"],
+        )
+        plan = _plan([t1, t2])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=True), _patched_invoke() as invoke_mock, _patched_git_status():
+                first = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_called_once()
+            self.assertEqual(first.state.status, "in_progress")
+            self.assertEqual(first.state.completed_task_ids, ["t1"])
+
+            with _patched_readiness(available=False), _patched_invoke() as invoke_mock2, _patched_git_status():
+                second = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock2.assert_not_called()
+            self.assertEqual(second.diagnostic, "provider_not_ready:codex")
+            self.assertEqual(second.state.status, "in_progress")
+            self.assertEqual(second.state.completed_task_ids, ["t1"])
+
+    def test_ollama_exact_model_present_executes(self):
+        task = _assignment(
+            task_id="t1", execution_gate="plan_approval", provider="ollama", model="llama3:latest",
+        )
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=True, models=["llama3:latest"]), \
+                 _patched_invoke() as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_called_once()
+            self.assertEqual(attempt.state.status, "completed")
+
+    def test_ollama_exact_model_absent_blocks_with_model_diagnostic(self):
+        task = _assignment(
+            task_id="t1", execution_gate="plan_approval", provider="ollama", model="llama3:latest",
+        )
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=True, models=["mistral:latest"]), \
+                 _patched_invoke() as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_not_called()
+            self.assertEqual(attempt.diagnostic, "model_not_ready:ollama/llama3:latest")
+
+    def test_codex_and_claude_readiness_ignores_model_field(self):
+        # Requirement 11: readiness for codex/claude must never consult
+        # .models - proceeds even with an explicitly empty inventory,
+        # proving no model-specific or authentication guarantee is
+        # asserted for either provider (only ollama's exact-model check
+        # exists today).
+        for provider in ("codex", "claude"):
+            with self.subTest(provider=provider):
+                task = _assignment(
+                    task_id="t1", execution_gate="plan_approval",
+                    provider=provider, model="whatever-model-name",
+                )
+                plan = _plan([task])
+                with tempfile.TemporaryDirectory() as tmp:
+                    state_dir = Path(tmp)
+                    _write_plan(state_dir, plan)
+                    with _patched_readiness(available=True, models=[]), \
+                         _patched_invoke() as invoke_mock, _patched_git_status():
+                        attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+                    invoke_mock.assert_called_once()
+                    self.assertEqual(attempt.state.status, "completed")
+
+    def test_readiness_failure_for_separate_human_approval_does_not_consume_approval(self):
+        task = _assignment(
+            task_id="t1", execution_gate="separate_human_approval", provider="codex", model="codex",
+        )
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=True), _patched_invoke(), _patched_git_status():
+                waiting = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            state = waiting.state
+            self.assertEqual(state.status, "waiting_for_approval")
+            text = expected_approval_command(
+                plan.mission_id, state.pending_task_id, state.plan_identity, state.approval_nonce,
+            )
+            approval = _approval_for(state, task_id="t1", approval_text=text)
+
+            with _patched_readiness(available=False), _patched_invoke() as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(
+                    Path("."), state_dir, plan.mission_id, _Registry(), approval=approval,
+                )
+            invoke_mock.assert_not_called()
+            self.assertEqual(attempt.diagnostic, "provider_not_ready:codex")
+            # Requirement 12: still exactly waiting_for_approval, same nonce.
+            self.assertEqual(attempt.state.status, "waiting_for_approval")
+            self.assertEqual(attempt.state.approval_nonce, state.approval_nonce)
+            # Requirement 13: nothing consumed or activated by the failure.
+            self.assertIsNone(attempt.state.active_approval_id)
+            self.assertEqual(attempt.state.consumed_approval_ids, [])
+
+            # Once ready, the SAME already-typed approval still authorizes
+            # execution - a readiness failure never invalidates it.
+            with _patched_readiness(available=True), _patched_invoke() as invoke_mock2, _patched_git_status():
+                final = execute_or_resume_plan(
+                    Path("."), state_dir, plan.mission_id, _Registry(), approval=approval,
+                )
+            invoke_mock2.assert_called_once()
+            self.assertEqual(final.state.status, "completed")
+
+    def test_plan_drift_is_detected_before_readiness_is_even_probed(self):
+        # Requirement 14, ordering proof: plan_identity/plan_drift already
+        # runs before any gate/approval/family logic, and therefore before
+        # this new readiness gate too - readiness must never be consulted
+        # once the persisted state doesn't match the plan.
+        task = _assignment(task_id="t1", execution_gate="plan_approval")
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            _write_execution_state_raw(state_dir, plan.mission_id, plan_identity="f" * 64)
+            never_probe = mock.patch(
+                "tools.konoha_v4.executor.probe_provider_readiness",
+                side_effect=AssertionError("readiness must not be probed on plan drift"),
+            )
+            with never_probe, _patched_invoke() as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_not_called()
+            self.assertEqual(attempt.diagnostic, "plan_drift")
+            self.assertEqual(attempt.state.status, "recovery_required")
+
+    def test_fallback_field_never_changes_readiness_outcome(self):
+        task = _assignment(
+            task_id="t1", execution_gate="plan_approval",
+            provider="codex", model="codex", fallback="switch_to_claude",
+        )
+        plan = _plan([task])
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=False), _patched_invoke() as invoke_mock, _patched_git_status():
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            invoke_mock.assert_not_called()
+            self.assertEqual(attempt.diagnostic, "provider_not_ready:codex")
+            reloaded = load_persisted_plan(state_dir, plan.mission_id)
+            self.assertEqual(reloaded.assignments[0].provider, "codex")
+            self.assertEqual(reloaded.assignments[0].fallback, "switch_to_claude")
+
+    def test_no_readiness_snapshot_persisted_as_authority(self):
+        task = _assignment(task_id="t1", execution_gate="plan_approval")
+        plan = _plan([task])
+        expected_fields = {f.name for f in dataclasses.fields(ExecutionState)}
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            _write_plan(state_dir, plan)
+            with _patched_readiness(available=True), _patched_invoke(), _patched_git_status():
+                execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            raw = json.loads(_execution_state_path(state_dir, plan.mission_id).read_text(encoding="utf-8"))
+        self.assertEqual(set(raw), expected_fields)
 
 
 class ExecuteOrResumePlanEarlyExitTests(unittest.TestCase):

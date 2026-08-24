@@ -12,6 +12,7 @@ from unittest.mock import Mock, patch
 from tools.konoha_v4.conversation import _approval_loop, _build_validated_plan
 from tools.konoha_v4.executor import (
     _validate_execution_state_invariants,
+    execute_or_resume_plan,
     load_persisted_plan,
     plan_identity,
 )
@@ -202,6 +203,89 @@ class LegacyExecutionStateCompatibilityTests(unittest.TestCase):
         )
 
         self.assertIsNone(_validate_execution_state_invariants(loaded, state))
+
+
+class ReadinessGateCompatibilityTests(unittest.TestCase):
+    """Tests 15 and 16: the v4.0.2 pre-invocation readiness gate is
+    orthogonal to mission_constraints entirely - it must not require, read,
+    or invent any mission_constraints-related field, for either the exact
+    legacy v4.0.0 persisted shape (mission_constraints key entirely absent,
+    loading as None) or the v4.0.1 shape ([] or populated)."""
+
+    _COMPLETED_RESULT_TEXT = json.dumps({
+        "outcome": "completed", "objective_satisfied": True, "summary": "ok",
+        "diagnostic": None, "evidence": [], "review_outcome": None,
+    })
+
+    def _approved(self, mission_constraints):
+        plan = _plan(mission_constraints=mission_constraints)
+        plan.approval["status"] = "approved"
+        plan.approval["approved_by"] = "human"
+        return plan
+
+    def _write_plan(self, state_dir, plan, *, legacy_v400=False):
+        mission_dir = state_dir / "missions" / plan.mission_id
+        mission_dir.mkdir(parents=True, exist_ok=True)
+
+        payload = asdict(plan)
+
+        if legacy_v400:
+            self.assertIsNone(plan.mission_constraints)
+            payload.pop("mission_constraints", None)
+
+        (mission_dir / "plan.json").write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+    def _run(self, plan, *, available, legacy_v400=False):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            self._write_plan(state_dir, plan, legacy_v400=legacy_v400)
+            readiness = SimpleNamespace(available=available, models=[])
+            with patch(
+                "tools.konoha_v4.executor.probe_provider_readiness", return_value=readiness,
+            ), patch(
+                "tools.konoha_v4.executor.invoke",
+                return_value=SimpleNamespace(
+                    text=self._COMPLETED_RESULT_TEXT, usage={}, command=["echo"],
+                ),
+            ) as invoke_mock, patch(
+                "tools.konoha_v4.executor._git_status", return_value="",
+            ):
+                attempt = execute_or_resume_plan(Path("."), state_dir, plan.mission_id, _Registry())
+            return attempt, invoke_mock
+
+    def test_v400_legacy_plan_without_manifest_executes_when_provider_ready(self):
+        plan = self._approved(None)
+        attempt, invoke_mock = self._run(plan, available=True, legacy_v400=True)
+        invoke_mock.assert_called_once()
+        self.assertEqual(attempt.diagnostic, "completed")
+
+    def test_v400_legacy_plan_without_manifest_blocks_when_provider_not_ready(self):
+        plan = self._approved(None)
+        attempt, invoke_mock = self._run(plan, available=False, legacy_v400=True)
+        invoke_mock.assert_not_called()
+        self.assertEqual(attempt.diagnostic, "provider_not_ready:codex")
+
+    def test_v400_legacy_plan_without_manifest_loads_as_none(self):
+        plan = self._approved(None)
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            self._write_plan(state_dir, plan, legacy_v400=True)
+            loaded = load_persisted_plan(state_dir, plan.mission_id)
+        self.assertIsNone(loaded.mission_constraints)
+
+    def test_v401_empty_manifest_executes_when_provider_ready(self):
+        attempt, invoke_mock = self._run(self._approved([]), available=True)
+        invoke_mock.assert_called_once()
+        self.assertEqual(attempt.diagnostic, "completed")
+
+    def test_v401_populated_manifest_blocks_when_provider_not_ready(self):
+        constraint = _constraint(source_text="Codex primero")
+        attempt, invoke_mock = self._run(self._approved([constraint]), available=False)
+        invoke_mock.assert_not_called()
+        self.assertEqual(attempt.diagnostic, "provider_not_ready:codex")
 
 
 class ManifestIdentityParticipationTests(unittest.TestCase):

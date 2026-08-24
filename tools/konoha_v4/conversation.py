@@ -24,6 +24,13 @@ REJECT_WORDS = {"no", "rechazar", "rechazo", "cancel", "cancelar", "stop", "dete
 # requested changes; it stays pending so Konoha asks again.
 AMBIGUOUS_APPROVAL_WORDS = {"ok"}
 
+# v4.0.2: stable machine-readable ExecutionAttempt.diagnostic prefixes for
+# executor._readiness_diagnostic's operational readiness gate - never
+# human-prose parsing, exact prefix matching only. Kept in one place so
+# _run_resumable_execution's dispatch and any test can reference the same
+# contract instead of duplicating the literal strings.
+READINESS_DIAGNOSTIC_PREFIXES = ("provider_not_ready:", "model_not_ready:")
+
 _TERMINAL_INPUT = TerminalTurnReader(sys.stdin, sys.stdout)
 
 
@@ -485,6 +492,31 @@ def _run_resumable_execution(
             print(f"\n[{record.task_id} · {record.provider}/{record.model} · {record.status}]\n{record.output}")
 
         state = attempt.state
+
+        if attempt.diagnostic.startswith(READINESS_DIAGNOSTIC_PREFIXES):
+            # v4.0.2: a fresh operational readiness check failed for the
+            # exact pending assignment's provider/model. Persisted state is
+            # guaranteed unchanged by executor._readiness_diagnostic's gate
+            # (no invoke, no fallback, no approval consumed, no plan/model
+            # substitution) regardless of whether the pending task is
+            # plan_approval-gated (state.status=="in_progress") or
+            # separate_human_approval-gated (state.status=="waiting_for_approval").
+            # Stop after exactly this one attempt - never loop or re-prompt
+            # here - so an unattended --resume can never busy-poll a
+            # provider. The approved plan/mission remain fully resumable;
+            # only an explicit later --resume (after the operator fixes the
+            # environment) tries again.
+            print(
+                f"Hokage: Misión {mission_id} no puede continuar todavía "
+                f"({attempt.diagnostic}). No se invocó ningún provider ni se "
+                "realizó fallback automático."
+            )
+            print(
+                f"Konoha: El plan aprobado de la misión {mission_id} sigue vigente "
+                f"y la misión permanece resumible. Reanudá con --resume {mission_id} "
+                "una vez que el entorno esté listo."
+            )
+            return "paused"
 
         if state.status == "in_progress":
             if attempt.diagnostic == "plan_approval_not_satisfied":
