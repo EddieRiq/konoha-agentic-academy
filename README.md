@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.0.2 \
+  --version v4.1.0 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
@@ -257,6 +257,14 @@ Start with:
 - `docs/releases/v3.6.0.md`
 
 ## Release status
+
+`v4.1.0` adds native supervised technical planning: `konoha --plan-only`
+produces and deterministically validates a technical MissionPlan, supports
+human review and confirmed requested-change replanning, and lets a human
+accept the reviewed plan as a planning artifact only. That acceptance does
+not grant execution approval, does not write the canonical executable
+`plan.json`, and does not invoke assignments or the executor. Normal
+executable conversational mode is unchanged.
 
 `v4.0.2` hardens runtime continuity by re-validating the exact pending
 assignment provider immediately before invocation and, for Ollama,

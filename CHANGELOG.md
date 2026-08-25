@@ -1,3 +1,37 @@
+## [4.1.0] — Supervised Technical Planning
+
+- Adds native `konoha --plan-only`, a `tools/konoha_v4` CLI mode that
+  produces, deterministically validates, displays and lets a human review
+  and iterate on a technical MissionPlan without ever granting execution
+  authority.
+- `--plan-only` and `--resume` are mutually exclusive at the argument-parser
+  level; omitting both keeps the existing executable conversational runtime
+  as the unchanged default.
+- Reuses the existing v4 build/validate/replanning machinery
+  (`conversation.run()`, `_build_validated_plan()`, `_approval_loop()`)
+  unchanged except for stopping at review acceptance instead of execution
+  authority.
+- Preserves the existing human requested-change / replanning loop, including
+  confirmed-change provenance recorded via
+  `MissionContinuityStore.record_requested_change()`.
+
+### Safety
+
+- Human acceptance in `--plan-only` mode means acceptance of the planning
+  artifact only; `MissionPlan.approval` remains `status="pending"` and no
+  `AssignmentApproval` is created or consumed.
+- Continuity execution approval remains ungranted.
+- No canonical executable `plan.json` is written, and `execution_state.json`
+  is never created, since `--plan-only` never reaches the execution path.
+- No assignment/executor invocation occurs in `--plan-only` mode.
+- No `MissionPlan` or `ExecutionState` schema changes; `plan_hash` and
+  `plan_identity` are unaffected.
+- Normal executable conversational execution mode is unchanged.
+- Legacy `run_technical_plan` remains registered, provider-routed, fail-closed
+  and untouched.
+- `fallback` remains declarative only; no automatic provider/family fallback
+  was added.
+
 ## [4.0.2] — Runtime Continuity & Provider Integrity
 
 - Re-probes the exact pending assignment provider immediately before every
