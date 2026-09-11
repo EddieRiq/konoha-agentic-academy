@@ -32,7 +32,14 @@ class ApprovalProtocolTest(unittest.TestCase):
         self.assertNotEqual("changes_requested", classify_approval("ok"))
 
     def test_decision_reads_fresh_single_line(self):
-        with patch("builtins.input", return_value="\r\n"):
+        # _read_decision now reads through the single-owner
+        # TerminalTurnReader (read_line), not raw input() - it already
+        # normalizes CRLF and strips before returning, so the mock
+        # simulates that final return value rather than raw bytes.
+        with patch(
+            "tools.konoha_v4.conversation._TERMINAL_INPUT.read_line",
+            return_value="",
+        ):
             self.assertEqual("", _read_decision())
 
 if __name__ == "__main__":

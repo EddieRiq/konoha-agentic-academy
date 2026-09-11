@@ -399,7 +399,7 @@ class RunResumableExecutionTests(unittest.TestCase):
 
 
 class ResolvePendingPlanApprovalTests(unittest.TestCase):
-    def _run(self, decisions, plan=None):
+    def _run(self, decisions, plan=None, challenge_grant=True):
         plan = plan or _plan(approval_status="pending")
         with tempfile.TemporaryDirectory() as tmp:
             state_dir = Path(tmp)
@@ -414,7 +414,18 @@ class ResolvePendingPlanApprovalTests(unittest.TestCase):
                     with mock.patch(
                         "tools.konoha_v4.conversation.approval_summary", return_value="VISIBLE PLAN",
                     ):
-                        result = _resolve_pending_plan_approval(state_dir, plan.mission_id)
+                        # The "approved" branch now requires a fresh,
+                        # plan-identity-bound challenge - defaulting to
+                        # True here preserves every existing "si"-reaches-
+                        # approved test's behavior unchanged; tests that
+                        # need to prove the challenge-failure path pass
+                        # challenge_grant=False explicitly (or bypass
+                        # _run entirely, as the dedicated tests below do).
+                        with mock.patch(
+                            "tools.konoha_v4.conversation._read_plan_challenge_grant",
+                            return_value=challenge_grant,
+                        ):
+                            result = _resolve_pending_plan_approval(state_dir, plan.mission_id)
             return result, plan
 
     def test_approved_persists_and_returns_approved(self):
@@ -469,10 +480,19 @@ class ResolvePendingPlanApprovalTests(unittest.TestCase):
                         "tools.konoha_v4.conversation.approval_summary", return_value="VISIBLE PLAN",
                     ):
                         with mock.patch(
-                            "tools.konoha_v4.conversation._persist_plan",
-                            side_effect=OSError("full"),
+                            # "si" is intention only; the fresh
+                            # plan-identity-bound challenge must succeed
+                            # for this test to reach the post-authority
+                            # persistence-failure path it exists to prove
+                            # - not to exercise challenge failure itself.
+                            "tools.konoha_v4.conversation._read_plan_challenge_grant",
+                            return_value=True,
                         ):
-                            result = _resolve_pending_plan_approval(state_dir, plan.mission_id)
+                            with mock.patch(
+                                "tools.konoha_v4.conversation._persist_plan",
+                                side_effect=OSError("full"),
+                            ):
+                                result = _resolve_pending_plan_approval(state_dir, plan.mission_id)
         self.assertEqual(result, "persist_failed")
 
     def test_persist_failed_on_reject(self):
@@ -495,14 +515,102 @@ class ResolvePendingPlanApprovalTests(unittest.TestCase):
                             result = _resolve_pending_plan_approval(state_dir, plan.mission_id)
         self.assertEqual(result, "persist_failed")
 
+    # --- v4.1.1 human-turn-integrity: "si" is intention only, resumed path
+
+    def test_failed_challenge_leaves_plan_pending_pre_buffered_si_is_intention_only(
+        self,
+    ) -> None:
+        # A plain "si" is intention only: if the fresh, plan-identity-bound
+        # challenge that follows it is not satisfied exactly, the plan
+        # must never become approved and nothing must be persisted from
+        # that failed attempt - only the later, legitimate explicit "no"
+        # rejection is allowed to persist anything.
+        plan = _plan(approval_status="pending")
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            with mock.patch(
+                "tools.konoha_v4.conversation.load_persisted_plan", return_value=plan,
+            ):
+                with mock.patch(
+                    "tools.konoha_v4.conversation._read_decision",
+                    side_effect=["si", "no"],
+                ):
+                    with mock.patch(
+                        "tools.konoha_v4.conversation.approval_summary", return_value="VISIBLE PLAN",
+                    ):
+                        with mock.patch(
+                            "tools.konoha_v4.conversation._read_plan_challenge_grant",
+                            return_value=False,
+                        ) as grant_mock:
+                            with mock.patch(
+                                "tools.konoha_v4.conversation._persist_plan",
+                            ) as persist_mock:
+                                result = _resolve_pending_plan_approval(
+                                    state_dir, plan.mission_id,
+                                )
+        grant_mock.assert_called_once()
+        self.assertEqual(result, "rejected")
+        self.assertEqual(plan.approval["status"], "rejected")
+        self.assertIsNone(plan.approval["approved_by"])
+        self.assertIsNone(plan.approval["approved_at"])
+        # Exactly one persist call total, for the later legitimate
+        # rejection - the failed challenge itself never wrote anything.
+        persist_mock.assert_called_once()
+
+    def test_challenge_uses_reloaded_plan_and_aprobar_plan_verb(self) -> None:
+        # The resumed approval path must use the SAME shared
+        # _read_plan_challenge_grant helper as normal-mode approval, bound
+        # to the exact reloaded persisted plan instance and the execution-
+        # authority verb - not a parallel identity/challenge mechanism.
+        # Stale/wrong plan_identity rejection itself is already covered at
+        # the helper level in test_approval_input_stabilization.py; this
+        # only proves the resumed integration path wires the real
+        # arguments through.
+        plan = _plan(approval_status="pending")
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            with mock.patch(
+                "tools.konoha_v4.conversation.load_persisted_plan", return_value=plan,
+            ):
+                with mock.patch(
+                    "tools.konoha_v4.conversation._read_decision", side_effect=["si"],
+                ):
+                    with mock.patch(
+                        "tools.konoha_v4.conversation.approval_summary", return_value="VISIBLE PLAN",
+                    ):
+                        with mock.patch(
+                            "tools.konoha_v4.conversation._read_plan_challenge_grant",
+                            return_value=True,
+                        ) as grant_mock:
+                            result = _resolve_pending_plan_approval(
+                                state_dir, plan.mission_id,
+                            )
+        self.assertEqual(result, "approved")
+        grant_mock.assert_called_once_with(
+            command_verb="aprobar-plan",
+            grant_label=mock.ANY,
+            mission_id=plan.mission_id,
+            plan=plan,
+        )
+
 
 class ReadExactCommandTests(unittest.TestCase):
     def test_returns_raw_input_without_stripping(self):
-        with mock.patch("builtins.input", return_value="  raw text  "):
+        # _read_exact_command now reads through the single-owner
+        # TerminalTurnReader (read_exact_line), not raw input() - the
+        # exact leading/trailing-whitespace-preserving comparison contract
+        # is unchanged, only the read primitive is.
+        with mock.patch(
+            "tools.konoha_v4.conversation._TERMINAL_INPUT.read_exact_line",
+            return_value="  raw text  ",
+        ):
             self.assertEqual(_read_exact_command("Vos> "), "  raw text  ")
 
     def test_eof_returns_none(self):
-        with mock.patch("builtins.input", side_effect=EOFError):
+        with mock.patch(
+            "tools.konoha_v4.conversation._TERMINAL_INPUT.read_exact_line",
+            return_value=None,
+        ):
             self.assertIsNone(_read_exact_command("Vos> "))
 
 

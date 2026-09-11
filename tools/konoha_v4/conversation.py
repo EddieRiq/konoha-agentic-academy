@@ -1,5 +1,6 @@
 from __future__ import annotations
-import json, os, select, subprocess, sys
+import json, os, secrets, subprocess, sys
+from collections.abc import Callable
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,7 +11,12 @@ from .continuity import (
  default_state_root,
  plan_payload,
 )
-from .executor import execute_or_resume_plan, expected_approval_command, load_persisted_plan
+from .executor import (
+ execute_or_resume_plan,
+ expected_approval_command,
+ load_persisted_plan,
+ plan_identity,
+)
 from .hokage import approval_summary, validate_plan
 from .models import AssignmentApproval
 from .planner import build_plan
@@ -46,28 +52,56 @@ def _repo_state(repo: Path) -> dict:
 
 
 def _read_turn(prompt: str = "Vos> ") -> str | None:
-    return _TERMINAL_INPUT.read_turn(prompt)
+    """Deterministic mission-turn capture. The first line only decides
+    whether to exit or enter block mode - it is never treated as "probably
+    the whole mission" based on timing. Any substantive first line always
+    requires an explicit ':fin' to submit, however many lines, pastes or
+    OS chunks it takes to arrive, so a paste can never be silently
+    truncated and its tail can never leak into a later read. Uses the
+    unstripped first_line for mission content and a separately normalized
+    copy only for control-word matching, reusing the same canonical
+    _EXIT_COMMANDS set every other prompt in this module uses - not a
+    second, narrower exit-word set."""
+    first_line = _TERMINAL_INPUT.read_exact_line(prompt)
+    if first_line is None:
+        return None
 
+    control = first_line.strip().casefold()
 
+    if not control:
+        return ""
+
+    if control in _EXIT_COMMANDS:
+        return control
+
+    print(
+        "Konoha: Capturando la misión. "
+        "Terminá con una línea exacta ':fin' o cancelá con ':cancelar'."
+    )
+    mission_text, cancelled = _TERMINAL_INPUT.read_block_until(
+        prompt="...> ",
+        continuation_prompt="...> ",
+        first_line=first_line,
+        terminator=":fin",
+        cancel_token=":cancelar",
+    )
+    if cancelled:
+        print(
+            "Hokage: Captura de misión cancelada. "
+            "No se envió ninguna misión."
+        )
+        return ""
+    return mission_text or ""
 
 
 def _read_decision(prompt: str = "Vos> ") -> str | None:
-    """Read one simple decision line.
+    """Read one simple decision line (a control word, not free-form
+    content) through the single-owner terminal reader.
 
-    Kept compatible with the existing approval protocol contract and tests.
-    Fresh feedback confirmation uses _read_fresh_decision instead.
+    Kept compatible with the existing approval protocol contract and
+    tests.
     """
-    try:
-        return input(prompt).strip()
-    except EOFError:
-        return None
-
-
-def _read_fresh_decision(
-    prompt: str,
-) -> tuple[str | None, list[str]]:
-    return _TERMINAL_INPUT.read_fresh_line(prompt)
-
+    return _TERMINAL_INPUT.read_line(prompt)
 
 
 def classify_approval(text: str | None) -> str:
@@ -122,8 +156,15 @@ def _read_feedback_from_first_line(
 def _read_approval_input(
     prompt: str = "Vos> ",
 ) -> tuple[str, str | None]:
-    """Read a deterministic approval command or line-framed feedback."""
-    text = _TERMINAL_INPUT.read_line(prompt)
+    """Read a deterministic approval command or line-framed feedback.
+
+    Uses read_exact_line (not read_line) so a first line that turns out to
+    be free-form feedback content - falling through to
+    _read_feedback_from_first_line below - is never pre-stripped before we
+    even know it is content rather than a control word. Control words are
+    matched against a separately normalized copy; the text passed onward
+    as feedback content is never mutated."""
+    text = _TERMINAL_INPUT.read_exact_line(prompt)
     if text is None or not text.strip():
         return "pending", None
 
@@ -173,23 +214,51 @@ def _read_feedback_block() -> tuple[str | None, bool]:
 
 
 def _confirm_feedback(feedback: str) -> bool:
+    """Fresh-challenge confirmation. The nonce is generated only after the
+    requested-change block has already been fully consumed through its
+    exact ':fin' terminator, so bytes typed or pasted before that
+    terminator - including any trailing content in the same paste - cannot
+    satisfy a challenge that did not exist yet when they were produced.
+    Only the exact freshly-generated command confirms; anything else
+    (blank, EOF, "sí" alone, a stale command) leaves the plan pending,
+    exactly like today's decline path."""
     print("Hokage: Interpreté este texto como cambios solicitados:")
     print("---")
     print(feedback)
     print("---")
 
-    confirmation, discarded = _read_fresh_decision(
-        "¿Confirmás que querés replanificar? [sí/no]> "
+    nonce = secrets.token_hex(16)
+    expected = f":confirmar-cambios {nonce}"
+    print("Hokage: Para confirmar este replanning pegá exactamente:")
+    print(expected)
+    response = _TERMINAL_INPUT.read_exact_line(
+        "Vos> "
     )
-    if discarded:
-        print(
-            "Hokage: Ignoré "
-            f"{len(discarded)} línea(s) residual(es); "
-            "la confirmación debe ser una entrada nueva."
-        )
-    return classify_approval(confirmation) == "approved"
+    return response == expected
 
 
+def _read_plan_challenge_grant(
+    *, command_verb: str, grant_label: str, mission_id: str, plan,
+) -> bool:
+    """Fresh-challenge plan-authority grant, shared by every flow that
+    grants authority over a specific plan revision: normal plan approval,
+    plan-only acceptance, and resumed pending-plan approval. The challenge
+    is generated only after the human's prior intention line (e.g. "sí")
+    was already read - so pre-buffered/type-ahead bytes typed before this
+    specific challenge existed can never satisfy it - and is bound to
+    plan_identity(plan), the same canonical plan-drift identity
+    executor.py already uses for assignment-approval binding, so a stale
+    command for a previous plan revision can never authorize a replanned
+    or reloaded one. command_verb/grant_label vary only the wording, never
+    the mechanism, so plan-only acceptance can use wording that cannot be
+    confused with execution approval."""
+    expected = (
+        f":{command_verb} {mission_id} {plan_identity(plan)} "
+        f"{secrets.token_hex(16)}"
+    )
+    print(f"Hokage: Para {grant_label} pegá exactamente:")
+    print(expected)
+    return _TERMINAL_INPUT.read_exact_line("Vos> ") == expected
 
 
 def _persist_plan(path: Path, plan) -> None:
@@ -306,38 +375,59 @@ def _approval_loop(
                 "Codex: Cambios confirmados. "
                 "Replanificando; el nuevo plan requerirá aprobación."
             )
+            # v4.1.1: human-requested replanning runs the SAME bounded
+            # build/validate/deterministic-corrective-retry engine as
+            # initial planning (_build_validated_plan). Invariants held here:
+            #   - MAX_PLAN_ATTEMPTS stays the hard bound.
+            #   - mission_authority_texts stays [original mission] + the
+            #     confirmed requested_changes_history texts on every attempt;
+            #     deterministic validator feedback is never added as
+            #     authority (it only rides the requested_changes channel).
+            #   - the confirmed human feedback seeds attempt 1.
+            #   - continuity.validate_replanned_plan runs on every attempt.
+            #   - each invalid candidate is recorded once as deterministic
+            #     evidence and supplied only as ephemeral previous_plan
+            #     context; it is never record_plan()'d.
+            #   - only the final validated replan is record_plan()'d, with
+            #     reason "human_requested_replan".
+            #   - missing_context and attempt exhaustion fail closed.
+            mission_authority_texts = [mission_text] + [
+                item["text"]
+                for item in continuity.state.requested_changes_history
+            ]
             try:
-                plan = build_plan(
+                revised, problems, attempts = _build_validated_plan(
                     repo,
                     mission_text,
                     _repo_state(repo),
                     registry,
-                    feedback=decision_text,
-                    continuity=continuity.planner_context(),
+                    provider_readiness=provider_readiness,
+                    mission_authority_texts=mission_authority_texts,
+                    first_attempt_feedback=decision_text,
+                    base_continuity=continuity.planner_context(),
+                    extra_validate=continuity.validate_replanned_plan,
+                    on_invalid_attempt=lambda invalid, findings: (
+                        continuity.record_validator_findings(
+                            findings, plan=invalid
+                        )
+                    ),
                 )
             except Exception as exc:
                 print(f"Konoha: No pude construir el plan revisado: {exc}")
                 return None
 
-            mission_authority_texts = [mission_text] + [
-                item["text"] for item in continuity.state.requested_changes_history
-            ]
-            problems = (
-                continuity.validate_replanned_plan(plan)
-                + validate_plan(
-                    plan,
-                    registry,
-                    provider_readiness=provider_readiness,
-                    mission_authority_texts=mission_authority_texts,
-                )
-            )
             if problems:
-                continuity.record_validator_findings(problems, plan=plan)
                 print("Hokage: El plan revisado fue detenido.")
                 for problem in problems:
                     print(f"- {problem}")
                 return None
 
+            plan = revised
+            if attempts > 1:
+                print(
+                    "Hokage: Codex corrigió el plan revisado tras una "
+                    "validación determinística; no se ejecutó ninguna tarea."
+                )
             continuity.record_plan(
                 plan,
                 reason="human_requested_replan",
@@ -345,18 +435,52 @@ def _approval_loop(
             render_current_plan()
             continue
 
+        # decision == "approved": an explicit affirmative is intention
+        # only, never authority by itself - see _read_plan_challenge_grant.
+        # A pre-buffered/type-ahead "sí" typed before this specific,
+        # freshly-generated, plan-identity-bound challenge existed can
+        # never satisfy it, so it can never grant authority over a plan
+        # the human had not actually seen yet.
         if plan_only:
             # v4.1.0 plan-only mode: an explicit affirmative here means
             # only "I accept this as the reviewed technical planning
             # artifact" - it must never mean "I approve execution". The
-            # plan's approval object is left exactly as build_plan()
-            # produced it (status=pending, approved_by=None,
-            # approved_at=None) and continuity.record_approval is never
-            # called, so no execution authority is ever granted or
-            # persisted. Caller (run()) is responsible for the
-            # plan-only-specific acceptance message and for never
-            # persisting plan.json or invoking execution in this mode.
+            # challenge wording ("aceptar-planificacion") never uses
+            # execution-approval vocabulary. The plan's approval object is
+            # left exactly as build_plan() produced it (status=pending,
+            # approved_by=None, approved_at=None) and
+            # continuity.record_approval is never called, so no execution
+            # authority is ever granted or persisted. Caller (run()) is
+            # responsible for the plan-only-specific acceptance message
+            # and for never persisting plan.json or invoking execution in
+            # this mode.
+            if not _read_plan_challenge_grant(
+                command_verb="aceptar-planificacion",
+                grant_label=(
+                    "aceptar esta planificación para revisión únicamente "
+                    "(sin autoridad de ejecución)"
+                ),
+                mission_id=plan.mission_id,
+                plan=plan,
+            ):
+                print(
+                    "Hokage: La aceptación no se confirmó con el comando "
+                    "exacto. El plan sigue pendiente."
+                )
+                continue
             return plan
+
+        if not _read_plan_challenge_grant(
+            command_verb="aprobar-plan",
+            grant_label="aprobar este plan (autoridad de ejecución)",
+            mission_id=plan.mission_id,
+            plan=plan,
+        ):
+            print(
+                "Hokage: La aprobación no se confirmó con el comando "
+                "exacto. El plan sigue pendiente."
+            )
+            continue
 
         plan.approval.update(
             {
@@ -375,14 +499,17 @@ def _approval_loop(
 
 
 def _read_exact_command(prompt: str) -> str | None:
-    """Unlike _read_decision, this never strips or normalizes. An
-    assignment approval command must match expected_approval_command
-    byte-for-byte, so a stray leading/trailing space or a casing
-    difference must not be silently forgiven."""
-    try:
-        return input(prompt)
-    except EOFError:
-        return None
+    """Unlike _read_decision, this never strips or normalizes (an
+    unstripped logical line - see TerminalTurnReader.read_exact_line, not
+    a literal byte-exact read: CRLF is still normalized and text is still
+    decoded). An assignment approval command must match
+    expected_approval_command exactly, so a stray leading/trailing space
+    or a casing difference must not be silently forgiven. Reads through
+    the single-owner terminal reader instead of raw input(), so it can
+    never race a second stdin owner against bytes TerminalTurnReader
+    already holds; the existing plan_identity + approval_nonce +
+    expected_approval_command authority mechanism itself is unchanged."""
+    return _TERMINAL_INPUT.read_exact_line(prompt)
 
 
 def _resolve_pending_plan_approval(state_dir: Path, mission_id: str) -> str:
@@ -441,6 +568,21 @@ def _resolve_pending_plan_approval(state_dir: Path, mission_id: str) -> str:
             print(
                 "Hokage: Los cambios de plan no están disponibles al reanudar una misión "
                 "en ejecución; respondé “sí” o “no”."
+            )
+            continue
+
+        # decision == "approved": intention only, same as in _approval_loop
+        # - grants nothing until the fresh, plan-identity-bound challenge
+        # is satisfied exactly, using the same shared helper.
+        if not _read_plan_challenge_grant(
+            command_verb="aprobar-plan",
+            grant_label="aprobar este plan (autoridad de ejecución)",
+            mission_id=mission_id,
+            plan=plan,
+        ):
+            print(
+                "Hokage: La aprobación no se confirmó con el comando "
+                "exacto. El plan sigue pendiente."
             )
             continue
 
@@ -620,6 +762,53 @@ def resume_mission(repo: Path, mission_id: str) -> int:
 MAX_PLAN_ATTEMPTS = 3
 
 
+def _corrective_planner_context(
+    mission_text: str,
+    base_continuity: dict | None,
+    invalid_plan,
+    finding_history: list[dict],
+) -> dict:
+    """Build the ephemeral planner context for the next deterministic
+    corrective attempt, shared by initial planning and human-requested
+    replanning.
+
+    The invalid candidate rides back only as previous_plan context - it is
+    never record_plan()'d - and the accumulated deterministic findings ride
+    the validator_findings_history / requested_changes channel, which is
+    evidence, never authority.
+
+    For human-requested replanning, base_continuity is the live
+    continuity.planner_context(): every one of its fields (schema_version,
+    mission_id, original_request, repo_baseline, requested_changes_history,
+    approval, execution, provider_sessions, ...) is carried through
+    unchanged. Only the two ephemeral corrective parts are updated:
+    previous_plan (the immediately preceding invalid candidate) and
+    validator_findings_history (the context's existing history plus this
+    bounded sequence's deterministic findings). It is never flattened into
+    the reduced synthetic context used by initial planning.
+
+    For initial planning, base_continuity is None and the historical inline
+    synthetic shape is reproduced exactly.
+    """
+    if base_continuity is None:
+        return {
+            "schema_version": "1.0",
+            "original_request": mission_text,
+            "requested_changes_history": [],
+            "validator_findings_history": list(finding_history),
+            "previous_plan": plan_payload(invalid_plan),
+            "approval": {"status": "pending"},
+        }
+
+    context = dict(base_continuity)
+    context["previous_plan"] = plan_payload(invalid_plan)
+    context["validator_findings_history"] = (
+        list(base_continuity.get("validator_findings_history") or [])
+        + list(finding_history)
+    )
+    return context
+
+
 def _build_validated_plan(
     repo: Path,
     mission_text: str,
@@ -627,12 +816,53 @@ def _build_validated_plan(
     registry: CapabilityRegistry,
     *,
     provider_readiness: dict[str, dict] | None = None,
+    mission_authority_texts: list[str] | None = None,
+    first_attempt_feedback: str | None = None,
+    base_continuity: dict | None = None,
+    extra_validate: Callable[[object], list[str]] | None = None,
+    on_invalid_attempt: Callable[[object, list[str]], None] | None = None,
 ) -> tuple[MissionPlan, list[str], int]:
-    feedback: str | None = None
+    """Bounded build -> validate -> deterministic corrective retry engine.
+
+    The single engine for both initial planning and human-requested
+    replanning. MAX_PLAN_ATTEMPTS is the hard bound in both modes.
+
+    Keyword-only extension points, all defaulting to today's
+    initial-planning behavior:
+
+    - mission_authority_texts: fixed for the whole call. Defaults to
+      [mission_text] (initial planning). Human replanning passes
+      [original mission] + confirmed requested_changes_history texts. A
+      corrective retry never promotes deterministic validator feedback to
+      authority - that feedback only ever rides the requested_changes
+      channel (the ``feedback`` argument to build_plan).
+    - provider_readiness: the one acquired snapshot, passed unchanged into
+      every attempt's validate_plan.
+    - first_attempt_feedback: seeds attempt 1's requested_changes (the
+      confirmed human requested change, for a human replan). Corrective
+      retries replace it with the deterministic validator-feedback message.
+    - base_continuity: continuity.planner_context() for a human replan;
+      None for initial planning. Carried through unchanged except for the
+      ephemeral corrective parts - see _corrective_planner_context.
+    - extra_validate: e.g. continuity.validate_replanned_plan; runs on
+      every attempt, before validate_plan.
+    - on_invalid_attempt: records each invalid candidate exactly once as
+      deterministic evidence (including the final failing attempt on
+      exhaustion or missing_context). The invalid candidate itself is only
+      ever ephemeral previous_plan context, never record_plan()'d.
+
+    missing_context and MAX_PLAN_ATTEMPTS exhaustion both fail closed.
+    """
+    authority = (
+        list(mission_authority_texts)
+        if mission_authority_texts is not None
+        else [mission_text]
+    )
+    feedback: str | None = first_attempt_feedback
     plan: MissionPlan | None = None
     problems: list[str] = []
     finding_history: list[dict] = []
-    continuity_context: dict | None = None
+    continuity_context: dict | None = base_continuity
 
     for attempt in range(1, MAX_PLAN_ATTEMPTS + 1):
         plan = build_plan(
@@ -641,17 +871,23 @@ def _build_validated_plan(
             state_summary,
             registry,
             feedback=feedback,
-         continuity=continuity_context,
+            continuity=continuity_context,
         )
-        problems = validate_plan(
+        problems = (
+            list(extra_validate(plan)) if extra_validate is not None else []
+        )
+        problems += validate_plan(
             plan,
             registry,
             provider_readiness=provider_readiness,
-            mission_authority_texts=[mission_text],
+            mission_authority_texts=authority,
         )
 
         if not problems:
             return plan, [], attempt
+
+        if on_invalid_attempt is not None:
+            on_invalid_attempt(plan, problems)
 
         # No pedirle al modelo que invente una decisión, fuente o permiso humano.
         if plan.missing_context:
@@ -661,17 +897,12 @@ def _build_validated_plan(
             return plan, problems, attempt
 
         finding_history.append({
-         "attempt": attempt,
-         "findings": list(problems),
+            "attempt": attempt,
+            "findings": list(problems),
         })
-        continuity_context = {
-         "schema_version": "1.0",
-         "original_request": mission_text,
-         "requested_changes_history": [],
-         "validator_findings_history": list(finding_history),
-         "previous_plan": plan_payload(plan),
-         "approval": {"status": "pending"},
-        }
+        continuity_context = _corrective_planner_context(
+            mission_text, base_continuity, plan, finding_history,
+        )
         feedback = (
             "Hokage rechazó el plan por validación determinística. "
             "Conservá la misión y corregí exclusivamente estos problemas:\n"
@@ -695,7 +926,12 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
     print("Konoha: Bienvenido, Eduardo. Codex conduce la misión bajo autoridad constitucional de Hokage.")
     print("Konoha: Contexto público del workspace cargado; rutas privadas y externas permanecen excluidas.")
     print("Konoha: Providers verificados localmente: " + (", ".join(ready) if ready else "ninguno"))
-    print("Konoha: Podés escribir o pegar la misión completa; el pegado multilínea se agrupa en un solo turno.")
+    print(
+        "Konoha: Escribí o pegá tu misión y terminá con una línea exacta "
+        "':fin' (o cancelá con ':cancelar'). El contenido se captura "
+        "completo, sin importar cuántas líneas o pegados incluya, recién "
+        "hasta ':fin'."
+    )
     if plan_only:
         print(
             "Konoha: Modo --plan-only activo: planificación técnica supervisada. "

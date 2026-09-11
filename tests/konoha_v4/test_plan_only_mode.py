@@ -64,13 +64,33 @@ _ACQUIRED = SimpleNamespace(
 _REPO_STATE = {"branch": "test", "head": "abc", "status": ""}
 
 
-def _enter_run_patches(stack, state_dir, mission_texts, build_result, approval_inputs):
+def _enter_run_patches(
+    stack, state_dir, mission_texts, build_result, approval_inputs,
+    *, plan_challenge_grant=False,
+):
     """Enter the common set of patches every run()-level plan-only test
     needs, into the caller-owned ExitStack. Callers add/override further
     patches on the same stack afterwards, then call run() and assert while
     still inside the stack (and the TemporaryDirectory) so every
     filesystem-dependent assertion observes real, not-yet-cleaned-up
-    state_dir contents."""
+    state_dir contents.
+
+    tools.konoha_v4.conversation._read_plan_challenge_grant is ALWAYS
+    patched here - never left reachable to real stdin. The
+    plan_challenge_grant parameter controls only its return value:
+    False (default) models a human who did NOT paste the exact fresh,
+    plan-identity-bound challenge command that v4.1.1 requires after an
+    affirmative intention line ("sí"); True models one who did. The patch
+    is unconditional so that a forgotten stale positive path fails
+    deterministically instead of blocking at the real "Vos>" prompt.
+
+    The challenge algorithm itself (verb / plan_identity / nonce / drift)
+    is canonically covered in
+    tests/konoha_v4/test_approval_input_stabilization.py and is not
+    reproduced here.
+
+    Always returns the _read_plan_challenge_grant mock.
+    """
     stack.enter_context(
         mock.patch("tools.konoha_v4.conversation.default_state_root", return_value=state_dir)
     )
@@ -94,6 +114,12 @@ def _enter_run_patches(stack, state_dir, mission_texts, build_result, approval_i
     stack.enter_context(
         mock.patch(
             "tools.konoha_v4.conversation._read_approval_input", side_effect=approval_inputs,
+        )
+    )
+    return stack.enter_context(
+        mock.patch(
+            "tools.konoha_v4.conversation._read_plan_challenge_grant",
+            return_value=plan_challenge_grant,
         )
     )
 
@@ -143,8 +169,9 @@ class PlanOnlyValidAcceptanceTests(unittest.TestCase):
         plan = _plan()
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             state_dir = Path(tmp)
-            _enter_run_patches(
-                stack, state_dir, ["hacer algo", "salir"], (plan, [], 1), [("decision", "sí")],
+            grant_mock = _enter_run_patches(
+                stack, state_dir, ["hacer algo", "salir"], (plan, [], 1),
+                [("decision", "sí")], plan_challenge_grant=True,
             )
             summary_mock = stack.enter_context(
                 mock.patch(
@@ -164,6 +191,17 @@ class PlanOnlyValidAcceptanceTests(unittest.TestCase):
             summary_mock.assert_called()
             run_exec_mock.assert_not_called()
             low_level_exec_mock.assert_not_called()
+
+            # "sí" is intention only: the plan-only artifact was accepted
+            # solely because the fresh post-state challenge succeeded. The
+            # challenge used plan-only acceptance vocabulary (never
+            # execution-approval vocabulary) and was bound to the exact
+            # plan object under review.
+            grant_mock.assert_called_once()
+            challenge_kwargs = grant_mock.call_args.kwargs
+            self.assertEqual(challenge_kwargs["command_verb"], "aceptar-planificacion")
+            self.assertEqual(challenge_kwargs["mission_id"], plan.mission_id)
+            self.assertIs(challenge_kwargs["plan"], plan)
 
             self.assertEqual(plan.approval["status"], "pending")
             self.assertIsNone(plan.approval["approved_by"])
@@ -189,18 +227,24 @@ class PlanOnlyRequestedChangeTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             state_dir = Path(tmp)
-            _enter_run_patches(
+            grant_mock = _enter_run_patches(
                 stack, state_dir, [mission_text, "salir"], (original_plan, [], 1),
                 [("feedback", feedback_text), ("decision", "sí")],
+                plan_challenge_grant=True,
             )
             stack.enter_context(
                 mock.patch("tools.konoha_v4.conversation._confirm_feedback", return_value=True)
             )
-            build_plan_mock = stack.enter_context(
-                mock.patch("tools.konoha_v4.conversation.build_plan", return_value=replanned)
-            )
-            validate_mock = stack.enter_context(
-                mock.patch("tools.konoha_v4.conversation.validate_plan", return_value=[])
+            # v4.1.1: human-requested replanning goes through the SAME
+            # bounded engine as initial planning. Override the baked-in
+            # _build_validated_plan patch so the first call (initial
+            # planning) yields the original plan and the second (the human
+            # replan) yields the revised plan.
+            build_validated_mock = stack.enter_context(
+                mock.patch(
+                    "tools.konoha_v4.conversation._build_validated_plan",
+                    side_effect=[(original_plan, [], 1), (replanned, [], 1)],
+                )
             )
             run_exec_mock = stack.enter_context(
                 mock.patch("tools.konoha_v4.conversation._run_resumable_execution")
@@ -213,18 +257,34 @@ class PlanOnlyRequestedChangeTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
 
-            # The existing replanning path was actually used.
-            build_plan_mock.assert_called_once()
-            self.assertEqual(build_plan_mock.call_args.kwargs["feedback"], feedback_text)
+            # The replanning path was actually used - and it is now the
+            # SAME bounded engine as initial planning, not an inline
+            # duplicate.
+            self.assertEqual(build_validated_mock.call_count, 2)
+            replan_call = build_validated_mock.call_args_list[1]
+            self.assertEqual(
+                replan_call.kwargs["first_attempt_feedback"], feedback_text
+            )
 
             # The unchanged mission_constraints provenance contract:
             # authority texts are exactly [mission_text] + confirmed
             # requested-change history - never anything else.
-            validate_mock.assert_called_once()
             self.assertEqual(
-                validate_mock.call_args.kwargs["mission_authority_texts"],
+                replan_call.kwargs["mission_authority_texts"],
                 [mission_text, feedback_text],
             )
+
+            # The affirmative that accepted the REPLANNED artifact went
+            # through the fresh post-state challenge exactly once (only
+            # reachable after the successful replan iteration), using
+            # plan-only acceptance vocabulary. The challenge MUST bind to
+            # the replanned object the human actually saw and accepted -
+            # never the superseded original_plan.
+            grant_mock.assert_called_once()
+            challenge_kwargs = grant_mock.call_args.kwargs
+            self.assertEqual(challenge_kwargs["command_verb"], "aceptar-planificacion")
+            self.assertEqual(challenge_kwargs["mission_id"], replanned.mission_id)
+            self.assertIs(challenge_kwargs["plan"], replanned)
 
             run_exec_mock.assert_not_called()
             low_level_exec_mock.assert_not_called()
@@ -257,7 +317,7 @@ class PlanOnlyRejectionAndExitTests(unittest.TestCase):
         plan = _plan()
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             state_dir = Path(tmp)
-            _enter_run_patches(
+            grant_mock = _enter_run_patches(
                 stack, state_dir, ["hacer algo", "salir"], (plan, [], 1), [("decision", "no")],
             )
             run_exec_mock = stack.enter_context(
@@ -272,6 +332,9 @@ class PlanOnlyRejectionAndExitTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             run_exec_mock.assert_not_called()
             low_level_exec_mock.assert_not_called()
+            # Rejection neither depends on nor invokes positive plan
+            # authority - the challenge helper is never reached.
+            grant_mock.assert_not_called()
             self.assertEqual(plan.approval["status"], "rejected")
             self.assertFalse(
                 (state_dir / "missions" / plan.mission_id / "plan.json").exists()
@@ -281,7 +344,7 @@ class PlanOnlyRejectionAndExitTests(unittest.TestCase):
         plan = _plan()
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             state_dir = Path(tmp)
-            _enter_run_patches(
+            grant_mock = _enter_run_patches(
                 stack, state_dir, ["hacer algo"], (plan, [], 1), [("exit", None)],
             )
             run_exec_mock = stack.enter_context(
@@ -296,6 +359,8 @@ class PlanOnlyRejectionAndExitTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             run_exec_mock.assert_not_called()
             low_level_exec_mock.assert_not_called()
+            # Exit neither depends on nor invokes positive plan authority.
+            grant_mock.assert_not_called()
             self.assertFalse(
                 (state_dir / "missions" / plan.mission_id / "plan.json").exists()
             )
@@ -309,8 +374,9 @@ class NormalModeUnaffectedTests(unittest.TestCase):
         plan = _plan()
         with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
             state_dir = Path(tmp)
-            _enter_run_patches(
-                stack, state_dir, ["hacer algo", "salir"], (plan, [], 1), [("decision", "sí")],
+            grant_mock = _enter_run_patches(
+                stack, state_dir, ["hacer algo", "salir"], (plan, [], 1),
+                [("decision", "sí")], plan_challenge_grant=True,
             )
             run_exec_mock = stack.enter_context(
                 mock.patch(
@@ -323,6 +389,14 @@ class NormalModeUnaffectedTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             run_exec_mock.assert_called_once()
+            # Normal-mode execution authority still passes through the
+            # fresh post-state challenge (never the bare "sí"), using the
+            # execution-approval verb, bound to the exact plan object.
+            grant_mock.assert_called_once()
+            challenge_kwargs = grant_mock.call_args.kwargs
+            self.assertEqual(challenge_kwargs["command_verb"], "aprobar-plan")
+            self.assertEqual(challenge_kwargs["mission_id"], plan.mission_id)
+            self.assertIs(challenge_kwargs["plan"], plan)
             self.assertEqual(plan.approval["status"], "approved")
             self.assertEqual(plan.approval["approved_by"], "human")
             self.assertIsNotNone(plan.approval["approved_at"])
@@ -342,7 +416,12 @@ class ApprovalLoopPlanOnlyUnitTests(unittest.TestCase):
             with mock.patch(
                 "tools.konoha_v4.conversation._read_approval_input",
                 return_value=("decision", "sí"),
-            ):
+            ), mock.patch(
+                "tools.konoha_v4.conversation._read_plan_challenge_grant",
+                return_value=True,
+            ) as grant_mock, mock.patch(
+                "tools.konoha_v4.conversation.MissionContinuityStore.record_approval",
+            ) as record_approval_mock:
                 result = _approval_loop(
                     Path("."), state_dir, "hacer algo", plan, mock.Mock(),
                     provider_readiness={"codex": {"available": True}},
@@ -350,6 +429,18 @@ class ApprovalLoopPlanOnlyUnitTests(unittest.TestCase):
                 )
 
             self.assertIs(result, plan)
+            # Command path is plan-only acceptance, never execution
+            # approval: the affirmative alone granted nothing, the
+            # challenge used the distinct acceptance verb bound to the
+            # exact plan object, and no execution-approval event was ever
+            # recorded in continuity (stronger than the on-disk "ends
+            # pending" check below).
+            grant_mock.assert_called_once()
+            challenge_kwargs = grant_mock.call_args.kwargs
+            self.assertEqual(challenge_kwargs["command_verb"], "aceptar-planificacion")
+            self.assertEqual(challenge_kwargs["mission_id"], plan.mission_id)
+            self.assertIs(challenge_kwargs["plan"], plan)
+            record_approval_mock.assert_not_called()
             self.assertEqual(plan.approval["status"], "pending")
             self.assertIsNone(plan.approval["approved_by"])
             self.assertIsNone(plan.approval["approved_at"])

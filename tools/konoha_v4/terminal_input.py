@@ -1,25 +1,37 @@
 from __future__ import annotations
 
+import errno
 import os
-import select
 import sys
-import time
 from typing import TextIO
 
 
 class TerminalTurnReader:
-    """Single-owner, line-framed terminal input reader."""
+    """Single-owner, line-framed terminal input reader.
+
+    Every human turn has a deterministic end boundary: a single
+    newline-terminated line (read_line/read_exact_line), or an explicit
+    exact-line terminator (read_block_until: ":fin"/":cancelar"/EOF). No
+    read here ever depends on silence duration, PTY chunk boundaries, or
+    any other timing signal - a blocking read simply keeps blocking,
+    however many OS chunks and however much delay it takes, until its own
+    deterministic boundary is reached.
+
+    Freshness for authority-granting decisions (a plan approval, a
+    requested-change confirmation) is established at the protocol layer in
+    conversation.py, via an explicit post-boundary challenge generated only
+    after the relevant prior boundary was already consumed - never inside
+    this reader, and never by inferring anything from timing or buffer
+    availability.
+    """
 
     def __init__(
         self,
         stream: TextIO | None = None,
         output: TextIO | None = None,
-        *,
-        freshness_quiet_seconds: float = 0.30,
     ) -> None:
         self.stream = stream or sys.stdin
         self.output = output or sys.stdout
-        self.freshness_quiet_seconds = freshness_quiet_seconds
         self.encoding = getattr(self.stream, "encoding", None) or "utf-8"
         self._buffer = bytearray()
         self._eof = False
@@ -45,7 +57,18 @@ class TerminalTurnReader:
     def _read_chunk(self) -> bool:
         if self._fd is None:
             return False
-        chunk = os.read(self._fd, 65536)
+        try:
+            chunk = os.read(self._fd, 65536)
+        except OSError as exc:
+            if exc.errno != errno.EIO:
+                # Only a PTY peer disconnecting mid-read (EIO) is treated
+                # as EOF. Any other failure (e.g. EBADF) is a real error
+                # and must stay observable, not be silently reclassified
+                # as human EOF/cancellation - fail closed does not mean
+                # swallow arbitrary I/O failures.
+                raise
+            self._eof = True
+            return False
         if not chunk:
             self._eof = True
             return False
@@ -53,6 +76,11 @@ class TerminalTurnReader:
         return True
 
     def _read_line_blocking(self) -> str | None:
+        """Logical-line text: CRLF-normalized and decoded, but never
+        stripped of interior or edge whitespace. Blocks on os.read() as
+        many times as needed, with no deadline, so an arbitrarily delayed
+        or chunked delivery is fully absorbed here - never inferred from
+        timing."""
         if self._fd is None:
             line = self.stream.readline()
             if line == "":
@@ -71,30 +99,26 @@ class TerminalTurnReader:
                 return raw.decode(self.encoding, errors="replace")
             self._read_chunk()
 
-    def _read_ready_chunk(self, timeout: float) -> bool:
-        if self._fd is None or self._eof:
-            return False
-        ready, _, _ = select.select([self._fd], [], [], max(timeout, 0.0))
-        if not ready:
-            return False
-        return self._read_chunk()
-
     def read_line(self, prompt: str = "Vos> ") -> str | None:
+        """One complete human turn: a single newline-terminated line,
+        stripped. For a control word (sí/no/salir/...) this is the correct
+        read. For content that must be preserved faithfully (mission text,
+        free-form feedback), use read_exact_line instead and normalize a
+        separate copy only for control-word matching."""
         self._prompt(prompt)
         line = self._read_line_blocking()
         return None if line is None else line.strip()
 
-    def read_turn(self, prompt: str = "Vos> ") -> str | None:
-        """Read one full terminal turn: block for the first line, then fold
-        in whatever is already buffered or arrives within the existing
-        freshness quiet window (a pasted/burst-written multiline mission),
-        so the whole paste is consumed as a single turn and none of it is
-        left in _buffer to leak into the next read_line()/approval read."""
-        first_line = self.read_line(prompt)
-        if first_line is None:
-            return None
-        rest = self.drain_until_quiet()
-        return "\n".join([first_line, *rest])
+    def read_exact_line(self, prompt: str = "Vos> ") -> str | None:
+        """One complete human turn as an unstripped logical line: CRLF is
+        still normalized and bytes are still decoded (there is no literal
+        byte-exact terminal read), but no leading/trailing whitespace is
+        removed. Used both for content that must be preserved faithfully
+        and for exact-command comparisons (assignment/plan-approval
+        challenges), which must not silently forgive a stray space or a
+        casing difference."""
+        self._prompt(prompt)
+        return self._read_line_blocking()
 
     def read_block_until(
         self,
@@ -105,6 +129,21 @@ class TerminalTurnReader:
         terminator: str = ":fin",
         cancel_token: str = ":cancelar",
     ) -> tuple[str | None, bool]:
+        """Deterministic multi-line capture: keeps blocking for more lines,
+        however many OS chunks or however much delay it takes, until an
+        exact-line terminator, an exact-line cancel token, or EOF - never
+        based on silence duration. Each captured line (including
+        first_line, when the caller passes one already read) is stored
+        exactly as read, only CRLF-normalized; only the terminator/cancel
+        check uses a separately normalized copy, so a control word is
+        matched leniently while the stored content never is. The final
+        joined text has its outer edges trimmed once - an existing,
+        intentional, already-tested contract for requested-change capture,
+        now shared by mission capture too, not a new normalization path.
+
+        Returns (text, cancelled); cancelled is also true on EOF before the
+        terminator, so an incomplete capture never becomes the captured
+        text (fail-closed)."""
         lines: list[str] = []
         if first_line is not None:
             lines.append(first_line)
@@ -128,44 +167,3 @@ class TerminalTurnReader:
 
             lines.append(line)
             current_prompt = continuation_prompt
-
-    def drain_until_quiet(self) -> list[str]:
-        discarded: list[str] = []
-        if self._fd is None:
-            return discarded
-
-        deadline = time.monotonic() + self.freshness_quiet_seconds
-        while True:
-            consumed = False
-            while True:
-                line = self._extract_line()
-                if line is None:
-                    break
-                discarded.append(line)
-                consumed = True
-
-            if consumed:
-                deadline = time.monotonic() + self.freshness_quiet_seconds
-                continue
-
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                break
-            if self._read_ready_chunk(remaining):
-                deadline = time.monotonic() + self.freshness_quiet_seconds
-                continue
-            break
-
-        if self._buffer:
-            discarded.append(
-                bytes(self._buffer).decode(self.encoding, errors="replace")
-            )
-            self._buffer.clear()
-        return discarded
-
-    def read_fresh_line(
-        self,
-        prompt: str,
-    ) -> tuple[str | None, list[str]]:
-        discarded = self.drain_until_quiet()
-        return self.read_line(prompt), discarded
