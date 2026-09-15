@@ -158,7 +158,7 @@ class CliSurfaceTests(unittest.TestCase):
         with contextlib.redirect_stdout(buffer):
             exit_code = main(["--version"])
         self.assertEqual(exit_code, 0)
-        self.assertEqual(buffer.getvalue().strip(), "4.1.0")
+        self.assertEqual(buffer.getvalue().strip(), "4.1.1")
 
 
 # --- B. plan-only valid plan: explicit affirmative -----------------------

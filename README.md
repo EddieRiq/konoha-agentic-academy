@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.1.0 \
+  --version v4.1.1 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```

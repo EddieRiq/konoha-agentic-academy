@@ -1,3 +1,41 @@
+## [4.1.1] — Human Turn Integrity and Corrective Replanning Stability
+
+- Deterministic exact-line framing for mission and requested-change block
+  input, plus exact-line reads for control and authority responses (exit,
+  approval, plan-approval challenges), closing ambiguity between free-form
+  text and control input.
+- A confirmed requested change requires a fresh feedback-confirmation nonce,
+  and plan approval / `--plan-only` acceptance require a fresh
+  plan-identity-bound challenge; deterministic corrective model retries
+  remain internal, bounded, and never prompt the human.
+- Bounded corrective retries are shared by initial planning and
+  human-requested replanning through the same retry path, instead of two
+  divergent implementations.
+- Confirmed human authority (approval, rejection, requested changes) is kept
+  strictly separate from deterministic validator evidence in continuity
+  state; the two are never conflated into a single record.
+- `validator_findings_history` is defensively copied before being folded
+  into corrective continuity context, preventing newly recorded validator
+  findings from appearing twice in the model-facing corrective retry
+  context while durable findings remain recorded exactly once.
+- `MissionPlan` is now imported at runtime in `tools/konoha_v4/conversation.py`
+  (it was previously only referenced in annotations, never imported), so its
+  type hints resolve correctly under `from __future__ import annotations`.
+- `run()`'s top-level mission prompt now recognizes the full canonical
+  `_EXIT_COMMANDS` set (including `q` and `:salir`) instead of a narrower
+  duplicated literal, so every documented exit control actually exits.
+- Expanded deterministic regression coverage across human-turn reading,
+  approval-input stabilization, replanning contracts, and top-level exit
+  handling.
+- Supervised Claude → Codex/Jounin runtime smoke completed successfully
+  ahead of this release.
+
+### Known limitation
+
+- A provider may return schema-valid but semantically weak evidence.
+  Provider output remains evidence only; independent review may still block
+  the mission. This is not fixed in v4.1.1.
+
 ## [4.1.0] — Supervised Technical Planning
 
 - Adds native `konoha --plan-only`, a `tools/konoha_v4` CLI mode that
