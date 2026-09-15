@@ -940,7 +940,7 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
 
     while True:
         text = _read_turn()
-        if text is None or text.lower() in {"salir", "exit", "quit"}:
+        if text is None or text.strip().casefold() in _EXIT_COMMANDS:
             print("Konoha: Sesión suspendida. La evidencia permanece local.")
             return 0
         if not text:

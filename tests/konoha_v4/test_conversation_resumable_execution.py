@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from tools.konoha_v4.conversation import (
+    _EXIT_COMMANDS,
     _read_exact_command,
     _resolve_pending_plan_approval,
     _run_resumable_execution,
@@ -805,6 +806,41 @@ class ResumeMissionTests(unittest.TestCase):
                  ):
                 exit_code = resume_mission(Path("."), "mission-conv-test")
         self.assertEqual(exit_code, 1)
+
+
+class RunTopLevelExitCommandTests(unittest.TestCase):
+    """KRR-411A: run()'s top-level mission prompt must exit on every
+    canonical _EXIT_COMMANDS control, not a narrower duplicated set."""
+
+    def _run_with_input(self, mission_text):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_dir = Path(tmp)
+            acquired = SimpleNamespace(provider_readiness={}, as_dict=lambda: {})
+            with mock.patch("tools.konoha_v4.conversation.default_state_root", return_value=state_dir), \
+                 mock.patch("tools.konoha_v4.conversation.CapabilityRegistry", return_value=mock.Mock()), \
+                 mock.patch("tools.konoha_v4.conversation.acquire_context", return_value=acquired), \
+                 mock.patch("tools.konoha_v4.conversation._read_turn", return_value=mission_text), \
+                 mock.patch("tools.konoha_v4.conversation._build_validated_plan") as build_mock, \
+                 mock.patch("tools.konoha_v4.conversation._run_resumable_execution") as execute_mock, \
+                 contextlib.redirect_stdout(io.StringIO()):
+                exit_code = run(Path("."))
+        return exit_code, build_mock, execute_mock
+
+    def test_every_canonical_exit_command_exits_cleanly_without_planning_or_execution(self):
+        for exit_command in sorted(_EXIT_COMMANDS):
+            with self.subTest(exit_command=exit_command):
+                exit_code, build_mock, execute_mock = self._run_with_input(exit_command)
+                self.assertEqual(exit_code, 0)
+                build_mock.assert_not_called()
+                execute_mock.assert_not_called()
+
+    def test_every_canonical_exit_command_case_insensitive(self):
+        for exit_command in sorted(_EXIT_COMMANDS):
+            with self.subTest(exit_command=exit_command):
+                exit_code, build_mock, execute_mock = self._run_with_input(exit_command.upper())
+                self.assertEqual(exit_code, 0)
+                build_mock.assert_not_called()
+                execute_mock.assert_not_called()
 
 
 if __name__ == "__main__":
