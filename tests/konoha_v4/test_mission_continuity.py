@@ -136,5 +136,98 @@ class AutomaticReplanningContinuityTests(unittest.TestCase):
         )
 
 
+class HumanReplanLiveContinuityAliasingTests(unittest.TestCase):
+    """v4.1.1: base_continuity=store.planner_context() must be a snapshot,
+    not a live view - on_invalid_attempt (store.record_validator_findings)
+    mutates the store mid-loop and must never leak into the same attempt's
+    combined validator_findings_history."""
+
+    @patch("tools.konoha_v4.conversation.validate_plan")
+    @patch("tools.konoha_v4.conversation.build_plan")
+    def test_validator_findings_are_not_duplicated_across_corrective_retry(
+        self,
+        build_plan: Mock,
+        validate_plan: Mock,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = MissionContinuityStore.create(
+                Path(tmp),
+                "mission-1",
+                "Read-only mission",
+                {"head": "abc", "branch": "test", "status": ""},
+            )
+            store.record_validator_findings(["older finding"], plan=None)
+
+            base_continuity = store.planner_context()
+
+            invalid = SimpleNamespace(
+                mission_id="mission-1", plan_hash="plan-bad",
+                missing_context=[],
+            )
+            valid = SimpleNamespace(
+                mission_id="mission-1", plan_hash="plan-good",
+                missing_context=[],
+            )
+            build_plan.side_effect = [invalid, valid]
+            validate_plan.side_effect = [
+                ["new deterministic finding"],
+                [],
+            ]
+
+            mission_text = "Read-only mission"
+            authority = [mission_text]
+
+            plan, problems, attempts = _build_validated_plan(
+                Mock(),
+                mission_text,
+                {"branch": "test", "head": "abc", "status": ""},
+                Mock(),
+                mission_authority_texts=authority,
+                base_continuity=base_continuity,
+                on_invalid_attempt=lambda candidate, findings: (
+                    store.record_validator_findings(findings, plan=candidate)
+                ),
+            )
+
+            self.assertIs(plan, valid)
+            self.assertEqual(problems, [])
+            self.assertEqual(attempts, 2)
+
+            second_call = build_plan.call_args_list[1]
+            context = second_call.kwargs["continuity"]
+
+            findings_seen = [
+                text
+                for entry in context["validator_findings_history"]
+                for text in entry["findings"]
+            ]
+            self.assertEqual(len(context["validator_findings_history"]), 2)
+            self.assertEqual(findings_seen.count("older finding"), 1)
+            self.assertEqual(
+                findings_seen.count("new deterministic finding"), 1
+            )
+
+            durable_findings = [
+                text
+                for entry in store.state.validator_findings_history
+                for text in entry["findings"]
+            ]
+            self.assertEqual(len(store.state.validator_findings_history), 2)
+            self.assertEqual(durable_findings.count("older finding"), 1)
+            self.assertEqual(
+                durable_findings.count("new deterministic finding"), 1
+            )
+
+            self.assertEqual(
+                context["previous_plan"]["plan_hash"], "plan-bad"
+            )
+
+            self.assertEqual(authority, [mission_text])
+            for call in validate_plan.call_args_list:
+                self.assertEqual(
+                    call.kwargs["mission_authority_texts"], [mission_text]
+                )
+
+
 if __name__ == "__main__":
     unittest.main()

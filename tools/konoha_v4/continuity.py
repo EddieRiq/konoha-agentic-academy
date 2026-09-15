@@ -206,7 +206,9 @@ class MissionContinuityStore:
             "original_request": self.state.original_request,
             "repo_baseline": self.state.repo_baseline,
             "requested_changes_history": self.state.requested_changes_history,
-            "validator_findings_history": self.state.validator_findings_history,
+            "validator_findings_history": list(
+                self.state.validator_findings_history
+            ),
             "previous_plan": previous_plan,
             "approval": self.state.approval,
             "execution": self.state.execution,

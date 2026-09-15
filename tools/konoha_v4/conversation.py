@@ -18,7 +18,7 @@ from .executor import (
  plan_identity,
 )
 from .hokage import approval_summary, validate_plan
-from .models import AssignmentApproval
+from .models import AssignmentApproval, MissionPlan
 from .planner import build_plan
 from .registry import CapabilityRegistry
 
