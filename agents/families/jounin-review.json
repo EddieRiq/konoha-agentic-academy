@@ -13,10 +13,13 @@
     "instruction mutation"
   ],
   "required_sources": [
-    "approved mission plan",
-    "target agent output",
-    "source evidence",
-    "acceptance criteria"
+    "mission_plan",
+    "target_assignment_evidence",
+    "dependency_evidence_bundle",
+    "acceptance_criteria"
+  ],
+  "produces_sources": [
+    "review_evidence"
   ],
   "instruction_set": [
     "Identify the reviewed task and provider.",

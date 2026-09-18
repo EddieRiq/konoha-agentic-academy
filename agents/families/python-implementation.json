@@ -11,9 +11,13 @@
     "unapproved git"
   ],
   "required_sources": [
-    "mission charter",
-    "Python coding rules",
-    "acceptance criteria"
+    "mission_plan",
+    "python_coding_rules",
+    "acceptance_criteria"
+  ],
+  "produces_sources": [
+    "implementation_diff",
+    "test_evidence"
   ],
   "instruction_set": [
     "Type hints",

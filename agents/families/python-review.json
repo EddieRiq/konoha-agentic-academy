@@ -10,9 +10,12 @@
     "self-approval"
   ],
   "required_sources": [
-    "implementation diff",
-    "Python rules",
-    "test evidence"
+    "implementation_diff",
+    "python_coding_rules",
+    "test_evidence"
+  ],
+  "produces_sources": [
+    "review_evidence"
   ],
   "instruction_set": [
     "Cite file and line",

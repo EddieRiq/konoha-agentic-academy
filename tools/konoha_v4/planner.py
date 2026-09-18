@@ -4,7 +4,9 @@ from pathlib import Path
 from .context_acquisition import acquire_context, normalize_missing_context
 from .models import AgentAssignment, MissionPlan
 from .provider_adapters import invoke_codex, ProviderError
-from .registry import CapabilityRegistry
+from .registry import CapabilityRegistry, RegistryError
+from .required_sources import ResolutionContext, SourceAvailability, resolve_all
+from tools.repo_evidence.acquire_repo_evidence import RepositoryEvidencePack, bounded_evidence_view
 
 SYSTEM = """Sos Codex Mission Conductor de Konoha. Recibís la misión completa y diseñás
 un grafo de agentes especializados. Hokage es autoridad constitucional separada:
@@ -168,14 +170,24 @@ def build_plan(
  registry: CapabilityRegistry,
  feedback: str | None = None,
  continuity: dict | None = None,
+ repo_evidence: RepositoryEvidencePack | None = None,
 ) -> MissionPlan:
     schema = repo / "schemas" / "runtime" / "konoha_v4_mission_plan.schema.json"
     acquired = acquire_context(repo, registry)
+    # bounded_evidence_view is the one materialization path for a
+    # RepositoryEvidencePack (see tools/repo_evidence/acquire_repo_evidence.py) -
+    # embedded here exactly as the executor later embeds it in a worker's
+    # resolved_source_bundle, never a second serializer. repo_evidence is
+    # purely additive: an omitted/None pack leaves existing callers/tests
+    # byte-for-byte unaffected. Whether repository-backed planning may even
+    # proceed without a pack is decided by the caller (conversation.py),
+    # never here - see _acquire_repo_evidence_for_planning.
     context = {
         "mission": mission_text,
         "requested_changes": feedback,
         "mission_continuity": continuity,
         "repository_state": state_summary,
+        "repository_evidence": bounded_evidence_view(repo_evidence) if repo_evidence is not None else None,
         "acquired_context": acquired.as_dict(),
         "available_agent_families": registry.available_families(),
         "capability_registry": registry.data,
@@ -207,6 +219,54 @@ def build_plan(
         )
 
     assignments = [AgentAssignment(**item) for item in raw["assignments"]]
+
+    # Deterministic required_sources preview - the SAME resolve_all/
+    # resolve_required_sources the executor later enforces at
+    # enforcing=True, never a second/parallel resolution path (see
+    # tools/konoha_v4/required_sources.py). Evaluated as though this draft
+    # plan were already approved: plan approval timing is a separate,
+    # already-enforced gate (hokage.validate_plan / executor's
+    # plan_approval check at execution time), so the universal,
+    # self-resolving "not approved yet" fact never drowns out a genuine
+    # gap in plan.missing_context. A PENDING_PRODUCER with an identified
+    # producer task_id is normal for a multi-step plan and is never folded
+    # in here - only a genuine MISSING or UNAUTHORIZED is.
+    # Skips (never raises on) an unresolvable family: hokage.validate_plan
+    # already independently reports "Modelo no autorizado"/unknown-family
+    # problems through its own established path immediately after
+    # build_plan returns - this preview only ever evaluates the families it
+    # can actually resolve, never duplicates or preempts that check.
+    family_contracts: dict[str, dict] = {}
+    for name in {a.family for a in assignments}:
+        try:
+            family_contracts[name] = registry.agent_family(name)
+        except RegistryError:
+            continue
+    task_family_by_id = {a.task_id: a.family for a in assignments}
+    preview_ctx = ResolutionContext(
+        plan_approval_status="approved",
+        plan_acceptance_criteria=tuple(raw["acceptance_criteria"]),
+        user_mission_request=mission_text,
+        repo_root=repo,
+        repo_evidence_pack=repo_evidence,
+        family_contracts=family_contracts,
+        task_family_by_id=task_family_by_id,
+        evidence_by_task_id={},
+    )
+    source_gaps: list[str] = []
+    for task in assignments:
+        required = family_contracts.get(task.family, {}).get("required_sources") or []
+        for canonical_id, resolution in resolve_all(required, task, preview_ctx, enforcing=False).items():
+            if resolution.availability is SourceAvailability.MISSING:
+                source_gaps.append(
+                    f"{task.task_id}: required_sources '{canonical_id}' missing ({resolution.reason})."
+                )
+            elif resolution.availability is SourceAvailability.UNAUTHORIZED:
+                source_gaps.append(
+                    f"{task.task_id}: required_sources '{canonical_id}' unauthorized ({resolution.reason})."
+                )
+    raw["missing_context"] = raw["missing_context"] + source_gaps
+
     return MissionPlan(
         mission_id=raw["mission_id"],
         understanding=raw["understanding"],

@@ -18,9 +18,16 @@ from .executor import (
  plan_identity,
 )
 from .hokage import approval_summary, validate_plan
-from .models import AssignmentApproval, MissionPlan
+from .models import AgentAssignment, AssignmentApproval, MissionPlan
 from .planner import build_plan
 from .registry import CapabilityRegistry
+from .required_sources import ResolutionContext, SourceAvailability, resolve_required_sources
+from tools.repo_evidence.acquire_repo_evidence import (
+    Authorization,
+    RepositoryEvidenceError,
+    RepositoryEvidencePack,
+    acquire_repo_evidence,
+)
 
 APPROVE_WORDS = {"si", "sí", "s", "dale", "aprobar", "apruebo", "aprobado", "continuar", "proceed", "yes"}
 REJECT_WORDS = {"no", "rechazar", "rechazo", "cancel", "cancelar", "stop", "detener"}
@@ -49,6 +56,50 @@ def _repo_state(repo: Path) -> dict:
         "head": run("git", "rev-parse", "HEAD"),
         "status": run("git", "status", "--short"),
     }
+
+
+def _acquire_repo_evidence_for_planning(repo: Path) -> RepositoryEvidencePack | None:
+    """Deterministic RepositoryEvidencePack acquisition for the planning
+    phase only - valid any time before a plan is approved. Once a plan is
+    approved, this function is never called again for that plan: resuming
+    its execution must instead reload the exact persisted pack_id and fail
+    stale rather than silently reacquiring a different pack (see the
+    executor's separate, stricter resume/staleness path - C3).
+
+    Returns None on a genuine acquisition failure - never raises, never
+    invents a substitute pack - so the caller can fold that into an honest
+    "repository_state unavailable" signal via resolve_required_sources
+    instead of asking Codex to improvise repository state."""
+    try:
+        return acquire_repo_evidence(
+            repo,
+            Authorization(authorized_by="human", authorization_note="current interactive session repo, read-only"),
+        )
+    except RepositoryEvidenceError:
+        return None
+
+
+def _repository_state_unavailable_reason(repo: Path, mission_text: str, pack: RepositoryEvidencePack | None) -> str | None:
+    """None if repository_state resolves AVAILABLE for this pack; otherwise
+    the resolver's own stable reason string. Uses the SAME
+    resolve_required_sources the planner preview and the executor
+    enforcement both use - never a second/parallel check. Called once,
+    before the planner provider is ever invoked, per the mission-conductor
+    family contract's own required_sources (agents/families/
+    mission-conductor.json) - never a Konoha-self special case."""
+    task = AgentAssignment(
+        task_id="repository-state-preflight", family="mission-conductor", provider="codex",
+        model="provider_default", objective=mission_text, inputs=[], expected_output="plan",
+    )
+    ctx = ResolutionContext(
+        plan_approval_status="approved", plan_acceptance_criteria=(), user_mission_request=mission_text,
+        repo_root=repo, repo_evidence_pack=pack, family_contracts={}, task_family_by_id={},
+        evidence_by_task_id={},
+    )
+    resolution = resolve_required_sources("repository_state", task, ctx, enforcing=False)
+    if resolution.availability is SourceAvailability.AVAILABLE:
+        return None
+    return resolution.reason or resolution.availability.value
 
 
 def _read_turn(prompt: str = "Vos> ") -> str | None:
@@ -275,6 +326,7 @@ def _approval_loop(
     *,
     provider_readiness: dict[str, dict] | None = None,
     plan_only: bool = False,
+    repo_evidence: RepositoryEvidencePack | None = None,
 ):
     continuity = MissionContinuityStore.create(
         state_dir,
@@ -406,6 +458,7 @@ def _approval_loop(
                     first_attempt_feedback=decision_text,
                     base_continuity=continuity.planner_context(),
                     extra_validate=continuity.validate_replanned_plan,
+                    repo_evidence=repo_evidence,
                     on_invalid_attempt=lambda invalid, findings: (
                         continuity.record_validator_findings(
                             findings, plan=invalid
@@ -821,6 +874,7 @@ def _build_validated_plan(
     base_continuity: dict | None = None,
     extra_validate: Callable[[object], list[str]] | None = None,
     on_invalid_attempt: Callable[[object, list[str]], None] | None = None,
+    repo_evidence: RepositoryEvidencePack | None = None,
 ) -> tuple[MissionPlan, list[str], int]:
     """Bounded build -> validate -> deterministic corrective retry engine.
 
@@ -850,6 +904,10 @@ def _build_validated_plan(
       deterministic evidence (including the final failing attempt on
       exhaustion or missing_context). The invalid candidate itself is only
       ever ephemeral previous_plan context, never record_plan()'d.
+    - repo_evidence: acquired once by the caller (see
+      _acquire_repo_evidence_for_planning) before this function is ever
+      called, and passed unchanged into every attempt's build_plan() -
+      never reacquired between attempts.
 
     missing_context and MAX_PLAN_ATTEMPTS exhaustion both fail closed.
     """
@@ -872,6 +930,7 @@ def _build_validated_plan(
             registry,
             feedback=feedback,
             continuity=continuity_context,
+            repo_evidence=repo_evidence,
         )
         problems = (
             list(extra_validate(plan)) if extra_validate is not None else []
@@ -945,6 +1004,24 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
             return 0
         if not text:
             continue
+
+        # RepositoryEvidencePack is acquired once, right here, before the
+        # planner provider is ever invoked for this mission turn - never
+        # reacquired between planning steps (see build_plan's own preview
+        # and _build_validated_plan's repo_evidence docstring). A genuine
+        # acquisition failure fails closed: Codex is never asked to
+        # improvise repository state.
+        print("Konoha: Adquiriendo evidencia determinística del repositorio autorizado...")
+        repo_evidence_pack = _acquire_repo_evidence_for_planning(repo)
+        unavailable_reason = _repository_state_unavailable_reason(repo, text, repo_evidence_pack)
+        if unavailable_reason is not None:
+            print(
+                "Konoha: No se pudo adquirir evidencia determinística y vigente del "
+                f"repositorio autorizado ({unavailable_reason}). No se invoca al planner "
+                "para evitar que improvise el estado del repositorio; probá de nuevo."
+            )
+            continue
+
         try:
             print("Konoha: Adquiriendo doctrina, políticas, familias y readiness dentro del workspace autorizado...")
             plan, problems, attempts = _build_validated_plan(
@@ -953,6 +1030,7 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
                 _repo_state(repo),
                 registry,
                 provider_readiness=acquired.provider_readiness,
+                repo_evidence=repo_evidence_pack,
             )
         except Exception as exc:
             print(f"Konoha: No pude construir un plan verificable: {exc}")
@@ -975,6 +1053,7 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
             repo, state_dir, text, plan, registry,
             provider_readiness=acquired.provider_readiness,
             plan_only=plan_only,
+            repo_evidence=repo_evidence_pack,
         )
         if approval_result is _SESSION_EXIT:
             print("Konoha: Sesión suspendida. La evidencia permanece local.")

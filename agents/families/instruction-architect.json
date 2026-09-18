@@ -9,9 +9,9 @@
     "self-approval"
   ],
   "required_sources": [
-    "failure logs",
-    "review evidence",
-    "approved sources"
+    "failure_logs",
+    "review_evidence",
+    "authorized_local_source"
   ],
   "instruction_set": [
     "Explain each line change",

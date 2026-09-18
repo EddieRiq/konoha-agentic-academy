@@ -10,9 +10,9 @@
     "fabricating citations"
   ],
   "required_sources": [
-    "approved style statute",
-    "target journal rules",
-    "source material"
+    "approved_style_statute",
+    "target_journal_rules",
+    "authorized_local_source"
   ],
   "instruction_set": [
     "Stop if statute missing",

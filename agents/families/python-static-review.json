@@ -9,8 +9,8 @@
     "final approval"
   ],
   "required_sources": [
-    "Python files",
-    "approved checklist"
+    "python_source_files",
+    "approved_checklist"
   ],
   "instruction_set": [
     "Evidence only",

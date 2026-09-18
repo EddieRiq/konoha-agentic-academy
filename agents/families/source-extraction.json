@@ -10,7 +10,10 @@
     "unsourced claims"
   ],
   "required_sources": [
-    "authorized local source"
+    "authorized_local_source"
+  ],
+  "produces_sources": [
+    "source_fact_cards"
   ],
   "instruction_set": [
     "Cite locator",

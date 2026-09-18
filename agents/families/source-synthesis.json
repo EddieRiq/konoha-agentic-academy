@@ -9,8 +9,7 @@
     "automatic doctrine change"
   ],
   "required_sources": [
-    "source fact cards",
-    "original locators"
+    "source_fact_cards"
   ],
   "instruction_set": [
     "Resolve conflicts explicitly",

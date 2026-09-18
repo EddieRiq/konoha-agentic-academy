@@ -9,9 +9,9 @@
     "self-approval"
   ],
   "required_sources": [
-    "plan",
-    "all evidence",
-    "acceptance criteria"
+    "mission_plan",
+    "dependency_evidence_bundle",
+    "acceptance_criteria"
   ],
   "instruction_set": [
     "Check coverage",

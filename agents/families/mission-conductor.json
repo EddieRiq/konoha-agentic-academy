@@ -10,9 +10,9 @@
     "self-approval"
   ],
   "required_sources": [
-    "user mission",
-    "repository state",
-    "capability registry"
+    "user_mission_request",
+    "repository_state",
+    "capability_registry"
   ],
   "instruction_set": [
     "No inventar reglas",
