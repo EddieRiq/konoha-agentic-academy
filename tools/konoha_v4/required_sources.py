@@ -22,7 +22,10 @@ reuses, rather than inventing a second exclusion vocabulary.
 
 from __future__ import annotations
 
+import errno
 import json
+import os
+import stat
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -91,6 +94,15 @@ class ResolutionContext:
     task_family_by_id: Mapping[str, str]
     evidence_by_task_id: Mapping[str, EvidenceRecord]
     failure_log_dir: Path | None = None
+    # Repo-relative (posix) paths or directory prefixes, in the same
+    # coordinates as Authorization.excluded_paths in repo evidence.
+    excluded_paths: tuple[str, ...] = ()
+
+
+# Bounds for concrete material delivered to a worker. Only failure_logs uses
+# them today; deliberately not a general materialization framework.
+MAX_MATERIAL_FILE_BYTES = 20_000
+MAX_MATERIAL_LIST_ITEMS = 10
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +133,7 @@ SOURCE_VOCABULARY: dict[str, SourceSpec] = {
     ),
     "failure_logs": SourceSpec(
         "failure_logs", SourceKind.PLAN_SCOPE,
-        "memory/failures/ containing at least one real (non-dotfile) entry (was: 'failure logs').",
+        "Bounded text of at least one non-empty regular file directly under repo_root/memory/failures/ (was: 'failure logs').",
     ),
     "python_coding_rules": SourceSpec(
         "python_coding_rules", SourceKind.PLAN_SCOPE,
@@ -375,6 +387,85 @@ def find_undeclared_produced_sources(
 
 
 # ---------------------------------------------------------------------------
+# Bounded file material (failure_logs only - not a general framework)
+# ---------------------------------------------------------------------------
+
+_DIR_OPEN_FLAGS = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_CLOEXEC", 0)
+_NOFOLLOW = getattr(os, "O_NOFOLLOW", 0)
+
+
+def _unavailable_file_text() -> dict[str, Any]:
+    return {"available": False, "total_bytes": None, "included_bytes": 0, "truncated": False, "text": ""}
+
+
+def _is_plain_basename(name: str) -> bool:
+    """Exactly one path component: no separator, no "."/"..", not empty."""
+    return bool(name) and name not in (".", "..") and "/" not in name and "\x00" not in name
+
+
+def _bounded_file_text(
+    path: str,
+    *,
+    dir_fd: int | None = None,
+    expected_identity: tuple[int, int] | None = None,
+    limit: int = MAX_MATERIAL_FILE_BYTES,
+) -> dict[str, Any]:
+    """Bounded, honest read of one regular file (POSIX/Linux-oriented).
+
+    Size and file type come from fstat on the SAME descriptor that is read.
+    At most limit + 1 bytes are ever read (the extra byte only proves
+    truncation) - an oversized file is never read in full. The leaf is
+    opened O_NOFOLLOW and O_NONBLOCK, so a symlink is refused and a FIFO
+    cannot block the open; anything that is not a regular file is refused.
+    When dir_fd is given, path must be exactly one plain basename and is
+    rejected BEFORE any open otherwise - os.open(dir_fd=...) would happily
+    resolve "../x" or "sub/x" relative to the held descriptor. When
+    expected_identity=(st_dev, st_ino) is given, the opened descriptor must
+    have exactly that identity. Any I/O failure is reported as
+    available=False (total_bytes None), never as an empty valid file.
+    included_bytes counts bytes, text is decoded with errors="replace" so a
+    cut multi-byte character can make len(text) differ from included_bytes.
+    """
+    if dir_fd is not None and not _is_plain_basename(path):
+        return _unavailable_file_text()
+
+    flags = os.O_RDONLY | _NOFOLLOW | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_CLOEXEC", 0)
+    try:
+        fd = os.open(path, flags, dir_fd=dir_fd)
+    except (OSError, ValueError):
+        return _unavailable_file_text()
+
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode):
+            return _unavailable_file_text()
+        if expected_identity is not None and (st.st_dev, st.st_ino) != tuple(expected_identity):
+            return _unavailable_file_text()
+        chunks: list[bytes] = []
+        remaining = limit + 1
+        while remaining > 0:
+            chunk = os.read(fd, remaining)
+            if not chunk:
+                break
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        raw = b"".join(chunks)
+    except OSError:
+        return _unavailable_file_text()
+    finally:
+        os.close(fd)
+
+    included = raw[:limit]
+    return {
+        "available": True,
+        "total_bytes": st.st_size,
+        "included_bytes": len(included),
+        "truncated": len(raw) > limit or st.st_size > limit,
+        "text": included.decode("utf-8", errors="replace"),
+    }
+
+
+# ---------------------------------------------------------------------------
 # plan_scope resolvers
 # ---------------------------------------------------------------------------
 
@@ -426,18 +517,119 @@ def _resolve_repository_state(task: AgentAssignment, ctx: ResolutionContext) -> 
     )
 
 
+def _is_excluded_by_config(rel: str, excluded_paths: tuple[str, ...]) -> bool:
+    """Same file-or-directory-prefix rule Authorization.excluded_paths uses
+    in tools/repo_evidence/acquire_repo_evidence.py, in the same
+    repo-relative coordinates."""
+    return any(rel == p or rel.startswith(p.rstrip("/") + "/") for p in excluded_paths)
+
+
 def _resolve_failure_logs(task: AgentAssignment, ctx: ResolutionContext) -> SourceResolution:
+    """AVAILABLE only when bounded, non-empty text of at least one regular
+    file directly under the canonical repo_root/memory/failures was
+    actually read. The declared ctx.failure_log_dir must be exactly that
+    directory (lexically and after resolution); the directory chain
+    repo_root -> memory -> failures is then opened descriptor-relative
+    without following symlinks, and the final directory descriptor stays
+    open for listing and every read, so a later swap of memory or
+    memory/failures cannot redirect a read. Candidates are classified
+    without following symlinks (only regular, non-empty, non-dotfile,
+    non-private, non-excluded files count), sorted and sliced to
+    MAX_MATERIAL_LIST_ITEMS BEFORE any content is opened. Every selected
+    file is re-opened by basename against the held descriptor and must
+    still have its selection-time (st_dev, st_ino) and non-empty content;
+    any selected hole fails the whole source closed."""
+    if ctx.repo_root is None:
+        return SourceResolution(
+            "failure_logs", SourceAvailability.MISSING, reason="repo_root_unavailable_for_failure_log_check",
+        )
     directory = ctx.failure_log_dir
     if directory is None or not directory.is_dir():
         return SourceResolution("failure_logs", SourceAvailability.MISSING, reason="failure_log_directory_absent")
-    # An empty directory (or one containing only dotfiles/placeholders such
-    # as .gitkeep) is not failure-log evidence - there is nothing to cite.
-    real_entries = [p for p in directory.iterdir() if p.is_file() and not p.name.startswith(".")]
-    if not real_entries:
-        return SourceResolution("failure_logs", SourceAvailability.MISSING, reason="failure_log_directory_empty")
+
+    try:
+        root = ctx.repo_root.resolve(strict=True)
+    except OSError:
+        return SourceResolution(
+            "failure_logs", SourceAvailability.MISSING, reason="repo_root_unavailable_for_failure_log_check",
+        )
+    canonical = root / "memory" / "failures"
+    declared = Path(os.path.abspath(directory))
+    accepted_lexical = (canonical, Path(os.path.abspath(ctx.repo_root)) / "memory" / "failures")
+    try:
+        resolved_matches = directory.resolve(strict=True) == canonical
+    except OSError:
+        resolved_matches = False
+    if declared not in accepted_lexical or not resolved_matches:
+        return SourceResolution(
+            "failure_logs", SourceAvailability.UNAUTHORIZED, reason="failure_log_directory_not_canonical",
+        )
+
+    fds: list[int] = []
+    try:
+        try:
+            root_fd = os.open(str(root), _DIR_OPEN_FLAGS)
+            fds.append(root_fd)
+            memory_fd = os.open("memory", _DIR_OPEN_FLAGS | _NOFOLLOW, dir_fd=root_fd)
+            fds.append(memory_fd)
+            failures_fd = os.open("failures", _DIR_OPEN_FLAGS | _NOFOLLOW, dir_fd=memory_fd)
+            fds.append(failures_fd)
+        except OSError as exc:
+            if exc.errno in (errno.ELOOP, errno.ENOTDIR):
+                return SourceResolution(
+                    "failure_logs", SourceAvailability.UNAUTHORIZED, reason="failure_log_directory_not_canonical",
+                )
+            return SourceResolution("failure_logs", SourceAvailability.MISSING, reason="failure_log_directory_absent")
+
+        try:
+            names = sorted(os.listdir(failures_fd))
+        except OSError:
+            return SourceResolution("failure_logs", SourceAvailability.MISSING, reason="failure_log_files_unreadable")
+
+        # (basename, canonical locator, st_dev, st_ino) - metadata only; no
+        # file content is opened while classifying.
+        candidates: list[tuple[str, str, int, int]] = []
+        for name in names:
+            if name.startswith(".") or not _is_plain_basename(name):
+                continue
+            rel = f"memory/failures/{name}"
+            if any(marker in rel for marker in PRIVATE_MARKERS) or _is_excluded_by_config(rel, ctx.excluded_paths):
+                continue
+            try:
+                st = os.stat(name, dir_fd=failures_fd, follow_symlinks=False)
+            except OSError:
+                continue
+            # Symlinks, directories, FIFOs and other special files are not
+            # regular files here; a zero-byte file is not concrete material.
+            if not stat.S_ISREG(st.st_mode) or st.st_size == 0:
+                continue
+            candidates.append((name, rel, st.st_dev, st.st_ino))
+
+        if not candidates:
+            return SourceResolution("failure_logs", SourceAvailability.MISSING, reason="failure_log_directory_empty")
+
+        items: list[dict[str, Any]] = []
+        for name, rel, dev, ino in candidates[:MAX_MATERIAL_LIST_ITEMS]:
+            info = _bounded_file_text(name, dir_fd=failures_fd, expected_identity=(dev, ino))
+            if not info["available"] or not info["total_bytes"] or info["included_bytes"] <= 0:
+                return SourceResolution(
+                    "failure_logs", SourceAvailability.MISSING, reason="failure_log_files_unreadable",
+                )
+            items.append({"path": rel, **info})
+    finally:
+        for fd in reversed(fds):
+            os.close(fd)
+
     return SourceResolution(
         "failure_logs", SourceAvailability.AVAILABLE,
-        materialization={"failure_log_paths": tuple(sorted(p.name for p in real_entries))},
+        materialization={
+            "failure_logs": {
+                "total": len(candidates),
+                "included": len(items),
+                "truncated": len(items) < len(candidates),
+                "items": items,
+            },
+        },
     )
 
 
