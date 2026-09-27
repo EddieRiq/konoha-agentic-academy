@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "donor_learning_recommendations",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "authorizes_action",
+    "non_authority",
+    "report_type",
+    "donor_study_id",
+    "target_study_id",
+    "donor_evidence_reference",
+    "target_evidence_reference",
+    "source_url",
+    "origin_verification",
+    "code_copying",
+    "recommendations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "const": "proposed"
+    },
+    "authorizes_action": {
+      "const": false
+    },
+    "non_authority": {
+      "const": "Recommendation is not permission. Human review and a separately approved mission are required for any adoption or patch."
+    },
+    "report_type": {
+      "const": "donor_learning_recommendations"
+    },
+    "donor_study_id": {
+      "type": "string",
+      "pattern": "^study-[0-9a-f]{32}$"
+    },
+    "target_study_id": {
+      "type": "string",
+      "pattern": "^study-[0-9a-f]{32}$"
+    },
+    "donor_evidence_reference": {
+      "$ref": "#/$defs/evidence_reference"
+    },
+    "target_evidence_reference": {
+      "$ref": "#/$defs/evidence_reference"
+    },
+    "source_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 2000
+    },
+    "origin_verification": {
+      "const": "human_declared_public_origin_not_network_verified"
+    },
+    "code_copying": {
+      "const": "not_performed_requires_separate_review"
+    },
+    "recommendations": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "observed_donor_fact",
+          "provenance",
+          "comparison_with_target",
+          "candidate_lesson",
+          "compatibility_and_risk",
+          "recommendation",
+          "status",
+          "authorizes_action",
+          "non_authority"
+        ],
+        "properties": {
+          "observed_donor_fact": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "provenance": {
+            "$ref": "#/$defs/provenance"
+          },
+          "comparison_with_target": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "observation",
+              "provenance"
+            ],
+            "properties": {
+              "observation": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              "provenance": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/provenance"
+                  },
+                  {
+                    "$ref": "#/$defs/study_provenance"
+                  }
+                ]
+              }
+            }
+          },
+          "candidate_lesson": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "compatibility_and_risk": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "recommendation": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "status": {
+            "const": "proposed"
+          },
+          "authorizes_action": {
+            "const": false
+          },
+          "non_authority": {
+            "const": "Recommendation is not permission. Human review and a separately approved mission are required for any adoption or patch."
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "evidence_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pack_id",
+        "sha256"
+      ],
+      "properties": {
+        "pack_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "locator": {
+      "type": "object",
+      "required": [
+        "path",
+        "line_start",
+        "line_end",
+        "content_sha256",
+        "extraction_method"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "extraction_method": {
+          "enum": [
+            "ast",
+            "regex",
+            "manifest_parse"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "study_id",
+        "evidence_reference",
+        "evidence_ref",
+        "locator"
+      ],
+      "properties": {
+        "study_id": {
+          "type": "string",
+          "pattern": "^study-[0-9a-f]{32}$"
+        },
+        "evidence_reference": {
+          "$ref": "#/$defs/evidence_reference"
+        },
+        "evidence_ref": {
+          "type": "string",
+          "pattern": "^prov-[0-9]{4,}$"
+        },
+        "locator": {
+          "$ref": "#/$defs/locator"
+        }
+      }
+    },
+    "study_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "study_id",
+        "evidence_reference"
+      ],
+      "properties": {
+        "study_id": {
+          "type": "string",
+          "pattern": "^study-[0-9a-f]{32}$"
+        },
+        "evidence_reference": {
+          "$ref": "#/$defs/evidence_reference"
+        }
+      }
+    }
+  }
+}

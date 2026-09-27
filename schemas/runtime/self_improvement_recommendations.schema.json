@@ -1,0 +1,328 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "self_improvement_recommendations",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "authorizes_action",
+    "non_authority",
+    "report_type",
+    "study_id",
+    "evidence_reference",
+    "validated",
+    "model_suggestions",
+    "suppressed",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "const": "proposed"
+    },
+    "authorizes_action": {
+      "const": false
+    },
+    "non_authority": {
+      "const": "Recommendation is not permission. Human review and a separately approved mission are required for any adoption or patch."
+    },
+    "report_type": {
+      "const": "self_improvement_recommendations"
+    },
+    "study_id": {
+      "type": "string",
+      "pattern": "^study-[0-9a-f]{32}$"
+    },
+    "evidence_reference": {
+      "$ref": "#/$defs/evidence_reference"
+    },
+    "validated": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "observation",
+          "provenance",
+          "basis",
+          "validation",
+          "recommendation",
+          "risk",
+          "scope",
+          "status",
+          "authorizes_action"
+        ],
+        "properties": {
+          "observation": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "provenance": {
+            "$ref": "#/$defs/provenance"
+          },
+          "basis": {
+            "const": "deterministic_candidate"
+          },
+          "validation": {
+            "const": "static_observation_not_proven_defect"
+          },
+          "recommendation": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "risk": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "status": {
+            "const": "proposed"
+          },
+          "authorizes_action": {
+            "const": false
+          }
+        }
+      }
+    },
+    "model_suggestions": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "index",
+          "recommendation",
+          "risk",
+          "scope",
+          "status",
+          "authorizes_action",
+          "text_truncated",
+          "evidence_refs",
+          "basis",
+          "validation",
+          "provenance"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9
+          },
+          "recommendation": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "risk": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1
+          },
+          "status": {
+            "const": "proposed"
+          },
+          "authorizes_action": {
+            "const": false
+          },
+          "text_truncated": {
+            "type": "boolean"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "type": "string",
+              "pattern": "^prov-[0-9]{4,}$"
+            }
+          },
+          "basis": {
+            "const": "model_suggestion"
+          },
+          "validation": {
+            "const": "locator_linkage_only_not_deterministic_truth"
+          },
+          "provenance": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/$defs/provenance"
+            }
+          }
+        }
+      }
+    },
+    "suppressed": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 11,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {
+                "const": "suggestions_must_be_list"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "index",
+              "reason"
+            ],
+            "properties": {
+              "index": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9
+              },
+              "reason": {
+                "enum": [
+                  "invalid_suggestion",
+                  "unverifiable_evidence_reference",
+                  "missing_recommendation_risk_or_scope"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "reason",
+              "omitted"
+            ],
+            "properties": {
+              "reason": {
+                "const": "suggestion_limit"
+              },
+              "omitted": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "maxLength": 2000,
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "evidence_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pack_id",
+        "sha256"
+      ],
+      "properties": {
+        "pack_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "locator": {
+      "type": "object",
+      "required": [
+        "path",
+        "line_start",
+        "line_end",
+        "content_sha256",
+        "extraction_method"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "extraction_method": {
+          "enum": [
+            "ast",
+            "regex",
+            "manifest_parse"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "study_id",
+        "evidence_reference",
+        "evidence_ref",
+        "locator"
+      ],
+      "properties": {
+        "study_id": {
+          "type": "string",
+          "pattern": "^study-[0-9a-f]{32}$"
+        },
+        "evidence_reference": {
+          "$ref": "#/$defs/evidence_reference"
+        },
+        "evidence_ref": {
+          "type": "string",
+          "pattern": "^prov-[0-9]{4,}$"
+        },
+        "locator": {
+          "$ref": "#/$defs/locator"
+        }
+      }
+    }
+  }
+}

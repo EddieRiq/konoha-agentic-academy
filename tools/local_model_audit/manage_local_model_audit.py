@@ -658,6 +658,45 @@ def validate_issues_against_markers(issues: List[Dict[str, Any]], markers: Dict[
 
     return validated, suppressed
 
+
+def partition_evidence_linked_suggestions(
+    suggestions: Any, known_evidence_refs: Iterable[str],
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Bounded study suggestions following the existing audit separation.
+
+    A valid locator proves linkage only, never the model's interpretation.
+    Uncovered claims must not inherit deterministic-finding status from the
+    legacy marker check's `validated_or_uncovered_by_markers` label.
+    No model call, filesystem access or patch plan is produced here.
+    """
+    linked: List[Dict[str, Any]] = []
+    suppressed: List[Dict[str, Any]] = []
+    if not isinstance(suggestions, list):
+        return [], [{"reason": "suggestions_must_be_list"}]
+    known = set(known_evidence_refs)
+    for index, item in enumerate(suggestions[:10]):
+        if not isinstance(item, dict):
+            suppressed.append({"index": index, "reason": "invalid_suggestion"})
+            continue
+        refs = item.get("evidence_refs")
+        if (not isinstance(refs, list) or not refs or len(refs) > 10
+                or any(not isinstance(ref, str) or ref not in known for ref in refs)):
+            suppressed.append({"index": index, "reason": "unverifiable_evidence_reference"})
+            continue
+        if any(not isinstance(item.get(key), str) or not item[key].strip()
+               for key in ("recommendation", "risk", "scope")):
+            suppressed.append({"index": index, "reason": "missing_recommendation_risk_or_scope"})
+            continue
+        linked.append({"index": index, "recommendation": item["recommendation"][:2000],
+                       "risk": item["risk"][:2000], "scope": item["scope"][:2000],
+                       "text_truncated": any(len(item[key]) > 2000 for key in ("recommendation", "risk", "scope")),
+                       "evidence_refs": list(refs), "basis": "model_suggestion",
+                       "validation": "locator_linkage_only_not_deterministic_truth",
+                       "status": "proposed", "authorizes_action": False})
+    if len(suggestions) > 10:
+        suppressed.append({"reason": "suggestion_limit", "omitted": len(suggestions) - 10})
+    return linked, suppressed
+
 def build_audit_prompt(repo_root: Path, files: List[str]) -> str:
     readme = read_snippet(repo_root, "README.md", 12000)
     guides_readme = read_snippet(repo_root, "docs/guides/README.md", 6000)
