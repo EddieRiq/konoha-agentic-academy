@@ -10,23 +10,19 @@ circular import: this module needs AgentAssignment/EvidenceRecord from
 models.py, and a future executor.py will need SourceAvailability from here -
 models.py stays exactly as it is).
 
-This module is pure: it takes already-acquired data (a ResolutionContext) and
-returns a resolution. It does not read files itself except for the two
-narrow, explicitly-scoped checks that are inherently filesystem-based
-(memory/failures/ content, and a declared task input's existence/
-authorization under the authorized repo root) - both reuse
-tools.konoha_v4.context_acquisition.PRIVATE_MARKERS, the same enforced
-exclusion constant tools/repo_evidence/acquire_repo_evidence.py already
-reuses, rather than inventing a second exclusion vocabulary.
+ResolutionContext carries acquired authority and plan data. Named filesystem
+resolvers perform scoped material reads or currentness checks. The retained-
+result helpers are strictly pure: no I/O, resolver calls or refreshes. All
+file sources reuse context_acquisition.PRIVATE_MARKERS and explicit exclusions.
 """
 
 from __future__ import annotations
 
 import errno
-import json
 import os
 import stat
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from copy import deepcopy
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Mapping
@@ -37,6 +33,7 @@ from tools.repo_evidence.acquire_repo_evidence import (
     RepositoryEvidencePack,
     bounded_evidence_view,
     is_evidence_current,
+    _run_git,
 )
 
 
@@ -83,8 +80,7 @@ class SourceResolution:
 
 @dataclass(frozen=True)
 class ResolutionContext:
-    """Pure input bundle - no file reads happen here, only in the two
-    filesystem-based resolvers explicitly documented above."""
+    """Inputs to resolution; construction itself performs no I/O."""
     plan_approval_status: str
     plan_acceptance_criteria: tuple[str, ...]
     user_mission_request: str | None
@@ -97,12 +93,75 @@ class ResolutionContext:
     # Repo-relative (posix) paths or directory prefixes, in the same
     # coordinates as Authorization.excluded_paths in repo evidence.
     excluded_paths: tuple[str, ...] = ()
+    mission_plan: Mapping[str, Any] | None = None
+    capability_registry: Mapping[str, Any] | None = None
 
 
-# Bounds for concrete material delivered to a worker. Only failure_logs uses
-# them today; deliberately not a general materialization framework.
+# Bounds for concrete material delivered to a worker.
 MAX_MATERIAL_FILE_BYTES = 20_000
 MAX_MATERIAL_LIST_ITEMS = 10
+MAX_MATERIAL_TEXT_CHARS = 2_000
+MAX_PERSISTED_OUTPUT_BYTES = 200_000
+
+
+def bounded_text(value: str) -> dict[str, Any]:
+    return {"text": value[:MAX_MATERIAL_TEXT_CHARS], "total_chars": len(value),
+            "truncated": len(value) > MAX_MATERIAL_TEXT_CHARS}
+
+
+def bounded_list(values: list | tuple) -> dict[str, Any]:
+    items = [bounded_value(v) for v in values[:MAX_MATERIAL_LIST_ITEMS]]
+    return {"total": len(values), "included": len(items),
+            "truncated": len(items) < len(values), "items": items}
+
+
+def bounded_value(value: Any, depth: int = 0) -> Any:
+    """Defensive projection; metadata makes every truncation explicit."""
+    if depth > 6:
+        return {"omitted": "depth_limit"}
+    if isinstance(value, str):
+        return bounded_text(value)
+    if isinstance(value, (list, tuple)):
+        items = [bounded_value(v, depth + 1) for v in value[:MAX_MATERIAL_LIST_ITEMS]]
+        return {"total": len(value), "included": len(items), "truncated": len(items) < len(value), "items": items}
+    if isinstance(value, Mapping):
+        keys = [k for k in value if isinstance(k, str)][:MAX_MATERIAL_LIST_ITEMS]
+        return {"fields": {k[:MAX_MATERIAL_TEXT_CHARS]: bounded_value(value[k], depth + 1) for k in keys},
+                "total_fields": len(value), "truncated": len(keys) < len(value)}
+    return value if value is None or isinstance(value, (bool, int, float)) else None
+
+
+def _record_payload(record: EvidenceRecord) -> dict[str, Any] | None:
+    if record.status != "completed" or not isinstance(record.output, str):
+        return None
+    if len(record.output) > MAX_PERSISTED_OUTPUT_BYTES:
+        return None
+    try:
+        if len(record.output.encode("utf-8")) > MAX_PERSISTED_OUTPUT_BYTES:
+            return None
+        # The executor accepts a single JSON fence too. Reuse its parser
+        # lazily to avoid an import cycle, with the same input bound.
+        from tools.konoha_v4.executor import _parse_assignment_result_text
+        payload = _parse_assignment_result_text(record.output)
+    except (ValueError, TypeError, UnicodeError, RecursionError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def find_available_sources_without_material(resolved: Mapping[str, SourceResolution]) -> tuple[str, ...]:
+    """Pure audit of retained results; never resolves or reads a source."""
+    return tuple(key for key, value in resolved.items()
+                 if value.availability is SourceAvailability.AVAILABLE
+                 and (not isinstance(value.materialization, Mapping) or not value.materialization))
+
+
+def materialize_resolved_sources(resolved: Mapping[str, SourceResolution]) -> dict[str, Any]:
+    """Pure delivery from the exact gated mapping, with no reacquisition."""
+    if find_available_sources_without_material(resolved):
+        raise ValueError("available_source_without_material")
+    return {key: deepcopy(dict(value.materialization)) for key, value in resolved.items()
+            if value.availability is SourceAvailability.AVAILABLE}
+
 
 
 # ---------------------------------------------------------------------------
@@ -249,11 +308,8 @@ def extract_produced_source_ids(record: EvidenceRecord) -> frozenset[str]:
     an empty set - no fallback guessing."""
     if record.status != "completed":
         return frozenset()
-    try:
-        payload = json.loads(record.output)
-    except (json.JSONDecodeError, TypeError):
-        return frozenset()
-    if not isinstance(payload, dict):
+    payload = _record_payload(record)
+    if payload is None:
         return frozenset()
     rows = payload.get("evidence")
     if not isinstance(rows, list):
@@ -277,11 +333,8 @@ def _material_rows_for(record: EvidenceRecord, canonical_id: str) -> list[dict[s
     completed record. [] on any non-completed/unparseable/absent case."""
     if record.status != "completed":
         return []
-    try:
-        payload = json.loads(record.output)
-    except (json.JSONDecodeError, TypeError):
-        return []
-    if not isinstance(payload, dict):
+    payload = _record_payload(record)
+    if payload is None:
         return []
     rows = payload.get("evidence")
     if not isinstance(rows, list):
@@ -294,7 +347,11 @@ def _material_rows_for(record: EvidenceRecord, canonical_id: str) -> list[dict[s
             continue
         observation = row.get("observation")
         if isinstance(observation, str):
-            parsed.append(_parse_kv_observation(observation))
+            parsed.append({k: v[:MAX_MATERIAL_TEXT_CHARS] for k, v in
+                           _parse_kv_observation(observation).items()
+                           if k in {"locator", "command", "result", "verdict", "fact"}})
+            if len(parsed) == MAX_MATERIAL_LIST_ITEMS:
+                break
     return parsed
 
 
@@ -356,11 +413,8 @@ def find_undeclared_produced_sources(
     currently depends on that task."""
     if record.status != "completed":
         return frozenset()
-    try:
-        payload = json.loads(record.output)
-    except (json.JSONDecodeError, TypeError):
-        return frozenset()
-    if not isinstance(payload, dict):
+    payload = _record_payload(record)
+    if payload is None:
         return frozenset()
     rows = payload.get("evidence")
     if not isinstance(rows, list):
@@ -387,7 +441,7 @@ def find_undeclared_produced_sources(
 
 
 # ---------------------------------------------------------------------------
-# Bounded file material (failure_logs only - not a general framework)
+# Descriptor-relative bounded file material for canonical file sources
 # ---------------------------------------------------------------------------
 
 _DIR_OPEN_FLAGS = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_CLOEXEC", 0)
@@ -470,34 +524,40 @@ def _bounded_file_text(
 # ---------------------------------------------------------------------------
 
 def _resolve_mission_plan(task: AgentAssignment, ctx: ResolutionContext) -> SourceResolution:
-    if ctx.plan_approval_status == "approved":
-        return SourceResolution("mission_plan", SourceAvailability.AVAILABLE)
-    return SourceResolution("mission_plan", SourceAvailability.MISSING, reason="plan_not_yet_approved")
+    if ctx.plan_approval_status != "approved":
+        return SourceResolution("mission_plan", SourceAvailability.MISSING, reason="plan_not_yet_approved")
+    if not isinstance(ctx.mission_plan, Mapping) or not ctx.mission_plan:
+        return SourceResolution("mission_plan", SourceAvailability.MISSING, reason="mission_plan_material_unavailable")
+    return SourceResolution("mission_plan", SourceAvailability.AVAILABLE,
+                            materialization={"mission_plan": bounded_value(ctx.mission_plan)})
 
 
 def _resolve_acceptance_criteria(task: AgentAssignment, ctx: ResolutionContext) -> SourceResolution:
-    if ctx.plan_acceptance_criteria:
+    if ctx.plan_acceptance_criteria and all(isinstance(v, str) and v.strip() for v in ctx.plan_acceptance_criteria):
         return SourceResolution(
             "acceptance_criteria", SourceAvailability.AVAILABLE,
-            materialization={"acceptance_criteria": ctx.plan_acceptance_criteria},
+            materialization={"acceptance_criteria": bounded_list(ctx.plan_acceptance_criteria)},
         )
     return SourceResolution("acceptance_criteria", SourceAvailability.MISSING, reason="plan_acceptance_criteria_empty")
 
 
 def _resolve_user_mission_request(task: AgentAssignment, ctx: ResolutionContext) -> SourceResolution:
-    if ctx.user_mission_request and ctx.user_mission_request.strip():
-        return SourceResolution("user_mission_request", SourceAvailability.AVAILABLE)
+    raw = ctx.user_mission_request
+    if isinstance(raw, str) and raw.strip():
+        if len(raw) > MAX_MATERIAL_TEXT_CHARS:
+            return SourceResolution("user_mission_request", SourceAvailability.MISSING, reason="original_request_exceeds_material_bound")
+        return SourceResolution("user_mission_request", SourceAvailability.AVAILABLE,
+                                materialization={"text": raw, "original": True, "truncated": False})
     return SourceResolution("user_mission_request", SourceAvailability.MISSING, reason="user_mission_request_empty")
 
 
 def _resolve_capability_registry(task: AgentAssignment, ctx: ResolutionContext) -> SourceResolution:
-    # Structurally always true by the time any resolution call can happen at
-    # all: CapabilityRegistry.__init__ reads config/konoha_v4_capabilities.json
-    # and raises immediately on failure, before any plan/assignment exists.
-    return SourceResolution(
-        "capability_registry", SourceAvailability.AVAILABLE,
-        materialization={"source": "config/konoha_v4_capabilities.json"},
-    )
+    contract = ctx.family_contracts.get(task.family)
+    if not isinstance(contract, Mapping) or not contract:
+        return SourceResolution("capability_registry", SourceAvailability.MISSING, reason="family_contract_unavailable")
+    return SourceResolution("capability_registry", SourceAvailability.AVAILABLE,
+        materialization={"family": task.family, "contract": bounded_value(contract),
+                         "capabilities": bounded_value(ctx.capability_registry)})
 
 
 def _resolve_repository_state(task: AgentAssignment, ctx: ResolutionContext) -> SourceResolution:
@@ -505,6 +565,8 @@ def _resolve_repository_state(task: AgentAssignment, ctx: ResolutionContext) -> 
         return SourceResolution("repository_state", SourceAvailability.MISSING, reason="repository_evidence_not_acquired")
     if ctx.repo_root is None:
         return SourceResolution("repository_state", SourceAvailability.MISSING, reason="repo_root_unavailable_for_currentness_check")
+    if ctx.repo_evidence_pack.authorized_repo_root != str(ctx.repo_root.resolve()):
+        return SourceResolution("repository_state", SourceAvailability.UNAUTHORIZED, reason="repository_root_mismatch")
     if not is_evidence_current(ctx.repo_evidence_pack, ctx.repo_root):
         return SourceResolution("repository_state", SourceAvailability.MISSING, reason="repository_evidence_stale")
     # bounded_evidence_view is the one materialization path for a
@@ -639,11 +701,11 @@ def _resolve_task_input_source(canonical_id: str, task: AgentAssignment, ctx: Re
     python_source_files, approved_checklist, authorized_local_source,
     approved_style_statute, target_journal_rules).
 
-    Known, honestly-stated limitation: AgentAssignment.inputs is an
+    Known limitation: AgentAssignment.inputs is an
     untyped list[str] today - nothing tags a given input path as "the
     python_coding_rules one" versus "the approved_checklist one". This
-    resolver can only prove "at least one declared, existing, authorized
-    input is attached", not that it is semantically the right document. A
+    resolver can only prove "bounded material from declared, authorized
+    inputs was delivered", not that it is semantically the right document. A
     future per-input tag on AgentAssignment could sharpen this; inventing
     that tag is out of scope here (no models.py/schema change in this
     block; see also target_assignment_evidence's docstring for the same
@@ -654,28 +716,46 @@ def _resolve_task_input_source(canonical_id: str, task: AgentAssignment, ctx: Re
     if ctx.repo_root is None:
         return SourceResolution(canonical_id, SourceAvailability.MISSING, reason="repo_root_unavailable_for_input_check")
 
-    root = ctx.repo_root.resolve()
-    resolved_inputs: list[str] = []
-    for raw in task.inputs:
-        rel = raw.strip().lstrip("/")
-        if not rel or ".." in Path(rel).parts:
-            continue
-        if any(marker in rel for marker in PRIVATE_MARKERS):
-            return SourceResolution(canonical_id, SourceAvailability.UNAUTHORIZED, reason=f"input_path_excluded:{rel}")
-        candidate = (root / rel).resolve()
+    items: list[dict[str, Any]] = []
+    # Validate every declared locator before slicing: an unauthorized suffix
+    # cannot hide behind the material bound. Then read only the selected set.
+    for rel in task.inputs:
+        if (not isinstance(rel, str) or not rel or Path(rel).is_absolute()
+                or ".." in Path(rel).parts or "\\" in rel or "\x00" in rel
+                or any(part.startswith(".") for part in Path(rel).parts)
+                or any(marker in rel for marker in PRIVATE_MARKERS)
+                or _is_excluded_by_config(rel, ctx.excluded_paths)):
+            return SourceResolution(canonical_id, SourceAvailability.UNAUTHORIZED, reason="input_path_unauthorized")
+    for rel in task.inputs[:MAX_MATERIAL_LIST_ITEMS]:
+        ignored, _, _ = _run_git(["check-ignore", "-q", "--", rel], ctx.repo_root)
+        if ignored == 0:
+            return SourceResolution(canonical_id, SourceAvailability.UNAUTHORIZED, reason="task_input_ignored")
+        fds: list[int] = []
         try:
-            candidate.relative_to(root)
-        except ValueError:
-            return SourceResolution(canonical_id, SourceAvailability.UNAUTHORIZED, reason=f"input_path_escapes_root:{rel}")
-        if candidate.is_file():
-            resolved_inputs.append(rel)
-
-    if not resolved_inputs:
-        return SourceResolution(canonical_id, SourceAvailability.MISSING, reason="declared_task_inputs_not_found_on_disk")
-    return SourceResolution(
-        canonical_id, SourceAvailability.AVAILABLE,
-        materialization={"input_locators": tuple(resolved_inputs)},
-    )
+            fd = os.open(str(ctx.repo_root.resolve(strict=True)), _DIR_OPEN_FLAGS | _NOFOLLOW)
+            fds.append(fd)
+            parts = Path(rel).parts
+            for part in parts[:-1]:
+                fd = os.open(part, _DIR_OPEN_FLAGS | _NOFOLLOW, dir_fd=fd)
+                fds.append(fd)
+            st = os.stat(parts[-1], dir_fd=fd, follow_symlinks=False)
+            if stat.S_ISLNK(st.st_mode):
+                return SourceResolution(canonical_id, SourceAvailability.UNAUTHORIZED, reason="input_symlink_refused")
+            info = _bounded_file_text(parts[-1], dir_fd=fd, expected_identity=(st.st_dev, st.st_ino))
+            if not info["available"] or not info["included_bytes"]:
+                return SourceResolution(canonical_id, SourceAvailability.MISSING, reason="task_input_material_unavailable")
+            items.append({"path": rel, **info})
+        except (OSError, ValueError) as exc:
+            unauthorized = isinstance(exc, OSError) and exc.errno in (errno.ELOOP, errno.ENOTDIR)
+            return SourceResolution(canonical_id, SourceAvailability.UNAUTHORIZED if unauthorized else SourceAvailability.MISSING,
+                                    reason="task_input_material_unavailable")
+        finally:
+            for fd in reversed(fds):
+                os.close(fd)
+    return SourceResolution(canonical_id, SourceAvailability.AVAILABLE,
+        materialization={"input_locators": tuple(i["path"] for i in items),
+                         "files": {"total": len(task.inputs), "included": len(items),
+                                   "truncated": len(items) < len(task.inputs), "items": items}})
 
 
 _PLAN_SCOPE_RESOLVERS: dict[str, Callable[[AgentAssignment, ResolutionContext], SourceResolution]] = {
@@ -716,15 +796,25 @@ def _resolve_structural_dependency(
             producer_task_ids=tuple(not_yet_run),
         )
 
-    records = [ctx.evidence_by_task_id[t] for t in task.dependencies]
-    completed = [r for r in records if r.status == "completed"]
-    if not completed:
-        return SourceResolution(canonical_id, SourceAvailability.MISSING, reason="no_completed_dependency_evidence")
-    return SourceResolution(
-        canonical_id, SourceAvailability.AVAILABLE,
+    if any(ctx.evidence_by_task_id[dep].status != "completed" for dep in task.dependencies):
+        return SourceResolution(canonical_id, SourceAvailability.MISSING, reason="dependency_not_completed")
+    items = []
+    for dep in task.dependencies[:MAX_MATERIAL_LIST_ITEMS]:
+        record = ctx.evidence_by_task_id[dep]
+        payload = _record_payload(record)
+        if payload is None or not isinstance(payload.get("summary"), str) or not payload["summary"].strip():
+            return SourceResolution(canonical_id, SourceAvailability.MISSING, reason="dependency_material_unavailable")
+        rows = payload.get("evidence")
+        if not isinstance(rows, list) or not all(isinstance(row, dict) and
+                isinstance(row.get("source"), str) and isinstance(row.get("observation"), str) for row in rows):
+            return SourceResolution(canonical_id, SourceAvailability.MISSING, reason="dependency_material_unavailable")
+        items.append({"task_id": dep, "evidence_id": record.evidence_id,
+                      "summary": bounded_text(payload["summary"]), "evidence": bounded_list(rows),
+                      "authority": "provider_claim_only"})
+    return SourceResolution(canonical_id, SourceAvailability.AVAILABLE,
         producer_task_ids=tuple(task.dependencies),
-        materialization={"evidence_ids": tuple(r.evidence_id for r in completed)},
-    )
+        materialization={"dependencies": {"total": len(task.dependencies), "included": len(items),
+                         "truncated": len(items) < len(task.dependencies), "items": items}})
 
 
 # ---------------------------------------------------------------------------
@@ -790,6 +880,7 @@ def _resolve_assignment_produced(
                 "producer_task_id": producer_task_id,
                 "evidence_id": record.evidence_id,
                 "material": _material_rows_for(record, canonical_id),
+                "bounded": True, "authority": "provider_claim_only",
             },
         )
 

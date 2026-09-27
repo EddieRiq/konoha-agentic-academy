@@ -5,6 +5,7 @@ from .context_acquisition import acquire_context, normalize_missing_context
 from .models import AgentAssignment, MissionPlan
 from .provider_adapters import invoke_codex, ProviderError
 from .registry import CapabilityRegistry, RegistryError
+from tools.repo_evidence.persistence import evidence_reference
 from .required_sources import ResolutionContext, SourceAvailability, resolve_all
 from tools.repo_evidence.acquire_repo_evidence import RepositoryEvidencePack, bounded_evidence_view
 
@@ -69,6 +70,12 @@ CONTRATO DE explicit_facts:
 
 GOVERNANCE FIJA:
 {"conductor":"codex","constitutional_authority":"hokage"}
+
+CONTRATO DE repository_evidence:
+- Devolvé repository_evidence=null en el candidato: es un placeholder de transporte.
+- La evidencia recibida en el contexto sirve para planificar, no para generar su referencia.
+- Konoha ignora cualquier valor del provider y vincula el plan final únicamente
+  con evidence_reference del RepositoryEvidencePack exacto adquirido determinísticamente.
 
 SEPARACIÓN CONSTITUCIONAL:
 - Ningún assignment representa, ejecuta, simula ni delega a Hokage.
@@ -209,6 +216,11 @@ def build_plan(
     except json.JSONDecodeError as exc:
         raise ProviderError("Codex no devolvió un plan JSON válido.") from exc
 
+    # Provider output is only a transport placeholder, never evidence authority.
+    # Neutralize it before raw is exposed as mission-plan material in the preview.
+    # The final reference below comes exclusively from the exact acquired pack.
+    raw["repository_evidence"] = None
+
     user_missing, locally_resolved = normalize_missing_context(
         raw.get("missing_context", []), acquired
     )
@@ -252,6 +264,8 @@ def build_plan(
         family_contracts=family_contracts,
         task_family_by_id=task_family_by_id,
         evidence_by_task_id={},
+        mission_plan=raw,
+        capability_registry=getattr(registry, "data", None),
     )
     source_gaps: list[str] = []
     for task in assignments:
@@ -286,4 +300,5 @@ def build_plan(
         budget=raw["budget"],
         governance=raw["governance"],
         mission_constraints=raw["mission_constraints"],
+        repository_evidence=evidence_reference(repo_evidence) if repo_evidence is not None else None,
     ).seal()

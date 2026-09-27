@@ -21,6 +21,8 @@ from tools.konoha_v4.conversation import (
     _repository_state_unavailable_reason,
 )
 from tools.konoha_v4.planner import build_plan
+from tools.konoha_v4 import planner, conversation
+from tools.repo_evidence.persistence import evidence_reference
 from tools.konoha_v4.registry import CapabilityRegistry
 from tools.repo_evidence.acquire_repo_evidence import (
     Authorization,
@@ -133,6 +135,48 @@ class BuildPlanRepositoryEvidenceContextTest(unittest.TestCase):
     def test_repository_evidence_none_when_no_pack_given(self):
         context = self._invoke_and_capture_context(None)
         self.assertIsNone(context["repository_evidence"])
+
+    def test_structured_output_requires_all_properties_and_nullable_evidence(self):
+        schema = json.loads((REPO / "schemas/runtime/konoha_v4_mission_plan.schema.json").read_text())
+        self.assertEqual(set(schema["properties"]), set(schema["required"]))
+        self.assertIn("repository_evidence", schema["required"])
+        self.assertEqual(set(schema["properties"]["repository_evidence"]["type"]), {"object", "null"})
+
+    def test_provider_reference_neutralized_before_preview_and_deterministic_binding(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "app.py").write_text("def main(): return 1\n")
+            pack = acquire_repo_evidence(root, Authorization("human", "synthetic fixture"))
+            for supplied_pack in (None, pack):
+                for provider_value in ({"pack_id": "0" * 32, "sha256": "0" * 64}, "malformed", None):
+                    with self.subTest(pack=supplied_pack is not None, provider_value=provider_value):
+                        raw = _minimal_raw_plan([_assignment("t1", "mission-conductor")])
+                        raw["repository_evidence"] = provider_value
+
+                        def preview(required, task, context, **kwargs):
+                            self.assertIsNone(context.mission_plan["repository_evidence"])
+                            self.assertIs(context.repo_evidence_pack, supplied_pack)
+                            return {}
+
+                        with mock.patch.object(planner, "invoke_codex", return_value=mock.Mock(text=json.dumps(raw))) as invoke, \
+                             mock.patch.object(planner, "resolve_all", side_effect=preview) as resolve:
+                            plan = build_plan(REPO, "fixture", {}, self.registry, repo_evidence=supplied_pack)
+                        resolve.assert_called_once()
+                        self.assertIn("repository_evidence=null", invoke.call_args.args[0])
+                        self.assertEqual(plan.repository_evidence,
+                                         evidence_reference(pack) if supplied_pack is not None else None)
+
+    def test_corrective_retries_reuse_exact_acquired_pack(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pack = acquire_repo_evidence(Path(directory), Authorization("human", "synthetic fixture"))
+            candidate = mock.Mock(missing_context=[])
+            with mock.patch.object(conversation, "build_plan", return_value=candidate) as build, \
+                 mock.patch.object(conversation, "validate_plan", side_effect=[["correct budget"], []]), \
+                 mock.patch.object(conversation, "acquire_repo_evidence", side_effect=AssertionError("reacquisition")):
+                _, problems, attempts = conversation._build_validated_plan(
+                    REPO, "fixture", {}, self.registry, repo_evidence=pack)
+            self.assertEqual((problems, attempts), ([], 2))
+            self.assertTrue(all(call.kwargs["repo_evidence"] is pack for call in build.call_args_list))
 
 
 class BuildPlanRequiredSourcesPreviewTest(unittest.TestCase):

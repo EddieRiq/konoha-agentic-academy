@@ -124,6 +124,7 @@ class LegacyIdentityCompatibilityTests(unittest.TestCase):
         raw.pop("approval", None)
         raw.pop("plan_hash", None)
         raw.pop("mission_constraints", None)
+        raw.pop("repository_evidence", None)  # absent from the pre-v4.0.1 wire format
         canonical = json.dumps(
             raw, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
         )
@@ -143,6 +144,7 @@ class LegacySealHashCompatibilityTests(unittest.TestCase):
         raw = asdict(plan)
         raw["plan_hash"] = ""
         raw.pop("mission_constraints", None)
+        raw.pop("repository_evidence", None)  # absent from the pre-v4.0.1 wire format
         canonical = json.dumps(raw, sort_keys=True, ensure_ascii=False)
         expected = hashlib.sha256(canonical.encode()).hexdigest()[:16]
 
@@ -156,6 +158,7 @@ class PersistedLegacyPlanLoadTests(unittest.TestCase):
         plan = _plan(mission_constraints=None)
         raw = asdict(plan)
         raw.pop("mission_constraints", None)
+        raw.pop("repository_evidence", None)  # absent from the pre-v4.0.1 wire format
 
         with tempfile.TemporaryDirectory() as tmp:
             state_dir = Path(tmp)
@@ -181,6 +184,7 @@ class LegacyExecutionStateCompatibilityTests(unittest.TestCase):
 
         raw = asdict(plan)
         raw.pop("mission_constraints", None)
+        raw.pop("repository_evidence", None)  # absent from the pre-v4.0.1 wire format
 
         with tempfile.TemporaryDirectory() as tmp:
             state_dir = Path(tmp)

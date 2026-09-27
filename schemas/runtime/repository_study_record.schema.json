@@ -1,0 +1,349 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryStudyRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "study_id",
+    "evidence_reference",
+    "repository_identity",
+    "facts",
+    "coverage",
+    "limitations",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "study_id": {
+      "type": "string",
+      "pattern": "^study-[0-9a-f]{32}$"
+    },
+    "evidence_reference": {
+      "$ref": "#/$defs/evidence_reference"
+    },
+    "repository_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo_root_id",
+        "vcs",
+        "head"
+      ],
+      "properties": {
+        "repo_root_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "vcs": {
+          "enum": [
+            "git",
+            "none"
+          ]
+        },
+        "head": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+        }
+      }
+    },
+    "facts": {
+      "type": "array",
+      "maxItems": 60,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fact_id",
+          "category",
+          "observation",
+          "text_truncated",
+          "evidence_ref",
+          "locator",
+          "basis"
+        ],
+        "properties": {
+          "fact_id": {
+            "type": "string",
+            "pattern": "^fact-[0-9]{3}$"
+          },
+          "category": {
+            "enum": [
+              "components",
+              "relationships",
+              "capabilities",
+              "tests",
+              "documentation",
+              "candidates"
+            ]
+          },
+          "observation": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "text_truncated": {
+            "type": "boolean"
+          },
+          "evidence_ref": {
+            "type": "string",
+            "pattern": "^prov-[0-9]{4,}$"
+          },
+          "locator": {
+            "$ref": "#/$defs/locator"
+          },
+          "basis": {
+            "const": "deterministic_extraction"
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "components",
+        "relationships",
+        "capabilities",
+        "tests",
+        "documentation",
+        "candidates",
+        "scan"
+      ],
+      "properties": {
+        "components": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "included",
+            "truncated"
+          ],
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "included": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          }
+        },
+        "relationships": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "included",
+            "truncated"
+          ],
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "included": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          }
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "included",
+            "truncated"
+          ],
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "included": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          }
+        },
+        "tests": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "included",
+            "truncated"
+          ],
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "included": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          }
+        },
+        "documentation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "included",
+            "truncated"
+          ],
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "included": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          }
+        },
+        "candidates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "included",
+            "truncated"
+          ],
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "included": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          }
+        },
+        "scan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "paths",
+            "missing_tracked",
+            "unknowns"
+          ],
+          "properties": {
+            "paths": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "missing_tracked": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unknowns": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "maxLength": 2000
+      }
+    },
+    "authority": {
+      "const": "evidence_only"
+    }
+  },
+  "$defs": {
+    "evidence_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pack_id",
+        "sha256"
+      ],
+      "properties": {
+        "pack_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "locator": {
+      "type": "object",
+      "required": [
+        "path",
+        "line_start",
+        "line_end",
+        "content_sha256",
+        "extraction_method"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "extraction_method": {
+          "enum": [
+            "ast",
+            "regex",
+            "manifest_parse"
+          ]
+        }
+      }
+    }
+  }
+}

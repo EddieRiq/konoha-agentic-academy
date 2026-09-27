@@ -51,6 +51,60 @@ class TeachbackError(RuntimeError):
     """Invalid Teachback evidence or unsafe path."""
 
 
+def start_repository_teachback(study) -> Dict[str, Any]:
+    """Repository comprehension loop in the canonical Teachback engine.
+
+    This is not a passed mission Teachback record: execution/review evidence
+    and mission closure remain governed by the existing record workflow.
+    """
+    return {
+        "schema_version": "1.0.0", "report_type": "repository_teachback",
+        "study_id": study.study_id, "evidence_reference": dict(study.evidence_reference),
+        "status": "awaiting_human", "completed_by_user": False,
+        "human_command": None, "clarification_count": 0,
+        "last_question": None, "last_question_truncated": False,
+        "non_authority": "Repository understanding is not execution approval or mission closure.",
+    }
+
+
+def validate_repository_teachback(record: Mapping[str, Any], study) -> Dict[str, Any]:
+    expected = start_repository_teachback(study)
+    if not isinstance(record, Mapping) or set(record) != set(expected):
+        raise TeachbackError("repository_teachback_invalid_fields")
+    for key in ("schema_version", "report_type", "study_id", "evidence_reference", "non_authority"):
+        if record[key] != expected[key]:
+            raise TeachbackError("repository_teachback_provenance_mismatch")
+    if type(record["completed_by_user"]) is not bool or record["status"] not in ("awaiting_human", "understood"):
+        raise TeachbackError("repository_teachback_invalid_status")
+    closed = record["status"] == "understood"
+    if closed != record["completed_by_user"] or record["human_command"] != (":entendido" if closed else None):
+        raise TeachbackError("repository_teachback_requires_exact_human_command")
+    if type(record["clarification_count"]) is not int or record["clarification_count"] < 0:
+        raise TeachbackError("repository_teachback_invalid_count")
+    question = record["last_question"]
+    if question is not None and (not isinstance(question, str) or len(question) > 2000):
+        raise TeachbackError("repository_teachback_invalid_question")
+    if type(record["last_question_truncated"]) is not bool:
+        raise TeachbackError("repository_teachback_invalid_question")
+    return dict(record)
+
+
+def respond_repository_teachback(record: Mapping[str, Any], study, human_input: str,
+                                *, actor: str) -> Dict[str, Any]:
+    """Only terminal human input may close the loop; never model evaluation."""
+    result = validate_repository_teachback(record, study)
+    if actor != "human" or not isinstance(human_input, str):
+        raise TeachbackError("repository_teachback_human_input_required")
+    if result["status"] == "understood":
+        return result
+    if human_input == ":entendido":
+        result.update(status="understood", completed_by_user=True, human_command=human_input)
+    else:
+        result.update(clarification_count=result["clarification_count"] + 1,
+                      last_question=human_input[:2000], last_question_truncated=len(human_input) > 2000)
+    return result
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 

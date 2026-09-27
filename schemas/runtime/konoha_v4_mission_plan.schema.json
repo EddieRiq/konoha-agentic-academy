@@ -21,9 +21,31 @@
     "workspace_policy",
     "budget",
     "governance",
-    "mission_constraints"
+    "mission_constraints",
+    "repository_evidence"
   ],
   "properties": {
+    "repository_evidence": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "pack_id",
+        "sha256"
+      ],
+      "properties": {
+        "pack_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
     "mission_id": {
       "type": "string",
       "pattern": "^mission-[a-z0-9-]+$"

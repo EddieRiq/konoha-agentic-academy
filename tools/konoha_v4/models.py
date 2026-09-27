@@ -85,9 +85,13 @@ class MissionPlan:
     #            hokage.validate_plan for the shape/authority/match rules.
     mission_constraints: list[dict[str, Any]] | None = None
 
+    repository_evidence: dict[str, str] | None = None
+
     def seal(self) -> "MissionPlan":
         raw = asdict(self)
         raw["plan_hash"] = ""
+        if self.repository_evidence is None:
+            raw.pop("repository_evidence", None)
         if self.mission_constraints is None:
             # Preserve the exact pre-v4.0.1 canonical payload/hash for
             # legacy-equivalent plans - see the mission_constraints

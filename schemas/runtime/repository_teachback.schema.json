@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryTeachback",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "report_type",
+    "study_id",
+    "evidence_reference",
+    "status",
+    "completed_by_user",
+    "human_command",
+    "clarification_count",
+    "last_question",
+    "last_question_truncated",
+    "non_authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "report_type": {
+      "const": "repository_teachback"
+    },
+    "study_id": {
+      "type": "string",
+      "pattern": "^study-[0-9a-f]{32}$"
+    },
+    "evidence_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pack_id",
+        "sha256"
+      ],
+      "properties": {
+        "pack_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "awaiting_human",
+        "understood"
+      ]
+    },
+    "completed_by_user": {
+      "type": "boolean"
+    },
+    "human_command": {
+      "enum": [
+        null,
+        ":entendido"
+      ]
+    },
+    "clarification_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "last_question": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 2000
+    },
+    "last_question_truncated": {
+      "type": "boolean"
+    },
+    "non_authority": {
+      "const": "Repository understanding is not execution approval or mission closure."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "understood"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "completed_by_user": {
+            "const": true
+          },
+          "human_command": {
+            "const": ":entendido"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "completed_by_user": {
+            "const": false
+          },
+          "human_command": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

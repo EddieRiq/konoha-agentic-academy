@@ -1,5 +1,5 @@
 from __future__ import annotations
-import hashlib, json, math, os, re, secrets, subprocess, time
+import hashlib, json, math, os, re, secrets, stat, subprocess, time
 from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 from .continuity import utc_now
@@ -19,6 +19,92 @@ from .models import (
 )
 from .provider_adapters import invoke
 from .registry import CapabilityRegistry, RegistryError
+from tools.repo_evidence.persistence import load_evidence_pack
+from tools.repo_evidence.acquire_repo_evidence import RepositoryEvidenceError, is_evidence_current
+from .required_sources import (
+    ResolutionContext, SourceAvailability, SourceResolution, UnknownSourceError,
+    resolve_all, materialize_resolved_sources, find_available_sources_without_material,
+    bounded_value, MAX_MATERIAL_TEXT_CHARS, MAX_MATERIAL_LIST_ITEMS,
+)
+
+
+@dataclass(frozen=True)
+class RequiredSourcesGateResult:
+    resolutions: dict[str, SourceResolution]
+    resolved_source_bundle: dict
+    diagnostic: str | None = None
+
+
+class RequiredSourcesError(RuntimeError):
+    """Legacy execution stopped before invocation; no invented evidence."""
+
+
+def _durable_original_request(state_dir: Path, mission_id: str) -> str | None:
+    try:
+        path = _mission_dir(state_dir, mission_id) / "continuity.json"
+        # Continuity is canonical. Never substitute plan.understanding.
+        fd = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+        with os.fdopen(fd, "rb") as stream:
+            if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                return None
+            raw = stream.read(2_000_001)
+        if len(raw) > 2_000_000:
+            return None
+        payload = json.loads(raw)
+        if not isinstance(payload, dict) or payload.get("mission_id") != mission_id or payload.get("schema_version") != "1.0":
+            return None
+        request = payload.get("original_request")
+        return request if isinstance(request, str) and request.strip() else None
+    except (OSError, ValueError, RecursionError, MissionLookupError):
+        return None
+
+
+def _required_sources_gate(repo: Path, state_dir: Path, plan: MissionPlan,
+                           task: AgentAssignment, family: dict, registry: CapabilityRegistry,
+                           evidence: list[EvidenceRecord]) -> RequiredSourcesGateResult:
+    contracts = {task.family: family}
+    for assignment in plan.assignments:
+        if assignment.family not in contracts:
+            try:
+                contracts[assignment.family] = registry.agent_family(assignment.family)
+            except RegistryError:
+                pass  # cannot prove any production contract from this family
+    required = family.get("required_sources", [])
+    if not isinstance(required, list) or not all(isinstance(v, str) for v in required):
+        return RequiredSourcesGateResult({}, {}, "required_sources:invalid_family_contract")
+    pack = None
+    if plan.repository_evidence is not None:
+        try:
+            pack = load_evidence_pack(_mission_dir(state_dir, plan.mission_id), plan.repository_evidence)
+        except (RepositoryEvidenceError, MissionLookupError) as exc:
+            return RequiredSourcesGateResult({}, {}, "required_sources:repository_state:" + str(exc))
+        if pack.authorized_repo_root != str(repo.resolve()):
+            return RequiredSourcesGateResult({}, {}, "required_sources:repository_state:repository_root_mismatch")
+        if "repository_state" not in required and not is_evidence_current(pack, repo):
+            return RequiredSourcesGateResult({}, {}, "required_sources:repository_state:repository_evidence_stale_replan_required")
+    ctx = ResolutionContext(
+        plan_approval_status=plan.approval.get("status"),
+        plan_acceptance_criteria=tuple(plan.acceptance_criteria),
+        user_mission_request=_durable_original_request(state_dir, plan.mission_id) if "user_mission_request" in required else None,
+        repo_root=repo, repo_evidence_pack=pack,
+        family_contracts=contracts, task_family_by_id={a.task_id: a.family for a in plan.assignments},
+        evidence_by_task_id={r.task_id: r for r in evidence},
+        failure_log_dir=repo / "memory" / "failures", mission_plan=asdict(plan),
+        excluded_paths=tuple(pack.authorization.get("excluded_paths", ())) if pack else (),
+        capability_registry=getattr(registry, "data", None),
+    )
+    try:
+        resolved = resolve_all(required, task, ctx, enforcing=True)
+    except UnknownSourceError:
+        return RequiredSourcesGateResult({}, {}, "required_sources:unknown_source")
+    for key, value in resolved.items():
+        if value.availability not in (SourceAvailability.AVAILABLE, SourceAvailability.NOT_APPLICABLE):
+            return RequiredSourcesGateResult(resolved, {}, f"required_sources:{key}:{value.reason or value.availability.value}")
+    missing = find_available_sources_without_material(resolved)
+    if missing:
+        return RequiredSourcesGateResult(resolved, {}, f"required_sources:{missing[0]}:material_unavailable")
+    return RequiredSourcesGateResult(resolved, materialize_resolved_sources(resolved))
+
 
 def _gate_satisfied(plan: MissionPlan, task) -> bool:
     gate = task.execution_gate
@@ -234,19 +320,19 @@ def _parse_assignment_result_text(text: str) -> object:
 
 
 def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
-                 evidence: list[EvidenceRecord]) -> str:
-    deps = [e for e in evidence if e.task_id in task.dependencies]
+                 evidence: list[EvidenceRecord], resolved_source_bundle: dict | None = None) -> str:
     payload = {
         "mission_id": plan.mission_id,
-        "mission_understanding": plan.understanding,
-        "mission_context": plan.explicit_facts,
-        "task": task.__dict__,
-        "agent_contract": family,
-        "dependency_evidence": [
-            {"task_id": e.task_id, "provider": e.provider, "model": e.model, "output": e.output}
-            for e in deps
-        ],
-        "workspace_policy": plan.workspace_policy,
+        "mission_understanding": plan.understanding[:MAX_MATERIAL_TEXT_CHARS],
+        "mission_context": [fact[:MAX_MATERIAL_TEXT_CHARS] for fact in plan.explicit_facts[:MAX_MATERIAL_LIST_ITEMS]],
+        "mission_context_truncated": len(plan.explicit_facts) > MAX_MATERIAL_LIST_ITEMS or any(len(fact) > MAX_MATERIAL_TEXT_CHARS for fact in plan.explicit_facts),
+        "task": {key: (value[:MAX_MATERIAL_TEXT_CHARS] if isinstance(value, str)
+                       else [v[:MAX_MATERIAL_TEXT_CHARS] for v in value[:MAX_MATERIAL_LIST_ITEMS]]
+                       if isinstance(value, list) else value) for key, value in task.__dict__.items()},
+        "task_context_bounded": True,
+        "agent_contract": bounded_value(family),
+        "resolved_source_bundle": resolved_source_bundle or {},
+        "workspace_policy": bounded_value(plan.workspace_policy),
         "rules": [
             "La salida es evidencia, no autoridad.",
             "No conviertas inferencias en hechos o normas.",
@@ -274,6 +360,7 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
             "siempre que la observación esté efectivamente respaldada por ese "
             "contexto suministrado. El campo mission_context de este mismo "
             "JSON es exactamente el array explicit_facts del plan aprobado; "
+            "si mission_context_truncated=true, solo se incluye una vista acotada. "
             "no es el mensaje original completo del humano, y citarlo como "
             "source significa citar uno de esos hechos explícitos, no "
             "inventar contenido adicional. No fabriques evidencia: si no hay "
@@ -294,7 +381,7 @@ def _task_prompt(repo: Path, plan: MissionPlan, task, family: dict,
 
 def _run_assignment(
     repo: Path, plan: MissionPlan, task: AgentAssignment, family: dict,
-    evidence: list[EvidenceRecord], baseline: str,
+    evidence: list[EvidenceRecord], baseline: str, resolved_source_bundle: dict | None = None,
 ) -> tuple[EvidenceRecord, str]:
     """Execute exactly one assignment (invoke + structured-result validation
     + read-only git integrity check).
@@ -313,7 +400,7 @@ def _run_assignment(
     try:
         result = invoke(
             task.provider,
-            _task_prompt(repo, plan, task, family, evidence),
+            _task_prompt(repo, plan, task, family, evidence, resolved_source_bundle),
             cwd=repo, model=task.model,
             schema=ASSIGNMENT_RESULT_SCHEMA_PATH,
         )
@@ -383,24 +470,26 @@ def execute_plan(repo: Path, plan: MissionPlan, registry: CapabilityRegistry,
             _persist(state_dir, record)
         return evidence
 
-    first_task = plan.assignments[0]
-    try:
-        baseline = _git_status(repo)
-    except GitStatusError as exc:
-        now = time.time()
-        record = EvidenceRecord.build(
-            mission_id=plan.mission_id, task_id=first_task.task_id,
-            provider=first_task.provider, model=first_task.model, status="failed",
-            output=f"{exc.diagnostic}: no se pudo capturar el estado Git base antes de ejecutar.",
-            token_usage={}, command=[], started_at=now, finished_at=now,
-        )
-        _persist(state_dir, record)
-        return [record]
-
     evidence: list[EvidenceRecord] = []
     for task in plan.assignments:
         family = registry.agent_family(task.family)
-        record, _diagnostic = _run_assignment(repo, plan, task, family, evidence, baseline)
+        gate = _required_sources_gate(repo, state_dir, plan, task, family, registry, evidence)
+        if gate.diagnostic:
+            raise RequiredSourcesError(gate.diagnostic)
+        try:
+            baseline = _git_status(repo)
+        except GitStatusError as exc:
+            now = time.time()
+            record = EvidenceRecord.build(
+                mission_id=plan.mission_id, task_id=task.task_id,
+                provider=task.provider, model=task.model, status="failed",
+                output=f"{exc.diagnostic}: no se pudo capturar el estado Git base antes de ejecutar.",
+                token_usage={}, command=[], started_at=now, finished_at=now,
+            )
+            _persist(state_dir, record)
+            evidence.append(record)
+            return evidence
+        record, _diagnostic = _run_assignment(repo, plan, task, family, evidence, baseline, gate.resolved_source_bundle)
         evidence.append(record)
         _persist(state_dir, record)
         if record.status != "completed":
@@ -458,6 +547,8 @@ def plan_identity(plan: MissionPlan) -> str:
     raw = asdict(plan)
     raw.pop("approval", None)
     raw.pop("plan_hash", None)
+    if plan.repository_evidence is None:
+        raw.pop("repository_evidence", None)
     if plan.mission_constraints is None:
         # Legacy v4.0.0 plan: mission_constraints never existed, so it must
         # be excluded from the canonical payload for plan_identity() to
@@ -514,21 +605,15 @@ def load_persisted_plan(state_dir: Path, mission_id: str) -> MissionPlan:
         raise MissionLookupError(f"plan.json no es un objeto para {mission_id!r}")
 
     plan_fields = {f.name for f in fields(MissionPlan)}
-    # Two, and only two, accepted field-set shapes: the current shape, or
-    # the legacy v4.0.0 shape (current fields minus mission_constraints,
-    # which did not exist in v4.0.0). Any other missing/unknown field is
-    # still rejected exactly as before.
-    legacy_plan_fields = plan_fields - {"mission_constraints"}
+    # Explicit legacy omissions only: constraints (pre-v4.0.1) and the
+    # evidence binding (pre-v4.2.0). All other fields remain mandatory.
+    optional_fields = {"mission_constraints", "repository_evidence"}
     raw_fields = set(raw)
-    if raw_fields == legacy_plan_fields:
-        raw = dict(raw)
-        raw["mission_constraints"] = None
-    elif raw_fields != plan_fields:
-        raise MissionLookupError(
-            f"plan.json con campos incompatibles con MissionPlan para {mission_id!r}: "
-            f"faltantes={sorted(plan_fields - raw_fields)} "
-            f"desconocidos={sorted(raw_fields - plan_fields)}"
-        )
+    if raw_fields - plan_fields or (plan_fields - optional_fields) - raw_fields:
+        raise MissionLookupError(f"plan.json con campos incompatibles con MissionPlan para {mission_id!r}")
+    raw = dict(raw)
+    for name in optional_fields:
+        raw.setdefault(name, None)
 
     items = raw.get("assignments")
     if not isinstance(items, list):
@@ -1643,6 +1728,10 @@ def _execute_or_resume_plan_locked(
     # stay resumable via a later plain --resume, never become a permanent
     # "failed"/"recovery_required" dead end the way an actual provider
     # process failure still does once invocation is attempted.
+    source_gate = _required_sources_gate(repo, state_dir, plan, current_task, family, registry, completed_records)
+    if source_gate.diagnostic:
+        return ExecutionAttempt(state=state, evidence=(), diagnostic=source_gate.diagnostic)
+
     readiness_diagnostic = _readiness_diagnostic(current_task, repo)
     if readiness_diagnostic is not None:
         return ExecutionAttempt(state=state, evidence=(), diagnostic=readiness_diagnostic)
@@ -1668,7 +1757,7 @@ def _execute_or_resume_plan_locked(
         return ExecutionAttempt(state=state, evidence=(), diagnostic="executing_persist_failed")
     state = new_state
 
-    evidence, run_diagnostic = _run_assignment(repo, plan, current_task, family, completed_records, baseline)
+    evidence, run_diagnostic = _run_assignment(repo, plan, current_task, family, completed_records, baseline, source_gate.resolved_source_bundle)
 
     if not _try_persist_evidence(state_dir, evidence):
         # invoke already ran and state is still the persisted "executing"

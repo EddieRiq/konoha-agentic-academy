@@ -91,6 +91,18 @@ def _enter_run_patches(
 
     Always returns the _read_plan_challenge_grant mock.
     """
+    # The mocked planner must bind the same evidence the acquisition seam
+    # supplies. Use a tiny public fixture; this suite tests approval UX.
+    from tools.repo_evidence.acquire_repo_evidence import Authorization, acquire_repo_evidence
+    from tools.repo_evidence.persistence import evidence_reference
+    fixture = state_dir / "public-fixture"
+    fixture.mkdir()
+    (fixture / "app.py").write_text("def main(): return 1\n")
+    pack = acquire_repo_evidence(fixture, Authorization("human", "test fixture"))
+    build_result[0].repository_evidence = evidence_reference(pack)
+    build_result[0].seal()
+    stack.enter_context(mock.patch("tools.konoha_v4.conversation._acquire_repo_evidence_for_planning", return_value=pack))
+    stack.enter_context(mock.patch("tools.konoha_v4.conversation._repository_state_unavailable_reason", return_value=None))
     stack.enter_context(
         mock.patch("tools.konoha_v4.conversation.default_state_root", return_value=state_dir)
     )
@@ -240,6 +252,8 @@ class PlanOnlyRequestedChangeTests(unittest.TestCase):
             # _build_validated_plan patch so the first call (initial
             # planning) yields the original plan and the second (the human
             # replan) yields the revised plan.
+            replanned.repository_evidence = original_plan.repository_evidence.copy()
+            replanned.seal()
             build_validated_mock = stack.enter_context(
                 mock.patch(
                     "tools.konoha_v4.conversation._build_validated_plan",

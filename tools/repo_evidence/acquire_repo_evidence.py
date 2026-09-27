@@ -21,6 +21,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import os
+import stat
 import re
 import subprocess
 import sys
@@ -150,7 +151,7 @@ def git_identity(root: Path) -> tuple[str, str | None, str | None]:
 # ---------------------------------------------------------------------------
 
 def _is_private_or_excluded(rel: str, excluded_paths: tuple[str, ...]) -> bool:
-    if any(marker in rel for marker in PRIVATE_MARKERS):
+    if any(marker in rel + "/" for marker in PRIVATE_MARKERS):
         return True
     return any(rel == p or rel.startswith(p.rstrip("/") + "/") for p in excluded_paths)
 
@@ -165,12 +166,9 @@ def _enumerate_via_walk(
     tracked-but-deleted file itself; missing_tracked_files is always empty
     for this path.
 
-    Symlinked directories are never followed, even when they resolve inside
-    root (avoids both an escape and a circular-symlink walk); each one is
-    explicitly inspected and recorded with a distinct reason for why it was
-    not descended into. A symlinked file resolving outside root is refused
-    and recorded, never read; one resolving inside root is treated as an
-    ordinary in-scope file. Returns (eligible_files, missing_tracked_files, skipped_unknowns).
+    Symlinked directories and files are never followed for content, even
+    within root: public aliases cannot expose excluded targets. Refusals
+    are recorded as explicit unknowns. Returns (eligible_files, missing_tracked_files, skipped_unknowns).
     """
     excluded_paths = authorization.excluded_paths
     eligible: list[tuple[str, Path]] = []
@@ -205,7 +203,8 @@ def _enumerate_via_walk(
                 except (OSError, ValueError):
                     skipped.append({"path": rel, "reason": "symlink_file_escape_refused"})
                     continue
-                target = resolved_file
+                skipped.append({"path": rel, "reason": "symlink_file_not_followed"})
+                continue
             elif entry.is_file():
                 target = entry
             else:
@@ -324,7 +323,7 @@ def _check_symlink_safety(
             # directories are never followed" invariant applies identically
             # here: recorded and refused, never treated as an ordinary file.
             return rel, False, "symlink_dir_not_followed"
-        return rel, True, None
+        return rel, False, "symlink_file_not_followed"
     return rel, full.exists(), None
 
 
@@ -425,13 +424,41 @@ def _read_and_classify(root: Path, rel: str) -> _FileReadResult:
     (confirmed by the read-only performance investigation to be the single
     largest avoidable cost: the previous implementation opened each file up
     to three separate times)."""
-    path = root / rel
+    # Hold every directory descriptor through the read. An alias swap
+    # after enumeration must never redirect a content read into private data.
+    fds: list[int] = []
     try:
-        data = path.read_bytes()
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+        fd = os.open(root, flags | getattr(os, "O_DIRECTORY", 0))
+        fds.append(fd)
+        parts = Path(rel).parts
+        if Path(rel).is_absolute() or not parts or any(p in (".", "..") for p in parts):
+            return _FileReadResult(rel, None, 0, False, False, None)
+        for part in parts[:-1]:
+            fd = os.open(part, flags | getattr(os, "O_DIRECTORY", 0), dir_fd=fd)
+            fds.append(fd)
+        leaf = os.open(parts[-1], flags | getattr(os, "O_NONBLOCK", 0), dir_fd=fd)
+        fds.append(leaf)
+        if not stat.S_ISREG(os.fstat(leaf).st_mode):
+            return _FileReadResult(rel, None, 0, False, False, None)
+        chunks = []
+        hasher = hashlib.sha256()
+        size = 0
+        while True:
+            chunk = os.read(leaf, 65536)
+            if not chunk:
+                break
+            hasher.update(chunk)
+            size += len(chunk)
+            if size <= MAX_SCAN_FILE_BYTES:
+                chunks.append(chunk)
+        data = b"".join(chunks)
     except OSError:
         return _FileReadResult(rel, None, 0, False, False, None)
-    content_hash = hashlib.sha256(data).hexdigest()
-    size = len(data)
+    finally:
+        for fd in reversed(fds):
+            os.close(fd)
+    content_hash = hasher.hexdigest()
     if size > MAX_SCAN_FILE_BYTES:
         return _FileReadResult(rel, content_hash, size, True, False, None)
     is_binary = b"\x00" in data[:8192]
@@ -940,6 +967,8 @@ def is_evidence_current(pack: RepositoryEvidencePack, repo_root: Path) -> bool:
     if pack.contract_version != CONTRACT_VERSION:
         return False
     root = repo_root.resolve()
+    if str(root) != pack.authorized_repo_root:
+        return False
     authorization = Authorization(
         authorized_by=pack.authorization.get("authorized_by", ""),
         authorization_note=pack.authorization.get("authorization_note", ""),
@@ -1003,7 +1032,17 @@ def _bounded_collection(name: str, items: list, limits: dict[str, int], referenc
     never a bare list, so a consumer can never mistake a slice for the
     whole pack."""
     n = limits[name]
-    sliced = list(items[:n])
+    sliced = []
+    for original in items[:n]:
+        item = dict(original)
+        truncated_fields = []
+        for key, value in item.items():
+            if isinstance(value, str) and len(value) > 2000:
+                item[key] = value[:2000]
+                truncated_fields.append(key)
+        if truncated_fields:
+            item["truncated_text_fields"] = truncated_fields
+        sliced.append(item)
     for item in sliced:
         _collect_refs(item, referenced_refs)
     return {

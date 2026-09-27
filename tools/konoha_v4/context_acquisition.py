@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Any
 
 PRIVATE_MARKERS = (
+    "private/",
+    "local/",
     "alliance/kirigakure/",
     "private-library/",
     "/memory/",

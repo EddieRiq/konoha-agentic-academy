@@ -21,6 +21,7 @@ from .hokage import approval_summary, validate_plan
 from .models import AgentAssignment, AssignmentApproval, MissionPlan
 from .planner import build_plan
 from .registry import CapabilityRegistry
+from tools.repo_evidence.persistence import persist_evidence_pack, evidence_reference
 from .required_sources import ResolutionContext, SourceAvailability, resolve_required_sources
 from tools.repo_evidence.acquire_repo_evidence import (
     Authorization,
@@ -328,6 +329,10 @@ def _approval_loop(
     plan_only: bool = False,
     repo_evidence: RepositoryEvidencePack | None = None,
 ):
+    if repo_evidence is not None:
+        if getattr(plan, "repository_evidence", None) != evidence_reference(repo_evidence):
+            raise ValueError("repository_evidence_plan_binding_mismatch")
+        persist_evidence_pack(state_dir / "missions" / plan.mission_id, repo_evidence)
     continuity = MissionContinuityStore.create(
         state_dir,
         plan.mission_id,
@@ -701,6 +706,11 @@ def _run_resumable_execution(
             print(f"\n[{record.task_id} · {record.provider}/{record.model} · {record.status}]\n{record.output}")
 
         state = attempt.state
+
+        if attempt.diagnostic.startswith("required_sources:"):
+            print(f"Konoha: Misión pausada ({attempt.diagnostic}). Evidencia requerida no disponible; "
+                  "no se invocó al provider ni se consumió aprobación. Evidencia obsoleta requiere replanning.")
+            return "paused"
 
         if attempt.diagnostic.startswith(READINESS_DIAGNOSTIC_PREFIXES):
             # v4.0.2: a fresh operational readiness check failed for the
