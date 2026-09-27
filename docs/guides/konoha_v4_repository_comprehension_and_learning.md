@@ -1,8 +1,116 @@
 # Repository comprehension and supervised learning (unreleased v4.2.x)
 
-This guide describes the implemented local core and terminal module. v4.1.1
-remains the latest published release. The final conversational CLI integration
-is the next product step; these changes do not publish v4.2.0 or v4.2.1.
+This guide describes the local core and its integration into the normal
+`konoha` conversation. v4.1.1 remains the latest published release; these
+changes do not publish v4.2.0 or v4.2.1.
+
+## Start from the main CLI
+
+Run `konoha` in the authorized Konoha checkout, or use `konoha --repo
+/path/to/konoha`. Natural-language turns keep the existing multiline input
+contract: submit them with `:fin`. Repository commands beginning with
+`:repo` and the exact human `:entendido` are single-line controls.
+
+```text
+understand this repository
+:fin
+explain that again
+:fin
+explain components
+:fin
+show me the evidence
+:fin
+:entendido
+what could Konoha improve?
+:fin
+```
+
+`explain Konoha to me` uses the same deterministic study APIs as any other
+repository. “Konoha” refers to the current `--repo` workspace; the CLI does not
+search for another installation. Explanations show study/repository identity,
+evidence pack, currentness, teachback status, bounded facts and limitations.
+Use `explain relationships`, `capabilities`, `tests`, `documentation` or
+`candidates` for category detail. `show me the evidence` displays the bounded
+facts with both evidence references and file/line locators. These routes do not
+probe or invoke providers, execute tests, run application code, or patch files.
+Provider readiness and mission planning begin only on a mission turn.
+
+`ok`, `yes`, `understood` and `thanks` leave repository teachback open.
+Only the exact single line `:entendido` closes it: spaces, case variations,
+or model output cannot close understanding. This is neither execution approval
+nor mission closure. Repetition and clarification remain available afterward.
+`:repo leave` leaves the study view without closing understanding; existing
+exit words (`salir`, `exit`, `quit`, `q`, `:salir`) still suspend the session.
+
+## Private resume and external authorization in the conversation
+
+State uses the existing workflow records under
+`KONOHA_STATE_ROOT/repository-studies` (by default under the user's private
+state directory outside the checkout). It stores local evidence and human
+teachback responses; do not publish it. No parallel memory/index is created.
+
+```text
+:repo list
+:repo resume study-<32 hex characters>
+```
+
+Listing shows opaque IDs, not raw private records, and does not claim current
+evidence. Resume validates the exact retained pack, identity and teachback.
+`resume the repository study` resumes the active study or lists saved IDs when
+none is active. A stale pack stops; it is never refreshed by explain, resume,
+recommendation display or implementation handoff. Explicitly start a new study
+with `:repo study`, or `:repo study /absolute/local/checkout` for an external
+target. The new study has its own teachback. Replan an affected mission through
+its existing planning path separately.
+
+To study an external checkout:
+
+```text
+:repo study /absolute/local/public-checkout
+```
+
+The CLI displays the target and a fresh `:repo authorize <challenge>` command.
+Enter that exact command to assert that this is a public local checkout you
+authorize for bounded static study and private state storage. Naming a path,
+calling it “authorized”, or answering `yes` does not grant access. Use
+`:repo cancel` to cancel. Private/excluded roots are refused; the evidence
+extractor continues to exclude private, ignored and symlinked content.
+No clone, download or remote visibility check occurs. The existing workflow
+supports authorized **public** checkouts, not arbitrary private repositories.
+
+To resume an external study, use `:repo resume STUDY_ID /absolute/local/checkout`.
+In a new conversation the target requires a fresh explicit authorization;
+stored authorization metadata is identity evidence, not new permission.
+
+## Recommendations, donor comparison and separate implementation
+
+After closing the current repository's teachback, ask `what could Konoha
+improve?` and submit with `:fin`, or use `:repo recommend`. The summary shows
+up to three recommendations with provenance, validation, risk and scope.
+`:repo details` shows the complete bounded report. Deterministic candidates
+are distinguished from model suggestions (locator linkage only); suppression
+reasons remain visible without resurfacing suppressed suggestion content.
+The conversational route generates no model suggestions or hidden model calls.
+
+For donor learning, study Konoha/current workspace and close its teachback,
+then authorize and study the donor and close its teachback. With the donor
+active, ask `compare this authorized repo with Konoha` or `what could we learn
+from it?`, followed by `:fin`. `:repo compare` is the explicit equivalent.
+After restarting, resume the target study first and the donor second. Both
+must be current and human-closed. The report preserves both provenance chains,
+observed donor facts, target comparisons, candidate lessons, compatibility
+risks and proposal-only recommendations. Use `show donor evidence`, `show
+Konoha evidence`, or `what are the compatibility risks?` for detail.
+
+`implement recommendation NUMBER`, followed by `:fin`, selects an item in the
+displayed report and enters the existing supervised mission planning flow.
+The exact human request remains the authority input; the recommendation is
+separate evidence-only context. Nothing is directly applied. The new plan
+still needs its existing human approval, action, review and closure gates.
+`--plan-only` continues to permit planning/review acceptance only. If the
+workspace lacks Konoha's planning registry, planning stops explicitly.
+Recommendations cannot authorize patches, dependency installation, doctrine
+changes, commits or pushes. Donor code is never copied or adopted by study.
 
 ## Study an explicitly authorized public repository
 

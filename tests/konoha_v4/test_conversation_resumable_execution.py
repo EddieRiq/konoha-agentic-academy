@@ -756,10 +756,10 @@ class StartupDoesNotScanSourcesTests(unittest.TestCase):
         import tools.konoha_v4.conversation as conversation_module
         self.assertFalse(hasattr(conversation_module, "start_scan"))
 
-    def test_startup_still_acquires_public_context(self):
-        # Test B
+    def test_startup_defers_provider_context_until_mission_planning(self):
+        # Repository study routes are deterministic and must not probe providers.
         _, acquire_mock, _, _ = self._run_minimal_startup()
-        acquire_mock.assert_called_once()
+        acquire_mock.assert_not_called()
 
     def test_startup_still_reaches_mission_input(self):
         # Test C: not a full provider-execution test - just proves the

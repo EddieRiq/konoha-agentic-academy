@@ -264,14 +264,17 @@ evidence persistence, human-controlled repository teachback, and proposal-only
 self-improvement and donor learning. C1/C2A/C2B/C3 are internal gates of the
 single v4.2.0 milestone, not separate releases.
 
-The local terminal workflow is available through
-`python -m tools.repo_evidence.workflow --help`. See the
+From `konoha`, enter `understand this repository`, followed by `:fin`.
+Use `:repo help` for local study, private resume, evidence, recommendations
+and authorized donor comparison. The standalone workflow remains available
+through `python -m tools.repo_evidence.workflow --help`. See the
 [repository comprehension and learning guide](docs/guides/konoha_v4_repository_comprehension_and_learning.md).
 Repository teachback ends only on exact human `:entendido`; it grants no
 execution approval and does not replace mission closure evidence.
 
-The next product step is integration into the final terminal/conversational
-CLI journey. No v4.2.x release or tag is claimed here.
+The conversational integration uses those same study and teachback APIs.
+Recommendations remain proposals; implementation starts a separate supervised
+mission. No v4.2.x release or tag is claimed here.
 
 `v4.1.0` adds native supervised technical planning: `konoha --plan-only`
 produces and deterministically validates a technical MissionPlan, supports

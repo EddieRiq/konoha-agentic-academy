@@ -5,6 +5,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from .terminal_input import TerminalTurnReader
+from .repository_conversation import RepositoryConversation
 from .context_acquisition import acquire_context
 from .continuity import (
  MissionContinuityStore,
@@ -125,6 +126,11 @@ def _read_turn(prompt: str = "Vos> ") -> str | None:
 
     if control in _EXIT_COMMANDS:
         return control
+
+    # Reserved repository controls are exact human lines, never block-trimmed.
+    # Near-matches to :entendido must reach canonical teachback unchanged.
+    if control == ":entendido" or control.startswith(":repo"):
+        return first_line
 
     print(
         "Konoha: Capturando la misión. "
@@ -328,16 +334,20 @@ def _approval_loop(
     provider_readiness: dict[str, dict] | None = None,
     plan_only: bool = False,
     repo_evidence: RepositoryEvidencePack | None = None,
+    planning_evidence: dict | None = None,
 ):
     if repo_evidence is not None:
         if getattr(plan, "repository_evidence", None) != evidence_reference(repo_evidence):
             raise ValueError("repository_evidence_plan_binding_mismatch")
         persist_evidence_pack(state_dir / "missions" / plan.mission_id, repo_evidence)
+    baseline = _repo_state(repo)
+    if planning_evidence is not None:
+        baseline["recommendation_evidence_only"] = planning_evidence
     continuity = MissionContinuityStore.create(
         state_dir,
         plan.mission_id,
         mission_text,
-        _repo_state(repo),
+        baseline,
     )
     continuity.record_plan(
         plan,
@@ -985,16 +995,12 @@ def _build_validated_plan(
 
 def run(repo: Path, *, plan_only: bool = False) -> int:
     state_dir = default_state_root()
-    state_dir.mkdir(parents=True, exist_ok=True)
-    registry = CapabilityRegistry(repo)
-    acquired = acquire_context(repo, registry)
-    (state_dir / "context_acquisition.json").write_text(
-        json.dumps(acquired.as_dict(), ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    ready = [p for p, info in acquired.provider_readiness.items() if info["available"]]
+    studies = RepositoryConversation(repo, state_dir)
+    registry = None
+    acquired = None
     print("Konoha: Bienvenido, Eduardo. Codex conduce la misión bajo autoridad constitucional de Hokage.")
-    print("Konoha: Contexto público del workspace cargado; rutas privadas y externas permanecen excluidas.")
-    print("Konoha: Providers verificados localmente: " + (", ".join(ready) if ready else "ninguno"))
+    print("Konoha: Rutas privadas y externas permanecen excluidas; providers se verifican al planificar una misión.")
+    print("Konoha: Para estudiar el repositorio: understand this repository + :fin. Ayuda: :repo help.")
     print(
         "Konoha: Escribí o pegá tu misión y terminá con una línea exacta "
         "':fin' (o cancelá con ':cancelar'). El contenido se captura "
@@ -1015,6 +1021,28 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
         if not text:
             continue
 
+        repository_turn = studies.handle(text)
+        if repository_turn.handled and repository_turn.planning_evidence is None:
+            continue
+
+        # Deterministic study/reentry never invokes provider probes or planning.
+        # Implementation requests join the existing supervised path below; a
+        # recommendation is context evidence, never part of human authority.
+        if acquired is None:
+            try:
+                registry = CapabilityRegistry(repo)
+                acquired = acquire_context(repo, registry)
+                state_dir.mkdir(parents=True, exist_ok=True)
+                (state_dir / "context_acquisition.json").write_text(
+                    json.dumps(acquired.as_dict(), ensure_ascii=False, indent=2), encoding="utf-8"
+                )
+            except (OSError, ValueError):
+                acquired = None
+                print("Konoha: Contexto de planificación no disponible. Se requiere el workspace Konoha con su registry; no se ejecutó ninguna tarea.")
+                continue
+            ready = [p for p, info in acquired.provider_readiness.items() if info["available"]]
+            print("Konoha: Providers verificados localmente: " + (", ".join(ready) if ready else "ninguno"))
+
         # RepositoryEvidencePack is acquired once, right here, before the
         # planner provider is ever invoked for this mission turn - never
         # reacquired between planning steps (see build_plan's own preview
@@ -1034,10 +1062,13 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
 
         try:
             print("Konoha: Adquiriendo doctrina, políticas, familias y readiness dentro del workspace autorizado...")
+            state_summary = _repo_state(repo)
+            if repository_turn.planning_evidence is not None:
+                state_summary["recommendation_evidence_only"] = repository_turn.planning_evidence
             plan, problems, attempts = _build_validated_plan(
                 repo,
                 text,
-                _repo_state(repo),
+                state_summary,
                 registry,
                 provider_readiness=acquired.provider_readiness,
                 repo_evidence=repo_evidence_pack,
@@ -1064,6 +1095,7 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
             provider_readiness=acquired.provider_readiness,
             plan_only=plan_only,
             repo_evidence=repo_evidence_pack,
+            planning_evidence=repository_turn.planning_evidence,
         )
         if approval_result is _SESSION_EXIT:
             print("Konoha: Sesión suspendida. La evidencia permanece local.")
