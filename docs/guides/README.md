@@ -22,6 +22,10 @@ docs/guides/agentic_coding_loop.md
 docs/guides/repository_audit_checklist.md
 ```
 
+For the unreleased v4.2.x repository study and proposal workflow, see
+[Repository comprehension and learning](konoha_v4_repository_comprehension_and_learning.md).
+The existing top-level conversational CLI integration is the next product step.
+
 ## Guide types
 
 Guides may cover:

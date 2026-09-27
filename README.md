@@ -258,6 +258,21 @@ Start with:
 
 ## Release status
 
+`v4.1.1` remains the latest published release. The uncommitted v4.2.x
+engineering packages add bounded repository comprehension, exact approved
+evidence persistence, human-controlled repository teachback, and proposal-only
+self-improvement and donor learning. C1/C2A/C2B/C3 are internal gates of the
+single v4.2.0 milestone, not separate releases.
+
+The local terminal workflow is available through
+`python -m tools.repo_evidence.workflow --help`. See the
+[repository comprehension and learning guide](docs/guides/konoha_v4_repository_comprehension_and_learning.md).
+Repository teachback ends only on exact human `:entendido`; it grants no
+execution approval and does not replace mission closure evidence.
+
+The next product step is integration into the final terminal/conversational
+CLI journey. No v4.2.x release or tag is claimed here.
+
 `v4.1.0` adds native supervised technical planning: `konoha --plan-only`
 produces and deterministically validates a technical MissionPlan, supports
 human review and confirmed requested-change replanning, and lets a human

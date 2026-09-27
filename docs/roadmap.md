@@ -6,7 +6,8 @@ It is not a commitment to implement every item in order. Work that changes doctr
 
 ## Current status
 
-Konoha has moved beyond the doctrine-only and dry-run baselines.
+The latest published release is v4.1.1. The v4.2.0 and v4.2.1 engineering
+packages are implemented for human review and remain unreleased.
 
 Current operational capabilities include:
 
@@ -19,22 +20,33 @@ Current operational capabilities include:
 - local/private memory;
 - supervised package installation;
 - canonical tests and supervised release closure.
+- bounded repository studies backed by exact persisted evidence packs;
+- human-only repository teachback and proposal-only donor learning.
 ```
 
-The roadmap is now frozen to three product milestones:
+## Next product step: final terminal/conversational CLI patch
 
-```text
-v3.2.6  repository consolidation, Teachback closure and CLI coherence
-v3.3.0  one-line terminal distribution and package-to-release wrapper
-v3.4.0  finished product UX, onboarding and stable completion flow
-```
+- Route self-study and explicitly authorized public-repository study through the
+  existing conversational entrypoint using the completed study workflow.
+- Present a simple repository explanation, repeat or clarify it, and forward
+  only exact human `:entendido` to the canonical teachback engine.
+- Surface study IDs, evidence provenance, omissions, stale-evidence stops and
+  resumable state in terminal/SSH sessions.
+- Present self-improvement and donor-learning proposals with their risk and
+  scope; route any requested implementation into a new approved mission.
+- Preserve plan/action approval, review, teachback and mission closure as
+  separate gates. Add integrated user-journey tests and final usage documentation.
 
-No additional `v3.2.x` feature release is planned after `v3.2.6`. A separate
-patch is justified only by security, data corruption, installation/startup
-failure, approval bypass or a regression that blocks the primary flow.
+No new evidence collector, memory authority, teachback engine, daemon or
+infrastructure cycle is planned. Real remote acquisition still requires its own
+explicit target/network authorization. Release publication remains a separate
+human decision.
 
-Older phases below are retained as historical planning context. They are not
-the active work queue.
+v4.2.0's C1/C2A/C2B/C3 are internal engineering gates of one milestone.
+The completed core and terminal module are described in the
+[repository comprehension guide](guides/konoha_v4_repository_comprehension_and_learning.md).
+
+All phases below are historical planning context, not the active work queue.
 
 ## Guiding principle
 

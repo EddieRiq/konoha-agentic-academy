@@ -1,3 +1,37 @@
+## Unreleased — v4.2.x engineering packages
+
+These are reviewable engineering changes, not published release history.
+The latest published release remains v4.1.1.
+
+### v4.2.0 — Repository comprehension and human teachback core
+
+- Materialize every canonical required source with explicit bounds; retain one
+  resolution mapping for both the executor gate and worker context.
+- Load the exact original request from durable continuity and remove raw
+  dependency output from worker prompts. Missing material pauses before invoke
+  without consuming approval or fabricating provider evidence.
+- Bind plans to the exact persisted RepositoryEvidencePack and its full-content
+  hash. Stale, missing or corrupt approved evidence requires replanning; resume
+  never reacquires it.
+- Add generic, evidence-linked repository studies and a local terminal workflow.
+- Extend the canonical teachback engine with a repository comprehension loop
+  closed only by exact human `:entendido`, separate from execution and closure.
+- Refuse file aliases into excluded content and use descriptor-relative evidence
+  reads; preserve tracked-deletion fingerprints and the failure-log boundary.
+
+### v4.2.1 — Supervised recommendations and public-repository learning
+
+- Build proposal-only self-improvement recommendations from retained evidence.
+- Reuse local-model audit's validated/suppressed approach while distinguishing
+  linked model suggestions from deterministic observations.
+- Compare explicitly authorized local public repositories with provenance on
+  both sides, after human repository teachback. Donor lessons carry compatibility,
+  licensing and scope concerns; recommendations never authorize adoption.
+- Keep acquisition from real remotes as a separate human/network boundary.
+
+Next: final terminal/conversational CLI integration, not another infrastructure
+milestone. No version, tag or release publication is part of these changes.
+
 ## [4.1.1] — Human Turn Integrity and Corrective Replanning Stability
 
 - Deterministic exact-line framing for mission and requested-change block
