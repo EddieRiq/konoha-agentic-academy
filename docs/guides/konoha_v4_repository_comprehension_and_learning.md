@@ -1,8 +1,9 @@
-# Repository comprehension and supervised learning (unreleased v4.2.x)
+# Repository comprehension and supervised learning (v4.2.0)
 
 This guide describes the local core and its integration into the normal
-`konoha` conversation. v4.1.1 remains the latest published release; these
-changes do not publish v4.2.0 or v4.2.1.
+`konoha` conversation, shipped together in the integrated v4.2.0 release line.
+Tag creation, push and publication are separate maintainer-controlled
+operations. See the [v4.2.0 release notes](../releases/v4.2.0.md).
 
 ## Start from the main CLI
 

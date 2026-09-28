@@ -22,9 +22,11 @@ docs/guides/agentic_coding_loop.md
 docs/guides/repository_audit_checklist.md
 ```
 
-For the unreleased v4.2.x repository study and proposal workflow, see
+For the v4.2.0 repository study and proposal workflow, including its
+conversational CLI integration, see
 [Repository comprehension and learning](konoha_v4_repository_comprehension_and_learning.md).
-The existing top-level conversational CLI integration is the next product step.
+v4.2.0 is the integrated release line containing this scope; tag creation and
+publication are separate maintainer-controlled operations. See the [v4.2.0 release notes](../releases/v4.2.0.md).
 
 ## Guide types
 

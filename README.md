@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.1.1 \
+  --version v4.2.0 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
@@ -258,11 +258,12 @@ Start with:
 
 ## Release status
 
-`v4.1.1` remains the latest published release. The uncommitted v4.2.x
-engineering packages add bounded repository comprehension, exact approved
-evidence persistence, human-controlled repository teachback, and proposal-only
-self-improvement and donor learning. C1/C2A/C2B/C3 are internal gates of the
-single v4.2.0 milestone, not separate releases.
+`v4.2.0` is the integrated release line; tag creation, push and GitHub
+publication are separate human/maintainer-controlled operations and are not
+implied by this document. `v4.2.0` adds bounded repository comprehension, exact approved evidence
+persistence, human-controlled repository teachback, proposal-only
+self-improvement and donor learning, and their integration into the
+conversational CLI. See the [v4.2.0 release notes](docs/releases/v4.2.0.md).
 
 From `konoha`, enter `understand this repository`, followed by `:fin`.
 Use `:repo help` for local study, private resume, evidence, recommendations
@@ -274,7 +275,7 @@ execution approval and does not replace mission closure evidence.
 
 The conversational integration uses those same study and teachback APIs.
 Recommendations remain proposals; implementation starts a separate supervised
-mission. No v4.2.x release or tag is claimed here.
+mission.
 
 `v4.1.0` adds native supervised technical planning: `konoha --plan-only`
 produces and deterministically validates a technical MissionPlan, supports

@@ -6,8 +6,9 @@ It is not a commitment to implement every item in order. Work that changes doctr
 
 ## Current status
 
-The latest published release is v4.1.1. The v4.2.0 and v4.2.1 engineering
-packages are implemented for human review and remain unreleased.
+v4.2.0 is the integrated release line containing the completed repository
+comprehension scope. Tag creation, push and GitHub publication are separate
+human/maintainer-controlled operations and are not implied by this roadmap.
 
 Current operational capabilities include:
 
@@ -24,27 +25,32 @@ Current operational capabilities include:
 - human-only repository teachback and proposal-only donor learning.
 ```
 
-## Next product step: final terminal/conversational CLI patch
+## v4.2.0: conversational repository comprehension
 
-- Route self-study and explicitly authorized public-repository study through the
+The final terminal/conversational CLI integration is implemented:
+
+- Self-study and explicitly authorized public-repository study run through the
   existing conversational entrypoint using the completed study workflow.
-- Present a simple repository explanation, repeat or clarify it, and forward
-  only exact human `:entendido` to the canonical teachback engine.
-- Surface study IDs, evidence provenance, omissions, stale-evidence stops and
-  resumable state in terminal/SSH sessions.
-- Present self-improvement and donor-learning proposals with their risk and
-  scope; route any requested implementation into a new approved mission.
-- Preserve plan/action approval, review, teachback and mission closure as
-  separate gates. Add integrated user-journey tests and final usage documentation.
+- Repository explanations can be repeated or clarified; only exact human
+  `:entendido` is forwarded to the canonical teachback engine.
+- Study IDs, evidence provenance, omissions, stale-evidence stops and
+  resumable state are surfaced in terminal/SSH sessions.
+- Self-improvement and donor-learning proposals are presented with their risk
+  and scope; any requested implementation enters a new approved mission.
+- Plan/action approval, review, teachback and mission closure remain
+  separate gates.
+
+The earlier C1/C2A/C2B/C3 gates and v4.2.0/v4.2.1 package labels were internal
+engineering steps of this one release. Usage is described in the
+[repository comprehension guide](guides/konoha_v4_repository_comprehension_and_learning.md)
+and the [v4.2.0 release notes](releases/v4.2.0.md).
+
+## Next step
 
 No new evidence collector, memory authority, teachback engine, daemon or
 infrastructure cycle is planned. Real remote acquisition still requires its own
 explicit target/network authorization. Release publication remains a separate
 human decision.
-
-v4.2.0's C1/C2A/C2B/C3 are internal engineering gates of one milestone.
-The completed core and terminal module are described in the
-[repository comprehension guide](guides/konoha_v4_repository_comprehension_and_learning.md).
 
 All phases below are historical planning context, not the active work queue.
 

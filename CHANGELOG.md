@@ -1,9 +1,9 @@
-## Unreleased — v4.2.x engineering packages
+## [4.2.0] — Repository Comprehension, Supervised Learning and Conversational Integration
 
-These are reviewable engineering changes, not published release history.
-The latest published release remains v4.1.1.
+One integrated release. The earlier internal v4.2.0/v4.2.1 engineering
+package labels (including gates C1/C2A/C2B/C3) were never separate releases.
 
-### v4.2.0 — Repository comprehension and human teachback core
+### Repository comprehension and exact evidence
 
 - Materialize every canonical required source with explicit bounds; retain one
   resolution mapping for both the executor gate and worker context.
@@ -14,12 +14,15 @@ The latest published release remains v4.1.1.
   hash. Stale, missing or corrupt approved evidence requires replanning; resume
   never reacquires it.
 - Add generic, evidence-linked repository studies and a local terminal workflow.
-- Extend the canonical teachback engine with a repository comprehension loop
-  closed only by exact human `:entendido`, separate from execution and closure.
 - Refuse file aliases into excluded content and use descriptor-relative evidence
   reads; preserve tracked-deletion fingerprints and the failure-log boundary.
 
-### v4.2.1 — Supervised recommendations and public-repository learning
+### Human repository teachback
+
+- Extend the canonical teachback engine with a repository comprehension loop
+  closed only by exact human `:entendido`, separate from execution and closure.
+
+### Supervised recommendations and public-repository learning
 
 - Build proposal-only self-improvement recommendations from retained evidence.
 - Reuse local-model audit's validated/suppressed approach while distinguishing
@@ -29,8 +32,36 @@ The latest published release remains v4.1.1.
   licensing and scope concerns; recommendations never authorize adoption.
 - Keep acquisition from real remotes as a separate human/network boundary.
 
-Next: final terminal/conversational CLI integration, not another infrastructure
-milestone. No version, tag or release publication is part of these changes.
+### Conversational CLI integration
+
+- Route repository study, explanation, evidence display, private resume,
+  recommendations and donor comparison through the existing `konoha`
+  conversation (`understand this repository`, `:repo help`), reusing the same
+  study and teachback APIs rather than a parallel engine.
+- External local checkouts require a fresh exact `:repo authorize <challenge>`
+  command; naming a path or answering `yes` grants nothing.
+- `implement recommendation NUMBER` enters the existing supervised mission
+  planning flow with the recommendation as evidence-only context; nothing is
+  applied directly.
+
+### Safety
+
+- Repository routes do not probe or invoke providers, run tests or
+  application code, or patch files.
+- Repository understanding grants no execution approval and does not replace
+  mission teachback or closure evidence.
+- Recommendations remain `proposed` with `authorizes_action=false`; donor code
+  is never copied or adopted by study.
+- No automatic provider/family fallback was added.
+
+### Known limitations
+
+- Legacy plans that need repository evidence must be replanned; an absent
+  evidence binding cannot authorize acquisition. Changed repository content
+  requires a new planning transaction or study.
+- Evidence extraction is static, bounded and primarily Python-oriented.
+- A provider may still return schema-valid but semantically weak evidence;
+  provider output remains evidence only.
 
 ## [4.1.1] — Human Turn Integrity and Corrective Replanning Stability
 
