@@ -679,9 +679,13 @@ def acquire_repo_evidence(
         elif rel.endswith(".toml") and name == "pyproject.toml":
             manifest_raw_text[rel] = text
         elif rel.endswith(".md"):
+            # The repository-root README's ordinary prose states purpose and
+            # limits; other Markdown, nested READMEs included, keeps only
+            # command/flag-like lines.
+            readme = rel.casefold() == "readme.md"
             for lineno, line in enumerate(text.splitlines(), start=1):
                 stripped = line.strip()
-                if "`" in stripped or "--" in stripped:
+                if "`" in stripped or "--" in stripped or readme and stripped:
                     ref = next_ref()
                     provenance_index[ref] = {
                         "path": rel, "line_start": lineno, "line_end": lineno,

@@ -1,4 +1,5 @@
 """Separate-process terminal smoke: local fixtures, no real providers/network."""
+import hashlib
 import json
 import os
 import re
@@ -35,6 +36,23 @@ with mock.patch.object(c, 'CapabilityRegistry'), \\
      mock.patch.object(c, '_run_resumable_execution', side_effect=AssertionError('execution forbidden in smoke')):
     raise SystemExit(cli.main(sys.argv[1:]))
 """
+
+
+# Frozen dogfood human turns, copied literally (byte-exact, hashes below).
+FROZEN_TURNS = (
+    "Hola. Acabo de terminar el colegio y no sé nada de Konoha.\nTampoco sé qué significa agente, orquestador, runtime, schema,\nevidence pack o LLM.\n\nMirá este repositorio y explicame, desde cero y con palabras simples:\n\n- qué es Konoha;\n- para qué sirve;\n- qué problema intenta resolver;\n- cómo funciona una tarea desde que yo la pido hasta que termina;\n- qué partes principales tiene;\n- qué cosas puede hacer;\n- qué cosas NO puede hacer por su cuenta;\n- qué cosas siempre necesitan mi permiso.\n\nSi necesitás usar una palabra técnica, explicala en una frase simple.\n\nAl final dame un ejemplo concreto de una tarea real,\npaso por paso.\n\nNo supongas que conozco el proyecto.",
+    "Todavía no entendí bien la diferencia entre planear algo\ny tener permiso para hacerlo. Explicámelo de otra manera.",
+    "Mostrame de dónde sacaste las afirmaciones más importantes.",
+    "ok, gracias",
+    ":entendido",
+)
+FROZEN_SHA256 = (
+    "622d6f9b194767a8d5a12c9134249b5d23671b77a53b2f7bfbd4ff74a5efd7a2",
+    "81bdf5a2c5e9a1d205eb9ba4132bb8c3e0f864f0dadb3e99cf667a3ed0fd03fa",
+    "460b196840b7989ba7c164fff3c46a0ff24d95e093130d90219604792cad93c2",
+    "0a78faa1ff5909e8ba384d6d3744fd458a9c15c3d0e88674fa502213e1ecfcdf",
+    "83881d461cec31b78c589d6224194f5397c3b4728dfd2d55c9800da95d00973b",
+)
 
 
 class Terminal:
@@ -145,6 +163,31 @@ class RepositoryTerminalJourneys(unittest.TestCase):
         self.assertIn("Currentness: stale", resumed.send("explain Konoha to me"))
         self.assertEqual(packs_before, {p: p.read_bytes() for p in self.state.rglob("repository-evidence-*.json")})
         resumed.exit()
+        self.assertFalse((self.state / "missions").exists())
+        self.assertFalse((self.state / "context_acquisition.json").exists())
+
+    def test_live_frozen_novice_journey_stays_in_study(self):
+        # Literal frozen dogfood turns; each natural turn is a real multiline :fin block.
+        self.assertEqual(FROZEN_SHA256, tuple(hashlib.sha256(turn.encode()).hexdigest() for turn in FROZEN_TURNS))
+        (self.repo / "README.md").write_text("# Beacon\n\nBeacon is a terminal tool for supervised AI missions.\n\n"
+                                             "## What Beacon does not do\n\n- It does not execute autonomously.\n")
+        before = {p: p.read_bytes() for p in self.repo.iterdir()}
+        terminal = Terminal(self, self.repo, self.state)
+        output = terminal.send(FROZEN_TURNS[0])
+        study_id = re.search(r"study-[0-9a-f]{32}", output)[0]
+        self.assertIn("Beacon es una herramienta que se usa escribiendo órdenes en la terminal", output)
+        self.assertIn("no ejecuta nada por su cuenta [README.md:7]", output)
+        self.assertIn("entender != permiso", output)
+        self.assertNotIn("De dónde salen", output)
+        self.assertIn("Planear y tener permiso son dos cosas distintas", terminal.send(FROZEN_TURNS[1]))
+        evidence = terminal.send(FROZEN_TURNS[2])
+        self.assertIn(f"«Beacon is a terminal tool for supervised AI missions.» [{study_id} / ", evidence)
+        self.assertIn("Teachback: awaiting_human", terminal.send(FROZEN_TURNS[3]))
+        self.assertIn("Teachback: understood", terminal.send(FROZEN_TURNS[4]))
+        terminal.exit()
+        self.assertEqual({study_id}, set(re.findall(r"study-[0-9a-f]{32}", terminal.transcript)))
+        self.assertNotIn("Adquiriendo", terminal.transcript)
+        self.assertEqual(before, {p: p.read_bytes() for p in self.repo.iterdir()})
         self.assertFalse((self.state / "missions").exists())
         self.assertFalse((self.state / "context_acquisition.json").exists())
 
