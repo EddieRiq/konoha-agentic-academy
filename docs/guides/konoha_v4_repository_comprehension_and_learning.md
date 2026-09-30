@@ -1,9 +1,12 @@
-# Repository comprehension and supervised learning (v4.2.0)
+# Repository comprehension and supervised learning (v4.2.0, v4.2.1)
 
 This guide describes the local core and its integration into the normal
 `konoha` conversation, shipped together in the integrated v4.2.0 release line.
-Tag creation, push and publication are separate maintainer-controlled
-operations. See the [v4.2.0 release notes](../releases/v4.2.0.md).
+The v4.2.1 patch release also routes natural Spanish/multiline study requests,
+such as “Mirá este repositorio y explicame…”, into this workflow instead of
+mission planning. Tag creation, push and publication are separate
+maintainer-controlled operations. See the [v4.2.0 release notes](../releases/v4.2.0.md)
+and the [v4.2.1 release notes](../releases/v4.2.1.md).
 
 ## Start from the main CLI
 

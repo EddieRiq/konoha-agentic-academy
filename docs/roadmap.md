@@ -6,6 +6,11 @@ It is not a commitment to implement every item in order. Work that changes doctr
 
 ## Current status
 
+v4.2.1 is a patch release on top of v4.2.0 that keeps natural Spanish/multiline
+repository-study requests in repository comprehension; see the
+[v4.2.1 release notes](releases/v4.2.1.md). It is distinct from the earlier
+internal v4.2.1 package label described below.
+
 v4.2.0 is the integrated release line containing the completed repository
 comprehension scope. Tag creation, push and GitHub publication are separate
 human/maintainer-controlled operations and are not implied by this roadmap.

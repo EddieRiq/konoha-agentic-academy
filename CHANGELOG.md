@@ -1,3 +1,34 @@
+## [4.2.1] — Natural Repository Study Conversations
+
+Patch release on top of v4.2.0. This is a new post-v4.2.0 release; it is
+unrelated to the earlier internal v4.2.1 engineering package label, whose
+content shipped inside v4.2.0.
+
+### Fixed
+
+- A natural Spanish or multiline request such as “Mirá este repositorio y
+  explicame…” could fall through into normal mission planning instead of
+  repository comprehension. Such turns now reach the existing repository study
+  through deterministic, conservative intent recognition.
+- While a study is active, natural follow-ups (clarification, evidence
+  requests, acknowledgements) continue that study instead of starting a
+  mission.
+- Novice explanations are evidence-backed: each repository statement carries
+  its source locators, and missing evidence is reported as missing.
+- Ordinary prose in the repository-root README is retained as purpose
+  evidence; other Markdown keeps its previous command/flag-only extraction.
+- Add an exact frozen novice journey regression with byte-exact,
+  hash-verified human turns.
+
+### Safety
+
+- No LLM intent classifier; recognition uses fixed word lists, and any
+  change/fix/add/run request still routes to a normal supervised mission.
+- Repository-study turns do not invoke providers or mission planning.
+- Repository study grants no authority. Ordinary acknowledgements such as
+  “ok, gracias” do not close teachback; only exact `:entendido` closes
+  repository understanding, and that closure grants no execution approval.
+
 ## [4.2.0] — Repository Comprehension, Supervised Learning and Conversational Integration
 
 One integrated release. The earlier internal v4.2.0/v4.2.1 engineering

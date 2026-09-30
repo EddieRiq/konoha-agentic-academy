@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.2.0 \
+  --version v4.2.1 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
@@ -257,6 +257,13 @@ Start with:
 - `docs/releases/v3.6.0.md`
 
 ## Release status
+
+`v4.2.1` is a patch release on top of `v4.2.0`: natural Spanish/multiline
+repository-study requests such as “Mirá este repositorio y explicame…” now stay
+in evidence-backed repository comprehension instead of falling into mission
+planning, with no change to authority. Tag creation, push and GitHub
+publication remain separate human/maintainer-controlled operations. See the
+[v4.2.1 release notes](docs/releases/v4.2.1.md).
 
 `v4.2.0` is the integrated release line; tag creation, push and GitHub
 publication are separate human/maintainer-controlled operations and are not

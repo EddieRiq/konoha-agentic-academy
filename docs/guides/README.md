@@ -27,6 +27,8 @@ conversational CLI integration, see
 [Repository comprehension and learning](konoha_v4_repository_comprehension_and_learning.md).
 v4.2.0 is the integrated release line containing this scope; tag creation and
 publication are separate maintainer-controlled operations. See the [v4.2.0 release notes](../releases/v4.2.0.md).
+The v4.2.1 patch release keeps natural Spanish/multiline study requests in this
+workflow; see the [v4.2.1 release notes](../releases/v4.2.1.md).
 
 ## Guide types
 
