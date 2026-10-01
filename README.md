@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.2.1 \
+  --version v4.2.2 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
@@ -257,6 +257,15 @@ Start with:
 - `docs/releases/v3.6.0.md`
 
 ## Release status
+
+`v4.2.2` is a patch release on top of `v4.2.1`: CI and release readiness run
+the whole repository test suite through the canonical per-suite runner
+`tools/release_testing/run_release_tests.py` instead of root `unittest`
+discovery, which had silently exercised only a small subset. Test defects
+exposed by the full gate were corrected without changing product behavior or
+authority. Tag creation, push and GitHub publication remain separate
+human/maintainer-controlled operations. See the
+[v4.2.2 release notes](docs/releases/v4.2.2.md).
 
 `v4.2.1` is a patch release on top of `v4.2.0`: natural Spanish/multiline
 repository-study requests such as “Mirá este repositorio y explicame…” now stay

@@ -6,6 +6,11 @@ It is not a commitment to implement every item in order. Work that changes doctr
 
 ## Current status
 
+v4.2.2 is a patch release on top of v4.2.1 that makes CI and release
+readiness run every repository test suite through the canonical per-suite
+runner, with no product behavior change; see the
+[v4.2.2 release notes](releases/v4.2.2.md).
+
 v4.2.1 is a patch release on top of v4.2.0 that keeps natural Spanish/multiline
 repository-study requests in repository comprehension; see the
 [v4.2.1 release notes](releases/v4.2.1.md). It is distinct from the earlier

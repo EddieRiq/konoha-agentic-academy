@@ -1,3 +1,29 @@
+## [4.2.2] — Canonical Full-Repository Test Gate
+
+Patch release on top of v4.2.1. No product behavior change.
+
+### Fixed
+
+- CI and release readiness ran whole-repository tests through root
+  `unittest` discovery, which skips the non-package suite directories under
+  `tests/` and silently exercised only a small subset. Both now delegate to
+  the canonical per-suite runner `tools/release_testing/run_release_tests.py`;
+  suites run independently, later suites continue after a failure, and the
+  aggregate status fails when any suite fails.
+- A stale CLI test expected `4.0.0`; it now checks the current canonical
+  version metadata and actual `--version` behavior.
+- Deterministic orchestration tests no longer depend on live provider or
+  hardware readiness; they use scoped synthetic provider evidence, and real
+  `ProviderSelectionError` behavior remains tested.
+
+### Safety
+
+- No suite exclusions, and no skips or `expectedFailure` added to obtain a
+  passing gate.
+- `ProviderSelectionError` is not weakened; deterministic tests need no real
+  provider, network access or credentials.
+- No approval, teachback, evidence or runtime authority change.
+
 ## [4.2.1] — Natural Repository Study Conversations
 
 Patch release on top of v4.2.0. This is a new post-v4.2.0 release; it is
