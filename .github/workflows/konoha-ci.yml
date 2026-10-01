@@ -27,8 +27,8 @@ jobs:
       - name: Show Python version
         run: python --version
 
-      - name: Run unit tests
-        run: python -m unittest discover -s tests -p "test_*.py"
+      - name: Run canonical release test gate
+        run: python tools/release_testing/run_release_tests.py
 
       - name: Run integrated dry-run smoke tests
         run: |

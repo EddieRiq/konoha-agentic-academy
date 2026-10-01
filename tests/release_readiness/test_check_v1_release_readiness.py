@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import shutil
 import sys
 import tempfile
 import unittest
@@ -135,6 +136,135 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(code, 1)
         finally:
             self.module.run_command = original
+
+
+CANONICAL_RELATIVE = "tools/release_testing/run_release_tests.py"
+
+PASSING_TEST = """import unittest
+
+class PassingTest(unittest.TestCase):
+    def test_passes(self):
+        self.assertTrue(True)
+"""
+
+FAILING_TEST = """import unittest
+
+class FailingTest(unittest.TestCase):
+    def test_fails(self):
+        self.assertEqual(1, 2)
+"""
+
+
+class ReadinessFullSuiteRoutingTests(unittest.TestCase):
+    def setUp(self):
+        self.module = load_module()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo_root = Path(self.tmp.name) / "repo"
+        self.sandbox_root = Path(self.tmp.name) / "sandbox"
+        self.repo_root.mkdir()
+        self.sandbox_root.mkdir()
+        self.calls = []
+        self.original = self.module.run_command
+
+    def tearDown(self):
+        self.module.run_command = self.original
+        self.tmp.cleanup()
+
+    def stub_run_command(self, failing=()):
+        def fake_run_command(name, command, cwd):
+            self.calls.append((name, list(command)))
+            returncode = 1 if name in failing else 0
+            return {
+                "name": name,
+                "command": list(command),
+                "returncode": returncode,
+                "passed": returncode == 0,
+                "stdout": "",
+                "stderr": "",
+            }
+
+        self.module.run_command = fake_run_command
+
+    def test_unit_tests_step_uses_canonical_runner(self):
+        self.stub_run_command()
+        steps = self.module.build_steps(
+            repo_root=self.repo_root,
+            sandbox_root=self.sandbox_root,
+            run_id="routing",
+            allow_dirty=False,
+            skip_smoke=False,
+        )
+        self.assertEqual(
+            [step["name"] for step in steps],
+            [
+                "unit_tests",
+                "integrated_smoke_tests",
+                "dogfood_mission_suite",
+                "repo_inspection",
+                "git_readiness",
+            ],
+        )
+        self.assertEqual(
+            steps[0]["command"],
+            [sys.executable, CANONICAL_RELATIVE, "--repo-root", "."],
+        )
+        self.assertTrue((REPO_ROOT / CANONICAL_RELATIVE).is_file())
+
+    def test_no_step_uses_root_unittest_discovery(self):
+        self.stub_run_command()
+        self.module.build_steps(
+            repo_root=self.repo_root,
+            sandbox_root=self.sandbox_root,
+            run_id="routing",
+            allow_dirty=True,
+            skip_smoke=False,
+        )
+        for _, command in self.calls:
+            self.assertNotIn("unittest", command)
+            self.assertNotIn("discover", command)
+        self.assertNotIn('"discover"', MODULE_PATH.read_text(encoding="utf-8"))
+
+    def test_failing_canonical_gate_fails_readiness(self):
+        self.stub_run_command(failing={"unit_tests"})
+        args = SimpleNamespace(
+            repo_root=str(REPO_ROOT),
+            sandbox_root=str(self.sandbox_root),
+            run_id="routing-failure",
+            allow_dirty=True,
+            skip_smoke=True,
+        )
+        report = self.module.build_report(args)
+        self.assertFalse(report["passed"])
+        self.assertEqual(report["release"]["target_version"], "v1.0.0")
+        self.assertEqual(report["schema_version"], "1.0")
+        failed = [step["name"] for step in report["delegated_steps"] if not step["passed"]]
+        self.assertEqual(failed, ["unit_tests"])
+
+    def test_unit_tests_step_surfaces_failing_non_package_suite(self):
+        self.stub_run_command()
+        self.module.build_steps(
+            repo_root=self.repo_root,
+            sandbox_root=self.sandbox_root,
+            run_id="routing",
+            allow_dirty=True,
+            skip_smoke=True,
+        )
+        unit_command = dict(self.calls)["unit_tests"]
+
+        script_target = self.repo_root / CANONICAL_RELATIVE
+        script_target.parent.mkdir(parents=True)
+        shutil.copyfile(REPO_ROOT / CANONICAL_RELATIVE, script_target)
+        for name, content in (("a_failing", FAILING_TEST), ("b_passing", PASSING_TEST)):
+            suite = self.repo_root / "tests" / name
+            suite.mkdir(parents=True)
+            (suite / "test_sample.py").write_text(content, encoding="utf-8")
+        self.assertFalse((self.repo_root / "tests" / "a_failing" / "__init__.py").exists())
+
+        step = self.original("unit_tests", unit_command, self.repo_root)
+        self.assertFalse(step["passed"])
+        self.assertEqual(step["returncode"], 1, step["stdout"] + step["stderr"])
+        self.assertIn("FAIL a_failing", step["stdout"])
+        self.assertIn("PASS b_passing", step["stdout"])
 
 
 if __name__ == "__main__":

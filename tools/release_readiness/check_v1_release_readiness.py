@@ -195,7 +195,7 @@ def build_steps(repo_root: Path, sandbox_root: Path, run_id: str, allow_dirty: b
     steps.append(
         run_command(
             "unit_tests",
-            [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"],
+            [sys.executable, "tools/release_testing/run_release_tests.py", "--repo-root", "."],
             repo_root,
         )
     )
