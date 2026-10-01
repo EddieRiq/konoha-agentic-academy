@@ -18,12 +18,24 @@ SCRIPT = (
     / "hokage_orchestrator"
     / "run_conversational_hokage.py"
 )
+BOOTSTRAP_FIXTURE = Path(__file__).resolve().with_name("bootstrap_fixture.py")
 
 
 def load_script():
     spec = importlib.util.spec_from_file_location(
         "run_conversational_hokage_block2",
         SCRIPT,
+    )
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_bootstrap_fixture():
+    spec = importlib.util.spec_from_file_location(
+        "hokage_bootstrap_fixture",
+        BOOTSTRAP_FIXTURE,
     )
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -49,6 +61,10 @@ def reject_until(shell, action, target_skill_id):
 class ConversationalShellBlock2Tests(unittest.TestCase):
     def setUp(self):
         self.module = load_script()
+        load_bootstrap_fixture().install_synthetic_bootstrap(
+            self,
+            self.module.HokageBootstrapRuntime,
+        )
 
     def make_shell(self, root: Path):
         return self.module.ConversationalHokage(

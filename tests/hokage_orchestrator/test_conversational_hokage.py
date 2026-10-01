@@ -10,6 +10,7 @@ SCRIPT = (
     / "hokage_orchestrator"
     / "run_conversational_hokage.py"
 )
+BOOTSTRAP_FIXTURE = Path(__file__).resolve().with_name("bootstrap_fixture.py")
 
 
 def load_script():
@@ -23,9 +24,24 @@ def load_script():
     return module
 
 
+def load_bootstrap_fixture():
+    spec = importlib.util.spec_from_file_location(
+        "hokage_bootstrap_fixture",
+        BOOTSTRAP_FIXTURE,
+    )
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(module)
+    return module
+
+
 class ConversationalHokageTests(unittest.TestCase):
     def setUp(self):
         self.module = load_script()
+        load_bootstrap_fixture().install_synthetic_bootstrap(
+            self,
+            self.module.HokageBootstrapRuntime,
+        )
 
     def test_intent_interprets_repo_review_and_constraints(self):
         with tempfile.TemporaryDirectory() as tmp:

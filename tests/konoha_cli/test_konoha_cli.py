@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,12 +10,14 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools" / "konoha_cli.py"
+VERSION_SCRIPT = ROOT / "tools" / "version.py"
+PYPROJECT = ROOT / "pyproject.toml"
 
 
-def load_module():
+def load_module(name="konoha_cli", path=SCRIPT):
     spec = importlib.util.spec_from_file_location(
-        "konoha_cli",
-        SCRIPT,
+        name,
+        path,
     )
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -22,16 +25,79 @@ def load_module():
     return module
 
 
+def project_version(pyproject_text):
+    # Python 3.10 has no tomllib: isolate [project] and require exactly one
+    # anchored double-quoted version assignment inside it.
+    sections = re.findall(
+        r"^\[project\][ \t]*\n(.*?)(?=^\[|\Z)",
+        pyproject_text,
+        re.MULTILINE | re.DOTALL,
+    )
+    if len(sections) != 1:
+        raise AssertionError(
+            f"expected one [project] section, found {len(sections)}"
+        )
+    assignments = re.findall(
+        r"^version[ \t]*=.*$",
+        sections[0],
+        re.MULTILINE,
+    )
+    if len(assignments) != 1:
+        raise AssertionError(
+            "expected one [project] version assignment, "
+            f"found {len(assignments)}"
+        )
+    match = re.fullmatch(
+        r'version[ \t]*=[ \t]*"([^"\\]+)"[ \t]*',
+        assignments[0],
+    )
+    if match is None:
+        raise AssertionError(
+            f"unsupported [project] version assignment: {assignments[0]!r}"
+        )
+    return match.group(1)
+
+
 class KonohaCliTests(unittest.TestCase):
     def setUp(self):
         self.module = load_module()
 
     def test_version_is_release_aligned(self):
-        self.assertEqual(self.module.VERSION, "4.0.0")
-        self.assertEqual(
-            self.module.main(["--version"]),
-            0,
+        canonical = load_module(
+            "konoha_version",
+            VERSION_SCRIPT,
+        ).VERSION
+        package_version = project_version(
+            PYPROJECT.read_text(encoding="utf-8")
         )
+        self.assertEqual(canonical, package_version)
+        self.assertEqual(self.module.VERSION, canonical)
+
+        output = io.StringIO()
+        with redirect_stdout(output):
+            code = self.module.main(["--version"])
+        self.assertEqual(code, 0)
+        self.assertEqual(output.getvalue(), f"{canonical}\n")
+
+    def test_project_version_requires_one_project_assignment(self):
+        self.assertEqual(
+            project_version(
+                '[project]\nname = "x"\nversion = "1.2.3"\n'
+                '[tool.x]\nversion = "9.9.9"\n'
+            ),
+            "1.2.3",
+        )
+        invalid = {
+            "no_project": '[tool.x]\nversion = "1.2.3"\n',
+            "missing": '[project]\nname = "x"\n[tool.x]\nversion = "1"\n',
+            "duplicate": '[project]\nversion = "1"\nversion = "2"\n',
+            "two_sections": '[project]\nversion = "1"\n[project]\n',
+            "unquoted": "[project]\nversion = 1.2.3\n",
+        }
+        for label, text in invalid.items():
+            with self.subTest(label):
+                with self.assertRaises(AssertionError):
+                    project_version(text)
 
     def test_unknown_command_fails(self):
         self.assertEqual(
