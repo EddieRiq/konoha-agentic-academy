@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
+TEST_SANDBOX = ROOT / "sandbox"
 MANAGER = ROOT / "tools/distribution/manage_konoha_distribution.py"
 SMOKE = ROOT / "tools/distribution/run_clean_install_smoke.py"
 INSTALLER = ROOT / "scripts/install.sh"
@@ -26,19 +27,57 @@ def load_module(name, path):
 
 class ManagedDistributionTests(unittest.TestCase):
     def setUp(self):
+        TEST_SANDBOX.mkdir(parents=True, exist_ok=True)
+        self.tmp = tempfile.TemporaryDirectory(
+            prefix="konoha-distribution-test-",
+            dir=TEST_SANDBOX,
+        )
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name)
+        self.home = self.base / "home"
+        self.home.mkdir()
+        self.temp_root = self.base / "tmp"
+        self.temp_root.mkdir()
+        self.xdg_roots = {
+            "XDG_DATA_HOME": self.home / ".local" / "share",
+            "XDG_BIN_HOME": self.home / ".local" / "bin",
+            "XDG_CONFIG_HOME": self.home / ".config",
+            "XDG_STATE_HOME": self.home / ".local" / "state",
+            "XDG_CACHE_HOME": self.home / ".cache",
+        }
+        for path in self.xdg_roots.values():
+            path.mkdir(parents=True, exist_ok=True)
+        env_patch = patch.dict(
+            os.environ,
+            {
+                "HOME": str(self.home),
+                "TMPDIR": str(self.temp_root),
+                **{
+                    name: str(path)
+                    for name, path in self.xdg_roots.items()
+                },
+            },
+        )
+        env_patch.start()
+        self.addCleanup(env_patch.stop)
+        home_patch = patch.object(Path, "home", return_value=self.home)
+        home_patch.start()
+        self.addCleanup(home_patch.stop)
+        tempdir_patch = patch.object(
+            tempfile,
+            "tempdir",
+            str(self.temp_root),
+        )
+        tempdir_patch.start()
+        self.addCleanup(tempdir_patch.stop)
         self.module = load_module(
             "managed_distribution_test_module",
             MANAGER,
         )
-        self.tmp = tempfile.TemporaryDirectory(
-            prefix="konoha-distribution-test-",
-            dir=Path.home(),
-        )
-        self.base = Path(self.tmp.name)
-        self.root = self.base / "data" / "konoha-agentic-academy"
+        self.root = self.home / "data" / "konoha-agentic-academy"
         self.venv = self.root / ".venv"
-        self.bin_path = self.base / "bin" / "konoha"
-        self.state_file = self.base / "state" / "konoha" / "install.json"
+        self.bin_path = self.home / "bin" / "konoha"
+        self.state_file = self.home / "state" / "konoha" / "install.json"
         self.root.mkdir(parents=True)
         (self.root / ".git").mkdir()
         (self.root / "tools").mkdir()
@@ -98,8 +137,14 @@ class ManagedDistributionTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def tearDown(self):
-        self.tmp.cleanup()
+    def test_fixture_uses_only_synthetic_home_and_xdg_roots(self):
+        self.assertEqual(Path.home(), self.home)
+        self.assertEqual(Path(os.environ["HOME"]), self.home)
+        self.assertEqual(Path(os.environ["TMPDIR"]), self.temp_root)
+        for name, path in self.xdg_roots.items():
+            with self.subTest(variable=name):
+                self.assertEqual(Path(os.environ[name]), path)
+                self.assertTrue(path.is_relative_to(self.home))
 
     def test_parse_version_accepts_semver_tag(self):
         self.assertEqual(
@@ -355,6 +400,38 @@ class ManagedDistributionTests(unittest.TestCase):
             "Run `konoha welcome` and `konoha next`.",
             source,
         )
+
+
+class HostileOuterEnvironmentTests(unittest.TestCase):
+    def test_distribution_fixtures_ignore_outer_home_and_xdg(self):
+        TEST_SANDBOX.mkdir(parents=True, exist_ok=True)
+        child_env = {
+            "PATH": os.environ.get("PATH", ""),
+            "HOME": str(
+                TEST_SANDBOX / "ref024-hostile-home-does-not-exist"
+            ),
+            "TMPDIR": str(TEST_SANDBOX),
+            "PYTHONDONTWRITEBYTECODE": "1",
+        }
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "unittest",
+                "test_managed_distribution.ManagedDistributionTests",
+            ],
+            cwd=ROOT / "tests" / "distribution",
+            env=child_env,
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=120,
+        )
+        output = completed.stdout + completed.stderr
+        self.assertEqual(completed.returncode, 0, output)
+        self.assertRegex(output, r"Ran \d+ tests?")
+        self.assertIn("OK", output)
+
 
 class CleanInstallSmokeTests(unittest.TestCase):
     def test_clean_install_smoke_passes(self):
