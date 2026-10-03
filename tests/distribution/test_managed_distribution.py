@@ -327,15 +327,15 @@ class ManagedDistributionTests(unittest.TestCase):
         version = (ROOT / "tools/version.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn('version = "4.2.2"', pyproject)
-        self.assertIn('VERSION = "4.2.2"', version)
+        self.assertIn('version = "4.2.3"', pyproject)
+        self.assertIn('VERSION = "4.2.3"', version)
 
-    def test_installer_default_release_tag_is_v4_2_2(self):
-        # v4.2.2 release closure: the active installer default and its
+    def test_installer_default_release_tag_is_v4_2_3(self):
+        # v4.2.3 release closure: the active installer default and its
         # help/example line must name the current installable release tag.
         source = INSTALLER.read_text(encoding="utf-8")
-        self.assertIn('VERSION="v4.2.2"', source)
-        self.assertIn("--version v4.2.2", source)
+        self.assertIn('VERSION="v4.2.3"', source)
+        self.assertIn("--version v4.2.3", source)
 
 
 
@@ -441,13 +441,13 @@ class CleanInstallSmokeTests(unittest.TestCase):
         )
         report = module.execute_smoke(
             ROOT,
-            expected_version="4.2.2",
+            expected_version="4.2.3",
         )
         self.assertEqual(
             report["status_code"],
             "CLEAN_INSTALL_SMOKE_PASSED",
         )
-        self.assertEqual(report["observed_version"], "4.2.2")
+        self.assertEqual(report["observed_version"], "4.2.3")
 
 
 if __name__ == "__main__":

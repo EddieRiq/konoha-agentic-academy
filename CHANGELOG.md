@@ -1,3 +1,20 @@
+## [4.2.3] — Product Finalization and Distribution Hermeticity
+
+Finalization patch on top of v4.2.2. No production behavior or new product
+capability is introduced.
+
+### Fixed
+
+- REF-024 makes distribution tests independent from developer HOME/XDG
+  configuration.
+- Aligned the stale public installable terminal distribution guide with
+  v4.2.3.
+
+### Release status
+
+- The Product Finalization Checkpoint completed with zero release blockers.
+- Remaining backlog is nonblocking and is not included in this release.
+
 ## [4.2.2] — Canonical Full-Repository Test Gate
 
 Patch release on top of v4.2.1. No product behavior change.

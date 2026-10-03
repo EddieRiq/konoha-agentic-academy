@@ -81,7 +81,7 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.2.2 \
+  --version v4.2.3 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
@@ -257,6 +257,14 @@ Start with:
 - `docs/releases/v3.6.0.md`
 
 ## Release status
+
+`v4.2.3` is a finalization patch release on top of `v4.2.2`: REF-024 makes
+distribution tests independent from developer HOME/XDG, and the stale public
+installation instructions are aligned with this release. It adds no product
+capability. The Product Finalization Checkpoint completed with zero release
+blockers; remaining backlog is nonblocking and excluded from this release.
+Local-first operation and explicit human approval remain required. See the
+[v4.2.3 release notes](docs/releases/v4.2.3.md).
 
 `v4.2.2` is a patch release on top of `v4.2.1`: CI and release readiness run
 the whole repository test suite through the canonical per-suite runner

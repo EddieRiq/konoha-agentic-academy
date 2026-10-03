@@ -6,6 +6,13 @@ It is not a commitment to implement every item in order. Work that changes doctr
 
 ## Current status
 
+v4.2.3 is a finalization patch release on top of v4.2.2. It introduces no
+production behavior or new product capability, makes distribution tests
+independent from developer HOME/XDG configuration through REF-024, and aligns
+the stale public install guide. The Product Finalization Checkpoint completed
+with zero release blockers; remaining backlog is nonblocking and excluded.
+See the [v4.2.3 release notes](releases/v4.2.3.md).
+
 v4.2.2 is a patch release on top of v4.2.1 that makes CI and release
 readiness run every repository test suite through the canonical per-suite
 runner, with no product behavior change; see the
