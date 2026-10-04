@@ -6,6 +6,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from .terminal_input import TerminalTurnReader
 from .repository_conversation import RepositoryConversation
+from .interactive_shell import (
+    dashboard_lines,
+    detect_project,
+    local_art_path,
+    print_splash,
+    provider_executable_status,
+    sanitize_display,
+    state_root_for_project,
+)
 from .context_acquisition import acquire_context
 from .continuity import (
  MissionContinuityStore,
@@ -104,7 +113,7 @@ def _repository_state_unavailable_reason(repo: Path, mission_text: str, pack: Re
     return resolution.reason or resolution.availability.value
 
 
-def _read_turn(prompt: str = "Vos> ") -> str | None:
+def _read_turn(prompt: str = "Vos> ", *, interactive_controls: bool = False) -> str | None:
     """Deterministic mission-turn capture. The first line only decides
     whether to exit or enter block mode - it is never treated as "probably
     the whole mission" based on timing. Any substantive first line always
@@ -127,9 +136,11 @@ def _read_turn(prompt: str = "Vos> ") -> str | None:
     if control in _EXIT_COMMANDS:
         return control
 
-    # Reserved repository controls are exact human lines, never block-trimmed.
-    # Near-matches to :entendido must reach canonical teachback unchanged.
+    # Preserve legacy single-line repository controls. Other colon controls
+    # are single-line only for the explicitly enabled Interactive Shell.
     if control == ":entendido" or control.startswith(":repo"):
+        return first_line
+    if interactive_controls and control.startswith(":"):
         return first_line
 
     print(
@@ -150,6 +161,18 @@ def _read_turn(prompt: str = "Vos> ") -> str | None:
         )
         return ""
     return mission_text or ""
+
+
+def _confirm_project_workspace(state_dir: Path) -> bool:
+    """Create per-project state only after one explicit terminal-reader reply."""
+    print(f"No project workspace exists at {sanitize_display(state_dir)}.")
+    answer = _TERMINAL_INPUT.read_exact_line(
+        "Create this local workspace now? [yes/no] "
+    )
+    if answer is None or answer.strip().casefold() not in {"yes", "y", "sí", "si"}:
+        return False
+    state_dir.mkdir(parents=True, exist_ok=True)
+    return True
 
 
 def _read_decision(prompt: str = "Vos> ") -> str | None:
@@ -820,7 +843,12 @@ def _run_resumable_execution(
 def resume_mission(repo: Path, mission_id: str) -> int:
     """Terminal entrypoint for --resume MISSION_ID: continues an existing
     mission's execution without opening a new planning conversation."""
-    state_dir = default_state_root()
+    project = detect_project(repo)
+    if project.git_root is not None:
+        repo = project.git_root
+    project_state = state_root_for_project(project)
+    project_mission = project_state / "missions" / mission_id
+    state_dir = project_state if project_mission.is_dir() else default_state_root()
     state_dir.mkdir(parents=True, exist_ok=True)
     registry = CapabilityRegistry(repo)
     print(f"Konoha: Reanudando la misión {mission_id} sin abrir una nueva conversación.")
@@ -993,20 +1021,39 @@ def _build_validated_plan(
 
     return plan, problems, MAX_PLAN_ATTEMPTS
 
-def run(repo: Path, *, plan_only: bool = False) -> int:
-    state_dir = default_state_root()
+def run(repo: Path, *, plan_only: bool = False, interactive_shell: bool = False,
+        no_splash: bool = False, no_color: bool = False,
+        state_dir_override: Path | None = None) -> int:
+    project = detect_project(repo) if interactive_shell else None
+    if project is not None and project.git_root is not None:
+        repo = project.git_root
+    state_dir = (state_dir_override or
+                 (state_root_for_project(project) if project is not None else default_state_root()))
+    if interactive_shell:
+        print_splash(tty=sys.stdout.isatty(), no_color=no_color,
+                     no_splash=no_splash, art_directory=local_art_path())
+        print("\nKONOHA TERMINAL")
+        print("\n".join(dashboard_lines(project, state_dir)))
+        print("\nType :help for shell commands. Startup checks metadata only; no model or mission is started.")
+        if plan_only:
+            print("Technical planning mode is active; execution remains separately gated.")
+        created = state_dir.is_dir()
+    else:
+        created = True
     studies = RepositoryConversation(repo, state_dir)
     registry = None
     acquired = None
-    print("Konoha: Bienvenido, Eduardo. Codex conduce la misión bajo autoridad constitucional de Hokage.")
-    print("Konoha: Rutas privadas y externas permanecen excluidas; providers se verifican al planificar una misión.")
-    print("Konoha: Para estudiar el repositorio: understand this repository + :fin. Ayuda: :repo help.")
-    print(
-        "Konoha: Escribí o pegá tu misión y terminá con una línea exacta "
-        "':fin' (o cancelá con ':cancelar'). El contenido se captura "
-        "completo, sin importar cuántas líneas o pegados incluya, recién "
-        "hasta ':fin'."
-    )
+    if not interactive_shell:
+        print("Konoha: Bienvenido, Eduardo. Codex conduce la misión bajo autoridad constitucional de Hokage.")
+    if not interactive_shell:
+        print("Konoha: Rutas privadas y externas permanecen excluidas; providers se verifican al planificar una misión.")
+        print("Konoha: Para estudiar el repositorio: understand this repository + :fin. Ayuda: :repo help.")
+        print(
+            "Konoha: Escribí o pegá tu misión y terminá con una línea exacta "
+            "':fin' (o cancelá con ':cancelar'). El contenido se captura "
+            "completo, sin importar cuántas líneas o pegados incluya, recién "
+            "hasta ':fin'."
+        )
     if plan_only:
         print(
             "Konoha: Modo --plan-only activo: planificación técnica supervisada. "
@@ -1014,12 +1061,66 @@ def run(repo: Path, *, plan_only: bool = False) -> int:
         )
 
     while True:
-        text = _read_turn()
+        text = _read_turn(
+            "Konoha> " if interactive_shell else "Vos> ",
+            interactive_controls=interactive_shell,
+        )
         if text is None or text.strip().casefold() in _EXIT_COMMANDS:
             print("Konoha: Sesión suspendida. La evidencia permanece local.")
             return 0
         if not text:
             continue
+
+        if interactive_shell and text.startswith(":"):
+            command = text.strip().casefold()
+            if command == ":help":
+                print("""Shell commands:
+  :help :status :study :mission :review :providers :memory :git :exit
+Natural language enters the existing supervised conversation. It proposes intent only;
+it never approves execution. Mission input still ends with :fin.
+:study starts the existing bounded repository study. :review reports its
+current limitation without recording review evidence. Later releases add
+richer mission views.""")
+            elif command == ":status":
+                print("\n".join(dashboard_lines(detect_project(repo), state_dir)))
+            elif command == ":study":
+                if not created:
+                    if not _confirm_project_workspace(state_dir):
+                        print("No workspace created; no repository study started.")
+                        continue
+                    created = True
+                studies.handle("understand this repository")
+            elif command == ":mission":
+                print("Enter a natural-language mission and end it with :fin. Konoha will use the existing supervised planner; no approval is implied.")
+            elif command == ":review":
+                print("This shell does not yet show mission review details. No review state was read or recorded; use the existing supervised mission flow when a review gate is reached.")
+            elif command == ":providers":
+                availability = provider_executable_status()
+                print("Provider executables (presence only; no provider was invoked):")
+                for name, present in availability.items():
+                    print(f"  {name}: {'available' if present else 'not found'}")
+                print("Authentication and model readiness are not checked here.")
+            elif command == ":memory":
+                print(f"Local project state: {sanitize_display(state_dir) if state_dir.is_dir() else 'not created'}")
+                print("Private memory contents are not read by this view.")
+            elif command == ":git":
+                refreshed = detect_project(repo)
+                print(f"Repository: {sanitize_display(refreshed.git_root) if refreshed.git_root else 'not detected'}")
+                print(f"Branch: {sanitize_display(refreshed.branch) if refreshed.branch else 'not available'}")
+                print(f"State: {sanitize_display(refreshed.git_state)}")
+                print(f"Remote: {sanitize_display(refreshed.remote_identity) if refreshed.remote_identity else 'not configured'}")
+            elif command == ":exit":
+                print("Konoha: Sesión cerrada.")
+                return 0
+            else:
+                print("Unknown shell command. Use :help; no action was taken.")
+            continue
+
+        if interactive_shell and not created:
+            if not _confirm_project_workspace(state_dir):
+                print("No workspace created; the request was not submitted.")
+                continue
+            created = True
 
         repository_turn = studies.handle(text)
         if repository_turn.handled and repository_turn.planning_evidence is None:

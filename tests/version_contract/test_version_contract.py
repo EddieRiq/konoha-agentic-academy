@@ -20,19 +20,16 @@ class VersionContractTests(unittest.TestCase):
         self.module=load_module()
 
     def test_repository_contract_passes(self):
-        # v4.2.3 release closure: product/candidate version and the last
-        # public/installable release tag now intentionally converge on
-        # v4.2.3. See test_candidate_version_ahead_of_installable_tag_is_accepted
-        # below for the still-preserved BLOCK_4 FINDING #20 regression proof
-        # that a candidate version MAY legally be ahead of the release tag.
+        # The v4.3.0 candidate advances the product version while the last
+        # installable release remains v4.2.3 until a separately approved release.
         report=self.module.inspect(ROOT)
         self.assertEqual(report["status"],"passed")
-        self.assertEqual(report["values"]["package_version"],"4.2.3")
-        self.assertEqual(report["values"]["runtime_version"],"4.2.3")
+        self.assertEqual(report["values"]["package_version"],"4.3.0")
+        self.assertEqual(report["values"]["runtime_version"],"4.3.0")
         self.assertEqual(report["values"]["runtime_tag"],"v4.2.3")
         self.assertEqual(report["values"]["installer_tag"],"v4.2.3")
 
-    def test_konoha_v4_cli_version_matches_current_release(self):
+    def test_konoha_v4_cli_version_matches_current_candidate(self):
         # BLOCKER FIX: tools/konoha_v4/__init__.py.__version__ (what
         # `konoha --version` prints via the pyproject.toml console-script
         # entry point tools.konoha_v4.cli:main) must derive from the same
@@ -46,7 +43,7 @@ class VersionContractTests(unittest.TestCase):
             check=False,
         )
         self.assertEqual(completed.returncode, 0, completed.stderr)
-        self.assertEqual(completed.stdout.strip(), "4.2.3")
+        self.assertEqual(completed.stdout.strip(), "4.3.0")
 
     def test_candidate_version_ahead_of_installable_tag_is_accepted(self):
         # Synthetic isolation of the same scenario as
