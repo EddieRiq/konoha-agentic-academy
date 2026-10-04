@@ -30,6 +30,9 @@ publication are separate maintainer-controlled operations. See the [v4.2.0 relea
 The v4.2.1 patch release keeps natural Spanish/multiline study requests in this
 workflow; see the [v4.2.1 release notes](../releases/v4.2.1.md).
 
+For the human-TTY Interactive Shell, project workspace confirmation, and
+available shell controls, see the [Interactive Shell operator guide](konoha_interactive_shell.md).
+
 ## Guide types
 
 Guides may cover:

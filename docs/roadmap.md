@@ -6,12 +6,19 @@ It is not a commitment to implement every item in order. Work that changes doctr
 
 ## Current status
 
-v4.2.3 is a finalization patch release on top of v4.2.2. It introduces no
-production behavior or new product capability, makes distribution tests
-independent from developer HOME/XDG configuration through REF-024, and aligns
-the stale public install guide. The Product Finalization Checkpoint completed
-with zero release blockers; remaining backlog is nonblocking and excluded.
-See the [v4.2.3 release notes](releases/v4.2.3.md).
+Konoha Core v4.2.x is stable. v4.3.0 Interactive Shell Foundation is the
+current delivered stage: a human-TTY terminal entry with safe project metadata,
+explicit first-workspace confirmation, and controls routed through existing
+supervised flows. See the [v4.3.0 release notes](releases/v4.3.0.md) and
+[operator guide](guides/konoha_interactive_shell.md).
+
+The shell does not grant repository inspection, provider invocation, or
+mutation authority. Non-TTY and explicit CLI/script surfaces remain available.
+
+v4.2.3 remains the latest Konoha Core patch release before the shell
+foundation. It made distribution tests independent from developer HOME/XDG
+configuration and aligned installation documentation. See the
+[v4.2.3 release notes](releases/v4.2.3.md).
 
 v4.2.2 is a patch release on top of v4.2.1 that makes CI and release
 readiness run every repository test suite through the canonical per-suite
@@ -27,7 +34,7 @@ v4.2.0 is the integrated release line containing the completed repository
 comprehension scope. Tag creation, push and GitHub publication are separate
 human/maintainer-controlled operations and are not implied by this roadmap.
 
-Current operational capabilities include:
+Stable Konoha Core capabilities include:
 
 ```text
 - terminal-first Hokage Shell and canonical CLI;
@@ -41,6 +48,20 @@ Current operational capabilities include:
 - bounded repository studies backed by exact persisted evidence packs;
 - human-only repository teachback and proposal-only donor learning.
 ```
+
+## Delivered stage: v4.3.0 Interactive Shell Foundation
+
+- Human-TTY no-subcommand entry, with explicit `konoha shell` support.
+- Safe project and repository metadata display; repository content is not read
+  at startup.
+- Project-scoped XDG/local workspace foundation, created only after explicit
+  confirmation.
+- Natural language routes into existing supervised flows; colon controls apply
+  only to the interactive shell.
+- Original generic text mascots, optional user-provided local art, and optional
+  use of an already installed `chafa` executable.
+- No Web UI, daemon, background autonomy, project learning, social posting,
+  streaming bots, video clipping, Graphify, or Munder Diffing is delivered.
 
 ## v4.2.0: conversational repository comprehension
 

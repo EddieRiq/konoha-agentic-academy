@@ -81,32 +81,26 @@ Managed installation:
 
 ```bash
 bash scripts/install.sh \
-  --version v4.2.3 \
+  --version v4.3.0 \
   --confirm-install \
   --approval-token INSTALL_KONOHA_CLI
 ```
 
-## First run
+## Interactive terminal entry
 
 ```bash
 konoha
 ```
 
-On first run, Konoha:
+In a human TTY, `konoha` opens the Interactive Shell. Startup reads safe Git
+metadata only, displays a project-scoped workspace location, and asks before
+creating that workspace. Project detection does not grant repository
+inspection, model invocation, or mutation authority. Natural language enters
+the existing supervised flows; explicit CLI and script surfaces remain
+available for automation and non-interactive use. See the
+[Interactive Shell operator guide](docs/guides/konoha_interactive_shell.md).
 
-1. inspects the current environment;
-2. reports provider readiness;
-3. inspects local hardware and Ollama models;
-4. proposes a private village if one is missing;
-5. shows the exact approval phrase required to create it;
-6. enters the Conversational Hokage.
-
-A private village is never created unless:
-
-- the human provides the exact approval phrase; and
-- the target path is already ignored by Git.
-
-Default private structure:
+Private village structure (separate from the shell workspace):
 
 ```text
 alliance/kirigakure/
@@ -257,6 +251,14 @@ Start with:
 - `docs/releases/v3.6.0.md`
 
 ## Release status
+
+`v4.3.0` is the Interactive Shell Foundation release over the stable Konoha
+Core v4.2.x. It adds a human-TTY terminal entry with explicit workspace
+confirmation, sanitized project metadata, and controls that route into
+existing supervised flows. Non-TTY and explicit CLI/script behavior remain
+compatible. Startup does not inspect repository files, invoke providers, or
+grant mission authority. See the [v4.3.0 release notes](docs/releases/v4.3.0.md)
+and [operator guide](docs/guides/konoha_interactive_shell.md).
 
 `v4.2.3` is a finalization patch release on top of `v4.2.2`: REF-024 makes
 distribution tests independent from developer HOME/XDG, and the stale public

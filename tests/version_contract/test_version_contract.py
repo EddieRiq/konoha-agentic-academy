@@ -20,14 +20,12 @@ class VersionContractTests(unittest.TestCase):
         self.module=load_module()
 
     def test_repository_contract_passes(self):
-        # The v4.3.0 candidate advances the product version while the last
-        # installable release remains v4.2.3 until a separately approved release.
         report=self.module.inspect(ROOT)
         self.assertEqual(report["status"],"passed")
         self.assertEqual(report["values"]["package_version"],"4.3.0")
         self.assertEqual(report["values"]["runtime_version"],"4.3.0")
-        self.assertEqual(report["values"]["runtime_tag"],"v4.2.3")
-        self.assertEqual(report["values"]["installer_tag"],"v4.2.3")
+        self.assertEqual(report["values"]["runtime_tag"],"v4.3.0")
+        self.assertEqual(report["values"]["installer_tag"],"v4.3.0")
 
     def test_konoha_v4_cli_version_matches_current_candidate(self):
         # BLOCKER FIX: tools/konoha_v4/__init__.py.__version__ (what

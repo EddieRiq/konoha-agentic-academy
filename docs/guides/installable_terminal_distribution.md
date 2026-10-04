@@ -4,9 +4,9 @@
 
 ```bash
 curl -fsSL \
-  https://raw.githubusercontent.com/EddieRiq/konoha-agentic-academy/v4.2.3/scripts/install.sh \
+  https://raw.githubusercontent.com/EddieRiq/konoha-agentic-academy/v4.3.0/scripts/install.sh \
   | bash -s -- \
-      --version v4.2.3 \
+      --version v4.3.0 \
       --confirm-install \
       --approval-token INSTALL_KONOHA_CLI
 ```
@@ -85,8 +85,8 @@ Maintainers run:
 ```bash
 python -S tools/distribution/run_clean_install_smoke.py \
   --repo-root . \
-  --expected-version 4.2.3 \
-  --output ./sandbox/reports/v4-2-3-clean-install-smoke.json \
+  --expected-version 4.3.0 \
+  --output ./sandbox/reports/v4-3-0-clean-install-smoke.json \
   --force
 ```
 

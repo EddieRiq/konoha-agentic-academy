@@ -330,12 +330,12 @@ class ManagedDistributionTests(unittest.TestCase):
         self.assertIn('version = "4.3.0"', pyproject)
         self.assertIn('VERSION = "4.3.0"', version)
 
-    def test_installer_default_release_tag_is_v4_2_3(self):
-        # v4.2.3 release closure: the active installer default and its
+    def test_installer_default_release_tag_is_v4_3_0(self):
+        # v4.3.0 release closure: the active installer default and its
         # help/example line must name the current installable release tag.
         source = INSTALLER.read_text(encoding="utf-8")
-        self.assertIn('VERSION="v4.2.3"', source)
-        self.assertIn("--version v4.2.3", source)
+        self.assertIn('VERSION="v4.3.0"', source)
+        self.assertIn("--version v4.3.0", source)
 
 
 

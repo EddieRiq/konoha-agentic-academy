@@ -1,3 +1,13 @@
+## [4.3.0] — Interactive Shell Foundation
+
+- Add a human-TTY `konoha` entry with safe Git metadata display and explicit
+  confirmation before creating project-scoped local workspace state.
+- Route natural language into existing supervised flows; keep colon controls
+  within the interactive shell and preserve non-TTY and explicit CLI use.
+- Add operator and release documentation. Startup grants no repository
+  inspection, provider invocation, or mutation authority.
+- Align the runtime release tag and managed installer default with v4.3.0.
+
 ## [4.2.3] — Product Finalization and Distribution Hermeticity
 
 Finalization patch on top of v4.2.2. No production behavior or new product
